@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useAuth } from '@/components/AuthProvider';
 import { supabase } from '@/lib/supabase';
 import { SkillPath, Skill, getNextReviewDate } from '@/lib/skill-paths';
+import { SKILL_CONTENT, RichTopic } from '@/lib/skill-content';
 import {
   scheduleReview, clearReview, requestPermission, fireIfDue,
 } from '@/lib/review-notifications';
@@ -18,12 +19,41 @@ interface SkillProgress {
   last_reviewed_at: string | null;
 }
 
+// ── per-topic checkbox state stored in localStorage ─────────────────────────
+const TOPIC_KEY = 'skill_topics_checked';
+
+function loadTopics(): Record<string, boolean> {
+  if (typeof window === 'undefined') return {};
+  try { return JSON.parse(localStorage.getItem(TOPIC_KEY) || '{}'); }
+  catch { return {}; }
+}
+
+function saveTopics(s: Record<string, boolean>) {
+  localStorage.setItem(TOPIC_KEY, JSON.stringify(s));
+}
+
+// ── Bell icon SVG ────────────────────────────────────────────────────────────
+function BellIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+      <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+    </svg>
+  );
+}
+
 export default function PathTracker({ path }: { path: SkillPath }) {
   const { user } = useAuth();
-  const [progress,     setProgress]     = useState<Record<string, SkillProgress>>({});
-  const [expanded,     setExpanded]     = useState<string | null>(null);
-  const [busy,         setBusy]         = useState<string | null>(null);
-  const [notifAsked,   setNotifAsked]   = useState(false);
+  const [progress,   setProgress]   = useState<Record<string, SkillProgress>>({});
+  const [expanded,   setExpanded]   = useState<string | null>(null);
+  const [busy,       setBusy]       = useState<string | null>(null);
+  const [notifAsked, setNotifAsked] = useState(false);
+  const [topics,     setTopics]     = useState<Record<string, boolean>>({});
+  const [justChecked, setJustChecked] = useState<string | null>(null);
+
+  // Load topic checkboxes from localStorage on mount
+  useEffect(() => { setTopics(loadTopics()); }, []);
 
   const loadProgress = useCallback(async () => {
     if (!user) return;
@@ -40,8 +70,6 @@ export default function PathTracker({ path }: { path: SkillPath }) {
   }, [user, path.id]);
 
   useEffect(() => { loadProgress(); }, [loadProgress]);
-
-  // Fire any due notifications on mount
   useEffect(() => { fireIfDue(); }, []);
 
   // Mark overdue learning → needs_review
@@ -65,7 +93,6 @@ export default function PathTracker({ path }: { path: SkillPath }) {
     if (!user) return;
     const status = getStatus(skill.id);
 
-    // Ask for notification permission once
     if (!notifAsked) {
       setNotifAsked(true);
       await requestPermission();
@@ -74,7 +101,6 @@ export default function PathTracker({ path }: { path: SkillPath }) {
     setBusy(skill.id);
 
     if (status === 'not_started') {
-      // Mark as started / learned — schedule reminders
       const next = getNextReviewDate(0);
       await supabase.from('skill_progress').upsert({
         user_id: user.id, path_id: path.id, skill_id: skill.id,
@@ -85,8 +111,7 @@ export default function PathTracker({ path }: { path: SkillPath }) {
       });
       scheduleReview(path.id, skill.id, skill.name);
     } else if (status === 'learning' || status === 'needs_review') {
-      // Mark reviewed
-      const current    = progress[skill.id];
+      const current     = progress[skill.id];
       const reviewCount = (current?.review_count ?? 0) + 1;
       const mastered    = reviewCount >= 5;
       const next        = mastered ? null : getNextReviewDate(reviewCount);
@@ -101,7 +126,6 @@ export default function PathTracker({ path }: { path: SkillPath }) {
 
       if (mastered) clearReview(path.id, skill.id);
     } else if (status === 'mastered') {
-      // Reset
       await supabase.from('skill_progress')
         .delete()
         .eq('user_id', user.id).eq('path_id', path.id).eq('skill_id', skill.id);
@@ -112,12 +136,22 @@ export default function PathTracker({ path }: { path: SkillPath }) {
     setBusy(null);
   };
 
-  const allSkills   = path.phases.flatMap(ph => ph.skills);
-  const total       = allSkills.length;
-  const mastered    = allSkills.filter(s => getStatus(s.id) === 'mastered').length;
-  const inProgress  = allSkills.filter(s => ['learning', 'needs_review'].includes(getStatus(s.id))).length;
-  const reviewsDue  = allSkills.filter(s => getStatus(s.id) === 'needs_review');
-  const pct         = total ? Math.round((mastered / total) * 100) : 0;
+  const toggleTopic = (topicKey: string) => {
+    const next = { ...topics, [topicKey]: !topics[topicKey] };
+    setTopics(next);
+    saveTopics(next);
+    if (!topics[topicKey]) {
+      setJustChecked(topicKey);
+      setTimeout(() => setJustChecked(null), 400);
+    }
+  };
+
+  const allSkills  = path.phases.flatMap(ph => ph.skills);
+  const total      = allSkills.length;
+  const mastered   = allSkills.filter(s => getStatus(s.id) === 'mastered').length;
+  const inProgress = allSkills.filter(s => ['learning', 'needs_review'].includes(getStatus(s.id))).length;
+  const reviewsDue = allSkills.filter(s => getStatus(s.id) === 'needs_review');
+  const pct        = total ? Math.round((mastered / total) * 100) : 0;
 
   return (
     <div style={{ maxWidth: '720px', margin: '0 auto', padding: '0 1.5rem 5rem' }}>
@@ -142,7 +176,7 @@ export default function PathTracker({ path }: { path: SkillPath }) {
           {path.description}
         </p>
 
-        {/* Progress */}
+        {/* Progress bar */}
         <div style={{ background: 'var(--parchment)', borderRadius: '99px', height: '6px', marginBottom: '0.5rem' }}>
           <div style={{
             width: `${pct}%`, height: '100%', borderRadius: '99px',
@@ -157,7 +191,7 @@ export default function PathTracker({ path }: { path: SkillPath }) {
         </div>
       </div>
 
-      {/* Review due banner */}
+      {/* Review due banner with shaking bell */}
       {reviewsDue.length > 0 && (
         <div style={{
           border: '1px solid var(--parchment)',
@@ -165,14 +199,17 @@ export default function PathTracker({ path }: { path: SkillPath }) {
           background: 'var(--warm-white)',
           borderRadius: '10px', padding: '0.9rem 1.2rem',
           marginBottom: '2rem',
-          display: 'flex', alignItems: 'flex-start', gap: '0.8rem',
+          display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
         }}>
+          <span className="bell-shake" style={{ color: 'var(--amber)', marginTop: '1px', flexShrink: 0 }}>
+            <BellIcon />
+          </span>
           <div style={{ flex: 1 }}>
             <p style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--brown-dark)', marginBottom: '0.3rem' }}>
               {reviewsDue.length} skill{reviewsDue.length > 1 ? 's' : ''} waiting for review
             </p>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
-              Revisiting these now will lock them into long-term memory. It takes about 10 minutes.
+              Revisiting these now will lock them into long-term memory. Takes about 10 minutes.
             </p>
           </div>
         </div>
@@ -190,21 +227,16 @@ export default function PathTracker({ path }: { path: SkillPath }) {
         </div>
       )}
 
-      {/* Phase sections */}
+      {/* Phases */}
       {path.phases.map((phase, phaseIndex) => (
         <section key={phase.id} style={{ marginBottom: '3.5rem' }}>
 
-          {/* Phase label */}
           <div style={{
             display: 'flex', alignItems: 'baseline', gap: '0.75rem',
-            marginBottom: '1.5rem',
-            paddingBottom: '0.75rem',
+            marginBottom: '1.5rem', paddingBottom: '0.75rem',
             borderBottom: '1px solid var(--parchment)',
           }}>
-            <span style={{
-              fontFamily: "'Lora', serif", fontSize: '1.1rem', fontWeight: 700,
-              color: 'var(--brown-dark)',
-            }}>
+            <span style={{ fontFamily: "'Lora', serif", fontSize: '1.1rem', fontWeight: 700, color: 'var(--brown-dark)' }}>
               Phase {phaseIndex + 1} — {phase.title}
             </span>
             <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
@@ -212,14 +244,14 @@ export default function PathTracker({ path }: { path: SkillPath }) {
             </span>
           </div>
 
-          {/* Skill list */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             {phase.skills.map((skill, i) => {
-              const status = getStatus(skill.id);
-              const isOpen = expanded === skill.id;
-              const isBusy = busy === skill.id;
-              const isDone = status === 'mastered';
-              const isDue  = status === 'needs_review';
+              const status  = getStatus(skill.id);
+              const isOpen  = expanded === skill.id;
+              const isBusy  = busy === skill.id;
+              const isDone  = status === 'mastered';
+              const isDue   = status === 'needs_review';
+              const rich    = SKILL_CONTENT[skill.id];
 
               return (
                 <div key={skill.id} style={{
@@ -230,7 +262,7 @@ export default function PathTracker({ path }: { path: SkillPath }) {
                     display: 'flex', alignItems: 'center', gap: '0.9rem',
                     padding: '0.85rem 0',
                   }}>
-                    {/* Checkbox */}
+                    {/* Skill checkbox */}
                     <button
                       onClick={() => toggleCheck(skill)}
                       disabled={isBusy || !user}
@@ -259,7 +291,8 @@ export default function PathTracker({ path }: { path: SkillPath }) {
                     >
                       {isDone && (
                         <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
-                          <polyline points="2,6 5,9 10,3" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                          <polyline className="check-draw" points="2,6 5,9 10,3"
+                            stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                       )}
                       {status === 'learning' && (
@@ -270,11 +303,9 @@ export default function PathTracker({ path }: { path: SkillPath }) {
                       )}
                     </button>
 
-                    {/* Skill name + meta */}
-                    <div
-                      style={{ flex: 1, cursor: 'pointer', minWidth: 0 }}
-                      onClick={() => setExpanded(isOpen ? null : skill.id)}
-                    >
+                    {/* Skill name */}
+                    <div style={{ flex: 1, cursor: 'pointer', minWidth: 0 }}
+                      onClick={() => setExpanded(isOpen ? null : skill.id)}>
                       <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.6rem', flexWrap: 'wrap' }}>
                         <span style={{
                           fontSize: '0.95rem', fontWeight: 500,
@@ -291,9 +322,7 @@ export default function PathTracker({ path }: { path: SkillPath }) {
                           </span>
                         )}
                         {isDone && (
-                          <span style={{ fontSize: '0.72rem', color: '#059669', fontWeight: 500 }}>
-                            done
-                          </span>
+                          <span style={{ fontSize: '0.72rem', color: '#059669', fontWeight: 500 }}>done</span>
                         )}
                       </div>
                       <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>
@@ -327,36 +356,162 @@ export default function PathTracker({ path }: { path: SkillPath }) {
                   {/* Expanded detail */}
                   {isOpen && (
                     <div style={{
-                      paddingLeft: '2.9rem', paddingBottom: '1.4rem',
+                      paddingLeft: '2.9rem', paddingBottom: '1.8rem',
                       borderTop: '1px solid var(--parchment)',
-                      paddingTop: '1.1rem',
+                      paddingTop: '1.3rem',
                     }}>
 
-                      {/* Why */}
-                      <p style={{
-                        fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.7,
-                        marginBottom: '1.2rem',
-                        borderLeft: '2px solid var(--parchment)',
-                        paddingLeft: '0.9rem',
-                      }}>
-                        {skill.why}
-                      </p>
+                      {/* Real-world context */}
+                      {rich?.realWorld && (
+                        <div style={{ marginBottom: '1.5rem' }}>
+                          <p style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.45rem' }}>
+                            Real-world context
+                          </p>
+                          <p style={{
+                            fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.75,
+                            borderLeft: '2px solid var(--terracotta)', paddingLeft: '0.9rem',
+                          }}>
+                            {rich.realWorld}
+                          </p>
+                        </div>
+                      )}
 
-                      {/* Topics */}
-                      <div style={{ marginBottom: '1.2rem' }}>
-                        <p style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.5rem' }}>
+                      {/* Why you need this */}
+                      {!rich?.realWorld && (
+                        <p style={{
+                          fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.7,
+                          marginBottom: '1.2rem',
+                          borderLeft: '2px solid var(--parchment)', paddingLeft: '0.9rem',
+                        }}>
+                          {skill.why}
+                        </p>
+                      )}
+
+                      {/* Key takeaways */}
+                      {rich?.takeaways && (
+                        <div style={{ marginBottom: '1.5rem' }}>
+                          <p style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.55rem' }}>
+                            Key takeaways
+                          </p>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                            {rich.takeaways.map((t, idx) => (
+                              <div key={idx} style={{ display: 'flex', gap: '0.6rem', alignItems: 'flex-start' }}>
+                                <span style={{
+                                  fontFamily: "'Lora', serif", fontSize: '0.95rem', fontWeight: 700,
+                                  color: 'var(--terracotta)', flexShrink: 0, lineHeight: 1.6,
+                                }}>
+                                  {idx + 1}.
+                                </span>
+                                <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', lineHeight: 1.7, margin: 0 }}>
+                                  {t}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Topics with checkboxes */}
+                      <div style={{ marginBottom: '1.5rem' }}>
+                        <p style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.7rem' }}>
                           What to learn
                         </p>
-                        <ul style={{ margin: 0, paddingLeft: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-                          {skill.topics.map(t => (
-                            <li key={t} style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{t}</li>
-                          ))}
-                        </ul>
+
+                        {rich?.topics ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.4rem' }}>
+                            {rich.topics.map((topic: RichTopic) => {
+                              const topicKey  = `${path.id}:${skill.id}:${topic.id}`;
+                              const isChecked = !!topics[topicKey];
+                              const isNew     = justChecked === topicKey;
+
+                              return (
+                                <div key={topic.id}>
+                                  {/* Topic row */}
+                                  <div style={{ display: 'flex', gap: '0.65rem', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                                    {/* Topic checkbox */}
+                                    <button
+                                      onClick={() => toggleTopic(topicKey)}
+                                      aria-label={isChecked ? `Uncheck ${topic.text}` : `Check off ${topic.text}`}
+                                      style={{
+                                        width: '17px', height: '17px',
+                                        borderRadius: '4px', flexShrink: 0,
+                                        marginTop: '2px',
+                                        border: isChecked ? 'none' : '2px solid var(--brown-light)',
+                                        background: isChecked ? 'var(--sage)' : 'transparent',
+                                        cursor: 'pointer',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        padding: 0,
+                                        transition: 'background 0.15s, border 0.15s',
+                                      }}
+                                    >
+                                      {isChecked && (
+                                        <svg
+                                          className={isNew ? 'topic-check-appear' : ''}
+                                          width="9" height="9" viewBox="0 0 12 12" fill="none"
+                                        >
+                                          <polyline className="check-draw" points="2,6 5,9 10,3"
+                                            stroke="white" strokeWidth="2.2"
+                                            strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                      )}
+                                    </button>
+
+                                    {/* Topic label + detail */}
+                                    <div style={{ flex: 1 }}>
+                                      <span style={{
+                                        fontSize: '0.88rem', fontWeight: 600,
+                                        color: isChecked ? 'var(--text-muted)' : 'var(--brown-dark)',
+                                        textDecoration: isChecked ? 'line-through' : 'none',
+                                        textDecorationColor: 'var(--text-muted)',
+                                        transition: 'color 0.2s',
+                                      }}>
+                                        {topic.text}
+                                      </span>
+                                      <p style={{
+                                        fontSize: '0.82rem', color: 'var(--text-secondary)',
+                                        lineHeight: 1.7, marginTop: '0.3rem', marginBottom: 0,
+                                      }}>
+                                        {topic.detail}
+                                      </p>
+                                    </div>
+                                  </div>
+
+                                  {/* Code example */}
+                                  {topic.example && (
+                                    <div style={{ marginLeft: '1.65rem' }}>
+                                      <pre style={{
+                                        background: 'var(--brown-dark)',
+                                        color: 'var(--cream)',
+                                        padding: '0.9rem 1.1rem',
+                                        borderRadius: '8px',
+                                        fontSize: '0.76rem',
+                                        lineHeight: 1.65,
+                                        overflowX: 'auto',
+                                        fontFamily: "'Courier New', Courier, monospace",
+                                        margin: 0,
+                                        whiteSpace: 'pre',
+                                      }}>
+                                        <code>{topic.example}</code>
+                                      </pre>
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          /* Fallback: plain topic list if no rich content */
+                          <ul style={{ margin: 0, paddingLeft: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                            {skill.topics.map(t => (
+                              <li key={t} style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{t}</li>
+                            ))}
+                          </ul>
+                        )}
                       </div>
 
                       {/* Resources */}
-                      <div style={{ marginBottom: '1.2rem' }}>
-                        <p style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.5rem' }}>
+                      <div style={{ marginBottom: '1.4rem' }}>
+                        <p style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.5rem' }}>
                           Resources
                         </p>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
@@ -371,32 +526,33 @@ export default function PathTracker({ path }: { path: SkillPath }) {
                               }}>
                                 {r.free ? 'free' : 'paid'}
                               </span>
-                              <span style={{ fontSize: '0.86rem', color: 'var(--terracotta)' }}>
-                                {r.title}
-                              </span>
+                              <span style={{ fontSize: '0.86rem', color: 'var(--terracotta)' }}>{r.title}</span>
                             </a>
                           ))}
                         </div>
                       </div>
 
                       {/* Project */}
-                      <div style={{ marginBottom: '1.2rem' }}>
-                        <p style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem' }}>
+                      <div style={{ marginBottom: '1.4rem' }}>
+                        <p style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem' }}>
                           Project to build
                         </p>
-                        <p style={{ fontSize: '0.87rem', color: 'var(--brown-mid)', lineHeight: 1.65 }}>
+                        <p style={{
+                          fontSize: '0.87rem', color: 'var(--brown-mid)', lineHeight: 1.65,
+                          borderLeft: '2px solid var(--sage)', paddingLeft: '0.9rem',
+                        }}>
                           {skill.project}
                         </p>
                       </div>
 
-                      {/* Review count dots */}
+                      {/* Review dots */}
                       {progress[skill.id]?.review_count > 0 && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '1rem' }}>
                           <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Reviews:</span>
-                          {[0,1,2,3,4].map(i => (
-                            <div key={i} style={{
+                          {[0, 1, 2, 3, 4].map(j => (
+                            <div key={j} style={{
                               width: '7px', height: '7px', borderRadius: '50%',
-                              background: i < (progress[skill.id]?.review_count ?? 0)
+                              background: j < (progress[skill.id]?.review_count ?? 0)
                                 ? 'var(--terracotta)' : 'var(--parchment)',
                             }} />
                           ))}
@@ -406,7 +562,7 @@ export default function PathTracker({ path }: { path: SkillPath }) {
                         </div>
                       )}
 
-                      {/* Action */}
+                      {/* Actions */}
                       {user && status !== 'not_started' && (
                         <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', marginTop: '0.4rem' }}>
                           {(status === 'learning' || status === 'needs_review') && (

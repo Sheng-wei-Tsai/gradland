@@ -103,6 +103,68 @@ h1, h2, h3, h4 {
 [data-theme="dark"] .prose code { background: rgba(255, 61, 61, 0.12); color: #ff8a8a; }
 [data-theme="dark"] .prose blockquote { background: rgba(255, 61, 61, 0.07); border-color: var(--terracotta); }
 
+/* ── Syntax highlighting (rehype-pretty-code) ── */
+.prose [data-rehype-pretty-code-figure] pre {
+  padding: 1.25rem 1.4rem;
+  border-radius: 10px;
+  overflow-x: auto;
+  margin: 1.8em 0;
+  font-size: 0.83rem;
+  line-height: 1.7;
+  border: 1px solid var(--parchment);
+}
+.prose [data-rehype-pretty-code-figure] code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+  border-radius: 0;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+}
+/* Inline code (no data-language) */
+.prose :not(pre) > code {
+  background: var(--parchment);
+  padding: 0.15em 0.42em;
+  border-radius: 4px;
+  font-size: 0.875em;
+  color: var(--terracotta);
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+}
+/* Line highlighting */
+.prose [data-highlighted-line] {
+  background: rgba(196, 98, 58, 0.08);
+  border-left: 2px solid var(--terracotta);
+  padding-left: calc(1.4rem - 2px);
+  margin-left: -1.4rem;
+  padding-right: 1.4rem;
+  margin-right: -1.4rem;
+}
+/* File name / language label */
+.prose [data-rehype-pretty-code-title] {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--parchment);
+  padding: 0.4rem 1.2rem;
+  border-radius: 8px 8px 0 0;
+  border: 1px solid var(--parchment);
+  border-bottom: none;
+  margin-bottom: -0.5rem;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  letter-spacing: 0.02em;
+}
+[data-theme="dark"] .prose [data-rehype-pretty-code-figure] pre {
+  border-color: var(--parchment);
+}
+[data-theme="dark"] .prose [data-highlighted-line] {
+  background: rgba(255, 61, 61, 0.08);
+  border-left-color: var(--terracotta);
+}
+[data-theme="dark"] .prose [data-rehype-pretty-code-title] {
+  background: var(--parchment);
+  border-color: var(--parchment);
+}
+
 /* ── Animations ── */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(18px); }
@@ -113,6 +175,40 @@ h1, h2, h3, h4 {
 .delay-2 { animation-delay: 0.2s; }
 .delay-3 { animation-delay: 0.3s; }
 .delay-4 { animation-delay: 0.4s; }
+
+/* Bell shake — fires briefly every 4s, then rests */
+@keyframes bellShake {
+  0%, 100%  { transform: rotate(0deg); }
+  8%        { transform: rotate(-18deg); }
+  16%       { transform: rotate(18deg); }
+  24%       { transform: rotate(-12deg); }
+  32%       { transform: rotate(12deg); }
+  40%       { transform: rotate(-6deg); }
+  48%       { transform: rotate(0deg); }
+}
+.bell-shake {
+  display: inline-block;
+  animation: bellShake 4s ease-in-out infinite;
+  transform-origin: 50% 0%;
+}
+
+/* Checkbox checkmark draw animation */
+@keyframes checkDraw {
+  from { stroke-dashoffset: 20; opacity: 0; }
+  to   { stroke-dashoffset: 0;  opacity: 1; }
+}
+.check-draw {
+  stroke-dasharray: 20;
+  animation: checkDraw 0.22s ease forwards;
+}
+
+/* Topic checkbox check animation */
+@keyframes topicCheck {
+  0%   { transform: scale(0.7); opacity: 0; }
+  60%  { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.topic-check-appear { animation: topicCheck 0.2s ease forwards; }
 
 /* ── Tags ── */
 .tag {

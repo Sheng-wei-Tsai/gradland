@@ -4,6 +4,19 @@ import { MDXRemote } from 'next-mdx-remote/rsc';
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { Metadata } from 'next';
+import rehypePrettyCode from 'rehype-pretty-code';
+
+const mdxOptions = {
+  mdxOptions: {
+    rehypePlugins: [
+      [rehypePrettyCode, {
+        theme: { dark: 'github-dark-dimmed', light: 'github-light' },
+        keepBackground: false,
+        defaultLang: 'plaintext',
+      }],
+    ],
+  },
+};
 
 export async function generateStaticParams() {
   return getAllPosts().map(p => ({ slug: p.slug }));
@@ -54,7 +67,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       </div>
 
       <article className="prose animate-fade-up delay-2" style={{ paddingBottom: '5rem' }}>
-        <MDXRemote source={post.content} />
+        <MDXRemote source={post.content} {...(mdxOptions as object)} />
       </article>
 
       <div style={{
