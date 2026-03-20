@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const navLinks = [
   { href: '/',        label: 'Home',   icon: IconHome },
@@ -76,8 +77,9 @@ export default function Header() {
             })}
           </nav>
 
-          {/* Auth area */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexShrink: 0 }}>
+          {/* Auth + theme */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+            <ThemeToggle />
             {!loading && (
               user ? (
                 <>

@@ -4,20 +4,58 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --cream: #faf6f0;
-  --warm-white: #fffdf9;
-  --parchment: #f2ebe0;
-  --terracotta: #c4623a;
-  --terracotta-light: #e07a56;
-  --amber: #d4873a;
-  --sage: #7a8c72;
-  --brown-dark: #2c1f14;
-  --brown-mid: #5c3d2e;
-  --brown-light: #9a7560;
-  --text-primary: #231a12;
-  --text-secondary: #6b4f3a;
-  --text-muted: #a08070;
+/* ─────────────────────────────────────────────────────
+   LIGHT MODE — Brisbane Sunshine 🇦🇺
+   Sandy beaches, warm golden sun, clear sky, open air
+───────────────────────────────────────────────────── */
+:root, [data-theme="light"] {
+  --cream:             #faf7f2;
+  --warm-white:        #fffdf9;
+  --parchment:         #f0e8d8;
+  --terracotta:        #c4623a;
+  --terracotta-light:  #e07a56;
+  --amber:             #d4873a;
+  --sage:              #6a9e7f;
+  --brown-dark:        #1e1408;
+  --brown-mid:         #5c3d2e;
+  --brown-light:       #9a7560;
+  --text-primary:      #1e1408;
+  --text-secondary:    #6b4f3a;
+  --text-muted:        #a08070;
+  --shadow-color:      rgba(44, 31, 20, 0.08);
+  --glow:              none;
+  color-scheme: light;
+}
+
+/* ─────────────────────────────────────────────────────
+   DARK MODE — Taiwan Night Market 🏮
+   Wet asphalt streets, neon red lanterns, gold food
+   stall glow, neon signs, midnight in Taipei
+───────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  --cream:             #0c0a12;
+  --warm-white:        #13101e;
+  --parchment:         #1e1a2e;
+  --terracotta:        #ff3d3d;
+  --terracotta-light:  #ff6565;
+  --amber:             #ffbb3b;
+  --sage:              #3dd9c8;
+  --brown-dark:        #f2ebe0;
+  --brown-mid:         #cbbfb0;
+  --brown-light:       #9a8878;
+  --text-primary:      #ede5d8;
+  --text-secondary:    #b8a898;
+  --text-muted:        #786868;
+  --shadow-color:      rgba(255, 61, 61, 0.07);
+  --glow:              0 0 20px rgba(255, 61, 61, 0.12);
+  color-scheme: dark;
+}
+
+/* night market atmosphere — faint neon glow in the distance */
+[data-theme="dark"] body {
+  background-image:
+    radial-gradient(ellipse at 15% 0%, rgba(255, 61, 61, 0.045) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 100%, rgba(255, 187, 59, 0.03) 0%, transparent 55%);
 }
 
 * { box-sizing: border-box; }
@@ -31,6 +69,7 @@ body {
   font-size: 17px;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 h1, h2, h3, h4 {
@@ -41,6 +80,7 @@ h1, h2, h3, h4 {
 
 .font-handwritten { font-family: 'Caveat', cursive; }
 
+/* ── Prose (blog post body) ── */
 .prose { max-width: 68ch; color: var(--text-primary); }
 .prose h1, .prose h2, .prose h3 { font-family: 'Lora', serif; margin-top: 2.2em; margin-bottom: 0.6em; color: var(--brown-dark); }
 .prose h1 { font-size: 2rem; }
@@ -51,13 +91,19 @@ h1, h2, h3, h4 {
 .prose a:hover { color: var(--terracotta-light); }
 .prose blockquote { border-left: 3px solid var(--terracotta); margin: 1.8em 0; padding: 0.6em 0 0.6em 1.4em; background: var(--parchment); border-radius: 0 8px 8px 0; font-family: 'Lora', serif; font-style: italic; color: var(--brown-mid); }
 .prose code { background: var(--parchment); padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.875em; color: var(--terracotta); }
-.prose pre { background: var(--brown-dark); color: #f2ebe0; padding: 1.4em; border-radius: 10px; overflow-x: auto; margin: 1.8em 0; }
+.prose pre { background: var(--brown-dark); color: var(--cream); padding: 1.4em; border-radius: 10px; overflow-x: auto; margin: 1.8em 0; }
 .prose pre code { background: transparent; padding: 0; color: inherit; }
 .prose ul, .prose ol { padding-left: 1.6em; margin-bottom: 1.4em; }
 .prose li { margin-bottom: 0.4em; }
 .prose img { border-radius: 12px; margin: 2em auto; max-width: 100%; }
 .prose hr { border: none; border-top: 1px solid var(--parchment); margin: 2.5em 0; }
 
+/* dark mode prose tweaks */
+[data-theme="dark"] .prose pre { background: #07050f; }
+[data-theme="dark"] .prose code { background: rgba(255, 61, 61, 0.12); color: #ff8a8a; }
+[data-theme="dark"] .prose blockquote { background: rgba(255, 61, 61, 0.07); border-color: var(--terracotta); }
+
+/* ── Animations ── */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(18px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -68,12 +114,54 @@ h1, h2, h3, h4 {
 .delay-3 { animation-delay: 0.3s; }
 .delay-4 { animation-delay: 0.4s; }
 
-.tag { display: inline-block; padding: 0.18em 0.75em; border-radius: 99px; font-size: 0.78rem; font-weight: 500; background: var(--parchment); color: var(--brown-mid); transition: background 0.2s, color 0.2s; }
+/* ── Tags ── */
+.tag {
+  display: inline-block; padding: 0.18em 0.75em; border-radius: 99px;
+  font-size: 0.78rem; font-weight: 500;
+  background: var(--parchment); color: var(--brown-mid);
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
 .tag:hover { background: var(--terracotta); color: white; }
 
-/* Tool cards on homepage */
+[data-theme="dark"] .tag {
+  background: rgba(255, 61, 61, 0.1);
+  color: #ff9090;
+  border: 1px solid rgba(255, 61, 61, 0.2);
+}
+[data-theme="dark"] .tag:hover {
+  background: var(--terracotta);
+  color: white;
+  box-shadow: 0 0 12px rgba(255, 61, 61, 0.35);
+}
+
+/* ── Tool cards on homepage ── */
 .tool-card > div { transition: transform 0.18s, box-shadow 0.18s; }
-.tool-card:hover > div { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(44,31,20,0.08); }
+.tool-card:hover > div {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px var(--shadow-color);
+}
+[data-theme="dark"] .tool-card:hover > div {
+  box-shadow: 0 6px 28px rgba(255, 61, 61, 0.1), 0 0 0 1px rgba(255, 61, 61, 0.15);
+}
+
+/* ── Dark mode nav pill ── */
+[data-theme="dark"] .desktop-nav {
+  background: rgba(19, 16, 30, 0.85) !important;
+  border-color: rgba(46, 40, 64, 0.95) !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,61,61,0.05) !important;
+}
+[data-theme="dark"] .mobile-bottom-nav > div {
+  background: rgba(19, 16, 30, 0.92) !important;
+  border-color: rgba(46, 40, 64, 0.98) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 20px rgba(255,61,61,0.06) !important;
+}
+
+/* ── Cards — dark mode glow border ── */
+[data-theme="dark"] article,
+[data-theme="dark"] .card {
+  border-color: var(--parchment) !important;
+  background: var(--warm-white) !important;
+}
 
 /* ── Desktop/Mobile nav visibility ── */
 .desktop-nav { display: flex; }
@@ -94,6 +182,5 @@ h1, h2, h3, h4 {
   .desktop-nav { display: none !important; }
   .auth-btn    { display: none !important; }
   .mobile-bottom-nav { display: block; }
-  /* push content up so bottom nav doesn't cover it */
   main { padding-bottom: 6rem !important; }
 }

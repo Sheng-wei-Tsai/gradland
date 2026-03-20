@@ -11,7 +11,7 @@ export default function Footer() {
         Made with warmth & curiosity ☕
       </p>
       <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-        © {new Date().getFullYear()} · Built with Next.js · Hosted on GitHub Pages
+        © {new Date().getFullYear()} · Built with Next.js · Hosted on Vercel
       </p>
     </footer>
   );
