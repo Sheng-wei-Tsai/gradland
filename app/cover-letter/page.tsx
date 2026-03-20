@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
 import { useAuth } from '@/components/AuthProvider';
 import { supabase } from '@/lib/supabase';
 import { useSearchParams } from 'next/navigation';
@@ -14,7 +14,7 @@ const BACKGROUND_PLACEHOLDER = `Example:
 - Based in Brisbane, Australia, open to hybrid/remote roles
 - Looking for graduate developer or junior fullstack roles`;
 
-export default function CoverLetterPage() {
+function CoverLetterContent() {
   const { user }       = useAuth();
   const searchParams   = useSearchParams();
 
@@ -347,5 +347,13 @@ export default function CoverLetterPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CoverLetterPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: '4rem', textAlign: 'center', color: 'var(--text-muted)' }}>Loading...</div>}>
+      <CoverLetterContent />
+    </Suspense>
   );
 }

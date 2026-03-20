@@ -104,12 +104,12 @@ export default function DashboardPage() {
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
         {(['saved', 'applications'] as const).map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)} style={{
-            padding: '0.5rem 1.2rem', borderRadius: '99px', border: 'none',
+            padding: '0.5rem 1.2rem', borderRadius: '99px',
             background: activeTab === tab ? 'var(--terracotta)' : 'var(--warm-white)',
             color: activeTab === tab ? 'white' : 'var(--text-secondary)',
             border: activeTab === tab ? 'none' : '1px solid var(--parchment)',
             fontWeight: 500, fontSize: '0.9rem', cursor: 'pointer',
-          } as any}>
+          }}>
             {tab === 'saved' ? `♥ Saved Jobs (${savedJobs.length})` : `📋 Applications (${applications.length})`}
           </button>
         ))}
