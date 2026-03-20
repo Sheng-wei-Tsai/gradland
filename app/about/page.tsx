@@ -1,128 +1,117 @@
 import { Metadata } from 'next';
-import Link from 'next/link';
 
-export const metadata: Metadata = { title: 'About' };
+export const metadata: Metadata = { title: 'About — Henry Tsai' };
 
-const skills = ['TypeScript', 'React', 'Next.js', 'Node.js', 'Figma', 'CSS/Tailwind'];
-const interests = ['☕ Coffee rituals', '📚 Reading', '🎨 Design', '🌿 Nature walks', '🎵 Music', '✈️ Travel'];
+const stack = [
+  'TypeScript', 'React', 'Next.js', 'React Native',
+  'Node.js', 'Python', 'PostgreSQL', 'Supabase',
+  'Docker', 'OpenAI API', 'Claude API',
+];
 
 export default function AboutPage() {
   return (
-    <div style={{ maxWidth: '720px', margin: '0 auto', padding: '0 1.5rem' }}>
+    <div style={{ maxWidth: '680px', margin: '0 auto', padding: '0 1.5rem' }}>
 
       {/* Hero */}
-      <section style={{ paddingTop: '4rem', paddingBottom: '3rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <div className="animate-fade-up" style={{
-          width: '80px', height: '80px', borderRadius: '50%',
-          background: 'linear-gradient(135deg, var(--terracotta), var(--amber))',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: '2rem',
+      <section style={{ paddingTop: '4.5rem', paddingBottom: '3rem' }}>
+        <p className="animate-fade-up font-handwritten" style={{
+          fontSize: '1.2rem', color: 'var(--terracotta)', marginBottom: '0.8rem',
         }}>
-          🧑‍💻
-        </div>
-        <h1 className="animate-fade-up delay-1" style={{
-          fontFamily: "'Lora', serif", fontSize: '2.4rem',
-          fontWeight: 700, color: 'var(--brown-dark)',
-        }}>
-          Hey, I'm [Your Name]
-        </h1>
-        <p className="animate-fade-up delay-2 font-handwritten" style={{
-          fontSize: '1.25rem', color: 'var(--terracotta)',
-        }}>
-          Developer · Designer · Storyteller
+          Hey, I'm Henry 👋
         </p>
-        <p className="animate-fade-up delay-3" style={{
-          color: 'var(--text-secondary)', fontSize: '1.05rem',
-          lineHeight: 1.75, maxWidth: '55ch',
+        <h1 className="animate-fade-up delay-1" style={{
+          fontFamily: "'Lora', serif",
+          fontSize: 'clamp(2rem, 5vw, 2.8rem)',
+          fontWeight: 700,
+          color: 'var(--brown-dark)',
+          lineHeight: 1.15,
+          marginBottom: '1.2rem',
         }}>
-          I'm a developer who loves building things for the web and writing about the journey.
-          This blog is my personal space to share what I learn, what I build, and what I think about — 
-          no filter, just honest thoughts.
+          Full Stack Developer<br />
+          based in Brisbane
+        </h1>
+        <p className="animate-fade-up delay-2" style={{
+          color: 'var(--text-secondary)', fontSize: '1.05rem',
+          lineHeight: 1.8, maxWidth: '52ch',
+        }}>
+          I graduated with a Master of Computer Science from QUT in 2024 and have been building
+          real-world products ever since — from AI-powered tools to mobile apps. This blog is where
+          I share what I'm learning, what I'm shipping, and what I'm thinking about.
         </p>
       </section>
 
-      <hr style={{ border: 'none', borderTop: '1px solid var(--parchment)', margin: '0.5rem 0 2.5rem' }} />
+      <hr style={{ border: 'none', borderTop: '1px solid var(--parchment)', marginBottom: '3rem' }} />
 
       {/* Story */}
       <section className="animate-fade-up" style={{ marginBottom: '3rem' }}>
-        <h2 style={{ fontFamily: "'Lora', serif", fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--brown-dark)' }}>
+        <h2 style={{ fontFamily: "'Lora', serif", fontSize: '1.4rem', marginBottom: '1rem', color: 'var(--brown-dark)' }}>
           My story
         </h2>
-        <div style={{ color: 'var(--text-secondary)', lineHeight: 1.8, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div style={{ color: 'var(--text-secondary)', lineHeight: 1.85, display: 'flex', flexDirection: 'column', gap: '1.1rem', fontSize: '1rem' }}>
           <p>
-            I started coding because I wanted to build things I could share with others. 
-            What began as late-night tinkering turned into a career, and then a calling.
+            I came to Brisbane from Taiwan to study computer science, and somewhere between late-night
+            debugging sessions and building my first full-stack app, I realised this is exactly what I
+            want to do with my life.
           </p>
           <p>
-            These days I focus on frontend development and design — I care deeply about the 
-            experience of using software, not just the code that powers it.
+            These days I'm deeply interested in AI integration — not just calling APIs, but thinking
+            about how LLMs can genuinely improve the tools developers and job-seekers use. This site
+            itself is a live experiment: it has a job search engine, an AI cover letter generator, and
+            an automated weekly digest of AI research. All built by me, all running in production.
           </p>
           <p>
-            Outside of screens, you'll find me with a good book, exploring new neighbourhoods, 
-            or hunting for the perfect flat white. ☕
+            I'm actively looking for junior or graduate developer roles in Brisbane (or remote).
+            I have full Australian work rights on a 485 Graduate Visa. If you're hiring, I'd love to chat. ☕
           </p>
         </div>
       </section>
 
-      {/* Skills */}
+      {/* Stack */}
       <section className="animate-fade-up" style={{ marginBottom: '3rem' }}>
-        <h2 style={{ fontFamily: "'Lora', serif", fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--brown-dark)' }}>
+        <h2 style={{ fontFamily: "'Lora', serif", fontSize: '1.4rem', marginBottom: '1rem', color: 'var(--brown-dark)' }}>
           What I work with
         </h2>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem' }}>
-          {skills.map(s => (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+          {stack.map(s => (
             <span key={s} style={{
               background: 'var(--warm-white)', border: '1px solid var(--parchment)',
-              padding: '0.35em 1em', borderRadius: '8px',
-              fontSize: '0.9rem', color: 'var(--brown-mid)', fontWeight: 500,
+              padding: '0.3em 0.9em', borderRadius: '8px',
+              fontSize: '0.88rem', color: 'var(--brown-mid)', fontWeight: 500,
             }}>{s}</span>
           ))}
         </div>
       </section>
 
-      {/* Interests */}
-      <section className="animate-fade-up" style={{ marginBottom: '3rem' }}>
-        <h2 style={{ fontFamily: "'Lora', serif", fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--brown-dark)' }}>
-          When I'm not coding
-        </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '0.7rem' }}>
-          {interests.map(item => (
-            <div key={item} style={{
-              background: 'var(--warm-white)', border: '1px solid var(--parchment)',
-              borderRadius: '10px', padding: '0.75rem 1rem',
-              fontSize: '0.9rem', color: 'var(--text-secondary)',
-            }}>{item}</div>
-          ))}
-        </div>
-      </section>
-
-      {/* CTA */}
+      {/* Connect */}
       <section className="animate-fade-up" style={{
         background: 'var(--warm-white)', border: '1px solid var(--parchment)',
-        borderRadius: '16px', padding: '2rem', marginBottom: '4rem',
-        textAlign: 'center',
+        borderRadius: '16px', padding: '2rem', marginBottom: '5rem',
       }}>
-        <p className="font-handwritten" style={{ fontSize: '1.3rem', color: 'var(--terracotta)', marginBottom: '0.5rem' }}>
-          Let's connect!
+        <p className="font-handwritten" style={{ fontSize: '1.25rem', color: 'var(--terracotta)', marginBottom: '0.4rem' }}>
+          Let's connect
         </p>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '1.2rem' }}>
-          I'm always happy to chat about tech, design, or just life in general.
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '1.4rem', lineHeight: 1.6 }}>
+          Whether you have a role in mind, want to collaborate, or just want to talk tech — my inbox is open.
         </p>
-        <div style={{ display: 'flex', gap: '0.8rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          {[
-            { label: '🐙 GitHub', href: 'https://github.com' },
-            { label: '🐦 Twitter/X', href: 'https://twitter.com' },
-            { label: '💼 LinkedIn', href: 'https://linkedin.com' },
-          ].map(link => (
-            <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer" style={{
-              background: 'var(--parchment)', color: 'var(--brown-mid)',
-              padding: '0.5em 1.2em', borderRadius: '99px',
-              textDecoration: 'none', fontSize: '0.88rem', fontWeight: 500,
-              transition: 'background 0.2s',
-            }}>{link.label}</a>
-          ))}
+        <div style={{ display: 'flex', gap: '0.7rem', flexWrap: 'wrap' }}>
+          <a href="https://github.com/Sheng-wei-Tsai" target="_blank" rel="noopener noreferrer" style={linkStyle}>
+            GitHub
+          </a>
+          <a href="https://www.linkedin.com/in/henry-tsai-973438294" target="_blank" rel="noopener noreferrer" style={linkStyle}>
+            LinkedIn
+          </a>
+          <a href="mailto:henrytsaiqut@gmail.com" style={{ ...linkStyle, background: 'var(--terracotta)', color: 'white', borderColor: 'transparent' }}>
+            Email me →
+          </a>
         </div>
       </section>
     </div>
   );
 }
+
+const linkStyle: React.CSSProperties = {
+  background: 'var(--parchment)', color: 'var(--brown-mid)',
+  border: '1px solid var(--parchment)',
+  padding: '0.5em 1.2em', borderRadius: '99px',
+  textDecoration: 'none', fontSize: '0.88rem', fontWeight: 500,
+};

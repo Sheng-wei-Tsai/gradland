@@ -6,9 +6,7 @@ import { useAuth } from '@/components/AuthProvider';
 const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/blog', label: 'Blog' },
-  { href: '/digest', label: 'AI Digest' },
-  { href: '/jobs', label: 'Jobs' },
-  { href: '/cover-letter', label: 'Cover Letter' },
+  { href: '/digest', label: 'Digest' },
   { href: '/resume', label: 'Resume' },
   { href: '/about', label: 'About' },
 ];
@@ -35,7 +33,7 @@ export default function Header() {
         </Link>
 
         <div className="flex items-center gap-2">
-          <nav className="flex items-center gap-1">
+          <nav className="main-nav flex items-center gap-1">
             {navLinks.map(link => {
               const active = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
               return (
