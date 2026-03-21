@@ -1,6 +1,8 @@
 import { NextRequest } from 'next/server';
 import OpenAI from 'openai';
 import { resume } from '@/lib/resume-data';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,8 +18,29 @@ Education: ${resume.education.map(e => `${e.degree} from ${e.institution}`).join
 `.trim();
 
 export async function POST(req: NextRequest) {
-  const { jobDescription } = await req.json();
-  if (!jobDescription) return new Response(JSON.stringify({ error: 'Missing job description' }), { status: 400 });
+  // Require authentication — this endpoint calls a paid API
+  const cookieStore = await cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { cookies: { getAll: () => cookieStore.getAll(), setAll: () => {} } }
+  );
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+  }
+
+  let body: { jobDescription?: string };
+  try {
+    body = await req.json();
+  } catch {
+    return new Response(JSON.stringify({ error: 'Invalid request body' }), { status: 400 });
+  }
+
+  const { jobDescription } = body;
+  if (!jobDescription) {
+    return new Response(JSON.stringify({ error: 'Missing job description' }), { status: 400 });
+  }
 
   const prompt = `You are an ATS (Applicant Tracking System) expert and Australian recruitment specialist.
 
@@ -53,9 +76,5 @@ Rules:
   });
 
   const raw = response.choices[0].message.content ?? '{}';
-  try {
-    return new Response(raw, { headers: { 'Content-Type': 'application/json' } });
-  } catch {
-    return new Response(JSON.stringify({ error: 'Parse error' }), { status: 500 });
-  }
+  return new Response(raw, { headers: { 'Content-Type': 'application/json' } });
 }

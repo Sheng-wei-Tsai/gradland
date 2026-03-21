@@ -3,9 +3,9 @@ import path from 'path';
 import matter from 'gray-matter';
 import readingTime from 'reading-time';
 
-const postsDir   = path.join(process.cwd(), 'content/posts');
-const digestsDir = path.join(process.cwd(), 'content/digests');
-const githotDir  = path.join(process.cwd(), 'content/githot');
+const postsDir   = path.resolve(process.cwd(), 'content/posts');
+const digestsDir = path.resolve(process.cwd(), 'content/digests');
+const githotDir  = path.resolve(process.cwd(), 'content/githot');
 
 export interface Post {
   slug: string;
@@ -18,55 +18,18 @@ export interface Post {
   coverEmoji?: string;
 }
 
-export function getAllPosts(): Post[] {
-  if (!fs.existsSync(postsDir)) return [];
-  const files = fs.readdirSync(postsDir).filter(f => f.endsWith('.mdx') || f.endsWith('.md'));
-  return files
-    .map(file => {
-      const slug = file.replace(/\.(mdx|md)$/, '');
-      const raw = fs.readFileSync(path.join(postsDir, file), 'utf8');
-      const { data, content } = matter(raw);
-      return {
-        slug,
-        title: data.title || 'Untitled',
-        date: data.date || new Date().toISOString(),
-        excerpt: data.excerpt || '',
-        tags: data.tags || [],
-        coverEmoji: data.coverEmoji || '✍️',
-        readingTime: readingTime(content).text,
-        content,
-      };
-    })
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+/** Reject slugs that contain path traversal sequences or invalid characters. */
+function isSafeSlug(slug: string): boolean {
+  return /^[a-zA-Z0-9._-]+$/.test(slug) && !slug.includes('..');
 }
 
-export function getPostBySlug(slug: string): Post | null {
-  const filePath = path.join(postsDir, `${slug}.mdx`);
-  const fallback = path.join(postsDir, `${slug}.md`);
-  const target = fs.existsSync(filePath) ? filePath : fs.existsSync(fallback) ? fallback : null;
-  if (!target) return null;
-  const raw = fs.readFileSync(target, 'utf8');
-  const { data, content } = matter(raw);
-  return {
-    slug,
-    title: data.title || 'Untitled',
-    date: data.date || new Date().toISOString(),
-    excerpt: data.excerpt || '',
-    tags: data.tags || [],
-    coverEmoji: data.coverEmoji || '✍️',
-    readingTime: readingTime(content).text,
-    content,
-  };
+/** Confirm the resolved file path stays inside the expected directory. */
+function isInsideDir(dir: string, filePath: string): boolean {
+  const relative = path.relative(dir, filePath);
+  return !relative.startsWith('..') && !path.isAbsolute(relative);
 }
 
-export function getAllTags(): string[] {
-  const posts = getAllPosts();
-  const tags = new Set<string>();
-  posts.forEach(p => p.tags.forEach(t => tags.add(t)));
-  return Array.from(tags);
-}
-
-function readDir(dir: string): Post[] {
+function readDir(dir: string, defaultEmoji = '🤖'): Post[] {
   if (!fs.existsSync(dir)) return [];
   const files = fs.readdirSync(dir).filter(f => f.endsWith('.mdx') || f.endsWith('.md'));
   return files
@@ -76,11 +39,11 @@ function readDir(dir: string): Post[] {
       const { data, content } = matter(raw);
       return {
         slug,
-        title: data.title || 'Untitled',
-        date: data.date || new Date().toISOString(),
-        excerpt: data.excerpt || '',
-        tags: data.tags || [],
-        coverEmoji: data.coverEmoji || '🤖',
+        title:       data.title || 'Untitled',
+        date:        data.date || new Date().toISOString(),
+        excerpt:     data.excerpt || '',
+        tags:        data.tags || [],
+        coverEmoji:  data.coverEmoji || defaultEmoji,
         readingTime: readingTime(content).text,
         content,
       };
@@ -88,48 +51,40 @@ function readDir(dir: string): Post[] {
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
-export function getAllDigests(): Post[] {
-  return readDir(digestsDir);
-}
+function getBySlug(dir: string, slug: string, defaultEmoji = '🤖'): Post | null {
+  if (!isSafeSlug(slug)) return null;
 
-export function getDigestBySlug(slug: string): Post | null {
-  const filePath = path.join(digestsDir, `${slug}.mdx`);
-  const fallback = path.join(digestsDir, `${slug}.md`);
-  const target = fs.existsSync(filePath) ? filePath : fs.existsSync(fallback) ? fallback : null;
-  if (!target) return null;
+  const mdxPath = path.join(dir, `${slug}.mdx`);
+  const mdPath  = path.join(dir, `${slug}.md`);
+  const target  = fs.existsSync(mdxPath) ? mdxPath : fs.existsSync(mdPath) ? mdPath : null;
+
+  if (!target || !isInsideDir(dir, target)) return null;
+
   const raw = fs.readFileSync(target, 'utf8');
   const { data, content } = matter(raw);
   return {
     slug,
-    title: data.title || 'Untitled',
-    date: data.date || new Date().toISOString(),
-    excerpt: data.excerpt || '',
-    tags: data.tags || [],
-    coverEmoji: data.coverEmoji || '🤖',
+    title:       data.title || 'Untitled',
+    date:        data.date || new Date().toISOString(),
+    excerpt:     data.excerpt || '',
+    tags:        data.tags || [],
+    coverEmoji:  data.coverEmoji || defaultEmoji,
     readingTime: readingTime(content).text,
     content,
   };
 }
 
-export function getAllGithot(): Post[] {
-  return readDir(githotDir);
-}
+export function getAllPosts():             Post[]      { return readDir(postsDir, '✍️'); }
+export function getPostBySlug(slug: string): Post | null { return getBySlug(postsDir, slug, '✍️'); }
 
-export function getGithotBySlug(slug: string): Post | null {
-  const filePath = path.join(githotDir, `${slug}.mdx`);
-  const fallback = path.join(githotDir, `${slug}.md`);
-  const target = fs.existsSync(filePath) ? filePath : fs.existsSync(fallback) ? fallback : null;
-  if (!target) return null;
-  const raw = fs.readFileSync(target, 'utf8');
-  const { data, content } = matter(raw);
-  return {
-    slug,
-    title: data.title || 'Untitled',
-    date: data.date || new Date().toISOString(),
-    excerpt: data.excerpt || '',
-    tags: data.tags || [],
-    coverEmoji: data.coverEmoji || '🔥',
-    readingTime: readingTime(content).text,
-    content,
-  };
+export function getAllDigests():               Post[]      { return readDir(digestsDir, '🤖'); }
+export function getDigestBySlug(slug: string): Post | null { return getBySlug(digestsDir, slug, '🤖'); }
+
+export function getAllGithot():               Post[]      { return readDir(githotDir, '🔥'); }
+export function getGithotBySlug(slug: string): Post | null { return getBySlug(githotDir, slug, '🔥'); }
+
+export function getAllTags(): string[] {
+  const tags = new Set<string>();
+  getAllPosts().forEach(p => p.tags.forEach(t => tags.add(t)));
+  return Array.from(tags);
 }

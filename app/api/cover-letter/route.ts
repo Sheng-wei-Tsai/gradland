@@ -1,5 +1,7 @@
 import { NextRequest } from 'next/server';
 import OpenAI from 'openai';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,9 +20,26 @@ Write tailored, authentic cover letters that:
 Format: plain paragraphs only, no headers, no bullet points.`;
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const { jobTitle, company, jobDescription, background } = body;
+  // Require authentication — this endpoint calls a paid API
+  const cookieStore = await cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { cookies: { getAll: () => cookieStore.getAll(), setAll: () => {} } }
+  );
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+  }
 
+  let body: { jobTitle?: string; company?: string; jobDescription?: string; background?: string };
+  try {
+    body = await req.json();
+  } catch {
+    return new Response(JSON.stringify({ error: 'Invalid request body' }), { status: 400 });
+  }
+
+  const { jobTitle, company, jobDescription, background } = body;
   if (!jobTitle || !company || !jobDescription || !background) {
     return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 });
   }
@@ -38,7 +57,6 @@ ${background.slice(0, 1500)}
 
 Write the cover letter now. Plain paragraphs only.`;
 
-  // Stream the response so the user sees text appear word-by-word
   const stream = await client.chat.completions.create({
     model: 'gpt-4o-mini',
     messages: [
