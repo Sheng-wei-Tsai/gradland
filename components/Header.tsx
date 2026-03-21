@@ -5,13 +5,13 @@ import { useAuth } from '@/components/AuthProvider';
 import ThemeToggle from '@/components/ThemeToggle';
 
 const navLinks = [
-  { href: '/',        label: 'Home',   icon: IconHome },
-  { href: '/blog',    label: 'Blog',   icon: IconBlog },
-  { href: '/digest',  label: 'Digest', icon: IconDigest },
-  { href: '/githot',  label: 'Githot', icon: IconGithot },
-  { href: '/learn',   label: 'Learn',  icon: IconLearn },
-  { href: '/resume',  label: 'Resume', icon: IconResume },
-  { href: '/about',   label: 'About',  icon: IconAbout },
+  { href: '/',        label: 'Home',   icon: IconHome,   mobile: true  },
+  { href: '/blog',    label: 'Blog',   icon: IconBlog,   mobile: true  },
+  { href: '/digest',  label: 'Digest', icon: IconDigest, mobile: true  },
+  { href: '/githot',  label: 'Githot', icon: IconGithot, mobile: true  },
+  { href: '/learn',   label: 'Learn',  icon: IconLearn,  mobile: true  },
+  { href: '/resume',  label: 'Resume', icon: IconResume, mobile: false },
+  { href: '/about',   label: 'About',  icon: IconAbout,  mobile: false },
 ];
 
 export default function Header() {
@@ -143,7 +143,7 @@ export default function Header() {
           boxShadow: '0 8px 32px rgba(44,31,20,0.12), 0 2px 8px rgba(44,31,20,0.06)',
           width: '100%',
         }}>
-          {navLinks.map(link => {
+          {navLinks.filter(l => l.mobile).map(link => {
             const active = isActive(link.href);
             const Icon = link.icon;
             return (
