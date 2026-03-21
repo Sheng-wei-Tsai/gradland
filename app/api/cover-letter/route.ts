@@ -5,8 +5,6 @@ import { cookies } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
 const SYSTEM_PROMPT = `You are an expert career coach and professional writer specialising in the Australian IT job market.
 Write tailored, authentic cover letters that:
 - Sound human and genuine, not generic AI fluff
@@ -31,6 +29,8 @@ export async function POST(req: NextRequest) {
   if (!user) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
   }
+
+  const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
   let body: { jobTitle?: string; company?: string; jobDescription?: string; background?: string };
   try {

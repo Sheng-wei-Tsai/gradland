@@ -6,8 +6,6 @@ import { cookies } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
 const resumeText = `
 Name: ${resume.name}
 Title: ${resume.title}
@@ -29,6 +27,8 @@ export async function POST(req: NextRequest) {
   if (!user) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
   }
+
+  const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
   let body: { jobDescription?: string };
   try {
