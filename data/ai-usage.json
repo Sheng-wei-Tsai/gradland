@@ -6,7 +6,7 @@
       "plan": "Max plan",
       "usage": 17,
       "limit": 100,
-      "resetLabel": "Resets in 3 hr 14 min",
+      "resetAt": "2026-03-21T14:00:00+10:00",
       "accent": "#c4623a"
     },
     {
@@ -14,7 +14,7 @@
       "plan": "Max plan",
       "usage": 45,
       "limit": 100,
-      "resetLabel": "Resets in 5 hr",
+      "resetAt": "2026-03-21T16:00:00+10:00",
       "accent": "#c4623a"
     },
     {
@@ -22,7 +22,7 @@
       "plan": "Plus",
       "usage": 62,
       "limit": 100,
-      "resetLabel": "Resets tomorrow",
+      "resetAt": "2026-03-22T10:47:00+10:00",
       "accent": "#10a37f"
     }
   ]
