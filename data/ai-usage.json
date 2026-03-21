@@ -1,0 +1,29 @@
+{
+  "updatedAt": "2026-03-21T10:47:00+10:00",
+  "tools": [
+    {
+      "name": "Claude",
+      "plan": "Max plan",
+      "usage": 17,
+      "limit": 100,
+      "resetLabel": "Resets in 3 hr 14 min",
+      "accent": "#c4623a"
+    },
+    {
+      "name": "Claude Code",
+      "plan": "Max plan",
+      "usage": 45,
+      "limit": 100,
+      "resetLabel": "Resets in 5 hr",
+      "accent": "#c4623a"
+    },
+    {
+      "name": "ChatGPT",
+      "plan": "Plus",
+      "usage": 62,
+      "limit": 100,
+      "resetLabel": "Resets tomorrow",
+      "accent": "#10a37f"
+    }
+  ]
+}

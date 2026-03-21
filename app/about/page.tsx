@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import AIUsage from '@/components/AIUsage';
 
 export const metadata: Metadata = { title: 'About — Henry Tsai' };
 
@@ -41,6 +42,9 @@ export default function AboutPage() {
       </section>
 
       <hr style={{ border: 'none', borderTop: '1px solid var(--parchment)', marginBottom: '3rem' }} />
+
+      {/* AI usage */}
+      <AIUsage />
 
       {/* Story */}
       <section className="animate-fade-up" style={{ marginBottom: '3rem' }}>
