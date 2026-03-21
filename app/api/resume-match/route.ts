@@ -4,8 +4,6 @@ import { resume } from '@/lib/resume-data';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
-export const dynamic = 'force-dynamic';
-
 const resumeText = `
 Name: ${resume.name}
 Title: ${resume.title}

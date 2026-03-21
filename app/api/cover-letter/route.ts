@@ -3,8 +3,6 @@ import OpenAI from 'openai';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
-export const dynamic = 'force-dynamic';
-
 const SYSTEM_PROMPT = `You are an expert career coach and professional writer specialising in the Australian IT job market.
 Write tailored, authentic cover letters that:
 - Sound human and genuine, not generic AI fluff
