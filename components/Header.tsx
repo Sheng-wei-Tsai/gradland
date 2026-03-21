@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
 import ThemeToggle from '@/components/ThemeToggle';
+import { useState } from 'react';
 
 const navLinks = [
   { href: '/',        label: 'Home',   icon: IconHome,   mobile: true  },
@@ -14,10 +15,13 @@ const navLinks = [
   { href: '/about',   label: 'About',  icon: IconAbout,  mobile: false },
 ];
 
+const moreLinks = navLinks.filter(l => !l.mobile);
+
 export default function Header() {
   const pathname  = usePathname();
   const router    = useRouter();
   const { user, loading, signInWithGithub, signOut } = useAuth();
+  const [moreOpen, setMoreOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -132,6 +136,62 @@ export default function Header() {
 
       {/* ── Mobile bottom nav ── */}
       <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
+
+        {/* More sheet — slides up when "More" is tapped */}
+        {moreOpen && (
+          <>
+            {/* Backdrop */}
+            <div
+              onClick={() => setMoreOpen(false)}
+              style={{
+                position: 'fixed', inset: 0, zIndex: 90,
+                background: 'rgba(0,0,0,0.25)',
+                backdropFilter: 'blur(2px)',
+              }}
+            />
+            {/* Sheet */}
+            <div style={{
+              position: 'fixed', bottom: '6rem', left: '50%',
+              transform: 'translateX(-50%)',
+              width: 'calc(100% - 2.4rem)', maxWidth: '420px',
+              background: 'var(--warm-white)',
+              border: '1px solid var(--parchment)',
+              borderRadius: '20px',
+              padding: '1rem',
+              zIndex: 95,
+              boxShadow: '0 -4px 32px rgba(44,31,20,0.12)',
+              display: 'flex', flexDirection: 'column', gap: '0.3rem',
+            }}>
+              {moreLinks.map(link => {
+                const active = isActive(link.href);
+                const Icon = link.icon;
+                return (
+                  <Link
+                    key={link.href} href={link.href}
+                    onClick={() => setMoreOpen(false)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '0.9rem',
+                      padding: '0.8rem 1rem', borderRadius: '12px',
+                      textDecoration: 'none',
+                      background: active ? 'var(--terracotta)' : 'transparent',
+                      transition: 'background 0.15s',
+                    }}
+                  >
+                    <Icon active={active} />
+                    <span style={{
+                      fontSize: '0.95rem', fontWeight: 500,
+                      color: active ? 'white' : 'var(--text-primary)',
+                    }}>
+                      {link.label}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {/* Main tab bar */}
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-around',
           background: 'rgba(255,253,249,0.88)',
@@ -150,22 +210,47 @@ export default function Header() {
               <Link key={link.href} href={link.href} style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 gap: '0.2rem', textDecoration: 'none',
-                padding: '0.35rem 0.7rem', borderRadius: '14px',
+                padding: '0.35rem 0.6rem', borderRadius: '14px',
                 background: active ? 'var(--terracotta)' : 'transparent',
                 transition: 'background 0.18s',
-                minWidth: '52px',
+                minWidth: '48px',
               }}>
                 <Icon active={active} />
                 <span style={{
-                  fontSize: '0.65rem', fontWeight: active ? 600 : 500,
+                  fontSize: '0.62rem', fontWeight: active ? 600 : 500,
                   color: active ? 'white' : 'var(--text-muted)',
-                  letterSpacing: '0.01em',
                 }}>
                   {link.label}
                 </span>
               </Link>
             );
           })}
+
+          {/* More button */}
+          <button
+            onClick={() => setMoreOpen(o => !o)}
+            style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              gap: '0.2rem', padding: '0.35rem 0.6rem', borderRadius: '14px',
+              background: moreOpen ? 'var(--terracotta)' : 'transparent',
+              border: 'none', cursor: 'pointer',
+              transition: 'background 0.18s', minWidth: '48px',
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke={moreOpen ? 'white' : 'var(--text-muted)'}
+              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="5"  cy="12" r="1.5" fill={moreOpen ? 'white' : 'var(--text-muted)'} stroke="none"/>
+              <circle cx="12" cy="12" r="1.5" fill={moreOpen ? 'white' : 'var(--text-muted)'} stroke="none"/>
+              <circle cx="19" cy="12" r="1.5" fill={moreOpen ? 'white' : 'var(--text-muted)'} stroke="none"/>
+            </svg>
+            <span style={{
+              fontSize: '0.62rem', fontWeight: 500,
+              color: moreOpen ? 'white' : 'var(--text-muted)',
+            }}>
+              More
+            </span>
+          </button>
         </div>
       </nav>
     </>
