@@ -112,23 +112,27 @@ export default function AIUsage() {
           const pct = Math.round((tool.usage / tool.limit) * 100);
           return (
             <div key={tool.name}>
-              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '0.45rem' }}>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-                  <span style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--brown-dark)' }}>
+              {/* Top row: name + plan left, pct + reset right — all on one line */}
+              <div style={{
+                display: 'flex', alignItems: 'center',
+                justifyContent: 'space-between', marginBottom: '0.45rem', gap: '0.5rem',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', minWidth: 0 }}>
+                  <span style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--brown-dark)', whiteSpace: 'nowrap' }}>
                     {tool.name}
                   </span>
                   <span style={{
-                    fontSize: '0.7rem', color: 'var(--text-muted)',
-                    background: 'var(--parchment)', borderRadius: '99px', padding: '0.1em 0.55em',
+                    fontSize: '0.68rem', color: 'var(--text-muted)', whiteSpace: 'nowrap',
+                    background: 'var(--parchment)', borderRadius: '99px', padding: '0.12em 0.55em',
                   }}>
                     {tool.plan}
                   </span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-                  <span style={{ fontSize: '0.82rem', fontWeight: 600, color: tool.accent }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
+                  <span style={{ fontSize: '0.82rem', fontWeight: 600, color: tool.accent, whiteSpace: 'nowrap' }}>
                     {pct}%
                   </span>
-                  <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
                     {resetCountdown(tool.resetAt)}
                   </span>
                 </div>
