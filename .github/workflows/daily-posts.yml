@@ -8,7 +8,7 @@ on:
   workflow_dispatch: # allows manual trigger from GitHub Actions UI
 
 permissions:
-  contents: write  # needed so git push inside the scripts can write to the repo
+  contents: write
 
 jobs:
   publish:
@@ -36,22 +36,20 @@ jobs:
           git config user.name "henry-blog-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      # ── Step 1: Deep-dive post on today's trending topic ────────
+      # Call tsx directly — env vars come from GitHub Secrets, not .env.local
       - name: Run Daily Post
-        run: npm run post
+        run: npx tsx scripts/run-post.ts
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # ── Step 2: AI Research Digest ──────────────────────────────
       - name: Run AI Digest
-        run: npm run digest
+        run: npx tsx scripts/run-digest.ts
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
-      # ── Step 3: GitHub Hot ──────────────────────────────────────
       - name: Run GitHub Hot
-        run: npm run githot
+        run: npx tsx scripts/run-githot.ts
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
