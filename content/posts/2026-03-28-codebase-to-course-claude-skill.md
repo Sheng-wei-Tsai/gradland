@@ -1,76 +1,96 @@
 ---
-title: "Turn Any Codebase Into an Interactive HTML Course With One Claude Prompt"
+title: "Auto-Generate Interactive Courses From Any Codebase With Claude"
 date: "2026-03-28"
-excerpt: "A Claude Code skill that generates a self-contained, interactive HTML course from any repo just hit 2,000+ stars overnight. Here's how to use it on your own projects today."
-tags: ["Claude", "AI Tools", "Documentation", "Developer Tools", "Open Source"]
+excerpt: "A Claude Code skill that turns any repo into a self-contained HTML course — quizzes, animations, code translations, no dependencies. Here's how to wire it into your Next.js projects for zero-effort contributor onboarding."
+tags: ["Claude", "AI Tooling", "Developer Experience", "Documentation"]
 coverEmoji: "🎓"
 auto_generated: true
 source_url: "https://github.com/zarazhangrui/codebase-to-course"
 ---
 
-A GitHub project called `codebase-to-course` picked up over 2,000 stars this week, and for good reason — it's a Claude Code skill that reads any codebase and spits out a single, self-contained HTML file that teaches how it works. Scroll-based modules, animated data flow diagrams, interactive quizzes, code-to-plain-English side-by-side panels, the whole lot. No server, no dependencies, works offline. If you've ever spent three hours writing onboarding docs that nobody reads, this is the tool you've been waiting for.
+2,282 GitHub stars in a week for a documentation tool. That's not an accident — it's developers collectively realising that the hardest part of open source isn't writing code, it's explaining it to the next person. `codebase-to-course` is a Claude Code skill that points at any repo and spits out a single, self-contained HTML file that teaches how the code works. No server, no deps, works offline. If you've ever spent a Friday afternoon writing onboarding docs that nobody read, this is worth 10 minutes of your time.
 
-## What It Actually Does
+## What it actually produces
 
-The skill lives in `~/.claude/skills/codebase-to-course/`. You drop it there, open any project in Claude Code, and say something like *"Turn this codebase into an interactive course"*. Claude reads your code, figures out the architecture, and produces a single HTML file that acts like a proper course platform.
+The output is one HTML file with scroll-based navigation, keyboard shortcuts, animated component diagrams, interactive quizzes, and — the bit I find most useful — a side-by-side code-to-plain-English translation panel. Real source code on the left, what it's actually doing on the right.
 
-What's inside that HTML file:
+The quizzes are application-based, not trivia. Instead of "what does useState return?", you get "you want to add a favourites feature — which files change and why?". That's a meaningful distinction if you're trying to actually understand a codebase rather than pass a test.
 
-- **Code ↔ Plain English panels** — your actual source on the left, a human explanation on the right
-- **Animated visualisations** — data flow between components, request/response cycles, state changes
-- **Quizzes that test application** — not "what does useState do" but "you want to add a favourites feature, which files change and why"
-- **Glossary tooltips** — hover a term, get a definition, no leaving the page
-- **Keyboard navigation and progress tracking** — feels like a real course, not a wall of text
+The whole thing is a single HTML file. You can email it, commit it to the repo, drop it on S3, whatever. No build step, no framework, no maintenance.
 
-The design philosophy is "build first, understand later" — it traces what actually happens when you use the app, rather than front-loading theory.
-
-## Setting It Up
+## Setting it up as a Claude Code skill
 
 Installation is dead simple:
 
 ```bash
 # Clone the repo
-git clone https://github.com/zarazhangrui/codebase-to-course
+git clone https://github.com/zarazhangrui/codebase-to-course.git
 
-# Copy the skill into Claude's skills directory
-mkdir -p ~/.claude/skills
+# Copy the skill folder to Claude's skills directory
 cp -r codebase-to-course/codebase-to-course ~/.claude/skills/
 ```
 
-Then open your project in Claude Code and run:
+Open any project in Claude Code and say: *"Turn this codebase into an interactive course."* That's it. Claude reads the repo structure, understands the architecture, and generates the HTML.
 
-```
-Turn this codebase into an interactive course
-```
+If you want to automate this in a project, you can wire it into a script that runs on demand:
 
-That's literally it. Claude picks up the skill automatically from the skills directory and runs it against your current working directory. The output is a single `.html` file you can open in any browser, host on S3, attach to a Notion doc, or email to a new team member.
-
-## Running It Against a Next.js + Supabase Project
-
-I tried this on a mid-sized Next.js app with a Supabase backend — about 40 files, server actions, a few API routes, RLS policies in the mix. The course it generated covered:
-
-- The request lifecycle from browser to Supabase and back
-- How the auth flow works (including where the session cookie actually lives)
-- Which server actions hit the DB directly vs. which go through an edge function
-- A quiz section asking "a user logs out on device A — is their session invalidated on device B?"
-
-For a Next.js/Supabase project specifically, the bits I'd pay attention to:
-
-```
-# After generating, check that the course covers:
-# - your /app directory structure and when components are server vs client
-# - how Supabase RLS interacts with your server actions
-# - the auth session flow (this trips up most new contributors)
+```bash
+#!/bin/bash
+# generate-course.sh — run this when you want to regenerate docs
+echo "Generating interactive course for $(basename $PWD)..."
+claude -p "Turn this codebase into an interactive course. Output the HTML file to ./docs/course.html" 
+echo "Done. Open docs/course.html in a browser."
 ```
 
-If the generated course misses something important — say it glosses over your middleware — just follow up in the same Claude session: *"The course skipped the middleware auth checks, add a module for that."* Claude will patch the HTML inline.
+Commit that script to your repo and new contributors can regenerate the course any time the codebase shifts significantly.
 
-## What I'd Build With This
+## Wiring it into a Next.js/Supabase project
 
-**Automated onboarding docs as part of CI.** Add a GitHub Action that regenerates the course whenever `main` changes. New hire clones the repo, opens `course.html`, and they're up to speed without a three-hour Zoom walkthrough. The course stays current because it's generated from actual code, not maintained separately.
+Here's where this gets actually useful. Say you've got a Next.js app backed by Supabase. You want contributors to understand your auth flow, your RLS policies, and how your server actions interact with the DB — without you writing a single doc.
 
-**A landing page for your open-source tool.** Instead of a README that nobody reads past the install instructions, generate a course and host it on GitHub Pages. It shows potential users and contributors exactly how your tool works internally — that's a much stronger pitch than a feature list.
+Add a GitHub Actions workflow that regenerates the course on every merge to main and deploys it to GitHub Pages:
 
-**Client handover documentation.** When you finish a freelance project and hand the codebase to the client's internal team, include a generated course alongside the repo. Charge for it as a deliverable. Takes you five minutes to generate, saves the client weeks of confusion, and it's completely self-contained so they don't need to pay for a hosted docs platform.
+```yaml
+# .github/workflows/generate-course.yml
+name: Generate Interactive Course
 
-The thing that makes this genuinely useful rather than just a neat demo is the output format. A single HTML file is the most portable thing you can produce — no lock-in, no SaaS dependency, no subscription to worry about. I've seen AI tools generate docs that require the AI to answer follow-up questions in perpetuity. This generates something that stands on its own. That's the right call.
+on:
+  push:
+    branches: [main]
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+      
+      - name: Generate course
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          mkdir -p docs
+          claude -p "Turn this codebase into an interactive course focused on the authentication flow, database schema, and API routes. Output a single HTML file." > docs/index.html
+      
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+```
+
+Now every contributor gets a live, up-to-date interactive course at `https://yourorg.github.io/your-repo`. Your PR description can link straight to it. Your README gets one line: "New here? Start with the [interactive course](link)."
+
+You can also scope the prompt to specific parts of your codebase. If you've got a gnarly Supabase edge function or a complex middleware chain, just point Claude at that directory and generate a targeted explainer.
+
+## What I'd build with this
+
+**Contributor onboarding portal** — A Next.js app where you paste a GitHub repo URL, it clones it server-side, runs the skill, and serves the generated HTML. Charge $5/month for private repos. The whole backend is maybe 50 lines of code.
+
+**Auto-updating internal docs** — For teams shipping fast, wire this into a weekly cron job that regenerates the course and posts the link to Slack. Stop writing architecture docs that go stale in a fortnight.
+
+**"Understand before you fork" browser extension** — Adds a "Generate Course" button to any GitHub repo page. Sends the repo to a worker, returns the HTML. Exactly the kind of tool that gets 10k installs on the Chrome Web Store without any marketing.
+
+Documentation has always been the thing developers skip until it hurts someone. A tool that generates it automatically, makes it interactive, and keeps it current removes the only excuse for not having it. I'm dropping this into my own projects this week — the GitHub Actions workflow above is already committed.
