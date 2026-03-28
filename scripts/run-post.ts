@@ -245,18 +245,19 @@ ${post.body}
     execSync(`git add "${filePath}"`, { stdio: 'inherit' });
     execSync(`git commit -m "post: ${post.title}"`, { stdio: 'inherit' });
     // Retry push with rebase to handle parallel job conflicts
+    const gitEnv = { ...process.env, GIT_TERMINAL_PROMPT: '0' };
     let pushed = false;
     for (let attempt = 1; attempt <= 3 && !pushed; attempt++) {
       try {
         if (attempt > 1) {
           await new Promise(r => setTimeout(r, 10000 * attempt));
-          execSync('git pull --rebase origin main', { stdio: 'inherit' });
+          execSync('git pull --rebase origin main', { stdio: 'inherit', env: gitEnv, timeout: 60000 });
         }
-        execSync('git push origin main', { stdio: 'inherit' });
+        execSync('git push origin main', { stdio: 'inherit', env: gitEnv, timeout: 60000 });
         pushed = true;
       } catch (pushErr) {
         if (attempt === 3) throw pushErr;
-        console.warn(`\u26a0\ufe0f  Push attempt ${attempt} failed, retrying...`);
+        console.warn(`Push attempt ${attempt} failed, retrying...`);
       }
     }
     console.log('Deployed — Vercel is building now');
