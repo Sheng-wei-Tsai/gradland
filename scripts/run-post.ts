@@ -244,10 +244,24 @@ ${post.body}
   try {
     execSync(`git add "${filePath}"`, { stdio: 'inherit' });
     execSync(`git commit -m "post: ${post.title}"`, { stdio: 'inherit' });
-    execSync('git push origin main', { stdio: 'inherit' });
-    console.log('✅ Deployed — Vercel is building now');
+    // Retry push with rebase to handle parallel job conflicts
+    let pushed = false;
+    for (let attempt = 1; attempt <= 3 && !pushed; attempt++) {
+      try {
+        if (attempt > 1) {
+          await new Promise(r => setTimeout(r, 10000 * attempt));
+          execSync('git pull --rebase origin main', { stdio: 'inherit' });
+        }
+        execSync('git push origin main', { stdio: 'inherit' });
+        pushed = true;
+      } catch (pushErr) {
+        if (attempt === 3) throw pushErr;
+        console.warn(`\u26a0\ufe0f  Push attempt ${attempt} failed, retrying...`);
+      }
+    }
+    console.log('Deployed — Vercel is building now');
   } catch (err) {
-    console.warn('⚠️  Git push failed:', (err as Error).message);
+    console.warn('Git push failed:', (err as Error).message);
   }
 
   console.log('\n✅ Daily Post pipeline complete!');

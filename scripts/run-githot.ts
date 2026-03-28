@@ -245,7 +245,21 @@ async function main() {
   try {
     execSync(`git add "${filePath}"`, { stdio: 'inherit' });
     execSync(`git commit -m "githot: GitHub Hot ${dateStr}"`, { stdio: 'inherit' });
-    execSync('git push origin main', { stdio: 'inherit' });
+    // Retry push with rebase to handle parallel job conflicts
+    let pushed = false;
+    for (let attempt = 1; attempt <= 3 && !pushed; attempt++) {
+      try {
+        if (attempt > 1) {
+          await sleep(10000 * attempt);
+          execSync('git pull --rebase origin main', { stdio: 'inherit' });
+        }
+        execSync('git push origin main', { stdio: 'inherit' });
+        pushed = true;
+      } catch (pushErr) {
+        if (attempt === 3) throw pushErr;
+        console.warn(`⚠️  Push attempt ${attempt} failed, retrying...`);
+      }
+    }
     console.log('✅ Deployed — Vercel is building now');
   } catch (err) {
     console.warn('⚠️  Git push failed:', (err as Error).message);
