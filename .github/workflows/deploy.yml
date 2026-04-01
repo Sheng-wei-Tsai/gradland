@@ -1,15 +1,31 @@
 name: Deploy to Vercel
 
 on:
+  # Triggered by a real user push to main
   push:
+    branches: [main]
+  # Triggered after the daily-posts bot pushes (GITHUB_TOKEN pushes don't
+  # fire the `push` event above, so we listen for the workflow completing)
+  workflow_run:
+    workflows: ["Daily Posts"]
+    types: [completed]
     branches: [main]
   workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # For workflow_run events, only deploy if the upstream workflow succeeded
+    if: >
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
     steps:
       - uses: actions/checkout@v4
+        with:
+          # workflow_run doesn't auto-checkout the latest commit —
+          # explicitly pull the tip of main that the bot just pushed
+          ref: main
 
       - uses: actions/setup-node@v4
         with:
@@ -19,7 +35,8 @@ jobs:
       - run: npm ci
 
       - name: Deploy to Vercel
-        run: npx vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --yes
         env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: npx vercel --prod --token "$VERCEL_TOKEN" --yes
