@@ -3,11 +3,17 @@ import { useEffect, useState } from 'react';
 
 export default function ThemeToggle() {
   const [theme, setTheme] = useState<'light' | 'dark' | null>(null);
+  const [spinning, setSpinning] = useState(false);
 
   useEffect(() => {
-    // Read current theme from <html> (already set by FOUC script)
-    const current = document.documentElement.getAttribute('data-theme') as 'light' | 'dark';
-    setTheme(current ?? 'light');
+    // Read explicit data-theme attr first; fall back to system preference
+    const attr = document.documentElement.getAttribute('data-theme') as 'light' | 'dark' | null;
+    if (attr) {
+      setTheme(attr);
+    } else {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setTheme(prefersDark ? 'dark' : 'light');
+    }
   }, []);
 
   const toggle = () => {
@@ -15,55 +21,81 @@ export default function ThemeToggle() {
     setTheme(next);
     document.documentElement.setAttribute('data-theme', next);
     localStorage.setItem('theme', next);
+    setSpinning(true);
   };
 
-  // Don't render until we know the theme (prevents flicker)
-  if (!theme) return <div style={{ width: '34px', height: '34px' }} />;
+  if (!theme) return <div style={{ width: '40px', height: '40px' }} />;
+
+  const isDark = theme === 'dark';
 
   return (
     <button
       onClick={toggle}
-      aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-      title={theme === 'dark' ? '☀️ Brisbane mode' : '🏮 Night market mode'}
+      aria-label={isDark ? 'Switch to light mode (陽)' : 'Switch to dark mode (陰)'}
+      title={isDark ? '陽 — Brisbane day mode' : '陰 — Night market mode'}
+      onAnimationEnd={() => setSpinning(false)}
+      className={spinning ? 'yin-yang-spin' : ''}
       style={{
-        width: '34px', height: '34px',
-        borderRadius: '99px',
-        border: '1px solid var(--parchment)',
-        background: 'var(--warm-white)',
+        width: '40px', height: '40px',
+        borderRadius: '50%',
+        border: isDark
+          ? '2px solid rgba(240,230,208,0.25)'
+          : '2px solid rgba(20,10,5,0.2)',
+        background: 'transparent',
         cursor: 'pointer',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        transition: 'all 0.2s',
+        transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
         flexShrink: 0,
-        boxShadow: theme === 'dark' ? '0 0 10px rgba(255,61,61,0.15)' : 'none',
+        padding: 0,
+        boxShadow: isDark
+          ? '0 0 12px rgba(240,230,208,0.1), 2px 2px 0 rgba(232,64,64,0.3)'
+          : '2px 2px 0 rgba(20,10,5,0.2)',
       }}
     >
-      {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+      <YinYangIcon isDark={isDark} />
     </button>
   );
 }
 
-function SunIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-      stroke="var(--amber)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="5" />
-      <line x1="12" y1="1"  x2="12" y2="3"  />
-      <line x1="12" y1="21" x2="12" y2="23" />
-      <line x1="4.22" y1="4.22"  x2="5.64" y2="5.64"  />
-      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-      <line x1="1"  y1="12" x2="3"  y2="12" />
-      <line x1="21" y1="12" x2="23" y2="12" />
-      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-    </svg>
-  );
-}
+function YinYangIcon({ isDark }: { isDark: boolean }) {
+  // Light mode: yang (bright) dominant — white half on top
+  // Dark mode:  yin (dark) dominant — black half visible, vermilion glow
+  const yangColor  = isDark ? '#f0e6d0' : '#fdfef6';
+  const yinColor   = isDark ? '#e84040' : '#140a05';
+  const ringColor  = isDark ? 'rgba(240,230,208,0.5)' : 'rgba(20,10,5,0.7)';
 
-function MoonIcon() {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-      stroke="var(--brown-mid)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+    <svg
+      viewBox="0 0 40 40"
+      width="28"
+      height="28"
+      style={{ display: 'block', transition: 'all 0.3s ease' }}
+    >
+      {/* ── Full circle background (yin/dark side) ── */}
+      <circle cx="20" cy="20" r="18" fill={yinColor} />
+
+      {/* ── Yang half (bright teardrop) ──
+          Path: start top-center → right large arc to bottom
+                → left small arc back to center
+                → left small arc from center to top */}
+      <path
+        d="M20,2 A18,18 0 0,1 20,38 A9,9 0 0,1 20,20 A9,9 0 0,0 20,2 Z"
+        fill={yangColor}
+      />
+
+      {/* ── Small circles ── */}
+      {/* Small yin dot (dark) in the yang (bright) half */}
+      <circle cx="20" cy="11" r="4.5" fill={yinColor} />
+      {/* Small yang dot (bright) in the yin (dark) half */}
+      <circle cx="20" cy="29" r="4.5" fill={yangColor} />
+
+      {/* ── Outer ring ── */}
+      <circle
+        cx="20" cy="20" r="18"
+        fill="none"
+        stroke={ringColor}
+        strokeWidth="1.5"
+      />
     </svg>
   );
 }
