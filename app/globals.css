@@ -1,208 +1,347 @@
-@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Caveat:wght@500&display=swap');
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Caveat:wght@500;600&display=swap');
 
 /* ─────────────────────────────────────────────────────
-   LIGHT MODE — Brisbane Sunshine 🇦🇺
-   Sandy beaches, warm golden sun, clear sky, open air
+   HENRY TSAI — EASTERN INK × COMIC PANEL THEME
+   Palette: Night Ink · Vermilion · Imperial Gold · Jade · Rice Paper
+   Typography: Space Grotesk (UI) · Lora (editorial)
+   Style: Comic book panels meets Chinese ink brush art
 ───────────────────────────────────────────────────── */
+
+/* ── LIGHT MODE — Rice Paper & Ink ── */
 :root, [data-theme="light"] {
-  --cream:             #faf7f2;
-  --warm-white:        #fffdf9;
-  --parchment:         #f0e8d8;
-  --terracotta:        #c4623a;
-  --terracotta-light:  #e07a56;
-  --amber:             #d4873a;
-  --sage:              #6a9e7f;
-  --brown-dark:        #1e1408;
-  --brown-mid:         #5c3d2e;
-  --brown-light:       #9a7560;
-  --text-primary:      #1e1408;
-  --text-secondary:    #6b4f3a;
-  --text-muted:        #a08070;
-  --shadow-color:      rgba(44, 31, 20, 0.08);
+  /* Backgrounds — aged rice paper */
+  --cream:             #fdf5e4;   /* warm rice paper — page background */
+  --warm-white:        #fffef6;   /* cards, surfaces */
+  --parchment:         #e8d5a8;   /* dividers, subtle panels */
+
+  /* Brand — Chinese ink palette */
+  --ink:               #140a05;   /* deep brush ink */
+  --vermilion:         #c0281c;   /* 朱砂 cinnabar red — CTAs */
+  --vermilion-light:   #e03828;   /* hover state */
+  --gold:              #c88a14;   /* 金 imperial gold */
+  --gold-light:        #e0a020;
+  --jade:              #1e7a52;   /* 翡翠 jade green */
+
+  /* Legacy aliases — used across components */
+  --terracotta:        #c0281c;
+  --terracotta-light:  #e03828;
+  --amber:             #c88a14;
+  --sage:              #1e7a52;
+  --forest:            #140a05;
+
+  /* Text */
+  --brown-dark:        #140a05;
+  --brown-mid:         #3d1c0e;
+  --brown-light:       #7a5030;
+  --text-primary:      #140a05;
+  --text-secondary:    #3d1c0e;
+  --text-muted:        #7a5030;
+
+  /* Comic panel shadow — hard offset, no blur */
+  --panel-shadow:      4px 4px 0 #140a05;
+  --panel-shadow-lg:   6px 6px 0 #140a05;
+  --panel-border:      3px solid #140a05;
+
+  --shadow-color:      rgba(20, 10, 5, 0.1);
   --glow:              none;
   color-scheme: light;
 }
 
-/* ─────────────────────────────────────────────────────
-   DARK MODE — Taiwan Night Market 🏮
-   Wet asphalt streets, neon red lanterns, gold food
-   stall glow, neon signs, midnight in Taipei
-───────────────────────────────────────────────────── */
+/* ── DARK MODE — Night Market & Lanterns ──
+   Applies when: system prefers dark (and user hasn't overridden to light)
+   OR when data-theme="dark" is explicitly set via ThemeToggle.
+   This eliminates the need for any JS script tag on load. ── */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --cream:             #07050f;
+    --warm-white:        #0f0b1a;
+    --parchment:         #1a1430;
+    --ink:               #f0e6d0;
+    --vermilion:         #e84040;
+    --vermilion-light:   #ff5252;
+    --gold:              #f0b830;
+    --gold-light:        #ffd040;
+    --jade:              #3ec880;
+    --terracotta:        #e84040;
+    --terracotta-light:  #ff5252;
+    --amber:             #f0b830;
+    --sage:              #3ec880;
+    --forest:            #7ab0c8;
+    --brown-dark:        #f0e6d0;
+    --brown-mid:         #c8b090;
+    --brown-light:       #887060;
+    --text-primary:      #f0e6d0;
+    --text-secondary:    #c8b090;
+    --text-muted:        #786858;
+    --panel-shadow:      4px 4px 0 rgba(232, 64, 64, 0.6);
+    --panel-shadow-lg:   6px 6px 0 rgba(232, 64, 64, 0.5);
+    --panel-border:      3px solid rgba(240, 230, 208, 0.25);
+    --shadow-color:      rgba(232, 64, 64, 0.12);
+    --glow:              0 0 32px rgba(232, 64, 64, 0.12), 0 0 60px rgba(240, 184, 48, 0.06);
+    color-scheme: dark;
+  }
+}
+
 [data-theme="dark"] {
-  --cream:             #0c0a12;
-  --warm-white:        #13101e;
-  --parchment:         #1e1a2e;
-  --terracotta:        #ff3d3d;
-  --terracotta-light:  #ff6565;
-  --amber:             #ffbb3b;
-  --sage:              #3dd9c8;
-  --brown-dark:        #f2ebe0;
-  --brown-mid:         #cbbfb0;
-  --brown-light:       #9a8878;
-  --text-primary:      #ede5d8;
-  --text-secondary:    #b8a898;
-  --text-muted:        #786868;
-  --shadow-color:      rgba(255, 61, 61, 0.07);
-  --glow:              0 0 20px rgba(255, 61, 61, 0.12);
+  /* Backgrounds — deep night sky */
+  --cream:             #07050f;
+  --warm-white:        #0f0b1a;
+  --parchment:         #1a1430;
+
+  /* Brand — glowing lantern palette */
+  --ink:               #f0e6d0;   /* reversed — cream ink */
+  --vermilion:         #e84040;   /* 红灯笼 lantern red, glowing */
+  --vermilion-light:   #ff5252;
+  --gold:              #f0b830;   /* 金灯 gold lantern */
+  --gold-light:        #ffd040;
+  --jade:              #3ec880;   /* jade glow */
+
+  /* Legacy aliases */
+  --terracotta:        #e84040;
+  --terracotta-light:  #ff5252;
+  --amber:             #f0b830;
+  --sage:              #3ec880;
+  --forest:            #7ab0c8;
+
+  /* Text — cream on night */
+  --brown-dark:        #f0e6d0;
+  --brown-mid:         #c8b090;
+  --brown-light:       #887060;
+  --text-primary:      #f0e6d0;
+  --text-secondary:    #c8b090;
+  --text-muted:        #786858;
+
+  /* Comic panel shadow — glowing vermilion offset */
+  --panel-shadow:      4px 4px 0 rgba(232, 64, 64, 0.6);
+  --panel-shadow-lg:   6px 6px 0 rgba(232, 64, 64, 0.5);
+  --panel-border:      3px solid rgba(240, 230, 208, 0.25);
+
+  --shadow-color:      rgba(232, 64, 64, 0.12);
+  --glow:              0 0 32px rgba(232, 64, 64, 0.12), 0 0 60px rgba(240, 184, 48, 0.06);
   color-scheme: dark;
 }
 
-/* night market atmosphere — faint neon glow in the distance */
+/* Night market atmosphere */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) body {
+    background-image:
+      radial-gradient(ellipse at 10% 0%, rgba(232, 64, 64, 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 100%, rgba(240, 184, 48, 0.04) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(62, 200, 128, 0.02) 0%, transparent 70%);
+  }
+}
 [data-theme="dark"] body {
   background-image:
-    radial-gradient(ellipse at 15% 0%, rgba(255, 61, 61, 0.045) 0%, transparent 55%),
-    radial-gradient(ellipse at 85% 100%, rgba(255, 187, 59, 0.03) 0%, transparent 55%);
+    radial-gradient(ellipse at 10% 0%, rgba(232, 64, 64, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 90% 100%, rgba(240, 184, 48, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(62, 200, 128, 0.02) 0%, transparent 70%);
 }
 
+/* ── Base ── */
 * { box-sizing: border-box; }
-
 html { scroll-behavior: smooth; }
 
 body {
   background-color: var(--cream);
   color: var(--text-primary);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
   font-size: 17px;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.4s ease, color 0.4s ease;
 }
+
+/* Halftone rice paper texture */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(var(--ink) 0.8px, transparent 0.8px);
+  background-size: 18px 18px;
+  opacity: 0.025;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* All content above texture */
+body > * { position: relative; z-index: 1; }
 
 h1, h2, h3, h4 {
-  font-family: 'Lora', Georgia, serif;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
   color: var(--brown-dark);
-  line-height: 1.25;
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -0.03em;
 }
 
-.font-handwritten { font-family: 'Caveat', cursive; }
+.font-handwritten { font-family: 'Caveat', cursive; font-weight: 600; }
 
-/* ── Prose (blog post body) ── */
+/* ── Prose ── */
 .prose { max-width: 68ch; color: var(--text-primary); }
-.prose h1, .prose h2, .prose h3 { font-family: 'Lora', serif; margin-top: 2.2em; margin-bottom: 0.6em; color: var(--brown-dark); }
+.prose h1, .prose h2, .prose h3 {
+  font-family: 'Lora', serif;
+  margin-top: 2.2em; margin-bottom: 0.6em;
+  color: var(--brown-dark);
+}
 .prose h1 { font-size: 2rem; }
-.prose h2 { font-size: 1.45rem; border-bottom: 1px solid var(--parchment); padding-bottom: 0.3em; }
+.prose h2 { font-size: 1.45rem; border-bottom: 2px solid var(--parchment); padding-bottom: 0.3em; }
 .prose h3 { font-size: 1.2rem; }
-.prose p { margin-bottom: 1.4em; }
-.prose a { color: var(--terracotta); text-decoration: underline; text-underline-offset: 3px; }
-.prose a:hover { color: var(--terracotta-light); }
-.prose blockquote { border-left: 3px solid var(--terracotta); margin: 1.8em 0; padding: 0.6em 0 0.6em 1.4em; background: var(--parchment); border-radius: 0 8px 8px 0; font-family: 'Lora', serif; font-style: italic; color: var(--brown-mid); }
-.prose code { background: var(--parchment); padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.875em; color: var(--terracotta); }
-.prose pre { background: var(--brown-dark); color: var(--cream); padding: 1.4em; border-radius: 10px; overflow-x: auto; margin: 1.8em 0; }
-.prose pre code { background: transparent; padding: 0; color: inherit; }
+.prose p  { margin-bottom: 1.4em; font-family: 'Lora', serif; }
+.prose a  { color: var(--vermilion); text-decoration: underline; text-underline-offset: 3px; }
+.prose a:hover { color: var(--vermilion-light); }
+.prose blockquote {
+  border-left: 4px solid var(--vermilion);
+  margin: 1.8em 0; padding: 0.6em 0 0.6em 1.4em;
+  background: var(--parchment); border-radius: 0 12px 12px 0;
+  font-family: 'Lora', serif; font-style: italic; color: var(--brown-mid);
+  box-shadow: var(--panel-shadow);
+}
+.prose code {
+  background: var(--parchment); padding: 0.15em 0.4em;
+  border-radius: 6px; font-size: 0.875em; color: var(--vermilion);
+  border: 1px solid rgba(192, 40, 28, 0.2);
+}
+.prose pre {
+  background: var(--ink); color: var(--cream);
+  padding: 1.4em; border-radius: 4px; overflow-x: auto; margin: 1.8em 0;
+  border: var(--panel-border); box-shadow: var(--panel-shadow);
+}
+.prose pre code { background: transparent; padding: 0; color: inherit; border: none; }
 .prose ul, .prose ol { padding-left: 1.6em; margin-bottom: 1.4em; }
-.prose li { margin-bottom: 0.4em; }
-.prose img { border-radius: 12px; margin: 2em auto; max-width: 100%; }
-.prose hr { border: none; border-top: 1px solid var(--parchment); margin: 2.5em 0; }
+.prose li  { margin-bottom: 0.4em; }
+.prose img { border-radius: 4px; margin: 2em auto; max-width: 100%; border: var(--panel-border); box-shadow: var(--panel-shadow); }
+.prose hr  { border: none; border-top: 2px solid var(--parchment); margin: 2.5em 0; }
 
-/* dark mode prose tweaks */
-[data-theme="dark"] .prose pre { background: #07050f; }
-[data-theme="dark"] .prose code { background: rgba(255, 61, 61, 0.12); color: #ff8a8a; }
-[data-theme="dark"] .prose blockquote { background: rgba(255, 61, 61, 0.07); border-color: var(--terracotta); }
+[data-theme="dark"] .prose pre { background: #070510; border-color: rgba(240,230,208,0.15); }
+[data-theme="dark"] .prose code { background: rgba(232,64,64,0.1); color: #ff7070; border-color: rgba(232,64,64,0.2); }
+[data-theme="dark"] .prose blockquote { background: rgba(232,64,64,0.05); border-color: var(--vermilion); }
 
-/* ── Syntax highlighting (rehype-pretty-code) ── */
+/* ── Syntax highlighting ── */
 .prose [data-rehype-pretty-code-figure] pre {
-  padding: 1.25rem 1.4rem;
-  border-radius: 10px;
-  overflow-x: auto;
-  margin: 1.8em 0;
-  font-size: 0.83rem;
-  line-height: 1.7;
-  border: 1px solid var(--parchment);
+  padding: 1.25rem 1.4rem; border-radius: 4px;
+  overflow-x: auto; margin: 1.8em 0;
+  font-size: 0.83rem; line-height: 1.7;
+  border: var(--panel-border); box-shadow: var(--panel-shadow);
 }
 .prose [data-rehype-pretty-code-figure] code {
-  background: transparent;
-  padding: 0;
-  color: inherit;
-  font-size: inherit;
-  border-radius: 0;
-  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
-}
-/* Inline code (no data-language) */
-.prose :not(pre) > code {
-  background: var(--parchment);
-  padding: 0.15em 0.42em;
-  border-radius: 4px;
-  font-size: 0.875em;
-  color: var(--terracotta);
-  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
-}
-/* Line highlighting */
-.prose [data-highlighted-line] {
-  background: rgba(196, 98, 58, 0.08);
-  border-left: 2px solid var(--terracotta);
-  padding-left: calc(1.4rem - 2px);
-  margin-left: -1.4rem;
-  padding-right: 1.4rem;
-  margin-right: -1.4rem;
-}
-/* File name / language label */
-.prose [data-rehype-pretty-code-title] {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  background: var(--parchment);
-  padding: 0.4rem 1.2rem;
-  border-radius: 8px 8px 0 0;
-  border: 1px solid var(--parchment);
-  border-bottom: none;
-  margin-bottom: -0.5rem;
+  background: transparent; padding: 0; color: inherit;
+  font-size: inherit; border-radius: 0; border: none;
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  letter-spacing: 0.02em;
 }
-[data-theme="dark"] .prose [data-rehype-pretty-code-figure] pre {
-  border-color: var(--parchment);
+.prose :not(pre) > code {
+  background: var(--parchment); padding: 0.15em 0.42em;
+  border-radius: 4px; font-size: 0.875em; color: var(--vermilion);
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  border: 1px solid rgba(192, 40, 28, 0.15);
 }
-[data-theme="dark"] .prose [data-highlighted-line] {
-  background: rgba(255, 61, 61, 0.08);
-  border-left-color: var(--terracotta);
+.prose [data-highlighted-line] {
+  background: rgba(192, 40, 28, 0.08);
+  border-left: 3px solid var(--vermilion);
+  padding-left: calc(1.4rem - 3px); margin-left: -1.4rem;
+  padding-right: 1.4rem; margin-right: -1.4rem;
 }
-[data-theme="dark"] .prose [data-rehype-pretty-code-title] {
-  background: var(--parchment);
-  border-color: var(--parchment);
+.prose [data-rehype-pretty-code-title] {
+  font-size: 0.72rem; font-weight: 600; color: var(--text-muted);
+  background: var(--parchment); padding: 0.4rem 1.2rem;
+  border-radius: 4px 4px 0 0; border: var(--panel-border);
+  border-bottom: none; margin-bottom: -0.5rem;
+  font-family: 'JetBrains Mono', monospace; letter-spacing: 0.02em;
 }
+[data-theme="dark"] .prose [data-rehype-pretty-code-figure] pre { border-color: rgba(240,230,208,0.15); }
+[data-theme="dark"] .prose [data-highlighted-line] { background: rgba(232,64,64,0.1); border-left-color: var(--vermilion); }
+[data-theme="dark"] .prose [data-rehype-pretty-code-title] { background: var(--parchment); border-color: rgba(240,230,208,0.15); }
 
-/* ── Animations ── */
+/* ───────────────────────────────────────────────────
+   EASTERN × COMIC ANIMATIONS
+   Inspired by ink brush, lanterns, and chi energy
+─────────────────────────────────────────────────── */
+
+/* Original entrance */
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(18px); }
+  from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.animate-fade-up { animation: fadeUp 0.6s ease both; }
-.delay-1 { animation-delay: 0.1s; }
-.delay-2 { animation-delay: 0.2s; }
-.delay-3 { animation-delay: 0.3s; }
-.delay-4 { animation-delay: 0.4s; }
+.animate-fade-up { animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
-/* Bell shake — fires briefly every 4s, then rests */
+/* Ink brush reveal — slides in from left like a brushstroke */
+@keyframes brushReveal {
+  from { opacity: 0; transform: translateX(-24px) scaleX(0.92); }
+  to   { opacity: 1; transform: translateX(0) scaleX(1); }
+}
+.animate-brush { animation: brushReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* Ink drop — scales up from center like ink landing on paper */
+@keyframes inkDrop {
+  0%   { opacity: 0; transform: scale(0.7) rotate(-4deg); }
+  60%  { opacity: 1; transform: scale(1.04) rotate(0.5deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+.animate-ink-drop { animation: inkDrop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+/* Lantern float — gentle up/down sway */
+@keyframes lanternFloat {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50%       { transform: translateY(-12px) rotate(1deg); }
+}
+.lantern-float { animation: lanternFloat 5s ease-in-out infinite; }
+
+/* Bamboo sway — gentle rotation like bamboo in breeze */
+@keyframes bambooSway {
+  0%, 100% { transform: rotate(-3deg); }
+  50%       { transform: rotate(3deg); }
+}
+.bamboo-sway { animation: bambooSway 7s ease-in-out infinite; transform-origin: bottom center; }
+
+/* Petal drift — cherry blossom falling diagonally */
+@keyframes petalDrift {
+  0%   { opacity: 0; transform: translateY(-20px) translateX(0) rotate(0deg); }
+  20%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(100px) translateX(40px) rotate(360deg); }
+}
+
+/* Yin-yang spin — on toggle click */
+@keyframes yinYangToggle {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.yin-yang-spin { animation: yinYangToggle 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+/* Energy ripple — chi pulse on interaction */
+@keyframes chiRipple {
+  0%   { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* Glow pulse — for lantern/accent glow elements */
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 12px var(--vermilion), 0 0 24px rgba(232, 64, 64, 0.3); }
+  50%       { box-shadow: 0 0 20px var(--vermilion), 0 0 40px rgba(232, 64, 64, 0.5); }
+}
+
+/* Scroll unfurl — like unrolling a scroll */
+@keyframes scrollUnfurl {
+  from { opacity: 0; transform: translateY(30px); clip-path: inset(0 0 100% 0); }
+  to   { opacity: 1; transform: translateY(0); clip-path: inset(0 0 0% 0); }
+}
+
+/* Bell shake (keep original) */
 @keyframes bellShake {
-  0%, 100%  { transform: rotate(0deg); }
-  8%        { transform: rotate(-18deg); }
-  16%       { transform: rotate(18deg); }
-  24%       { transform: rotate(-12deg); }
-  32%       { transform: rotate(12deg); }
-  40%       { transform: rotate(-6deg); }
-  48%       { transform: rotate(0deg); }
+  0%, 100% { transform: rotate(0deg); }
+  8%   { transform: rotate(-18deg); }
+  16%  { transform: rotate(18deg); }
+  24%  { transform: rotate(-12deg); }
+  32%  { transform: rotate(12deg); }
+  40%  { transform: rotate(-6deg); }
+  48%  { transform: rotate(0deg); }
 }
-.bell-shake {
-  display: inline-block;
-  animation: bellShake 4s ease-in-out infinite;
-  transform-origin: 50% 0%;
-}
+.bell-shake { display: inline-block; animation: bellShake 4s ease-in-out infinite; transform-origin: 50% 0%; }
 
-/* Checkbox checkmark draw animation */
 @keyframes checkDraw {
   from { stroke-dashoffset: 20; opacity: 0; }
   to   { stroke-dashoffset: 0;  opacity: 1; }
 }
-.check-draw {
-  stroke-dasharray: 20;
-  animation: checkDraw 0.22s ease forwards;
-}
+.check-draw { stroke-dasharray: 20; animation: checkDraw 0.22s ease forwards; }
 
-/* Topic checkbox check animation */
 @keyframes topicCheck {
   0%   { transform: scale(0.7); opacity: 0; }
   60%  { transform: scale(1.15); opacity: 1; }
@@ -210,78 +349,215 @@ h1, h2, h3, h4 {
 }
 .topic-check-appear { animation: topicCheck 0.2s ease forwards; }
 
+/* ── Animation delays ── */
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }
+.delay-5 { animation-delay: 0.5s; }
+.delay-6 { animation-delay: 0.6s; }
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ───────────────────────────────────────────────────
+   COMIC PANEL CARDS
+   Hard-offset ink shadow + bold borders
+─────────────────────────────────────────────────── */
+.comic-card {
+  border: var(--panel-border) !important;
+  box-shadow: var(--panel-shadow) !important;
+  border-radius: 8px !important;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.18s ease !important;
+  cursor: pointer;
+}
+.comic-card:hover {
+  transform: translate(-3px, -3px) !important;
+  box-shadow: var(--panel-shadow-lg) !important;
+}
+
+/* Dark mode comic card */
+[data-theme="dark"] .comic-card {
+  border-color: rgba(240, 230, 208, 0.2) !important;
+  box-shadow: 4px 4px 0 rgba(232, 64, 64, 0.4) !important;
+}
+[data-theme="dark"] .comic-card:hover {
+  box-shadow: 6px 6px 0 rgba(232, 64, 64, 0.6) !important;
+}
+
 /* ── Tags ── */
 .tag {
-  display: inline-block; padding: 0.18em 0.75em; border-radius: 99px;
-  font-size: 0.78rem; font-weight: 500;
+  display: inline-block; padding: 0.18em 0.75em;
+  border-radius: 4px;
+  font-size: 0.78rem; font-weight: 600;
   background: var(--parchment); color: var(--brown-mid);
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.15s ease,
+              background 0.15s ease;
+  cursor: pointer;
 }
-.tag:hover { background: var(--terracotta); color: white; }
-
+.tag:hover {
+  background: var(--vermilion);
+  color: white;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--ink);
+}
 [data-theme="dark"] .tag {
-  background: rgba(255, 61, 61, 0.1);
-  color: #ff9090;
-  border: 1px solid rgba(255, 61, 61, 0.2);
+  background: rgba(232, 64, 64, 0.1);
+  color: #ff8080;
+  border-color: rgba(240, 230, 208, 0.2);
+  box-shadow: 2px 2px 0 rgba(232, 64, 64, 0.3);
 }
 [data-theme="dark"] .tag:hover {
-  background: var(--terracotta);
+  background: var(--vermilion);
   color: white;
-  box-shadow: 0 0 12px rgba(255, 61, 61, 0.35);
+  box-shadow: 3px 3px 0 rgba(232, 64, 64, 0.6);
 }
 
-/* ── Path cards on learn page ── */
-.path-card-link .card { transition: transform 0.18s, box-shadow 0.18s; }
-.path-card-link:hover .card { transform: translateY(-2px); box-shadow: 0 8px 28px var(--shadow-color); }
-[data-theme="dark"] .path-card-link:hover .card { box-shadow: 0 8px 28px rgba(255,61,61,0.1), 0 0 0 1px rgba(255,61,61,0.15); }
+/* ── Card hover — comic panel style ── */
+.path-card-link .card {
+  border: var(--panel-border);
+  box-shadow: var(--panel-shadow);
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease;
+}
+.path-card-link:hover .card {
+  transform: translate(-3px, -3px);
+  box-shadow: var(--panel-shadow-lg);
+}
+[data-theme="dark"] .path-card-link .card {
+  border-color: rgba(240,230,208,0.15);
+  box-shadow: 4px 4px 0 rgba(232,64,64,0.3);
+}
+[data-theme="dark"] .path-card-link:hover .card {
+  box-shadow: 6px 6px 0 rgba(232,64,64,0.5);
+}
 
-/* ── Tool cards on homepage ── */
-.tool-card > div { transition: transform 0.18s, box-shadow 0.18s; }
+.tool-card > div {
+  border: var(--panel-border);
+  box-shadow: var(--panel-shadow);
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease;
+}
 .tool-card:hover > div {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 24px var(--shadow-color);
+  transform: translate(-3px, -3px);
+  box-shadow: var(--panel-shadow-lg);
+}
+[data-theme="dark"] .tool-card > div {
+  border-color: rgba(240,230,208,0.15);
+  box-shadow: 4px 4px 0 rgba(232,64,64,0.3);
 }
 [data-theme="dark"] .tool-card:hover > div {
-  box-shadow: 0 6px 28px rgba(255, 61, 61, 0.1), 0 0 0 1px rgba(255, 61, 61, 0.15);
+  box-shadow: 6px 6px 0 rgba(232,64,64,0.5);
 }
 
-/* ── Dark mode nav pill ── */
+/* ── Nav pill — ink border style ── */
 [data-theme="dark"] .desktop-nav {
-  background: rgba(19, 16, 30, 0.85) !important;
-  border-color: rgba(46, 40, 64, 0.95) !important;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,61,61,0.05) !important;
+  background: rgba(15, 11, 26, 0.92) !important;
+  border-color: rgba(240, 230, 208, 0.15) !important;
+  box-shadow: 4px 4px 0 rgba(232, 64, 64, 0.25) !important;
 }
 [data-theme="dark"] .mobile-bottom-nav > div {
-  background: rgba(19, 16, 30, 0.92) !important;
-  border-color: rgba(46, 40, 64, 0.98) !important;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 20px rgba(255,61,61,0.06) !important;
+  background: rgba(15, 11, 26, 0.95) !important;
+  border-color: rgba(240, 230, 208, 0.12) !important;
+  box-shadow: 0 -4px 32px rgba(0,0,0,0.6), 0 0 20px rgba(232,64,64,0.08) !important;
 }
 
-/* ── Cards — dark mode glow border ── */
+/* ── Cards dark mode ── */
 [data-theme="dark"] article,
 [data-theme="dark"] .card {
-  border-color: var(--parchment) !important;
+  border-color: rgba(240, 230, 208, 0.12) !important;
   background: var(--warm-white) !important;
 }
 
-/* ── Desktop/Mobile nav visibility ── */
+/* ── Responsive nav ── */
 .desktop-nav { display: flex; }
 .auth-btn    { display: inline-flex; }
 
 .mobile-bottom-nav {
   display: none;
-  position: fixed;
-  bottom: 1.2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 2.4rem);
-  max-width: 420px;
+  position: fixed; bottom: 1.2rem;
+  left: 50%; transform: translateX(-50%);
+  width: calc(100% - 2.4rem); max-width: 420px;
   z-index: 100;
 }
 
 @media (max-width: 640px) {
-  .desktop-nav { display: none !important; }
-  .auth-btn    { display: none !important; }
-  .mobile-bottom-nav { display: block; }
-  main { padding-bottom: 6rem !important; }
+  .desktop-nav        { display: none !important; }
+  .auth-btn           { display: none !important; }
+  .mobile-bottom-nav  { display: block; }
+  main                { padding-bottom: 6rem !important; }
+}
+
+/* ── Brand logo — theme-aware switching ── */
+.logo-dark { display: none; }
+[data-theme="dark"] .logo-light { display: none; }
+[data-theme="dark"] .logo-dark  { display: block; }
+
+/* ── Hero CTA buttons — comic ink style ── */
+.hero-btn-primary,
+.hero-btn-secondary {
+  display: inline-block;
+  padding: 0.65em 1.6em;
+  border-radius: 4px;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 0.95rem;
+  border: 2.5px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.15s ease;
+}
+.hero-btn-primary {
+  background: var(--vermilion);
+  color: white;
+}
+.hero-btn-secondary {
+  background: var(--warm-white);
+  color: var(--brown-mid);
+}
+.hero-btn-primary:hover,
+.hero-btn-secondary:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--ink);
+}
+[data-theme="dark"] .hero-btn-secondary { color: var(--text-secondary); }
+
+/* ── Eastern divider — ink brush stroke ── */
+.ink-divider {
+  border: none;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--vermilion) 20%,
+    var(--gold) 50%,
+    var(--vermilion) 80%,
+    transparent 100%
+  );
+  margin: 2rem 0;
+  border-radius: 99px;
+}
+
+/* ── Vermilion seal stamp — decorative ── */
+.seal-stamp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem; height: 2.2rem;
+  border: 2.5px solid var(--vermilion);
+  border-radius: 4px;
+  color: var(--vermilion);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  transform: rotate(-5deg);
+  opacity: 0.8;
 }
