@@ -6,13 +6,14 @@ import ThemeToggle from '@/components/ThemeToggle';
 import { useState } from 'react';
 
 const navLinks = [
-  { href: '/',        label: 'Home',   icon: IconHome,   mobile: true  },
-  { href: '/blog',    label: 'Blog',   icon: IconBlog,   mobile: true  },
-  { href: '/digest',  label: 'Digest', icon: IconDigest, mobile: true  },
-  { href: '/githot',  label: 'Githot', icon: IconGithot, mobile: true  },
-  { href: '/learn',   label: 'Learn',  icon: IconLearn,  mobile: true  },
-  { href: '/resume',  label: 'Resume', icon: IconResume, mobile: false },
-  { href: '/about',   label: 'About',  icon: IconAbout,  mobile: false },
+  { href: '/',               label: 'Home',      icon: IconHome,      mobile: true  },
+  { href: '/blog',           label: 'Blog',      icon: IconBlog,      mobile: true  },
+  { href: '/digest',         label: 'Digest',    icon: IconDigest,    mobile: true  },
+  { href: '/githot',         label: 'Githot',    icon: IconGithot,    mobile: true  },
+  { href: '/learn',          label: 'Learn',     icon: IconLearn,     mobile: true  },
+  { href: '/interview-prep', label: 'Interview', icon: IconInterview, mobile: false },
+  { href: '/resume',         label: 'Resume',    icon: IconResume,    mobile: false },
+  { href: '/about',          label: 'About',     icon: IconAbout,     mobile: false },
 ];
 
 const moreLinks = navLinks.filter(l => !l.mobile);
@@ -44,37 +45,28 @@ export default function Header() {
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}>
 
-          {/* Logo */}
-          <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.45rem', flexShrink: 0 }}>
-            <span style={{ fontSize: '1.3rem', lineHeight: 1 }}>🌿</span>
-            <span style={{
-              fontFamily: "'Lora', serif", fontWeight: 600, fontSize: '1rem',
-              color: 'var(--brown-dark)', letterSpacing: '-0.01em',
-            }}>
-              My Little Corner
-            </span>
-          </Link>
 
-          {/* Desktop floating pill nav */}
+          {/* Desktop floating pill nav — ink border */}
           <nav className="desktop-nav" style={{
-            background: 'rgba(255,253,249,0.82)',
-            backdropFilter: 'blur(16px)',
-            WebkitBackdropFilter: 'blur(16px)',
-            border: '1px solid rgba(242,235,224,0.9)',
-            borderRadius: '99px',
+            background: 'rgba(253,245,228,0.88)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            border: '2.5px solid rgba(20,10,5,0.18)',
+            borderRadius: '8px',
             padding: '0.3rem 0.4rem',
-            boxShadow: '0 4px 20px rgba(44,31,20,0.07), 0 1px 4px rgba(44,31,20,0.05)',
+            boxShadow: '3px 3px 0 rgba(20,10,5,0.14)',
             display: 'flex', gap: '0.1rem',
           }}>
             {navLinks.map(link => {
               const active = isActive(link.href);
               return (
                 <Link key={link.href} href={link.href} style={{
-                  padding: '0.3em 0.9em', borderRadius: '99px',
-                  fontSize: '0.88rem', fontWeight: 500, textDecoration: 'none',
-                  background: active ? 'var(--terracotta)' : 'transparent',
+                  padding: '0.3em 0.9em', borderRadius: '4px',
+                  fontSize: '0.88rem', fontWeight: 600, textDecoration: 'none',
+                  background: active ? 'var(--vermilion)' : 'transparent',
                   color: active ? 'white' : 'var(--text-secondary)',
-                  transition: 'all 0.18s',
+                  boxShadow: active ? '2px 2px 0 rgba(20,10,5,0.3)' : 'none',
+                  transition: 'all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)',
                   whiteSpace: 'nowrap',
                 }}>
                   {link.label}
@@ -191,16 +183,16 @@ export default function Header() {
           </>
         )}
 
-        {/* Main tab bar */}
+        {/* Main tab bar — ink border */}
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-around',
-          background: 'rgba(255,253,249,0.88)',
+          background: 'rgba(253,245,228,0.92)',
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
-          border: '1px solid rgba(242,235,224,0.95)',
-          borderRadius: '24px',
+          border: '2.5px solid rgba(20,10,5,0.2)',
+          borderRadius: '8px',
           padding: '0.55rem 0.5rem',
-          boxShadow: '0 8px 32px rgba(44,31,20,0.12), 0 2px 8px rgba(44,31,20,0.06)',
+          boxShadow: '3px 3px 0 rgba(20,10,5,0.15)',
           width: '100%',
         }}>
           {navLinks.filter(l => l.mobile).map(link => {
@@ -210,9 +202,10 @@ export default function Header() {
               <Link key={link.href} href={link.href} style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 gap: '0.2rem', textDecoration: 'none',
-                padding: '0.35rem 0.6rem', borderRadius: '14px',
-                background: active ? 'var(--terracotta)' : 'transparent',
-                transition: 'background 0.18s',
+                padding: '0.35rem 0.6rem', borderRadius: '4px',
+                background: active ? 'var(--vermilion)' : 'transparent',
+                boxShadow: active ? '2px 2px 0 rgba(20,10,5,0.3)' : 'none',
+                transition: 'all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)',
                 minWidth: '48px',
               }}>
                 <Icon active={active} />
@@ -231,10 +224,11 @@ export default function Header() {
             onClick={() => setMoreOpen(o => !o)}
             style={{
               display: 'flex', flexDirection: 'column', alignItems: 'center',
-              gap: '0.2rem', padding: '0.35rem 0.6rem', borderRadius: '14px',
-              background: moreOpen ? 'var(--terracotta)' : 'transparent',
+              gap: '0.2rem', padding: '0.35rem 0.6rem', borderRadius: '4px',
+              background: moreOpen ? 'var(--vermilion)' : 'transparent',
+              boxShadow: moreOpen ? '2px 2px 0 rgba(20,10,5,0.3)' : 'none',
               border: 'none', cursor: 'pointer',
-              transition: 'background 0.18s', minWidth: '48px',
+              transition: 'all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)', minWidth: '48px',
             }}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -319,6 +313,16 @@ function IconAbout({ active }: { active: boolean }) {
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
       <circle cx="12" cy="7" r="4" />
+    </svg>
+  );
+}
+function IconInterview({ active }: { active: boolean }) {
+  const c = active ? 'white' : 'var(--text-muted)';
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+      <line x1="9" y1="10" x2="15" y2="10" />
+      <line x1="9" y1="14" x2="13" y2="14" />
     </svg>
   );
 }
