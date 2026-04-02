@@ -507,9 +507,33 @@ h1, h2, h3, h4 {
 }
 
 /* ── Responsive nav ── */
-.desktop-nav { display: flex; }
-.auth-btn    { display: inline-flex; }
-.mobile-only { display: none; }
+.desktop-nav         { display: flex; }
+.auth-btn            { display: inline-flex; }
+.mobile-only         { display: none; }
+.interview-sidebar   { display: block; }
+
+/* Blinking cursor for streaming text */
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+.stream-cursor {
+  display: inline-block;
+  width: 2px; height: 1em;
+  background: var(--terracotta);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: cursorBlink 0.9s step-end infinite;
+}
+
+/* Thinking dots animation */
+@keyframes thinkDot {
+  0%, 60%, 100% { opacity: 0.25; transform: translateY(0); }
+  30%            { opacity: 1;    transform: translateY(-3px); }
+}
+.think-dot { display: inline-block; animation: thinkDot 1.4s ease-in-out infinite; }
+.think-dot:nth-child(2) { animation-delay: 0.2s; }
+.think-dot:nth-child(3) { animation-delay: 0.4s; }
 
 .mobile-bottom-nav {
   display: none;
@@ -524,6 +548,7 @@ h1, h2, h3, h4 {
   .auth-btn           { display: none !important; }
   .mobile-bottom-nav  { display: block; }
   .mobile-only        { display: block; }
+  .interview-sidebar  { display: none !important; }
   main                { padding-bottom: 6rem !important; }
 }
 

@@ -119,13 +119,13 @@ export const INTERVIEW_ROLES: readonly InterviewRole[] = [
   },
 ];
 
-// XP awarded when the user completes each stage
+// XP awarded when the user completes each stage (stages: scene → why → guide → practice → debrief)
 export const STAGE_XP_VALUES: Record<string, number> = {
-  discover:   5,
-  understand: 10,
-  example:    10,
-  practice:   50,
-  feedback:   0,
+  scene:    5,
+  why:      10,
+  guide:    10,
+  practice: 50,
+  debrief:  0,
 } as const;
 
 export function getRoleById(id: string): InterviewRole | undefined {

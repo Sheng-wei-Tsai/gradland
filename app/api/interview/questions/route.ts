@@ -30,6 +30,7 @@ Return ONLY a valid JSON object in this exact format (no markdown, no extra text
     {
       "id": "q1",
       "text": "The interview question here?",
+      "scenario": "A brief real-world scenario at an Australian tech company where this question would come up (1-2 sentences, specific and concrete)",
       "focus": "What this question is really testing (one sentence)",
       "concepts": ["key concept 1", "key concept 2", "key concept 3"],
       "framework": "How to structure a strong answer (2-3 sentences describing the approach, not a sample answer)"
