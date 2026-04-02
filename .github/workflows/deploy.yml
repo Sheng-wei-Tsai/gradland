@@ -13,9 +13,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  # ── Quality gate — must pass before Vercel deploys ──────────────────────────
+  check:
+    name: Security & Build Check
     runs-on: ubuntu-latest
-    # For workflow_run events, only deploy if the upstream workflow succeeded
     if: >
       github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
@@ -23,8 +24,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # workflow_run doesn't auto-checkout the latest commit —
-          # explicitly pull the tip of main that the bot just pushed
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Audit dependencies (block on moderate+)
+        run: npm audit --audit-level=moderate
+
+      - name: TypeScript & build check
+        run: npm run build
+
+  # ── Deploy — only runs if check passes ──────────────────────────────────────
+  deploy:
+    name: Deploy to Vercel
+    runs-on: ubuntu-latest
+    needs: check          # hard dependency — deploy never runs if check fails
+    steps:
+      - uses: actions/checkout@v4
+        with:
           ref: main
 
       - uses: actions/setup-node@v4
