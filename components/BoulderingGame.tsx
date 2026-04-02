@@ -192,7 +192,7 @@ export default function BoulderingGame() {
       for (const id of reachable) {
         const h = state.holds[id];
         const d = Math.hypot(h.x - tx, h.y - ty);
-        if (d < bestDist && d < 60) { // 60px tap tolerance
+        if (d < bestDist && d < 90) { // 90px tap tolerance (generous for mobile fingers)
           bestDist = d;
           best = id;
         }
@@ -218,7 +218,7 @@ export default function BoulderingGame() {
   useGameLoop({ canvasRef, stateRef, saveRef, onSend: handleSend, onFall: handleFall });
 
   return (
-    <div style={{ position: 'relative', width: '100%', maxWidth: '480px' }}>
+    <div style={{ width: '100%', maxWidth: '480px' }}>
       <canvas
         ref={canvasRef}
         width={CW}
@@ -231,8 +231,10 @@ export default function BoulderingGame() {
           boxShadow: '4px 4px 0 var(--ink, #1A0A05)',
           display: 'block',
           cursor: 'crosshair',
+          touchAction: 'none', // prevent scroll on touch
         }}
       />
+      {/* Mobile controls — rendered BELOW canvas, not overlapping */}
       <MobileDpad
         onCommit={() => {
           const state = stateRef.current;
@@ -266,34 +268,18 @@ export default function BoulderingGame() {
 // ── Mobile controls ───────────────────────────────────────────────────────────
 type Dir = 'left' | 'right' | 'up' | 'down';
 
-function Btn({
-  label, style, onPress,
-}: {
-  label: string;
-  style: React.CSSProperties;
-  onPress: () => void;
-}) {
-  return (
-    <button
-      onPointerDown={e => { e.preventDefault(); onPress(); }}
-      style={{
-        position: 'absolute',
-        width: '38px', height: '38px',
-        background: 'rgba(253,245,228,0.88)',
-        border: '2px solid rgba(20,10,5,0.28)',
-        borderRadius: '6px',
-        boxShadow: '2px 2px 0 rgba(20,10,5,0.18)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: '14px', cursor: 'pointer',
-        WebkitTapHighlightColor: 'transparent',
-        touchAction: 'none', userSelect: 'none',
-        ...style,
-      }}
-    >
-      {label}
-    </button>
-  );
-}
+const BTN_BASE: React.CSSProperties = {
+  width: '52px', height: '52px',           // 52px > 44px minimum touch target
+  background: 'rgba(253,245,228,0.92)',
+  border: '2px solid rgba(20,10,5,0.28)',
+  borderRadius: '8px',
+  boxShadow: '2px 2px 0 rgba(20,10,5,0.18)',
+  display: 'flex', alignItems: 'center', justifyContent: 'center',
+  fontSize: '18px', fontWeight: 700, cursor: 'pointer',
+  WebkitTapHighlightColor: 'transparent',
+  touchAction: 'none', userSelect: 'none',
+  flexShrink: 0,
+};
 
 function MobileDpad({
   onCommit, onNudge, onRestart,
@@ -303,35 +289,52 @@ function MobileDpad({
   onRestart: () => void;
 }) {
   return (
+    // Sits below the canvas, hidden on desktop
     <div
       className="mobile-only"
-      style={{ position: 'absolute', bottom: '64px', right: '6px', width: '128px', height: '168px' }}
+      style={{
+        marginTop: '0.75rem',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        gap: '0.5rem',
+        padding: '0.75rem',
+        background: 'rgba(253,245,228,0.88)',
+        border: '2px solid rgba(20,10,5,0.18)',
+        borderRadius: '10px',
+        boxShadow: '3px 3px 0 rgba(20,10,5,0.12)',
+      }}
     >
-      {/* Nudge arrows */}
-      <Btn label="▲" style={{ top: 0, left: '45px' }}    onPress={() => onNudge('up')} />
-      <Btn label="◀" style={{ top: '44px', left: 0 }}    onPress={() => onNudge('left')} />
-      <Btn label="▶" style={{ top: '44px', right: 0 }}   onPress={() => onNudge('right')} />
-      <Btn label="▼" style={{ top: '88px', left: '45px' }} onPress={() => onNudge('down')} />
+      {/* Left nudge */}
+      <button onPointerDown={e => { e.preventDefault(); onNudge('left'); }} style={BTN_BASE}>◀</button>
 
-      {/* GRAB — centre, commit the sweep */}
+      {/* Centre cluster: Up / GRAB / Down */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem' }}>
+        <button onPointerDown={e => { e.preventDefault(); onNudge('up'); }} style={BTN_BASE}>▲</button>
+
+        {/* GRAB — primary action */}
+        <button
+          onPointerDown={e => { e.preventDefault(); onCommit(); }}
+          style={{
+            ...BTN_BASE,
+            width: '64px', height: '64px',
+            background: '#C0281C', color: 'white',
+            borderRadius: '50%',
+            border: '2.5px solid rgba(20,10,5,0.4)',
+            boxShadow: '3px 3px 0 rgba(20,10,5,0.3)',
+            fontSize: '10px', letterSpacing: '0.05em',
+          }}
+        >GRAB</button>
+
+        <button onPointerDown={e => { e.preventDefault(); onNudge('down'); }} style={BTN_BASE}>▼</button>
+      </div>
+
+      {/* Right nudge */}
+      <button onPointerDown={e => { e.preventDefault(); onNudge('right'); }} style={BTN_BASE}>▶</button>
+
+      {/* Restart — far right */}
       <button
-        onPointerDown={e => { e.preventDefault(); onCommit(); }}
-        style={{
-          position: 'absolute', top: '44px', left: '45px',
-          width: '38px', height: '38px',
-          background: '#C0281C', color: 'white',
-          border: '2px solid rgba(20,10,5,0.4)', borderRadius: '50%',
-          boxShadow: '2px 2px 0 rgba(20,10,5,0.3)',
-          fontSize: '8px', fontWeight: 700, letterSpacing: '0.04em',
-          cursor: 'pointer',
-          WebkitTapHighlightColor: 'transparent',
-          touchAction: 'none', userSelect: 'none',
-        }}
-      >GRAB</button>
-
-      {/* Restart */}
-      <Btn label="R" style={{ bottom: 0, right: 0, fontSize: '11px', fontWeight: 700 }}
-        onPress={onRestart} />
+        onPointerDown={e => { e.preventDefault(); onRestart(); }}
+        style={{ ...BTN_BASE, fontSize: '11px', fontWeight: 700, color: 'var(--text-muted, #8a7060)' }}
+      >↺</button>
     </div>
   );
 }

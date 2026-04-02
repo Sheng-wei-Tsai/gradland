@@ -245,7 +245,7 @@ function drawHUD(
   ctx.fillStyle = 'rgba(20,10,5,0.35)';
   ctx.font = '9px monospace';
   ctx.textAlign = 'right';
-  ctx.fillText('SPACE to grab lit hold  •  ← → ↑ ↓ nudge aim  •  R restart', CW - 12, y + 30);
+  ctx.fillText('Tap hold  or  SPACE to grab  •  arrows nudge  •  R restart', CW - 12, y + 30);
 }
 
 function drawParticles(ctx: CanvasRenderingContext2D, state: GameState): void {
