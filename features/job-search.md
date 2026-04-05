@@ -1,120 +1,104 @@
 # Feature: Job Search — Australian Market
 
-**Priority:** 🔴 High (Indeed + freshness) · 🟡 Medium (filters, preferences)
-**Status:** 🔲 Not started
+**Priority:** 🔴 High (JSearch freshness) · 🟡 Medium (filters, preferences)
+**Status:** 🟡 In Progress
 **Branch:** `feature/job-search-improvements` (create when starting)
-**Started:** —
+**Started:** 2026-04-03
 **Shipped:** —
 
 ---
 
 ## Goal
 
-Improve the Australian IT job search experience: add a second fresher data source (Indeed), surface job posting age prominently, build a job alerts UI, and add quality-of-life filters. Currently Adzuna lags by hours–days; users need same-day listings.
+Improve the Australian IT job search experience: add JSearch (Google for Jobs via RapidAPI) as a
+fresher data source alongside Adzuna, surface job posting age prominently with colour coding, build
+a job alerts UI, and add quality-of-life filters.
+
+> **Note:** Indeed Publisher XML feed was deprecated and shut down March 31 2026. SEEK has no
+> public read API. JSearch (RapidAPI) pulling from Google for Jobs is the best viable second source.
+
+---
+
+## Data Sources
+
+| Source | Freshness | Coverage | Cost |
+|--------|-----------|----------|------|
+| Adzuna (existing) | 24–48h lag | Broad AU breadth | Free |
+| JSearch / Google for Jobs (new) | Hours | LinkedIn AU, Glassdoor, Workday, career pages | ~$10/mo RapidAPI |
+
+JSearch results are shown first (fresher); Adzuna fills unique listings after deduplication.
 
 ---
 
 ## Acceptance Criteria
 
-### Indeed Integration
-- [ ] Indeed Publisher API added as second job source alongside Adzuna
-- [ ] Results merged and deduplicated in `app/api/jobs/route.ts`
-- [ ] "via Indeed" badge shown on Indeed-sourced listings
-- [ ] `INDEED_PUBLISHER_ID` added to `.env.example` and GitHub Secrets docs
+### JSearch Integration ✅
+- [x] JSearch added as second job source alongside Adzuna (`RAPIDAPI_KEY`)
+- [x] Results merged and deduplicated by title + company in `app/api/jobs/route.ts`
+- [x] "via [publisher]" badge shown (e.g. "via LinkedIn", "via Glassdoor")
+- [x] Parallel fetch — JSearch + Adzuna run concurrently, not sequentially
+- [x] `RAPIDAPI_KEY` added to `.env.local` placeholder
 
-### Job Freshness
-- [ ] Posting age displayed on every job card (e.g. "2 hours ago", "3 days ago")
-- [ ] Age colour: green < 24h · amber 1–3 days · red > 3 days
-- [ ] Uses `formatDistanceToNow` from `date-fns` (already installed)
+### Job Freshness ✅
+- [x] Posting age displayed on every job card
+- [x] Age colour: green < 24h · amber 1–3 days · red > 3 days · grey > 30 days
 
-### Job Alerts UI
-- [ ] "Save this search" button on `/jobs` saves criteria to `job_alerts` table
-- [ ] "Alerts" tab visible on `/dashboard` with saved alerts listed
-- [ ] Alerts can be deleted from the dashboard
-- [ ] Email digests sent via Supabase Edge Function or GitHub Action (schedule TBD)
+### Job Alerts UI ✅
+- [x] "Save this search" button on `/jobs` saves criteria to `job_alerts` table via `/api/alerts`
+- [x] "Alerts" tab visible on `/dashboard` with saved alerts listed
+- [x] Alerts can be deleted from the dashboard
+- [x] Alert links back to `/jobs` pre-filled with saved search params
 
-### Filters (medium priority — can ship in follow-up)
-- [ ] Salary range filter (Adzuna `salary_min` / `salary_max` params)
-- [ ] IT sub-category filter: All / Developer / DevOps / Data / QA
-- [ ] Search preferences persist to localStorage across sessions
-- [ ] One-click "Apply" creates a `job_applications` row (status: applied)
+### Filters ✅
+- [x] Salary range filter (Adzuna `salary_min` / `salary_max` params)
+- [x] IT sub-category filter: All / Developer / DevOps / Data / QA (client-side)
+- [x] Search preferences persist to localStorage across sessions
+
+### Alerts API ✅
+- [x] `GET /api/alerts` — list user's alerts (auth required)
+- [x] `POST /api/alerts` — create alert (auth required, validated)
+- [x] `DELETE /api/alerts?id=` — delete alert (user-scoped RLS double-check)
 
 ---
 
 ## Affected Files
 
-| File | Action | Notes |
+| File | Status | Notes |
 |------|--------|-------|
-| `app/api/jobs/route.ts` | Modify | Merge Adzuna + Indeed results |
-| `app/jobs/page.tsx` | Modify | Freshness display, filters, "Save search" |
-| `app/dashboard/page.tsx` | Modify | Alerts tab |
-| `app/api/alerts/route.ts` | Create | CRUD for job alerts |
-| `.env.example` | Create/Modify | Add `INDEED_PUBLISHER_ID` |
+| `app/api/jobs/route.ts` | ✅ Done | JSearch parallel fetch + Adzuna merge |
+| `app/jobs/page.tsx` | ✅ Done | Freshness colours, filters, localStorage, Save Search |
+| `app/dashboard/page.tsx` | ✅ Done | Alerts tab added |
+| `app/api/alerts/route.ts` | ✅ Done | CRUD for job alerts |
+| `.env.local` | ✅ Done | `RAPIDAPI_KEY` placeholder added |
 
 ---
 
-## Implementation Notes
+## What's Left
 
-- Indeed Publisher API: `https://ads.indeed.com/jobroll/xmlfeed` — free tier
-- Deduplication: match on job title + company name (fuzzy) or URL
-- `job_alerts` schema already exists in `supabase/schema.sql` — no migration needed
-- `date-fns` is already installed — use `formatDistanceToNow`
-- Do not use OpenAI or Claude for any part of this feature (Adzuna/Indeed data is structured)
-
----
-
-## Senior Dev Test Checklist
-
-### Functional
-
-- [ ] Jobs page loads with results from both Adzuna and Indeed
-- [ ] "via Indeed" badge visible on Indeed results
-- [ ] No duplicate listings for the same job (deduplication works)
-- [ ] Freshness labels show correct relative time ("2 hours ago")
-- [ ] Green/amber/red colour applied correctly based on age thresholds
-- [ ] Salary filter narrows results correctly
-- [ ] Category filter shows only matching jobs
-- [ ] "Save search" saves to Supabase and shows success feedback
-- [ ] Dashboard Alerts tab shows saved searches
-- [ ] Deleting an alert removes it from the list immediately
-- [ ] Preferences survive page reload (localStorage)
-- [ ] One-click Apply creates an entry visible on /dashboard
-
-### Auth & Data
-
-- [ ] Saving alerts requires login — unauthenticated user sees prompt
-- [ ] Alerts are user-scoped — users cannot see each other's alerts
-- [ ] API routes return 401 without session where required
-
-### Build & Types
-
-- [ ] `npm run build` passes with zero errors
-- [ ] Indeed XML response parsed without TypeScript errors
-- [ ] No `any` types added to merged job result shape
-
-### Security
-
-- [ ] `INDEED_PUBLISHER_ID` is server-only (not prefixed `NEXT_PUBLIC_`)
-- [ ] Job listing content is displayed as text — not injected as HTML
-
-### Performance
-
-- [ ] Jobs page initial load under 3s on average connection
-- [ ] Parallel fetch for Adzuna + Indeed (not sequential)
-- [ ] localStorage access does not block render
+- [ ] Email digests (Supabase Edge Function or GitHub Action) — post-ship
+- [ ] One-click "Apply" creates a `job_applications` row — post-ship
+- [ ] Add `RAPIDAPI_KEY` to Vercel environment variables (user action required)
+- [ ] `npm run check` before pushing
 
 ---
 
-## Post-Ship Checklist
+## Setup
 
-- [ ] Tested on live Vercel URL with real job results
-- [ ] Vercel Function logs clean
-- [ ] Indeed API key added to production environment variables
-- [ ] `context/feature-roadmap.md` items checked off
-- [ ] This file updated with ship date
+To enable JSearch, add your RapidAPI key:
+
+1. Sign up at https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch
+2. Subscribe to the Basic plan (~$10/mo, 500 req/mo)
+3. Copy your key and add to `.env.local`:
+   ```
+   RAPIDAPI_KEY=your_key_here
+   ```
+4. Add the same key to Vercel → Project Settings → Environment Variables
+
+Without the key, the API gracefully falls back to Adzuna-only.
 
 ---
 
 ## Notes / History
 
-- **—** — Not started yet
+- **2026-04-03** — Indeed XML dead. Replaced with JSearch. Freshness colours, filters,
+  localStorage, alerts API, dashboard Alerts tab all implemented.
