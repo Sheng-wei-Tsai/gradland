@@ -3,15 +3,15 @@ import Stripe from 'stripe';
 import { getServerUser } from '@/lib/auth-server';
 import { createSupabaseService } from '@/lib/auth-server';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-06-30.basil',
-});
-
 export async function POST(req: NextRequest) {
   const user = await getServerUser();
   if (!user) {
     return NextResponse.json({ error: 'Authentication required', code: 'UNAUTHENTICATED' }, { status: 401 });
   }
+
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: '2025-06-30.basil',
+  });
 
   const sb = createSupabaseService();
 

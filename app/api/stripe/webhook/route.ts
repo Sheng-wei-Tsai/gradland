@@ -2,10 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createSupabaseService } from '@/lib/auth-server';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-06-30.basil',
-});
-
 async function updateSubscription(
   userId: string,
   tier: 'free' | 'pro',
@@ -29,6 +25,10 @@ function periodEndToISO(sub: Stripe.Subscription): string {
 }
 
 export async function POST(req: NextRequest) {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: '2025-06-30.basil',
+  });
+
   const body      = await req.text();
   const signature = req.headers.get('stripe-signature') ?? '';
 
