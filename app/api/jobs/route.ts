@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const APP_ID  = process.env.ADZUNA_APP_ID;
-const APP_KEY = process.env.ADZUNA_APP_KEY;
+const APP_ID       = process.env.ADZUNA_APP_ID;
+const APP_KEY      = process.env.ADZUNA_APP_KEY;
+const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY;
 
 const ALLOWED_SORT = new Set(['date', 'salary']);
 
@@ -16,7 +17,82 @@ export interface AdzunaJob {
   created: string;
   category: string;
   contract_type: string | null;
+  source: 'adzuna' | 'jsearch';
+  publisher?: string;   // e.g. "LinkedIn", "Glassdoor" — from JSearch
+  salary_min?: number;
+  salary_max?: number;
 }
+
+// ─── JSearch (Google for Jobs via RapidAPI) ───────────────────────────────────
+
+async function fetchJSearch(keywords: string, location: string): Promise<AdzunaJob[]> {
+  if (!RAPIDAPI_KEY) return [];
+  try {
+    const query = `${keywords} in ${location}, Australia`;
+    const params = new URLSearchParams({
+      query,
+      page:        '1',
+      num_pages:   '1',
+      date_posted: '3days',
+      country:     'au',
+    });
+    const res = await fetch(
+      `https://jsearch.p.rapidapi.com/search?${params}`,
+      {
+        headers: {
+          'X-RapidAPI-Key':  RAPIDAPI_KEY,
+          'X-RapidAPI-Host': 'jsearch.p.rapidapi.com',
+        },
+        next: { revalidate: 300 },
+      },
+    );
+    if (!res.ok) return [];
+
+    const json = await res.json();
+    const results: any[] = json.data ?? [];
+
+    return results.map(r => {
+      const city     = r.job_city ?? '';
+      const state    = r.job_state ?? '';
+      const loc      = [city, state].filter(Boolean).join(', ') || location;
+      const created  = r.job_posted_at_datetime_utc ?? new Date().toISOString();
+
+      let salary: string | null = null;
+      if (r.job_min_salary && r.job_max_salary) {
+        salary = `$${Math.round(r.job_min_salary / 1000)}k – $${Math.round(r.job_max_salary / 1000)}k`;
+      } else if (r.job_min_salary) {
+        salary = `From $${Math.round(r.job_min_salary / 1000)}k`;
+      }
+
+      return {
+        id:            `jsearch-${r.job_id}`,
+        title:         r.job_title ?? '',
+        company:       r.employer_name ?? 'Unknown',
+        location:      loc,
+        description:   r.job_description ?? '',
+        salary,
+        salary_min:    r.job_min_salary ?? undefined,
+        salary_max:    r.job_max_salary ?? undefined,
+        url:           r.job_apply_link ?? r.job_google_link ?? '',
+        created,
+        category:      r.job_employment_type ?? '',
+        contract_type: r.job_employment_type ?? null,
+        source:        'jsearch' as const,
+        publisher:     r.job_publisher ?? undefined,
+      };
+    });
+  } catch {
+    return [];
+  }
+}
+
+// ─── Deduplication ────────────────────────────────────────────────────────────
+
+function dedupKey(title: string, company: string): string {
+  return `${title}|${company}`.toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+// ─── Route ────────────────────────────────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
   if (!APP_ID || !APP_KEY) {
@@ -24,19 +100,19 @@ export async function GET(req: NextRequest) {
   }
 
   const { searchParams } = req.nextUrl;
-  const keywords = searchParams.get('keywords') || 'software developer';
-  const location = searchParams.get('location') || 'Brisbane';
-  const fullTime = searchParams.get('full_time');
+  const keywords  = searchParams.get('keywords') || 'software developer';
+  const location  = searchParams.get('location') || 'Brisbane';
+  const fullTime  = searchParams.get('full_time');
+  const salaryMin = searchParams.get('salary_min');
+  const salaryMax = searchParams.get('salary_max');
 
-  // Validate page: positive integer, max 10
   const rawPage = parseInt(searchParams.get('page') ?? '1', 10);
   const page    = Number.isFinite(rawPage) ? Math.max(1, Math.min(rawPage, 10)) : 1;
 
-  // Validate sort_by against allowlist
   const rawSort = searchParams.get('sort_by') ?? 'date';
   const sortBy  = ALLOWED_SORT.has(rawSort) ? rawSort : 'date';
 
-  const params = new URLSearchParams({
+  const adzunaParams = new URLSearchParams({
     app_id:           APP_ID,
     app_key:          APP_KEY,
     results_per_page: '20',
@@ -45,20 +121,26 @@ export async function GET(req: NextRequest) {
     sort_by:          sortBy,
   });
 
-  if (fullTime === '1') params.set('full_time', '1');
+  if (fullTime === '1') adzunaParams.set('full_time', '1');
+  if (salaryMin)        adzunaParams.set('salary_min', salaryMin);
+  if (salaryMax)        adzunaParams.set('salary_max', salaryMax);
 
-  const url = `https://api.adzuna.com/v1/api/jobs/au/search/${page}?${params}`;
+  const adzunaUrl = `https://api.adzuna.com/v1/api/jobs/au/search/${page}?${adzunaParams}`;
 
   try {
-    const res = await fetch(url, { next: { revalidate: 300 } });
-    if (!res.ok) {
-      const err = await res.text();
-      return NextResponse.json({ error: err }, { status: res.status });
+    const [adzunaRes, jsearchJobs] = await Promise.all([
+      fetch(adzunaUrl, { next: { revalidate: 300 } }),
+      fetchJSearch(keywords, location),
+    ]);
+
+    if (!adzunaRes.ok) {
+      const err = await adzunaRes.text();
+      return NextResponse.json({ error: err }, { status: adzunaRes.status });
     }
 
-    const data = await res.json();
+    const data = await adzunaRes.json();
 
-    const jobs: AdzunaJob[] = (data.results ?? []).map((r: any) => ({
+    const adzunaJobs: AdzunaJob[] = (data.results ?? []).map((r: any) => ({
       id:            r.id,
       title:         r.title,
       company:       r.company?.display_name ?? 'Unknown',
@@ -67,13 +149,23 @@ export async function GET(req: NextRequest) {
       salary:        r.salary_min
         ? `$${Math.round(r.salary_min / 1000)}k – $${Math.round(r.salary_max / 1000)}k`
         : null,
+      salary_min:    r.salary_min ?? undefined,
+      salary_max:    r.salary_max ?? undefined,
       url:           r.redirect_url,
       created:       r.created,
       category:      r.category?.label ?? '',
       contract_type: r.contract_type ?? null,
+      source:        'adzuna' as const,
     }));
 
-    return NextResponse.json({ jobs, total: data.count ?? 0 });
+    // JSearch jobs go first (fresher), Adzuna fills unique listings after
+    const seen   = new Set(jsearchJobs.map(j => dedupKey(j.title, j.company)));
+    const merged = [
+      ...jsearchJobs,
+      ...adzunaJobs.filter(j => !seen.has(dedupKey(j.title, j.company))),
+    ];
+
+    return NextResponse.json({ jobs: merged, total: data.count ?? 0 });
   } catch {
     return NextResponse.json({ error: 'Failed to fetch jobs' }, { status: 500 });
   }

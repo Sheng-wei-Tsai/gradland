@@ -4,6 +4,26 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
 import { supabase, type SavedJob, type JobApplication } from '@/lib/supabase';
 
+interface JobAlert {
+  id: string;
+  keywords: string;
+  location: string;
+  full_time: boolean;
+  frequency: string;
+  created_at: string;
+}
+
+// Maps job title keywords → nearest interview prep role
+function inferPrepRole(title: string): string {
+  const t = title.toLowerCase();
+  if (t.includes('devops') || t.includes('cloud') || t.includes('infrastructure')) return 'junior-devops';
+  if (t.includes('data') && (t.includes('engineer') || t.includes('analyst')))    return 'junior-data';
+  if (t.includes('mobile') || t.includes('ios') || t.includes('android'))         return 'junior-mobile';
+  if (t.includes('qa') || t.includes('test') || t.includes('quality'))            return 'junior-qa';
+  if (t.includes('back') || t.includes('node') || t.includes('python') || t.includes('java')) return 'junior-backend';
+  return 'junior-fullstack';
+}
+
 const STATUS_COLORS: Record<string, string> = {
   applied:   '#3b82f6',
   interview: '#f59e0b',
@@ -21,7 +41,8 @@ export default function DashboardPage() {
 
   const [savedJobs, setSavedJobs]         = useState<SavedJob[]>([]);
   const [applications, setApplications]   = useState<JobApplication[]>([]);
-  const [activeTab, setActiveTab]         = useState<'saved' | 'applications'>('saved');
+  const [alerts, setAlerts]               = useState<JobAlert[]>([]);
+  const [activeTab, setActiveTab]         = useState<'saved' | 'applications' | 'alerts'>('saved');
   const [dataLoading, setDataLoading]     = useState(true);
 
   useEffect(() => {
@@ -33,9 +54,11 @@ export default function DashboardPage() {
     Promise.all([
       supabase.from('saved_jobs').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
       supabase.from('job_applications').select('*').eq('user_id', user.id).order('applied_at', { ascending: false }),
-    ]).then(([saved, apps]) => {
+      supabase.from('job_alerts').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
+    ]).then(([saved, apps, alts]) => {
       setSavedJobs(saved.data ?? []);
       setApplications(apps.data ?? []);
+      setAlerts(alts.data ?? []);
       setDataLoading(false);
     });
   }, [user]);
@@ -102,7 +125,11 @@ export default function DashboardPage() {
 
       {/* Tabs */}
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
-        {(['saved', 'applications'] as const).map(tab => (
+          {([
+            ['saved',        `♥ Saved (${savedJobs.length})`],
+            ['applications', `📋 Applications (${applications.length})`],
+            ['alerts',       `🔔 Alerts (${alerts.length})`],
+          ] as const).map(([tab, label]) => (
           <button key={tab} onClick={() => setActiveTab(tab)} style={{
             padding: '0.5rem 1.2rem', borderRadius: '99px',
             background: activeTab === tab ? 'var(--terracotta)' : 'var(--warm-white)',
@@ -110,7 +137,7 @@ export default function DashboardPage() {
             border: activeTab === tab ? 'none' : '1px solid var(--parchment)',
             fontWeight: 500, fontSize: '0.9rem', cursor: 'pointer',
           }}>
-            {tab === 'saved' ? `♥ Saved Jobs (${savedJobs.length})` : `📋 Applications (${applications.length})`}
+            {label}
           </button>
         ))}
       </div>
@@ -163,6 +190,45 @@ export default function DashboardPage() {
             </div>
           )}
 
+          {/* Alerts Tab */}
+          {activeTab === 'alerts' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', paddingBottom: '4rem' }}>
+              {alerts.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
+                  <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🔔</div>
+                  <p>No saved searches yet. <a href="/jobs" style={{ color: 'var(--terracotta)' }}>Search for jobs →</a> and click "Save this search".</p>
+                </div>
+              ) : alerts.map(alert => (
+                <div key={alert.id} style={{ background: 'var(--warm-white)', border: '1px solid var(--parchment)', borderRadius: '14px', padding: '1.2rem 1.4rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                    <div>
+                      <h3 style={{ fontFamily: "'Lora', serif", fontSize: '1rem', fontWeight: 600, color: 'var(--brown-dark)', marginBottom: '0.25rem' }}>
+                        {alert.keywords}
+                      </h3>
+                      <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                        {alert.location}{alert.full_time ? ' · Full-time' : ''} · {alert.frequency}
+                      </p>
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <a href={`/jobs?keywords=${encodeURIComponent(alert.keywords)}&location=${encodeURIComponent(alert.location)}`}
+                        style={{ padding: '0.35rem 0.8rem', borderRadius: '99px', background: 'var(--parchment)', color: 'var(--text-secondary)', fontSize: '0.8rem', textDecoration: 'none' }}>
+                        Search
+                      </a>
+                      <button
+                        onClick={async () => {
+                          await fetch(`/api/alerts?id=${alert.id}`, { method: 'DELETE' });
+                          setAlerts(prev => prev.filter(a => a.id !== alert.id));
+                        }}
+                        style={{ padding: '0.35rem 0.8rem', borderRadius: '99px', border: '1px solid #fcc', background: '#fff0f0', fontSize: '0.8rem', cursor: 'pointer', color: '#c00' }}>
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* Applications Tab */}
           {activeTab === 'applications' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', paddingBottom: '4rem' }}>
@@ -182,7 +248,7 @@ export default function DashboardPage() {
                         {app.company} · Applied {new Date(app.applied_at).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}
                       </p>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                       <select value={app.status} onChange={e => updateStatus(app.id, e.target.value)} style={{
                         padding: '0.3rem 0.7rem', borderRadius: '99px',
                         border: `1.5px solid ${STATUS_COLORS[app.status]}`,
@@ -193,6 +259,12 @@ export default function DashboardPage() {
                           <option key={val} value={val}>{label}</option>
                         ))}
                       </select>
+                      {app.status === 'interview' && (
+                        <a href={`/interview-prep/${inferPrepRole(app.title)}`}
+                          style={{ padding: '0.3rem 0.8rem', borderRadius: '99px', background: '#fef3c7', color: '#d97706', border: '1px solid #fde68a', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                          🎯 Prep for interview
+                        </a>
+                      )}
                       <a href={app.url} target="_blank" rel="noopener noreferrer" style={{
                         padding: '0.3rem 0.7rem', borderRadius: '99px',
                         background: 'var(--parchment)', color: 'var(--text-secondary)',
