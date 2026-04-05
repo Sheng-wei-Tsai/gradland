@@ -37,6 +37,14 @@ jobs:
         run: npm audit --audit-level=moderate
 
       - name: TypeScript & build check
+        env:
+          OPENAI_API_KEY: sk-dummy-ci-build
+          STRIPE_SECRET_KEY: sk_test_dummy_ci
+          STRIPE_PRICE_ID: price_dummy_ci
+          STRIPE_WEBHOOK_SECRET: whsec_dummy_ci
+          NEXT_PUBLIC_SUPABASE_URL: https://dummy.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy-anon-key-ci
+          SUPABASE_SERVICE_ROLE_KEY: dummy-service-role-ci
         run: npm run build
 
   # ── Deploy — only runs if check passes ──────────────────────────────────────

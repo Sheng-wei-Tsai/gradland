@@ -4,12 +4,6 @@ import { createClient } from '@supabase/supabase-js';
 import { YoutubeTranscript } from 'youtube-transcript';
 import { requireSubscription, recordUsage } from '@/lib/subscription';
 
-// Service client — bypasses RLS for the shared video_content cache
-const sb = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-);
-
 const SCHEMA = `{
   "summary": "3-4 sentence plain-English overview of what this video teaches and who it is for",
   "essay": "250-300 word professional summary written as flowing prose — no bullet points, no headers. Wrap the 6-8 most important technical terms or concepts in **double asterisks** so they render as bold. Structure: (1) opening sentence stating what the video is and who it is for, (2) body covering the 3-4 most important points with evidence from the transcript, (3) closing sentence on why this matters for a developer's career. Write like a high-quality technical blog post introduction.",
@@ -56,6 +50,12 @@ export async function POST(req: NextRequest) {
 
   if (!process.env.OPENAI_API_KEY) return new Response('OpenAI API not configured', { status: 503 });
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+  // Service client — bypasses RLS for the shared video_content cache
+  const sb = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  );
 
   // ── Check global video cache first ─────────────────────────────────
   const { data: cached } = await sb
