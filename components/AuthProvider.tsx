@@ -4,12 +4,14 @@ import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 
 interface AuthContextType {
-  user:               User | null;
-  loading:            boolean;
-  signInWithGithub:   () => Promise<void>;
-  signInWithEmail:    (email: string, password: string) => Promise<{ error: string | null }>;
-  signUpWithEmail:    (opts: SignUpOpts) => Promise<{ error: string | null }>;
-  signOut:            () => Promise<void>;
+  user:                User | null;
+  loading:             boolean;
+  signInWithGithub:    () => Promise<void>;
+  signInWithGoogle:    () => Promise<void>;
+  signInWithFacebook:  () => Promise<void>;
+  signInWithEmail:     (email: string, password: string) => Promise<{ error: string | null }>;
+  signUpWithEmail:     (opts: SignUpOpts) => Promise<{ error: string | null }>;
+  signOut:             () => Promise<void>;
 }
 
 interface SignUpOpts {
@@ -21,10 +23,12 @@ interface SignUpOpts {
 
 const AuthContext = createContext<AuthContextType>({
   user: null, loading: true,
-  signInWithGithub:  async () => {},
-  signInWithEmail:   async () => ({ error: null }),
-  signUpWithEmail:   async () => ({ error: null }),
-  signOut:           async () => {},
+  signInWithGithub:   async () => {},
+  signInWithGoogle:   async () => {},
+  signInWithFacebook: async () => {},
+  signInWithEmail:    async () => ({ error: null }),
+  signUpWithEmail:    async () => ({ error: null }),
+  signOut:            async () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -44,11 +48,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
+  const oauthRedirect = () => `${window.location.origin}/auth/callback`;
+
   const signInWithGithub = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: 'github',
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    });
+    await supabase.auth.signInWithOAuth({ provider: 'github',   options: { redirectTo: oauthRedirect() } });
+  };
+  const signInWithGoogle = async () => {
+    await supabase.auth.signInWithOAuth({ provider: 'google',   options: { redirectTo: oauthRedirect() } });
+  };
+  const signInWithFacebook = async () => {
+    await supabase.auth.signInWithOAuth({ provider: 'facebook', options: { redirectTo: oauthRedirect() } });
   };
 
   const signInWithEmail = async (email: string, password: string) => {
@@ -88,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signInWithGithub, signInWithEmail, signUpWithEmail, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signInWithGithub, signInWithGoogle, signInWithFacebook, signInWithEmail, signUpWithEmail, signOut }}>
       {children}
     </AuthContext.Provider>
   );
