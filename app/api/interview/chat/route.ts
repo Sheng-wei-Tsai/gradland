@@ -1,5 +1,6 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { requireSubscription, recordUsage } from '@/lib/subscription';
 
 const SYSTEM = `You are a friendly interview coach helping someone prepare for Australian IT job interviews.
 You give concise, practical advice. Keep responses under 150 words.
@@ -12,6 +13,9 @@ type ChatMessage = {
 };
 
 export async function POST(req: NextRequest) {
+  const auth = await requireSubscription();
+  if (auth instanceof NextResponse) return auth;
+
   let body: { messages?: ChatMessage[]; roleTitle?: string };
   try {
     body = await req.json();
@@ -51,6 +55,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    void recordUsage(auth.user.id, 'interview/chat');
     return new Response(readable, {
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
     });

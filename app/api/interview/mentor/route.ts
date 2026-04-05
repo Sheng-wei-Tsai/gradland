@@ -1,5 +1,6 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { requireSubscription, recordUsage } from '@/lib/subscription';
 
 type MentorStage = 'scene' | 'why' | 'guide';
 
@@ -48,6 +49,9 @@ In 3-4 sentences, give your personal take on structuring the perfect answer. Sha
 }
 
 export async function POST(req: NextRequest) {
+  const auth = await requireSubscription();
+  if (auth instanceof NextResponse) return auth;
+
   let body: MentorData;
   try {
     body = await req.json();
@@ -89,6 +93,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    void recordUsage(auth.user.id, 'interview/mentor');
     return new Response(readable, {
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
     });
