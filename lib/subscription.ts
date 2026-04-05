@@ -1,0 +1,99 @@
+/**
+ * Subscription checking and rate limiting.
+ * All functions run server-side only.
+ */
+import type { NextResponse }  from 'next/server';
+import type { User }          from '@supabase/supabase-js';
+import {
+  createSupabaseServer,
+  createSupabaseService,
+  isOwner,
+  unauthorizedResponse,
+  subscriptionRequiredResponse,
+  rateLimitResponse,
+} from './auth-server';
+
+// Pro users: max AI calls per 24-hour rolling window
+const PRO_DAILY_LIMIT = 100;
+
+// ── Subscription status ───────────────────────────────────────────────
+interface SubStatus {
+  active: boolean;
+  tier: 'free' | 'pro' | 'admin';
+}
+
+export async function getSubscriptionStatus(userId: string): Promise<SubStatus> {
+  const sb = createSupabaseService();
+  const { data } = await sb
+    .from('profiles')
+    .select('subscription_tier, subscription_expires_at')
+    .eq('id', userId)
+    .single();
+
+  if (!data) return { active: false, tier: 'free' };
+
+  const tier = (data.subscription_tier ?? 'free') as SubStatus['tier'];
+
+  if (tier === 'admin') return { active: true, tier: 'admin' };
+
+  if (tier === 'pro') {
+    const expires = data.subscription_expires_at;
+    // No expiry = lifetime pro
+    const active = !expires || new Date(expires) > new Date();
+    return { active, tier: active ? 'pro' : 'free' };
+  }
+
+  return { active: false, tier: 'free' };
+}
+
+// ── Rate limit check (pro users only) ────────────────────────────────
+export async function checkRateLimit(userId: string): Promise<boolean> {
+  const sb = createSupabaseService();
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+  const { count } = await sb
+    .from('api_usage')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .gte('called_at', since);
+
+  return (count ?? 0) < PRO_DAILY_LIMIT;
+}
+
+// ── Record a single API call ──────────────────────────────────────────
+export async function recordUsage(userId: string, endpoint: string): Promise<void> {
+  const sb = createSupabaseService();
+  await sb.from('api_usage').insert({ user_id: userId, endpoint });
+}
+
+// ── requireSubscription ───────────────────────────────────────────────
+// Use at the top of every paid AI route handler.
+//
+// Returns { user } if access is granted.
+// Returns a NextResponse (401 / 403 / 429) if access is denied.
+//
+// Usage:
+//   const result = await requireSubscription()
+//   if (result instanceof NextResponse) return result
+//   const { user } = result
+//
+export async function requireSubscription(): Promise<{ user: User } | NextResponse> {
+  const sb = await createSupabaseServer();
+  const { data: { user } } = await sb.auth.getUser();
+
+  // ── 1. Must be authenticated ─────────────────────────────────────
+  if (!user) return unauthorizedResponse();
+
+  // ── 2. Owner gets unlimited free access ─────────────────────────
+  if (isOwner(user.email)) return { user };
+
+  // ── 3. Check subscription ────────────────────────────────────────
+  const sub = await getSubscriptionStatus(user.id);
+  if (!sub.active) return subscriptionRequiredResponse();
+
+  // ── 4. Rate limit for pro users ──────────────────────────────────
+  const withinLimit = await checkRateLimit(user.id);
+  if (!withinLimit) return rateLimitResponse();
+
+  return { user };
+}
