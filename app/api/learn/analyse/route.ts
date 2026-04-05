@@ -4,8 +4,6 @@ import { createClient } from '@supabase/supabase-js';
 import { YoutubeTranscript } from 'youtube-transcript';
 import { requireSubscription, recordUsage } from '@/lib/subscription';
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
 // Service client — bypasses RLS for the shared video_content cache
 const sb = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -57,6 +55,7 @@ export async function POST(req: NextRequest) {
   if (!videoId) return new Response('Missing videoId', { status: 400 });
 
   if (!process.env.OPENAI_API_KEY) return new Response('OpenAI API not configured', { status: 503 });
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
   // ── Check global video cache first ─────────────────────────────────
   const { data: cached } = await sb

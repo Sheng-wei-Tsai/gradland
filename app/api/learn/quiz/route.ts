@@ -3,8 +3,6 @@ import OpenAI from 'openai';
 import { createClient } from '@supabase/supabase-js';
 import { requireSubscription, recordUsage } from '@/lib/subscription';
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
 const sb = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -30,6 +28,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (!process.env.OPENAI_API_KEY) return NextResponse.json({ error: 'OpenAI API not configured' }, { status: 503 });
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
   // ── Check global cache ──────────────────────────────────────────────
   const { data: cached } = await sb
