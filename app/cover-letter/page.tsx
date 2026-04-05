@@ -155,7 +155,7 @@ function CoverLetterContent() {
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', paddingBottom: '4rem' }}>
+      <div className="cl-grid">
 
         {/* ── LEFT: Inputs ── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
@@ -219,9 +219,11 @@ function CoverLetterContent() {
             </p>
           </div>
 
+          {/* Generate button — inside column on desktop, hidden on mobile (fixed bar below handles mobile) */}
           <button
             onClick={generate}
             disabled={generating || !jobTitle || !company || !jobDescription || !background}
+            className="cl-desktop-btn"
             style={{
               background: generating ? 'var(--parchment)' : 'var(--terracotta)',
               color: generating ? 'var(--text-muted)' : 'white',
@@ -277,7 +279,7 @@ function CoverLetterContent() {
           )}
 
           {/* Output area */}
-          <div style={{
+          <div className="cl-output-area" style={{
             flex: 1, background: 'var(--warm-white)', border: '1px solid var(--parchment)',
             borderRadius: '16px', padding: '1.4rem',
             display: 'flex', flexDirection: 'column', gap: '1rem',
@@ -345,6 +347,24 @@ function CoverLetterContent() {
             </p>
           )}
         </div>
+      </div>
+
+      {/* Mobile-only fixed generate bar */}
+      <div className="cl-generate-bar">
+        <button
+          onClick={generate}
+          disabled={generating || !jobTitle || !company || !jobDescription || !background}
+          style={{
+            background: generating ? 'var(--parchment)' : 'var(--terracotta)',
+            color: generating ? 'var(--text-muted)' : 'white',
+            border: 'none', borderRadius: '12px',
+            padding: '0.9rem', fontSize: '1rem', fontWeight: 600,
+            cursor: generating ? 'not-allowed' : 'pointer',
+            transition: 'background 0.2s',
+          }}
+        >
+          {generating ? '✍️ Writing...' : '✨ Generate Cover Letter'}
+        </button>
       </div>
     </div>
   );

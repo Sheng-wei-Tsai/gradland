@@ -67,6 +67,37 @@ export default function LearnPage() {
         </p>
       </section>
 
+      {/* Learn from YouTube */}
+      <section className="animate-fade-up" style={{ marginBottom: '2rem' }}>
+        <Link href="/learn/youtube" style={{ textDecoration: 'none' }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)',
+            border: '1px solid #334155', borderRadius: '14px', padding: '1.4rem 1.6rem',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            gap: '1.5rem', flexWrap: 'wrap',
+          }}>
+            <div>
+              <p style={{ fontSize: '0.7rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.3rem' }}>
+                🎥 Video Learning
+              </p>
+              <h3 style={{ fontFamily: "'Lora', serif", fontSize: '1.05rem', fontWeight: 700, color: '#f8fafc', marginBottom: '0.3rem' }}>
+                Learn from YouTube
+              </h3>
+              <p style={{ fontSize: '0.83rem', color: '#94a3b8', lineHeight: 1.6 }}>
+                Paste any YouTube URL — Gemini (the AI behind NotebookLM) builds your study guide + quiz.
+              </p>
+            </div>
+            <span style={{
+              background: 'var(--terracotta)', color: 'white',
+              padding: '0.55rem 1.25rem', borderRadius: '99px',
+              fontSize: '0.88rem', fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0,
+            }}>
+              Start learning →
+            </span>
+          </div>
+        </Link>
+      </section>
+
       {/* Interview Prep cross-promo */}
       <section className="animate-fade-up" style={{ marginBottom: '3rem' }}>
         <div style={{

@@ -5,6 +5,8 @@ import { format } from 'date-fns';
 import Link from 'next/link';
 import { Metadata } from 'next';
 import rehypePrettyCode from 'rehype-pretty-code';
+import FeedButton from '@/components/petcho/FeedButton';
+import CommentsClient from '@/components/CommentsClient';
 
 const mdxOptions = {
   mdxOptions: {
@@ -70,8 +72,13 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         <MDXRemote source={post.content} {...(mdxOptions as object)} />
       </article>
 
+      {/* Feed Hopper */}
+      <div style={{ marginBottom: '2rem' }}>
+        <FeedButton slug={post.slug} readingTime={post.readingTime} tags={post.tags} />
+      </div>
+
       <div style={{
-        borderTop: '1px solid var(--parchment)', paddingTop: '2rem', paddingBottom: '4rem',
+        borderTop: '1px solid var(--parchment)', paddingTop: '2rem', paddingBottom: '2rem',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
       }}>
         <Link href="/blog" style={{ color: 'var(--terracotta)', textDecoration: 'none', fontSize: '0.9rem' }}>
@@ -81,6 +88,9 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           Thanks for reading 🌿
         </span>
       </div>
+
+      <hr style={{ border: 'none', borderTop: '1px solid var(--parchment)', margin: '0 0 2rem' }} />
+      <CommentsClient slug={slug} />
     </div>
   );
 }

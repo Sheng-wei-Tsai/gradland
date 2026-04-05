@@ -1,7 +1,6 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { requireSubscription, recordUsage } from '@/lib/subscription';
 
 const SYSTEM_PROMPT = `You are an expert career coach and professional writer specialising in the Australian IT job market.
 Write tailored, authentic cover letters that:
@@ -16,17 +15,8 @@ Write tailored, authentic cover letters that:
 Format: plain paragraphs only, no headers, no bullet points.`;
 
 export async function POST(req: NextRequest) {
-  // Require authentication — this endpoint calls a paid API
-  const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { getAll: () => cookieStore.getAll(), setAll: () => {} } }
-  );
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
-  }
+  const auth = await requireSubscription();
+  if (auth instanceof NextResponse) return auth;
 
   const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -76,6 +66,7 @@ Write the cover letter now. Plain paragraphs only.`;
     },
   });
 
+  void recordUsage(auth.user.id, 'cover-letter');
   return new Response(readable, {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },
   });
