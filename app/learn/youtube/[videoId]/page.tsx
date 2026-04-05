@@ -622,6 +622,7 @@ function QuizTab({ guide, videoId, videoTitle, onScoreSaved, prefetchedQuestions
   const [questions,  setQuestions]  = useState<QuizQuestion[]>([]);
   const [loading,    setLoading]    = useState(false);
   const [started,    setStarted]    = useState(false);
+  const [quizError,  setQuizError]  = useState('');
   const [idx,        setIdx]        = useState(0);
   const [selected,   setSelected]   = useState<number | null>(null);
   const [answers,    setAnswers]    = useState<boolean[]>([]);
@@ -635,10 +636,20 @@ function QuizTab({ guide, videoId, videoTitle, onScoreSaved, prefetchedQuestions
       return;
     }
     setLoading(true);
+    setQuizError('');
     const res  = await fetch('/api/learn/quiz', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ videoId, videoTitle, studyGuide: guide }),
     });
+    if (!res.ok) {
+      setLoading(false);
+      setQuizError(res.status === 401
+        ? 'Sign in to generate quizzes.'
+        : res.status === 403
+          ? 'Subscribe to unlock quizzes. Visit the pricing page to upgrade.'
+          : 'Could not generate quiz. Please try again.');
+      return;
+    }
     const data = await res.json();
     setQuestions(data.questions ?? []);
     setLoading(false);
@@ -675,6 +686,15 @@ function QuizTab({ guide, videoId, videoTitle, onScoreSaved, prefetchedQuestions
       <p style={{ fontSize: '0.83rem', color: 'var(--text-muted)', lineHeight: 1.65, marginBottom: '1.5rem' }}>
         Review the Study Guide and Flashcards first, then take the quiz to lock in what you learned.
       </p>
+      {quizError && (
+        <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '10px',
+          padding: '0.9rem 1.2rem', marginBottom: '1.2rem', fontSize: '0.87rem', color: '#92400e', lineHeight: 1.6 }}>
+          {quizError}{' '}
+          {quizError.includes('Subscribe') && (
+            <a href="/pricing" style={{ color: 'var(--terracotta)', fontWeight: 600, textDecoration: 'none' }}>View pricing →</a>
+          )}
+        </div>
+      )}
       {prefetchedQuestions?.length ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
           <span style={{ fontSize: '0.72rem', color: '#10b981', fontWeight: 600 }}>✓ Questions ready</span>
@@ -989,11 +1009,17 @@ export default function StudySessionPage() {
       body: JSON.stringify({ videoId, videoTitle, channelTitle }),
     });
     if (!res.ok) {
-      try {
-        const errData = await res.json();
-        setGuideError(errData.error ?? 'Could not analyse this video.');
-      } catch {
-        setGuideError('Could not analyse this video.');
+      if (res.status === 401) {
+        setGuideError('Sign in to analyse videos and generate study guides.');
+      } else if (res.status === 403) {
+        setGuideError('Subscribe to unlock AI study guides and quizzes. Visit the pricing page to upgrade.');
+      } else {
+        try {
+          const errData = await res.json();
+          setGuideError(errData.error ?? 'Could not analyse this video.');
+        } catch {
+          setGuideError('Could not analyse this video.');
+        }
       }
       setGuideLoading(false); return;
     }

@@ -209,7 +209,10 @@ export default function JobsPage() {
       });
       const res  = await fetch(`/api/jobs?${params}`);
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to fetch');
+      if (!res.ok) {
+        if (res.status === 503) throw new Error('Job search is not configured yet. Add ADZUNA_APP_ID and ADZUNA_APP_KEY to enable it.');
+        throw new Error(data.error || 'Failed to fetch jobs. Please try again.');
+      }
       setJobs(data.jobs);
       setTotal(data.total);
       setPage(p);

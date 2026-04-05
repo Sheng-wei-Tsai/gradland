@@ -64,7 +64,11 @@ function CoverLetterContent() {
         body: JSON.stringify({ jobTitle, company, jobDescription, background }),
       });
 
-      if (!res.ok) throw new Error('Generation failed');
+      if (!res.ok) {
+        if (res.status === 401) throw new Error('Please sign in to generate cover letters.');
+        if (res.status === 403) throw new Error('This feature requires a subscription. Upgrade on the pricing page to unlock it.');
+        throw new Error('Generation failed — please try again.');
+      }
 
       // Read the stream
       const reader = res.body!.getReader();
