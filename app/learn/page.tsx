@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { SKILL_PATHS } from '@/lib/skill-paths';
 import { INTERVIEW_ROLES } from '@/lib/interview-roles';
+import PathProgress from './PathProgress';
 
 export const metadata: Metadata = { title: 'IT Career Pathways' };
 
@@ -164,7 +165,7 @@ export default function LearnPage() {
                       <p style={{ color: 'var(--text-secondary)', fontSize: '0.87rem', lineHeight: 1.6, marginBottom: '0.9rem' }}>
                         {path.description}
                       </p>
-                      <div style={{ display: 'flex', gap: '1.4rem', flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', gap: '1.4rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>
                         {[
                           { label: 'Timeline',   value: path.timeline },
                           { label: 'Avg salary', value: path.avgSalary },
@@ -175,6 +176,7 @@ export default function LearnPage() {
                             <div style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--brown-dark)' }}>{stat.value}</div>
                           </div>
                         ))}
+                        <PathProgress pathId={path.id} />
                       </div>
                     </div>
                     <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', flexShrink: 0, marginTop: '0.2rem' }}>→</span>

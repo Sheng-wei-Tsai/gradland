@@ -17,6 +17,7 @@ interface SkillProgress {
   review_count:     number;
   next_review_at:   string | null;
   last_reviewed_at: string | null;
+  checked_topics:   string[];
 }
 
 // ── per-topic checkbox state stored in localStorage ─────────────────────────
@@ -59,13 +60,26 @@ export default function PathTracker({ path }: { path: SkillPath }) {
     if (!user) return;
     const { data } = await supabase
       .from('skill_progress')
-      .select('skill_id, status, review_count, next_review_at, last_reviewed_at')
+      .select('skill_id, status, review_count, next_review_at, last_reviewed_at, checked_topics')
       .eq('user_id', user.id)
       .eq('path_id', path.id);
     if (data) {
       const map: Record<string, SkillProgress> = {};
-      data.forEach(r => { map[r.skill_id] = r; });
+      data.forEach(r => { map[r.skill_id] = { ...r, checked_topics: r.checked_topics ?? [] }; });
       setProgress(map);
+
+      // Merge topic checkboxes: Supabase wins for skills that have a row
+      setTopics(prev => {
+        const merged = { ...prev };
+        data.forEach(r => {
+          const prefix = `${path.id}:${r.skill_id}:`;
+          // Clear all local entries for this skill, then set from Supabase
+          Object.keys(merged).forEach(k => { if (k.startsWith(prefix)) delete merged[k]; });
+          (r.checked_topics ?? []).forEach((topicId: string) => { merged[`${prefix}${topicId}`] = true; });
+        });
+        saveTopics(merged);
+        return merged;
+      });
     }
   }, [user, path.id]);
 
@@ -143,6 +157,30 @@ export default function PathTracker({ path }: { path: SkillPath }) {
     if (!topics[topicKey]) {
       setJustChecked(topicKey);
       setTimeout(() => setJustChecked(null), 400);
+    }
+
+    // Fire-and-forget sync to Supabase
+    if (user) {
+      // topicKey = `${path.id}:${skill.id}:${topic.id}`
+      const withoutPath = topicKey.slice(path.id.length + 1);
+      const colonIdx    = withoutPath.indexOf(':');
+      const skillId     = withoutPath.slice(0, colonIdx);
+      const prefix      = `${path.id}:${skillId}:`;
+      const newChecked  = Object.entries(next)
+        .filter(([k, v]) => v && k.startsWith(prefix))
+        .map(([k]) => k.slice(prefix.length));
+
+      const save = progress[skillId]
+        ? supabase.from('skill_progress')
+            .update({ checked_topics: newChecked, updated_at: new Date().toISOString() })
+            .eq('user_id', user.id).eq('path_id', path.id).eq('skill_id', skillId)
+        : supabase.from('skill_progress')
+            .insert({ user_id: user.id, path_id: path.id, skill_id: skillId,
+                      status: 'not_started', checked_topics: newChecked });
+
+      void save.then(({ error }) => {
+        if (error) console.error('[topics] sync failed:', error.message);
+      });
     }
   };
 
