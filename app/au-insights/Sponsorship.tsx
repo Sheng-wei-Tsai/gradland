@@ -1,6 +1,9 @@
 'use client';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { SPONSORSHIP_RANKINGS } from './companies/data';
+
+const SponsorshipCharts = dynamic(() => import('./SponsorshipCharts'), { ssr: false });
 
 const VOLUME_COLOR: Record<string, string> = {
   'Very High':   '#dc2626',
@@ -68,9 +71,12 @@ export default function Sponsorship() {
       </p>
 
       {/* Rankings table */}
+      {/* D3 Interactive Charts */}
+      <SponsorshipCharts />
+
       <h3 style={{
         fontFamily: "'Lora', serif", fontSize: '1.1rem', fontWeight: 700,
-        color: 'var(--brown-dark)', marginBottom: '0.9rem',
+        color: 'var(--brown-dark)', marginBottom: '0.9rem', marginTop: '0.5rem',
       }}>
         Top IT Visa Sponsors in Australia (2020–2025)
       </h3>
