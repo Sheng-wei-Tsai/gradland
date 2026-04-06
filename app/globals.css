@@ -563,6 +563,7 @@ h3, h4 {
   .mobile-only        { display: flex; }
   .interview-sidebar  { display: none !important; }
   main                { padding-bottom: 6rem !important; }
+  .tools-grid         { grid-template-columns: 1fr !important; }
 }
 
 /* ── Brand logo — theme-aware switching ── */
