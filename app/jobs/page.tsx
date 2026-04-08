@@ -28,7 +28,9 @@ const QUICK_STARTS = [
   'IT Support Graduate',
 ];
 
-const LS_KEY = 'job-search-prefs';
+const LS_KEY        = 'job-search-prefs';
+const JOBS_CACHE_KEY = 'job-search-cache';
+const JOBS_CACHE_TTL = 10 * 60 * 1000; // 10 minutes
 
 function loadPrefs() {
   if (typeof window === 'undefined') return null;
@@ -37,6 +39,32 @@ function loadPrefs() {
 
 function savePrefs(prefs: object) {
   try { localStorage.setItem(LS_KEY, JSON.stringify(prefs)); } catch { /* quota */ }
+}
+
+interface JobsCache {
+  jobs: AdzunaJob[];
+  total: number;
+  query: string;
+  cachedAt: number;
+}
+
+function loadJobsCache(query: string): JobsCache | null {
+  try {
+    const raw = localStorage.getItem(JOBS_CACHE_KEY);
+    if (!raw) return null;
+    const cache: JobsCache = JSON.parse(raw);
+    if (cache.query !== query) return null;
+    if (Date.now() - cache.cachedAt > JOBS_CACHE_TTL) return null;
+    return cache;
+  } catch { return null; }
+}
+
+function saveJobsCache(jobs: AdzunaJob[], total: number, query: string) {
+  try { localStorage.setItem(JOBS_CACHE_KEY, JSON.stringify({ jobs, total, query, cachedAt: Date.now() })); } catch { /* quota */ }
+}
+
+function clearJobsCache() {
+  localStorage.removeItem(JOBS_CACHE_KEY);
 }
 
 // ─── Freshness ───────────────────────────────────────────────────────────────
@@ -170,12 +198,13 @@ export default function JobsPage() {
   const [page,       setPage]       = useState(1);
   const [loading,    setLoading]    = useState(false);
   const [searched,   setSearched]   = useState(false);
+  const [fromCache,  setFromCache]  = useState(false);
   const [error,      setError]      = useState('');
   const [savedIds,   setSavedIds]   = useState<Set<string>>(new Set());
   const [alertSaved, setAlertSaved] = useState(false);
   const [applyToast, setApplyToast] = useState<{ id: string; company: string } | null>(null);
 
-  // Fire default search on first load
+  // Fire default search on first load — tries cache first
   useEffect(() => { search(1); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Load saved job IDs
@@ -195,20 +224,38 @@ export default function JobsPage() {
     savePrefs({ keywords, location, sortBy, fullTime, workingRights, category, salaryMin, salaryMax });
   }, [keywords, location, sortBy, fullTime, workingRights, category, salaryMin, salaryMax]);
 
-  const search = useCallback(async (p = 1) => {
+  const search = useCallback(async (p = 1, forceRefresh = false) => {
     setLoading(true);
     setError('');
     setAlertSaved(false);
+
+    const catKeyword    = CATEGORIES.find(c => c.label === category)?.keyword ?? '';
+    const rightsKeyword = workingRights ? 'full working rights' : '';
+    const fullQuery     = [keywords, catKeyword, rightsKeyword].filter(Boolean).join(' ');
+    const params = new URLSearchParams({
+      keywords: fullQuery, location, sort_by: sortBy, page: String(p),
+      ...(fullTime  ? { full_time: '1' }      : {}),
+      ...(salaryMin ? { salary_min: salaryMin } : {}),
+      ...(salaryMax ? { salary_max: salaryMax } : {}),
+    });
+    const cacheKey = params.toString();
+
+    // Serve from cache for page 1 requests (not forced refresh)
+    if (p === 1 && !forceRefresh) {
+      const cached = loadJobsCache(cacheKey);
+      if (cached) {
+        setJobs(cached.jobs);
+        setTotal(cached.total);
+        setPage(1);
+        setSearched(true);
+        setFromCache(true);
+        setLoading(false);
+        return;
+      }
+    }
+
+    setFromCache(false);
     try {
-      const catKeyword    = CATEGORIES.find(c => c.label === category)?.keyword ?? '';
-      const rightsKeyword = workingRights ? 'full working rights' : '';
-      const fullQuery     = [keywords, catKeyword, rightsKeyword].filter(Boolean).join(' ');
-      const params = new URLSearchParams({
-        keywords: fullQuery, location, sort_by: sortBy, page: String(p),
-        ...(fullTime    ? { full_time: '1' }      : {}),
-        ...(salaryMin   ? { salary_min: salaryMin } : {}),
-        ...(salaryMax   ? { salary_max: salaryMax } : {}),
-      });
       const res  = await fetch(`/api/jobs?${params}`);
       const data = await res.json();
       if (!res.ok) {
@@ -219,6 +266,7 @@ export default function JobsPage() {
       setTotal(data.total);
       setPage(p);
       setSearched(true);
+      if (p === 1) saveJobsCache(data.jobs, data.total, cacheKey);
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -381,10 +429,21 @@ export default function JobsPage() {
 
       {searched && !loading && (
         <div style={{ marginBottom: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             {total > 0 ? `${total.toLocaleString()} jobs found` : 'No jobs found — try different keywords'}
+            {fromCache && (
+              <span style={{ fontSize: '0.72rem', color: 'var(--jade)', background: 'rgba(30,122,82,0.08)', border: '1px solid rgba(30,122,82,0.2)', padding: '0.1em 0.5em', borderRadius: '4px' }}>
+                ⚡ cached
+              </span>
+            )}
           </p>
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            {fromCache && (
+              <button onClick={() => { clearJobsCache(); search(1, true); }}
+                style={{ background: 'none', border: '1px solid var(--parchment)', borderRadius: '99px', padding: '0.3rem 0.8rem', fontSize: '0.82rem', cursor: 'pointer', color: 'var(--text-secondary)' }}>
+                ↻ Refresh
+              </button>
+            )}
             {total > 0 && <span style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>Page {page} of {totalPages}</span>}
             {alertSaved
               ? <span style={{ fontSize: '0.82rem', color: '#16a34a' }}>✓ Alert saved</span>

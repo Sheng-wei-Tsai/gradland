@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/components/AuthProvider';
 import { supabase } from '@/lib/supabase';
@@ -63,6 +63,30 @@ function extractScore(feedback: string): number | null {
   return m ? parseInt(m[1], 10) : null;
 }
 
+// ── Question cache helpers ─────────────────────────────────────────────────
+
+const Q_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
+
+function loadCachedQuestions(roleId: string): Question[] | null {
+  try {
+    const raw = localStorage.getItem(`interview-questions-${roleId}`);
+    if (!raw) return null;
+    const { questions, cachedAt } = JSON.parse(raw);
+    if (Date.now() - cachedAt > Q_CACHE_TTL) return null;
+    return questions ?? null;
+  } catch { return null; }
+}
+
+function saveCachedQuestions(roleId: string, questions: Question[]) {
+  try {
+    localStorage.setItem(`interview-questions-${roleId}`, JSON.stringify({ questions, cachedAt: Date.now() }));
+  } catch { /* quota */ }
+}
+
+function clearCachedQuestions(roleId: string) {
+  localStorage.removeItem(`interview-questions-${roleId}`);
+}
+
 // ── Component ──────────────────────────────────────────────────────────────
 
 export default function InterviewSession({ role }: { role: InterviewRole }) {
@@ -71,6 +95,7 @@ export default function InterviewSession({ role }: { role: InterviewRole }) {
   // Questions
   const [questions, setQuestions]   = useState<Question[]>([]);
   const [loadingQ, setLoadingQ]     = useState(true);
+  const [fromCache, setFromCache]   = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
   // Progress — persisted to localStorage so tab crash doesn't lose work
@@ -124,22 +149,52 @@ export default function InterviewSession({ role }: { role: InterviewRole }) {
     return 'not-started';
   }
 
-  // ── Load questions ─────────────────────────────────────────────────────
+  // ── Load questions (cache-first) ───────────────────────────────────────
 
-  useEffect(() => {
-    fetch('/api/interview/questions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ roleId: role.id }),
-    })
-      .then(r => r.json())
-      .then(data => {
-        if (data.error) throw new Error(data.error);
-        setQuestions(data.questions ?? []);
-      })
-      .catch(err => setFetchError(err instanceof Error ? err.message : 'Failed to load questions'))
-      .finally(() => setLoadingQ(false));
-  }, [role.id]);
+  const fetchQuestions = useCallback(async (forceRefresh = false) => {
+    setLoadingQ(true);
+    setFetchError(null);
+
+    if (!forceRefresh) {
+      const cached = loadCachedQuestions(role.id);
+      if (cached) {
+        setQuestions(cached);
+        setFromCache(true);
+        setLoadingQ(false);
+        return;
+      }
+    }
+
+    // Clear session progress when generating new questions
+    if (forceRefresh) {
+      clearCachedQuestions(role.id);
+      localStorage.removeItem(sessionKey);
+      setCurrentIndex(0);
+      setStage('scene');
+      setCompletedStages(new Set());
+      setFromCache(false);
+    }
+
+    try {
+      const res = await fetch('/api/interview/questions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roleId: role.id }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      const qs = data.questions ?? [];
+      saveCachedQuestions(role.id, qs);
+      setQuestions(qs);
+      setFromCache(false);
+    } catch (err) {
+      setFetchError(err instanceof Error ? err.message : 'Failed to load questions');
+    } finally {
+      setLoadingQ(false);
+    }
+  }, [role.id, sessionKey]);
+
+  useEffect(() => { fetchQuestions(); }, [fetchQuestions]);
 
   // Restore session progress from localStorage once questions are loaded
   useEffect(() => {
@@ -440,6 +495,7 @@ export default function InterviewSession({ role }: { role: InterviewRole }) {
     return (
       <div style={{ maxWidth: '700px', margin: '0 auto', padding: '4.5rem 1.5rem', textAlign: 'center' }}>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Generating your questions…</p>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.78rem', marginTop: '0.4rem' }}>This takes a few seconds and is cached for 24 hours.</p>
       </div>
     );
   }
@@ -483,9 +539,10 @@ export default function InterviewSession({ role }: { role: InterviewRole }) {
           )}
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link href={`/interview-prep/${role.id}`} style={{ background: 'var(--terracotta)', color: 'white', padding: '0.6rem 1.4rem', borderRadius: '99px', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600 }}>
+          <button onClick={() => { clearCachedQuestions(role.id); localStorage.removeItem(sessionKey); window.location.href = `/interview-prep/${role.id}`; }}
+            style={{ background: 'var(--terracotta)', color: 'white', padding: '0.6rem 1.4rem', borderRadius: '99px', border: 'none', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600, fontFamily: 'inherit' }}>
             Practice again
-          </Link>
+          </button>
           <Link href="/interview-prep" style={{ background: 'var(--parchment)', color: 'var(--brown-dark)', padding: '0.6rem 1.4rem', borderRadius: '99px', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600 }}>
             Try another role
           </Link>
@@ -502,6 +559,17 @@ export default function InterviewSession({ role }: { role: InterviewRole }) {
 
   return (
     <div style={{ maxWidth: '960px', margin: '0 auto', padding: '0 1.5rem', paddingBottom: '6rem' }}>
+
+      {/* Cached questions banner */}
+      {fromCache && (
+        <div style={{ background: 'rgba(30,122,82,0.06)', border: '1px solid rgba(30,122,82,0.2)', borderRadius: '10px', padding: '0.65rem 1rem', marginTop: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', fontSize: '0.85rem', color: 'var(--jade)' }}>
+          <span>⚡ Questions loaded instantly from cache.</span>
+          <button onClick={() => fetchQuestions(true)}
+            style={{ background: 'none', border: 'none', color: 'var(--jade)', cursor: 'pointer', fontSize: '0.82rem', textDecoration: 'underline', whiteSpace: 'nowrap', fontFamily: 'inherit' }}>
+            New Questions →
+          </button>
+        </div>
+      )}
 
       {/* Resume-session banner */}
       {sessionRestored && currentIndex > 0 && stage !== 'scene' && (
