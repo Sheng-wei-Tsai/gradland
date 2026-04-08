@@ -155,11 +155,21 @@ export default function VisaGuide() {
         fontSize: '0.85rem',
         color: 'var(--brown-dark)',
         lineHeight: 1.6,
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem',
       }}>
-        <strong>482 / Skills in Demand Visa — ICT pathway.</strong>{' '}
-        Total process: <strong>3–18 months</strong> end-to-end.{' '}
-        Your share of costs: <strong>~$3,965+</strong> (excludes employer-paid fees).{' '}
-        This is a public reference only — always verify with a registered migration agent.
+        <span>
+          <strong>482 / Skills in Demand Visa — ICT pathway.</strong>{' '}
+          Total process: <strong>3–18 months</strong> end-to-end.{' '}
+          Your share of costs: <strong>~$3,965+</strong> (excludes employer-paid fees).{' '}
+          This is a public reference only — always verify with a registered migration agent.
+        </span>
+        <a href="/dashboard/visa-tracker" style={{
+          background: 'var(--terracotta)', color: '#fff', padding: '0.45rem 1rem',
+          borderRadius: '8px', textDecoration: 'none', fontSize: '0.82rem', fontWeight: 600,
+          whiteSpace: 'nowrap', flexShrink: 0,
+        }}>
+          Track my journey →
+        </a>
       </div>
 
       {/* Stepper */}

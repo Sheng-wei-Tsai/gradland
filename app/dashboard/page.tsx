@@ -171,6 +171,20 @@ export default function DashboardPage() {
               <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>Salaries, visas, skill map & more</div>
             </div>
           </a>
+          <a href="/dashboard/visa-tracker" style={{
+            display: 'flex', alignItems: 'center', gap: '0.75rem',
+            flex: 1, minWidth: '200px',
+            background: 'var(--warm-white)', border: '1px solid var(--parchment)',
+            borderLeft: '3px solid #8b5cf6',
+            borderRadius: '10px', padding: '1rem 1.2rem',
+            textDecoration: 'none',
+          }}>
+            <span style={{ fontSize: '1.6rem' }}>🛂</span>
+            <div>
+              <div style={{ fontWeight: 600, color: 'var(--brown-dark)', fontSize: '0.92rem' }}>Visa Journey Tracker</div>
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>Track your 482 / Skills in Demand visa</div>
+            </div>
+          </a>
         </div>
       </div>
 
