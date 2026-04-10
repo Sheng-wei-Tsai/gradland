@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { LEARN_CHANNELS } from '@/lib/learn-channels';
@@ -48,20 +48,37 @@ function ScoreBadge({ score }: { score: number }) {
 
 export default function LearnYoutubePage() {
   const router = useRouter();
-  const [url,          setUrl]          = useState('');
-  const [urlError,     setUrlError]     = useState('');
+  const [url,           setUrl]          = useState('');
+  const [urlError,      setUrlError]     = useState('');
   const [activeChannel, setActiveChannel] = useState(LEARN_CHANNELS[0].id);
-  const [videos,       setVideos]       = useState<Video[]>([]);
-  const [nextToken,    setNextToken]    = useState<string | null>(null);
-  const [loading,      setLoading]      = useState(false);
-  const [progress,     setProgress]     = useState<Record<string, Progress>>({});
+  const [videos,        setVideos]        = useState<Video[]>([]);
+  const [nextToken,     setNextToken]     = useState<string | null>(null);
+  const [loading,       setLoading]       = useState(false);
+  const [progress,      setProgress]      = useState<Record<string, Progress>>({});
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const loadingRef  = useRef(false); // prevent double-fire from IntersectionObserver
 
   const channel = LEARN_CHANNELS.find(c => c.id === activeChannel)!;
 
+  const loadChannel = useCallback(async (channelId: string, cursor?: string) => {
+    if (loadingRef.current) return;
+    loadingRef.current = true;
+    setLoading(true);
+    if (!cursor) setVideos([]);
+    const apiUrl = `/api/learn/channel-videos?channelId=${channelId}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`;
+    try {
+      const res  = await fetch(apiUrl);
+      const data = await res.json();
+      setVideos(prev => cursor ? [...prev, ...(data.videos ?? [])] : (data.videos ?? []));
+      setNextToken(data.nextPageToken || null); // '' → null (no more pages)
+    } catch { /* ignore fetch errors */ }
+    setLoading(false);
+    loadingRef.current = false;
+  }, []);
+
   useEffect(() => {
     loadChannel(channel.channelId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeChannel]);
+  }, [activeChannel, channel.channelId, loadChannel]);
 
   useEffect(() => {
     fetch('/api/learn/progress')
@@ -74,16 +91,21 @@ export default function LearnYoutubePage() {
       .catch(() => {});
   }, []);
 
-  const loadChannel = async (channelId: string, cursor?: string) => {
-    setLoading(true);
-    if (!cursor) setVideos([]);
-    const url = `/api/learn/channel-videos?channelId=${channelId}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`;
-    const res  = await fetch(url);
-    const data = await res.json();
-    setVideos(prev => cursor ? [...prev, ...(data.videos ?? [])] : (data.videos ?? []));
-    setNextToken(data.nextPageToken ?? null);
-    setLoading(false);
-  };
+  // ── Infinite scroll: auto-load next page when sentinel enters viewport ──
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel || !nextToken || loading) return;
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && nextToken && !loadingRef.current) {
+          loadChannel(channel.channelId, nextToken);
+        }
+      },
+      { rootMargin: '200px' }, // start loading 200px before visible
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [nextToken, loading, channel.channelId, loadChannel]);
 
   const handleUrlSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -227,15 +249,29 @@ export default function LearnYoutubePage() {
               })}
             </div>
 
-            {nextToken && (
-              <div style={{ textAlign: 'center', paddingBottom: '4rem' }}>
-                <button onClick={() => loadChannel(channel.channelId, nextToken)} disabled={loading}
-                  style={{ background: 'var(--warm-white)', border: '1px solid var(--parchment)',
-                    borderRadius: '99px', padding: '0.55rem 1.5rem',
-                    fontSize: '0.88rem', cursor: 'pointer', color: 'var(--brown-dark)' }}>
-                  {loading ? 'Loading…' : 'Load more'}
-                </button>
+            {/* Infinite scroll sentinel — IntersectionObserver fires loadChannel when this enters view */}
+            <div ref={sentinelRef} style={{ height: '1px' }} />
+
+            {/* Loading spinner while fetching next page */}
+            {loading && videos.length > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', padding: '1.5rem 0 3rem', alignItems: 'center' }}>
+                {[0, 1, 2].map(i => (
+                  <div key={i} style={{
+                    width: '7px', height: '7px', borderRadius: '50%',
+                    background: 'var(--terracotta)', opacity: 0.7,
+                    animation: 'dotPulse 1.2s ease-in-out infinite',
+                    animationDelay: `${i * 0.2}s`,
+                  }} />
+                ))}
+                <style>{`@keyframes dotPulse{0%,80%,100%{transform:scale(0.7);opacity:0.4}40%{transform:scale(1);opacity:1}}`}</style>
               </div>
+            )}
+
+            {/* End of list indicator */}
+            {!nextToken && videos.length > 0 && !loading && (
+              <p style={{ textAlign: 'center', fontSize: '0.78rem', color: 'var(--text-muted)', paddingBottom: '3rem' }}>
+                All videos loaded
+              </p>
             )}
           </>
         )}

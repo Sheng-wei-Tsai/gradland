@@ -907,9 +907,9 @@ function Skeleton() {
 
 /* ─── Loading stages indicator ──────────────────────────────────────── */
 const STAGES = [
-  { key: 'transcript', label: 'Fetching transcript' },
-  { key: 'analysing',  label: 'Analysing content'   },
-  { key: 'building',   label: 'Building guide'       },
+  { key: 'transcript', label: 'Checking for transcript' },
+  { key: 'analysing',  label: 'Analysing with AI'        },
+  { key: 'building',   label: 'Building study guide'      },
 ] as const;
 
 function LoadingStages({ stage }: { stage: 'transcript' | 'analysing' | 'building' }) {
@@ -1169,8 +1169,8 @@ export default function StudySessionPage() {
               display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
               <span style={{ animation: 'spin 1.2s linear infinite', display: 'inline-block', fontSize: '0.9rem' }}>⟳</span>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                {loadingStage === 'transcript' && 'Fetching transcript…'}
-                {loadingStage === 'analysing'  && 'Analysing content…'}
+                {loadingStage === 'transcript' && 'Checking for transcript…'}
+                {loadingStage === 'analysing'  && 'Analysing content with AI…'}
                 {loadingStage === 'building'   && 'Building study guide…'}
               </span>
             </div>

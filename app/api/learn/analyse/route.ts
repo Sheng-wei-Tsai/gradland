@@ -74,31 +74,26 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // ── Fetch transcript ────────────────────────────────────────────────
+  // ── Fetch transcript — try multiple language/format options ─────────
   let transcript = '';
-  try {
-    const segments = await YoutubeTranscript.fetchTranscript(videoId);
-    transcript = segments
-      .map(s => s.text)
-      .join(' ')
-      .replace(/\s+/g, ' ')
-      .trim()
-      .slice(0, 14000);
-  } catch {
-    return new Response(
-      JSON.stringify({ error: 'No transcript available for this video. It may have captions disabled, be a live stream, or be private.' }),
-      { headers: { 'Content-Type': 'application/json' }, status: 422 },
-    );
+  // Attempt order: default auto-detect, then common English variants
+  const langAttempts = [undefined, 'en', 'en-US', 'a.en', 'en-GB', 'en-AU'];
+  for (const lang of langAttempts) {
+    try {
+      const segments = await YoutubeTranscript.fetchTranscript(
+        videoId,
+        lang ? { lang } : undefined,
+      );
+      const text = segments.map(s => s.text).join(' ').replace(/\s+/g, ' ').trim().slice(0, 14000);
+      if (text.length > 50) { transcript = text; break; }
+    } catch { /* try next language */ }
   }
 
-  if (!transcript) {
-    return new Response(
-      JSON.stringify({ error: 'This video has no spoken content to analyse.' }),
-      { headers: { 'Content-Type': 'application/json' }, status: 422 },
-    );
-  }
+  // ── Build prompt — use transcript if available, fall back to title ───
+  const hasTranscript = transcript.length > 50;
 
-  const prompt = `You are an expert technical educator helping an Australian developer learn from YouTube videos.
+  const prompt = hasTranscript
+    ? `You are an expert technical educator helping an Australian developer learn from YouTube videos.
 
 Video title: "${videoTitle || videoId}"${channelTitle ? `\nChannel: ${channelTitle}` : ''}
 
@@ -119,7 +114,24 @@ Rules:
 - sections: infer logical chapters from topic shifts in the transcript.
 - useCases: 3-4 real-world applications discussed or implied by the transcript.
 - audioScript: podcast-style narration, natural and conversational, ~750 words.
-- Do not fabricate claims not supported by the transcript.`;
+- Do not fabricate claims not supported by the transcript.`
+
+    : `You are an expert technical educator helping an Australian developer learn from YouTube videos.
+
+The video "${videoTitle || videoId}"${channelTitle ? ` from ${channelTitle}` : ''} has no accessible transcript (captions are disabled or unavailable).
+
+Generate a comprehensive study guide for the TOPIC implied by the title. This is a topic overview, not a summary of the specific video.
+
+Return ONLY valid JSON matching this exact schema (no markdown fences, no preamble):
+${SCHEMA}
+
+Rules:
+- essay: start with "This guide covers [topic] — note: no captions were available so this is a topic overview rather than a specific video summary." Then write 250-300 words of flowing prose **bolding** key terms.
+- keyConcepts: 5-8 core concepts someone would learn studying this topic.
+- sections: write 3-5 logical learning sections for this topic area.
+- useCases: 3-4 real-world applications in Australian tech companies.
+- audioScript: podcast-style narration about the topic, ~750 words.
+- australianContext: how this topic appears in AU IT job ads and enterprise tech.`;
 
   const encoder = new TextEncoder();
   let accumulated = '';
