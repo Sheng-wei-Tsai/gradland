@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
@@ -301,7 +302,7 @@ export default function Header() {
                   cursor: 'pointer', padding: 0, transition: 'box-shadow 0.15s ease',
                 }}>
                   {user.user_metadata?.avatar_url
-                    ? <img src={user.user_metadata.avatar_url} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ? <Image src={user.user_metadata.avatar_url} alt="avatar" width={36} height={36} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     : user.email?.[0].toUpperCase()}
                 </button>
               </ReadinessScoreMini>
@@ -489,7 +490,7 @@ export default function Header() {
                   fontSize: '0.65rem', fontWeight: 700, color: 'white',
                 }}>
                   {user.user_metadata?.avatar_url
-                    ? <img src={user.user_metadata.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ? <Image src={user.user_metadata.avatar_url} alt="" width={36} height={36} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     : user.email?.[0].toUpperCase()}
                 </div>
                 <span style={{ fontSize: '0.6rem', fontWeight: 500, color: mobileDrawer === 'me' ? 'white' : 'var(--text-muted)' }}>Me</span>
