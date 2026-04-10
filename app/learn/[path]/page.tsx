@@ -9,7 +9,11 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ path: string }> }) {
   const { path } = await params;
   const skillPath = getPathById(path);
-  return { title: skillPath?.title ?? 'Learning Path' };
+  if (!skillPath) return { title: 'Learning Path' };
+  return {
+    title: skillPath.title,
+    description: skillPath.description,
+  };
 }
 
 export default async function LearnPathPage({ params }: { params: Promise<{ path: string }> }) {

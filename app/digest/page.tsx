@@ -3,7 +3,10 @@ import { fetchIAFeed, formatRelativeDate } from '@/lib/ia-feed';
 import PostCard from '@/components/PostCard';
 import { Metadata } from 'next';
 
-export const metadata: Metadata = { title: 'AI Digest' };
+export const metadata: Metadata = {
+  title: 'AI Digest — TechPath AU',
+  description: 'Weekly summaries of AI research breakthroughs, model releases, and industry trends — curated for Australian IT professionals.',
+};
 
 export default async function DigestPage() {
   const digests = getAllDigests();

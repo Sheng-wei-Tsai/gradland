@@ -2,7 +2,10 @@ import { getAllGithot } from '@/lib/posts';
 import PostCard from '@/components/PostCard';
 import { Metadata } from 'next';
 
-export const metadata: Metadata = { title: 'GitHub Hot' };
+export const metadata: Metadata = {
+  title: 'GitHub Hot — TechPath AU',
+  description: 'Trending GitHub repositories in software engineering, AI, and cloud — daily picks relevant to Australian IT job seekers.',
+};
 
 export default function GithotPage() {
   const posts = getAllGithot();

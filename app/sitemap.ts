@@ -49,5 +49,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority:     0.5 as const,
   }));
 
-  return [...staticRoutes, ...postRoutes, ...digestRoutes, ...githubRoutes];
+  const aiNewsRoutes = slugsFrom('ai-news').map(slug => ({
+    url:          `${BASE_URL}/ai-news/${slug}`,
+    lastModified: now,
+    priority:     0.6 as const,
+  }));
+
+  const visaNewsRoutes = slugsFrom('visa-news').map(slug => ({
+    url:          `${BASE_URL}/visa-news/${slug}`,
+    lastModified: now,
+    priority:     0.6 as const,
+  }));
+
+  return [...staticRoutes, ...postRoutes, ...digestRoutes, ...githubRoutes, ...aiNewsRoutes, ...visaNewsRoutes];
 }

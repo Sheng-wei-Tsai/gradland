@@ -9,8 +9,19 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log to your error monitoring service here (e.g. Sentry)
-    console.error('[GlobalError]', error);
+    // TODO: replace with Sentry.captureException(error) once @sentry/nextjs is installed
+    console.error('[GlobalError]', error.digest ?? error.message, error);
+
+    // Best-effort server-side error report (fire-and-forget)
+    fetch('/api/log-error', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: error.message,
+        digest:  error.digest,
+        url:     typeof window !== 'undefined' ? window.location.href : '',
+      }),
+    }).catch(() => { /* never throw from error boundary */ });
   }, [error]);
 
   return (

@@ -28,12 +28,26 @@ export async function generateStaticParams() {
   return getAllAINews().map(p => ({ slug: p.slug }));
 }
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://henrysdigitallife.com';
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const post = getAINewsBySlug(slug);
+  if (!post) return { title: 'AI News' };
+  const url = `${BASE_URL}/ai-news/${slug}`;
   return {
-    title: post?.title ?? 'AI News',
-    description: post?.excerpt,
+    title: post.title,
+    description: post.excerpt,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      type: 'article',
+      url,
+      publishedTime: post.date,
+      authors: ['Henry Tsai'],
+    },
+    twitter: { card: 'summary_large_image', title: post.title, description: post.excerpt },
+    alternates: { canonical: url },
   };
 }
 
@@ -44,8 +58,23 @@ export default async function AINewsPostPage({ params }: { params: Promise<{ slu
 
   const company = COMPANY_META[post.company ?? ''] ?? COMPANY_META.google;
 
+  // JSON-LD Article schema — data is server-controlled (our markdown files)
+  const jsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description: post.excerpt || post.title,
+    datePublished: post.date,
+    dateModified: post.date,
+    author: { '@type': 'Person', name: 'Henry Tsai', url: `${BASE_URL}/about` },
+    publisher: { '@type': 'Organization', name: 'TechPath AU', url: BASE_URL },
+    url: `${BASE_URL}/ai-news/${post.slug}`,
+  });
+
   return (
     <div style={{ maxWidth: '720px', margin: '0 auto', padding: '0 1.5rem' }}>
+      {/* JSON-LD structured data for Google rich results — server-owned content only */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
       <div style={{ paddingTop: '3rem', paddingBottom: '1.5rem' }}>
         <Link href="/posts/ai-news" style={{
           fontSize: '0.88rem', color: 'var(--text-muted)', textDecoration: 'none',

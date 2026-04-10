@@ -45,12 +45,26 @@ export async function generateStaticParams() {
   return getAllVisaNews().map(p => ({ slug: p.slug }));
 }
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://henrysdigitallife.com';
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const post = getVisaNewsBySlug(slug);
+  if (!post) return { title: 'Visa News' };
+  const url = `${BASE_URL}/visa-news/${slug}`;
   return {
-    title: post?.title ?? 'Visa News',
-    description: post?.excerpt,
+    title: post.title,
+    description: post.excerpt,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      type: 'article',
+      url,
+      publishedTime: post.date,
+      authors: ['Henry Tsai'],
+    },
+    twitter: { card: 'summary_large_image', title: post.title, description: post.excerpt },
+    alternates: { canonical: url },
   };
 }
 
@@ -62,8 +76,20 @@ export default async function VisaNewsPostPage({ params }: { params: Promise<{ s
   const source = SOURCE_META[post.visaSource ?? ''] ?? SOURCE_META['home-affairs'];
   const visaTypes = post.visaTypes ?? [];
 
+  const jsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description: post.excerpt || post.title,
+    datePublished: post.date,
+    author: { '@type': 'Person', name: 'Henry Tsai', url: `${BASE_URL}/about` },
+    publisher: { '@type': 'Organization', name: 'TechPath AU', url: BASE_URL },
+    url: `${BASE_URL}/visa-news/${post.slug}`,
+  });
+
   return (
     <div style={{ maxWidth: '720px', margin: '0 auto', padding: '0 1.5rem' }}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
       <div style={{ paddingTop: '3rem', paddingBottom: '1.5rem' }}>
         <Link href="/posts/visa-news" style={{
           fontSize: '0.88rem', color: 'var(--text-muted)', textDecoration: 'none',
