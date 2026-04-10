@@ -671,3 +671,30 @@ h3, h4 {
     width: 100%;
   }
 }
+
+/* ── Onboarding slide transitions ── */
+@keyframes slideInFromRight {
+  from { opacity: 0; transform: translateX(32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideInFromLeft {
+  from { opacity: 0; transform: translateX(-32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Skeleton shimmer ── */
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+/* ── Hide scrollbar on horizontally scrollable rows ── */
+.scroll-x-hide::-webkit-scrollbar { display: none; }
+
+/* ── Loading dot pulse ── */
+@keyframes pulse {
+  0%, 100% { opacity: 0.25; transform: scale(0.8); }
+  50%       { opacity: 1;    transform: scale(1.2); }
+}
+
+.visa-source-cta:hover { opacity: 0.8; }
