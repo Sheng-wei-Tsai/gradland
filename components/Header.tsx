@@ -69,7 +69,7 @@ function Chevron({ open }: { open: boolean }) {
 }
 function DropPanel({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{
+    <div role="menu" style={{
       position: 'absolute', top: 'calc(100% + 10px)', left: '50%', transform: 'translateX(-50%)',
       width: '240px', background: 'var(--warm-white)',
       border: '2px solid var(--parchment)', borderRadius: '12px',
@@ -206,6 +206,9 @@ export default function Header() {
             <div style={{ position: 'relative' }}>
               <button
                 onClick={() => setOpenMenu(m => m === 'posts' ? null : 'posts')}
+                onKeyDown={e => { if (e.key === 'Escape') setOpenMenu(null); }}
+                aria-haspopup="true"
+                aria-expanded={postsOpen}
                 style={{ ...navLink(isPostsActive), border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3em' }}
               >
                 Posts <Chevron open={postsOpen} />
@@ -223,6 +226,9 @@ export default function Header() {
             <div style={{ position: 'relative' }}>
               <button
                 onClick={() => setOpenMenu(m => m === 'learn' ? null : 'learn')}
+                onKeyDown={e => { if (e.key === 'Escape') setOpenMenu(null); }}
+                aria-haspopup="true"
+                aria-expanded={learnOpen}
                 style={{ ...navLink(isZoneActive(LEARN_ITEMS)), border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3em' }}
               >
                 Learn <Chevron open={learnOpen} />
@@ -240,12 +246,15 @@ export default function Header() {
             <div style={{ position: 'relative' }}>
               <button
                 onClick={() => setOpenMenu(m => m === 'au-insights' ? null : 'au-insights')}
+                onKeyDown={e => { if (e.key === 'Escape') setOpenMenu(null); }}
+                aria-haspopup="true"
+                aria-expanded={auInsightsOpen}
                 style={{ ...navLink(isZoneActive(AU_INSIGHTS_ITEMS)), border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3em' }}
               >
                 AU Insights <Chevron open={auInsightsOpen} />
               </button>
               {auInsightsOpen && (
-                <div style={{
+                <div role="menu" style={{
                   position: 'absolute', top: 'calc(100% + 10px)', right: 0,
                   width: '270px', background: 'var(--warm-white)',
                   border: '2px solid var(--parchment)', borderRadius: '12px',

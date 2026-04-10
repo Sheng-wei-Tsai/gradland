@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 
 interface Step {
   emoji:  string;
@@ -133,7 +134,7 @@ export default function GettingStartedChecklist({ hasResume, hasSkills, hasInter
 
             {/* CTA */}
             {!step.done && (
-              <a href={step.href} style={{
+              <Link href={step.href} style={{
                 padding: '0.35rem 0.85rem',
                 borderRadius: '99px',
                 background: 'var(--terracotta)',
@@ -142,7 +143,7 @@ export default function GettingStartedChecklist({ hasResume, hasSkills, hasInter
                 textDecoration: 'none', flexShrink: 0,
               }}>
                 {step.cta}
-              </a>
+              </Link>
             )}
           </div>
         ))}

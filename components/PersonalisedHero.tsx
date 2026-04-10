@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 
 function Shimmer({ w, h, radius = 8 }: { w: string; h: number; radius?: number }) {
@@ -96,15 +97,21 @@ function getTodayCards(s: DashboardSummary, nextActionTitle: string) {
 
 export default function PersonalisedHero({ user }: { user: User }) {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     (async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
-      const res = await fetch('/api/dashboard/summary', {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      });
-      if (res.ok) setSummary(await res.json());
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+        const res = await fetch('/api/dashboard/summary', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+        if (res.ok) setSummary(await res.json());
+        else setLoadError(true);
+      } catch {
+        setLoadError(true);
+      }
     })();
   }, []);
 
@@ -132,7 +139,18 @@ export default function PersonalisedHero({ user }: { user: User }) {
       </div>
 
       {/* Next action hero card */}
-      {!summary && (
+      {loadError && (
+        <div style={{
+          background: 'var(--warm-white)', border: '1px solid var(--parchment)',
+          borderLeft: '4px solid var(--terracotta)', borderRadius: '14px',
+          padding: '1.2rem 1.4rem', marginBottom: '1rem',
+        }}>
+          <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--text-muted)' }}>
+            Couldn't load your dashboard. <Link href="/dashboard" style={{ color: 'var(--terracotta)', fontWeight: 600, textDecoration: 'none' }}>Go to dashboard →</Link>
+          </p>
+        </div>
+      )}
+      {!summary && !loadError && (
         <div style={{
           background: 'var(--warm-white)', border: '1px solid var(--parchment)',
           borderLeft: '4px solid var(--parchment)', borderRadius: '14px',
@@ -168,13 +186,13 @@ export default function PersonalisedHero({ user }: { user: User }) {
               </p>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', maxWidth: '46ch' }}>{nextAction.body}</p>
             </div>
-            <a href={nextAction.href} style={{
+            <Link href={nextAction.href} style={{
               padding: '0.45rem 1rem', borderRadius: '99px',
               background: 'var(--terracotta)', color: 'white',
               fontSize: '0.85rem', fontWeight: 600, textDecoration: 'none', flexShrink: 0,
             }}>
               {nextAction.cta}
-            </a>
+            </Link>
           </div>
         </div>
       ) : (
@@ -189,7 +207,7 @@ export default function PersonalisedHero({ user }: { user: User }) {
           </p>
           <div style={{ display: 'flex', gap: '0.7rem', flexWrap: 'wrap' }}>
             {todayCards.map(c => (
-              <a key={c.label} href={c.href} style={{
+              <Link key={c.label} href={c.href} style={{
                 flex: 1, minWidth: '140px',
                 padding: '0.8rem 1rem',
                 background: 'var(--warm-white)',
@@ -201,7 +219,7 @@ export default function PersonalisedHero({ user }: { user: User }) {
                 <div style={{ fontSize: '1.2rem', marginBottom: '0.25rem' }}>{c.emoji}</div>
                 <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--brown-dark)' }}>{c.label}</div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>{c.body}</div>
-              </a>
+              </Link>
             ))}
           </div>
         </div>
@@ -212,9 +230,9 @@ export default function PersonalisedHero({ user }: { user: User }) {
         <div style={{ marginTop: '1rem', fontSize: '0.83rem', color: 'var(--text-muted)', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
           <span>📊 Applications: <strong style={{ color: 'var(--brown-dark)' }}>{summary.applicationCount}</strong></span>
           <span>Interviews: <strong style={{ color: 'var(--brown-dark)' }}>{summary.interviewCount}</strong></span>
-          <a href="/dashboard" style={{ color: 'var(--terracotta)', textDecoration: 'none', fontWeight: 600, marginLeft: 'auto' }}>
+          <Link href="/dashboard" style={{ color: 'var(--terracotta)', textDecoration: 'none', fontWeight: 600, marginLeft: 'auto' }}>
             Full dashboard →
-          </a>
+          </Link>
         </div>
       )}
     </section>
