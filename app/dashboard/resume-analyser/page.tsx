@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/components/AuthProvider';
@@ -67,6 +67,12 @@ const PRIORITY_COLOR = {
   low:    'var(--text-muted)',
 };
 
+const PROGRESS_STEPS = [
+  { icon: '📤', label: 'Uploading resume',        detail: 'Sending your file securely…' },
+  { icon: '🔍', label: 'Reading against AU market', detail: 'Checking format, content & skills against AU IT standards…' },
+  { icon: '📊', label: 'Calculating score',        detail: 'Scoring resume fit, ATS readiness & market alignment…' },
+];
+
 export default function ResumeAnalyserPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -74,6 +80,7 @@ export default function ResumeAnalyserPage() {
   const [file, setFile] = useState<File | null>(null);
   const [dragging, setDragging] = useState(false);
   const [analysing, setAnalysing] = useState(false);
+  const [progStep, setProgStep] = useState(0); // 0=idle 1=uploading 2=reading 3=scoring
   const [error, setError] = useState('');
   const [result, setResult] = useState<Analysis | null>(null);
 
@@ -89,7 +96,9 @@ export default function ResumeAnalyserPage() {
 
   async function analyse() {
     if (!file) return;
-    setAnalysing(true); setError(''); setResult(null);
+    setAnalysing(true); setError(''); setResult(null); setProgStep(1);
+    const stepTimer = setTimeout(() => setProgStep(2), 2500);
+    const stepTimer2 = setTimeout(() => setProgStep(3), 7000);
     try {
       const form = new FormData();
       form.append('resume', file);
@@ -100,7 +109,8 @@ export default function ResumeAnalyserPage() {
     } catch {
       setError('Network error — please try again.');
     } finally {
-      setAnalysing(false);
+      clearTimeout(stepTimer); clearTimeout(stepTimer2);
+      setAnalysing(false); setProgStep(0);
     }
   }
 
@@ -175,12 +185,40 @@ export default function ResumeAnalyserPage() {
         {analysing ? '🔍 Analysing your resume...' : '🚀 Analyse My Resume'}
       </button>
 
-      {/* Loading state */}
+      {/* Progress steps */}
       {analysing && (
-        <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)', fontSize: '0.88rem', lineHeight: 1.8 }}>
-          <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🤔</div>
-          Reading your resume against AU IT industry standards...<br />
-          This usually takes 10–20 seconds.
+        <div style={{ padding: '2rem 0' }}>
+          {PROGRESS_STEPS.map((step, i) => {
+            const done    = progStep > i + 1;
+            const active  = progStep === i + 1;
+            return (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.9rem', padding: '0.65rem 0', opacity: active ? 1 : done ? 0.5 : 0.25 }}>
+                <div style={{
+                  width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: done ? 'rgba(30,122,82,0.12)' : active ? 'var(--terracotta)' : 'var(--parchment)',
+                  fontSize: done ? '0.9rem' : '1rem',
+                  border: active ? 'none' : done ? '1.5px solid rgba(30,122,82,0.3)' : 'none',
+                }}>
+                  {done ? '✓' : step.icon}
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.88rem', fontWeight: 600, color: active ? 'var(--brown-dark)' : 'var(--text-muted)' }}>{step.label}</div>
+                  {active && <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>{step.detail}</div>}
+                </div>
+                {active && (
+                  <div style={{ marginLeft: 'auto', display: 'flex', gap: '3px' }}>
+                    {[0, 1, 2].map(d => (
+                      <div key={d} style={{
+                        width: 5, height: 5, borderRadius: '50%', background: 'var(--terracotta)',
+                        animation: `pulse 1.2s ease-in-out ${d * 0.2}s infinite`,
+                      }} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
 
@@ -306,6 +344,48 @@ export default function ResumeAnalyserPage() {
             )}
           </div>
 
+          {/* What now? */}
+          <div style={{
+            background: 'var(--warm-white)', border: '1px solid var(--parchment)',
+            borderLeft: '4px solid var(--terracotta)',
+            borderRadius: '14px', padding: '1.2rem 1.4rem',
+          }}>
+            <p style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--terracotta)', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 0.75rem' }}>
+              ⚡ What to do next
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+              {result.auMarketFit.topRolesMatch.length > 0 && (
+                <a href={`/jobs?keywords=${encodeURIComponent(result.auMarketFit.topRolesMatch[0])}`}
+                  style={whatNowLink}>
+                  <span style={whatNowEmoji}>💼</span>
+                  <div>
+                    <div style={whatNowTitle}>Search jobs matching your profile</div>
+                    <div style={whatNowDesc}>{result.auMarketFit.topRolesMatch[0]} roles in Australia</div>
+                  </div>
+                  <span style={whatNowArrow}>→</span>
+                </a>
+              )}
+              <a href="/interview-prep" style={whatNowLink}>
+                <span style={whatNowEmoji}>🎯</span>
+                <div>
+                  <div style={whatNowTitle}>Practice your interview</div>
+                  <div style={whatNowDesc}>Your resume is ready — now make sure you can talk to it</div>
+                </div>
+                <span style={whatNowArrow}>→</span>
+              </a>
+              {result.auMarketFit.missingSkills.length > 0 && (
+                <a href="/learn" style={whatNowLink}>
+                  <span style={whatNowEmoji}>📚</span>
+                  <div>
+                    <div style={whatNowTitle}>Close your skill gaps</div>
+                    <div style={whatNowDesc}>Missing: {result.auMarketFit.missingSkills.slice(0, 3).join(', ')}</div>
+                  </div>
+                  <span style={whatNowArrow}>→</span>
+                </a>
+              )}
+            </div>
+          </div>
+
           {/* Analyse another */}
           <button
             onClick={() => { setFile(null); setResult(null); setError(''); if (fileRef.current) fileRef.current.value = ''; }}
@@ -318,3 +398,15 @@ export default function ResumeAnalyserPage() {
     </div>
   );
 }
+
+const whatNowLink: React.CSSProperties = {
+  display: 'flex', alignItems: 'center', gap: '0.75rem',
+  padding: '0.65rem 0.8rem', borderRadius: '8px',
+  background: 'white', border: '1px solid var(--parchment)',
+  textDecoration: 'none', color: 'inherit',
+  transition: 'border-color 0.15s ease',
+};
+const whatNowEmoji: React.CSSProperties = { fontSize: '1.2rem', flexShrink: 0 };
+const whatNowTitle: React.CSSProperties = { fontSize: '0.85rem', fontWeight: 600, color: 'var(--brown-dark)' };
+const whatNowDesc: React.CSSProperties  = { fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.1rem' };
+const whatNowArrow: React.CSSProperties = { marginLeft: 'auto', color: 'var(--text-muted)', fontSize: '1rem', flexShrink: 0 };

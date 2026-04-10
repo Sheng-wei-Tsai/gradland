@@ -290,19 +290,22 @@ export default function VisaTrackerPage() {
           const isOpen  = expanded === step.number;
           const isLocked = idx > 0 && steps[String(STEPS[idx - 1].number)]?.status === 'not_started';
 
+          const prevStep = idx > 0 ? STEPS[idx - 1] : null;
+
           return (
             <div key={step.number} className="step-card" style={{
               background: 'var(--warm-white)', border: '1px solid var(--parchment)',
               borderRadius: '12px', overflow: 'hidden',
-              opacity: isLocked ? 0.6 : 1,
+              opacity: isLocked ? 0.55 : 1,
             }}>
               {/* Step header — click to expand */}
               <button
                 onClick={() => !isLocked && setExpanded(isOpen ? null : step.number)}
+                title={isLocked && prevStep ? `Complete Step ${prevStep.number}: ${prevStep.title} first` : undefined}
                 style={{
                   display: 'flex', alignItems: 'center', gap: '0.85rem',
                   width: '100%', padding: '1rem 1.1rem', background: 'none', border: 'none',
-                  cursor: isLocked ? 'default' : 'pointer', textAlign: 'left',
+                  cursor: isLocked ? 'not-allowed' : 'pointer', textAlign: 'left',
                 }}
               >
                 <span style={{ fontSize: '1.3rem', flexShrink: 0 }}>{statusIcon(state.status)}</span>
@@ -326,7 +329,10 @@ export default function VisaTrackerPage() {
                   </div>
                 </div>
                 <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', flexShrink: 0 }}>
-                  {!isLocked && (isOpen ? '▲' : '▼')}
+                  {isLocked
+                    ? <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', background: 'var(--parchment)', padding: '0.15em 0.5em', borderRadius: '5px' }}>🔒 locked</span>
+                    : (isOpen ? '▲' : '▼')
+                  }
                 </span>
               </button>
 

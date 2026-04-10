@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import Header from '@/components/Header';
+import Breadcrumb from '@/components/Breadcrumb';
 import Footer from '@/components/Footer';
 import { AuthProvider } from '@/components/AuthProvider';
 import Analytics from '@/components/Analytics';
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
           <Analytics />
           <Header />
+          <Breadcrumb />
           <main style={{ minHeight: '70vh' }}>
             {children}
           </main>

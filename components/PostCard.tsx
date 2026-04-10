@@ -3,6 +3,21 @@ import Link from 'next/link';
 import { Post } from '@/lib/posts';
 import { format } from 'date-fns';
 
+/* Accent colours per source */
+const SOURCE_STRIPE: Record<string, string> = {
+  blog:        'linear-gradient(180deg, var(--vermilion) 0%, var(--gold) 100%)',
+  digest:      'linear-gradient(180deg, #6366f1 0%, #a78bfa 100%)',
+  githot:      'linear-gradient(180deg, #f97316 0%, #fbbf24 100%)',
+  'ai-news':   'linear-gradient(180deg, #4285f4 0%, #34a853 100%)',
+  'visa-news': 'linear-gradient(180deg, #0369a1 0%, #0ea5e9 100%)',
+};
+
+const COMPANY_BADGE: Record<string, { color: string; bg: string; border: string; label: string }> = {
+  anthropic: { color: '#CC785C', bg: 'rgba(204,120,92,0.08)',  border: 'rgba(204,120,92,0.25)',  label: 'Anthropic' },
+  openai:    { color: '#10a37f', bg: 'rgba(16,163,127,0.08)',  border: 'rgba(16,163,127,0.25)',  label: 'OpenAI' },
+  google:    { color: '#4285f4', bg: 'rgba(66,133,244,0.08)',  border: 'rgba(66,133,244,0.25)',  label: 'Google AI' },
+};
+
 export default function PostCard({
   post,
   index = 0,
@@ -12,6 +27,13 @@ export default function PostCard({
   index?: number;
   basePath?: string;
 }) {
+  const hasTopics  = post.topics && post.topics.length > 0;
+  const isDigest   = post.source === 'digest';
+  const isGithot   = post.source === 'githot';
+  const isAINews   = post.source === 'ai-news';
+  const isVisaNews = post.source === 'visa-news';
+  const companyBadge = isAINews && post.company ? COMPANY_BADGE[post.company] : null;
+
   return (
     <Link href={`${basePath}/${post.slug}`} style={{ textDecoration: 'none' }}>
       <article
@@ -31,12 +53,13 @@ export default function PostCard({
           width:        '3px',
           alignSelf:    'stretch',
           borderRadius: '3px',
-          background:   'linear-gradient(180deg, var(--vermilion) 0%, var(--gold) 100%)',
+          background:   SOURCE_STRIPE[post.source] ?? SOURCE_STRIPE.blog,
           flexShrink:   0,
         }} />
 
         {/* Content */}
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+          {/* Meta row */}
           <div style={{
             display: 'flex', alignItems: 'center', gap: '0.5rem',
             fontSize: '0.73rem', color: 'var(--text-muted)', fontWeight: 500,
@@ -56,8 +79,40 @@ export default function PostCard({
                 }}>AI</span>
               </>
             )}
+            {/* Source badge */}
+            {isDigest && (
+              <span style={{
+                marginLeft: 'auto', fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.05em',
+                color: '#6366f1', background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)',
+                padding: '0.1em 0.55em', borderRadius: '4px', textTransform: 'uppercase',
+              }}>Research Digest</span>
+            )}
+            {isGithot && (
+              <span style={{
+                marginLeft: 'auto', fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.05em',
+                color: '#f97316', background: 'rgba(249,115,22,0.08)', border: '1px solid rgba(249,115,22,0.2)',
+                padding: '0.1em 0.55em', borderRadius: '4px', textTransform: 'uppercase',
+              }}>GitHub Hot</span>
+            )}
+            {isAINews && (
+              <span style={{
+                marginLeft: 'auto', fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.05em',
+                color: companyBadge?.color ?? '#4285f4',
+                background: companyBadge?.bg ?? 'rgba(66,133,244,0.08)',
+                border: `1px solid ${companyBadge?.border ?? 'rgba(66,133,244,0.2)'}`,
+                padding: '0.1em 0.55em', borderRadius: '4px', textTransform: 'uppercase',
+              }}>{companyBadge?.label ?? 'AI News'}</span>
+            )}
+            {isVisaNews && (
+              <span style={{
+                marginLeft: 'auto', fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.05em',
+                color: '#0369a1', background: 'rgba(3,105,161,0.08)', border: '1px solid rgba(3,105,161,0.2)',
+                padding: '0.1em 0.55em', borderRadius: '4px', textTransform: 'uppercase',
+              }}>Visa News</span>
+            )}
           </div>
 
+          {/* Title */}
           <h2 style={{
             fontFamily: "'Lora', serif",
             fontSize:   '1.05rem',
@@ -69,20 +124,45 @@ export default function PostCard({
             {post.title}
           </h2>
 
-          <p style={{
-            color:           'var(--text-secondary)',
-            fontSize:        '0.85rem',
-            lineHeight:      1.65,
-            margin:          0,
-            overflow:        'hidden',
-            display:         '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-          }}>
-            {post.excerpt}
-          </p>
+          {/* Dynamic topic list for digest/githot/ai-news OR fallback excerpt */}
+          {hasTopics ? (
+            <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+              {(post.topics ?? []).slice(0, isGithot ? 4 : 3).map((topic, i) => (
+                <li key={i} style={{ display: 'flex', alignItems: 'baseline', gap: '0.4rem', fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
+                  <span style={{
+                    fontSize: '0.58rem', fontWeight: 700, flexShrink: 0, marginTop: '1px',
+                    color: isGithot ? '#f97316' : isAINews ? (companyBadge?.color ?? '#4285f4') : isVisaNews ? '#0369a1' : '#6366f1',
+                    opacity: 0.7,
+                  }}>{i + 1}</span>
+                  <span style={{
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    maxWidth: isGithot ? '100%' : '52ch',
+                  }}>{topic}</span>
+                </li>
+              ))}
+              {(post.topics?.length ?? 0) > (isGithot ? 4 : 3) && (
+                <li style={{ fontSize: '0.7rem', color: 'var(--text-muted)', paddingLeft: '1rem' }}>
+                  +{(post.topics?.length ?? 0) - (isGithot ? 4 : 3)} more inside →
+                </li>
+              )}
+            </ul>
+          ) : (
+            <p style={{
+              color:           'var(--text-secondary)',
+              fontSize:        '0.85rem',
+              lineHeight:      1.65,
+              margin:          0,
+              overflow:        'hidden',
+              display:         '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+            }}>
+              {post.excerpt}
+            </p>
+          )}
 
-          {post.tags.length > 0 && (
+          {/* Tags (blog only — digest/githot use topics instead) */}
+          {!hasTopics && post.tags.length > 0 && (
             <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap', paddingTop: '0.1rem' }}>
               {post.tags.slice(0, 4).map(tag => (
                 <span key={tag} className="tag" style={{ fontSize: '0.68rem' }}>{tag}</span>

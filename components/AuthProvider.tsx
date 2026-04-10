@@ -1,7 +1,8 @@
 'use client';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
+import OnboardingModal from '@/components/OnboardingModal';
 
 interface AuthContextType {
   user:                User | null;
@@ -12,6 +13,7 @@ interface AuthContextType {
   signInWithEmail:     (email: string, password: string) => Promise<{ error: string | null }>;
   signUpWithEmail:     (opts: SignUpOpts) => Promise<{ error: string | null }>;
   signOut:             () => Promise<void>;
+  reopenOnboarding:    () => void;
 }
 
 interface SignUpOpts {
@@ -29,24 +31,46 @@ const AuthContext = createContext<AuthContextType>({
   signInWithEmail:    async () => ({ error: null }),
   signUpWithEmail:    async () => ({ error: null }),
   signOut:            async () => {},
+  reopenOnboarding:   () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user,    setUser]    = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user,              setUser]              = useState<User | null>(null);
+  const [loading,           setLoading]           = useState(true);
+  const [showOnboarding,    setShowOnboarding]    = useState(false);
+  // Once shown (or dismissed) in this session, don't auto-trigger again
+  const onboardingShownRef = useRef(false);
+
+  // Check if user needs onboarding after we have a session
+  const checkOnboarding = useCallback(async (userId: string) => {
+    if (onboardingShownRef.current) return;             // already shown this session
+    if (localStorage.getItem('onboarding_dismissed') === '1') return;  // user permanently skipped
+    const { data } = await supabase
+      .from('profiles')
+      .select('onboarding_completed')
+      .eq('id', userId)
+      .single();
+    if (!data?.onboarding_completed) {
+      onboardingShownRef.current = true;
+      setShowOnboarding(true);
+    }
+  }, []);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setLoading(false);
+      if (session?.user) checkOnboarding(session.user.id);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
+      // Fire onboarding check only on fresh sign-in
+      if (event === 'SIGNED_IN' && session?.user) checkOnboarding(session.user.id);
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [checkOnboarding]);
 
   const oauthRedirect = () => `${window.location.origin}/auth/callback`;
 
@@ -77,7 +101,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (error) return { error: error.message };
 
-    // Upsert profile with name + location
     if (data.user) {
       await supabase.from('profiles').upsert({
         id:           data.user.id,
@@ -96,9 +119,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   };
 
+  const reopenOnboarding = useCallback(() => {
+    localStorage.removeItem('onboarding_dismissed');    // allow it to show again
+    onboardingShownRef.current = true;
+    setShowOnboarding(true);
+  }, []);
+
+  const handleOnboardingComplete = useCallback(() => setShowOnboarding(false), []);
+
   return (
-    <AuthContext.Provider value={{ user, loading, signInWithGithub, signInWithGoogle, signInWithFacebook, signInWithEmail, signUpWithEmail, signOut }}>
+    <AuthContext.Provider value={{
+      user, loading,
+      signInWithGithub, signInWithGoogle, signInWithFacebook,
+      signInWithEmail, signUpWithEmail, signOut,
+      reopenOnboarding,
+    }}>
       {children}
+      {showOnboarding && <OnboardingModal onComplete={handleOnboardingComplete} />}
     </AuthContext.Provider>
   );
 }

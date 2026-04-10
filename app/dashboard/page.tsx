@@ -2,6 +2,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
+import ReadinessScore from '@/components/ReadinessScore';
+import GettingStartedChecklist from '@/components/GettingStartedChecklist';
+import type { User } from '@supabase/supabase-js';
 import { supabase, type SavedJob, type JobApplication } from '@/lib/supabase';
 
 interface JobAlert {
@@ -12,6 +15,17 @@ interface JobAlert {
   frequency: string;
   created_at: string;
 }
+
+// Maps onboarding_role → interview prep path slug
+const ROLE_TO_PREP: Record<string, string> = {
+  'frontend':      'junior-frontend',
+  'fullstack':     'junior-fullstack',
+  'backend':       'junior-backend',
+  'data-engineer': 'junior-data',
+  'devops':        'junior-devops',
+  'mobile':        'junior-mobile',
+  'qa':            'junior-qa',
+};
 
 // Maps job title keywords → nearest interview prep role
 function inferPrepRole(title: string): string {
@@ -36,7 +50,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export default function DashboardPage() {
-  const { user, loading } = useAuth();
+  const { user, loading, reopenOnboarding } = useAuth();
   const router = useRouter();
 
   const [savedJobs, setSavedJobs]         = useState<SavedJob[]>([]);
@@ -44,6 +58,10 @@ export default function DashboardPage() {
   const [alerts, setAlerts]               = useState<JobAlert[]>([]);
   const [activeTab, setActiveTab]         = useState<'saved' | 'applications' | 'alerts'>('saved');
   const [dataLoading, setDataLoading]     = useState(true);
+  const [onboardingRole, setOnboardingRole]     = useState<string | null>(null);
+  const [onboardingDone, setOnboardingDone]     = useState(false);
+  const [hasResume, setHasResume]               = useState(false);
+  const [hasSkills, setHasSkills]               = useState(false);
 
   useEffect(() => {
     if (!loading && !user) router.push('/login');
@@ -55,10 +73,17 @@ export default function DashboardPage() {
       supabase.from('saved_jobs').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
       supabase.from('job_applications').select('*').eq('user_id', user.id).order('applied_at', { ascending: false }),
       supabase.from('job_alerts').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
-    ]).then(([saved, apps, alts]) => {
+      supabase.from('profiles').select('onboarding_role, onboarding_completed').eq('id', user.id).maybeSingle(),
+      supabase.from('resume_analyses').select('id').eq('user_id', user.id).limit(1).maybeSingle(),
+      supabase.from('skill_progress').select('id').eq('user_id', user.id).limit(1).maybeSingle(),
+    ]).then(([saved, apps, alts, profile, resume, skills]) => {
       setSavedJobs(saved.data ?? []);
       setApplications(apps.data ?? []);
       setAlerts(alts.data ?? []);
+      setOnboardingRole(profile.data?.onboarding_role ?? null);
+      setOnboardingDone(profile.data?.onboarding_completed ?? false);
+      setHasResume(!!resume.data);
+      setHasSkills(!!skills.data);
       setDataLoading(false);
     });
   }, [user]);
@@ -99,6 +124,10 @@ export default function DashboardPage() {
             </h1>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
               {user.user_metadata?.full_name ?? user.email}
+              {' · '}
+              <button onClick={reopenOnboarding} style={{ background: 'none', border: 'none', color: 'var(--terracotta)', fontSize: '0.9rem', cursor: 'pointer', padding: 0 }}>
+                Edit preferences
+              </button>
             </p>
           </div>
         </div>
@@ -123,6 +152,9 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Readiness Score */}
+      <ReadinessScore />
+
       {/* Career Tools */}
       <div style={{ marginBottom: '2rem' }}>
         <h2 style={{ fontFamily: "'Lora', serif", fontSize: '1rem', fontWeight: 600, color: 'var(--brown-dark)', marginBottom: '0.8rem' }}>
@@ -143,7 +175,7 @@ export default function DashboardPage() {
               <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>AI feedback for the AU IT job market</div>
             </div>
           </a>
-          <a href="/interview-prep/junior-fullstack" style={{
+          <a href={`/interview-prep/${onboardingRole ? (ROLE_TO_PREP[onboardingRole] ?? 'junior-fullstack') : 'junior-fullstack'}`} style={{
             display: 'flex', alignItems: 'center', gap: '0.75rem',
             flex: 1, minWidth: '200px',
             background: 'var(--warm-white)', border: '1px solid var(--parchment)',
@@ -187,6 +219,22 @@ export default function DashboardPage() {
           </a>
         </div>
       </div>
+
+      {/* Getting started checklist — shown until all steps are done */}
+      {!dataLoading && (() => {
+        const hasJob = applications.length > 0 || savedJobs.length > 0;
+        const hasInterview = false; // no interview_sessions table yet
+        const allDone = onboardingDone && hasResume && hasSkills && hasJob;
+        return !allDone ? (
+          <GettingStartedChecklist
+            hasResume={hasResume}
+            hasSkills={hasSkills}
+            hasInterview={hasInterview}
+            hasJob={hasJob}
+            onboardingDone={onboardingDone}
+          />
+        ) : null;
+      })()}
 
       {/* Tabs */}
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>

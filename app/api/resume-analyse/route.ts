@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { requireSubscription } from '@/lib/subscription';
+import { createClient } from '@supabase/supabase-js';
+
+const sbService = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+);
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -92,6 +98,18 @@ export async function POST(req: NextRequest) {
     analysis = JSON.parse(raw);
   } catch {
     return NextResponse.json({ error: 'Analysis failed. Please try again.' }, { status: 500 });
+  }
+
+  // Persist score for readiness tracking (fire-and-forget)
+  const a = analysis as Record<string, any>;
+  if (a.overallScore) {
+    sbService.from('resume_analyses').insert({
+      user_id:          auth.user.id,
+      overall_score:    a.overallScore,
+      format_score:     a.auFormatting?.score ?? null,
+      content_score:    a.contentQuality?.score ?? null,
+      market_fit_score: a.auMarketFit?.score ?? null,
+    }).then(() => {});
   }
 
   return NextResponse.json(analysis);

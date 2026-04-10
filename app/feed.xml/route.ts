@@ -1,4 +1,4 @@
-import { getAllPosts, getAllDigests, getAllGithot, Post } from '@/lib/posts';
+import { getAllPosts, getAllDigests, getAllGithot, getAllAINews, getAllVisaNews, Post } from '@/lib/posts';
 
 const BASE = process.env.NEXT_PUBLIC_APP_URL ?? 'https://henrysdigitallife.com';
 
@@ -32,15 +32,19 @@ ${cats}
 }
 
 export async function GET() {
-  const posts   = getAllPosts().slice(0, 20);
-  const digests = getAllDigests().slice(0, 10);
-  const githot  = getAllGithot().slice(0, 10);
+  const posts    = getAllPosts().slice(0, 20);
+  const digests  = getAllDigests().slice(0, 10);
+  const githot   = getAllGithot().slice(0, 10);
+  const ainews   = getAllAINews().slice(0, 10);
+  const visanews = getAllVisaNews().slice(0, 10);
 
   // Merge and sort by date, newest first
   const all: { post: Post; section: string }[] = [
-    ...posts.map(p  => ({ post: p, section: 'blog'   })),
-    ...digests.map(p => ({ post: p, section: 'digest' })),
-    ...githot.map(p  => ({ post: p, section: 'githot' })),
+    ...posts.map(p     => ({ post: p, section: 'blog'      })),
+    ...digests.map(p   => ({ post: p, section: 'digest'    })),
+    ...githot.map(p    => ({ post: p, section: 'githot'    })),
+    ...ainews.map(p    => ({ post: p, section: 'ai-news'   })),
+    ...visanews.map(p  => ({ post: p, section: 'visa-news' })),
   ].sort((a, b) => new Date(b.post.date).getTime() - new Date(a.post.date).getTime())
    .slice(0, 30);
 

@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/components/AuthProvider';
 import { supabase } from '@/lib/supabase';
@@ -538,6 +538,31 @@ export default function InterviewSession({ role }: { role: InterviewRole }) {
             </p>
           )}
         </div>
+        {/* What now? */}
+        <div style={{ background: 'var(--warm-white)', border: '1px solid var(--parchment)', borderRadius: '14px', padding: '1.2rem 1.4rem', marginBottom: '1.5rem', textAlign: 'left' }}>
+          <p style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--terracotta)', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 0.75rem' }}>
+            ⚡ What to do next
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem' }}>
+            <a href="/dashboard/resume-analyser" style={whatNowLinkStyle}>
+              <span style={{ fontSize: '1.1rem' }}>📄</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--brown-dark)' }}>Analyse your resume</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Make sure your resume matches what you just practised</div>
+              </div>
+              <span style={{ color: 'var(--text-muted)' }}>→</span>
+            </a>
+            <a href={`/jobs?keywords=${encodeURIComponent(role.title)}`} style={whatNowLinkStyle}>
+              <span style={{ fontSize: '1.1rem' }}>💼</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--brown-dark)' }}>Search {role.title} jobs</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Browse AU openings now that you're prepared</div>
+              </div>
+              <span style={{ color: 'var(--text-muted)' }}>→</span>
+            </a>
+          </div>
+        </div>
+
         <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
           <button onClick={() => { clearCachedQuestions(role.id); localStorage.removeItem(sessionKey); window.location.href = `/interview-prep/${role.id}`; }}
             style={{ background: 'var(--terracotta)', color: 'white', padding: '0.6rem 1.4rem', borderRadius: '99px', border: 'none', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600, fontFamily: 'inherit' }}>
@@ -1004,3 +1029,10 @@ export default function InterviewSession({ role }: { role: InterviewRole }) {
     </div>
   );
 }
+
+const whatNowLinkStyle: React.CSSProperties = {
+  display: 'flex', alignItems: 'center', gap: '0.75rem',
+  padding: '0.65rem 0.8rem', borderRadius: '8px',
+  background: 'white', border: '1px solid var(--parchment)',
+  textDecoration: 'none', color: 'inherit',
+};
