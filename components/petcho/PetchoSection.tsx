@@ -12,7 +12,6 @@ import { getCreature, HABITAT_THEME } from './evolution';
 import { AudioEngine } from './AudioEngine';
 
 const HopperSprite = dynamic(() => import('./HopperSprite'), { ssr: false });
-const PetShareCard = dynamic(() => import('./PetShareCard'), { ssr: false });
 
 // ─── Hint messages ────────────────────────────────────────────────────────────
 const HINT: Record<AnimationState, string> = {
@@ -147,7 +146,7 @@ export default function PetchoSection() {
   const [hint, setHint]                 = useState(HINT.idle);
   const [pulseBorder, setPulseBorder]   = useState(false);
   const [toast, setToast]               = useState<string | null>(null);
-  const [showShare, setShowShare]       = useState(false);
+
   const [soundOn, setSoundOn]           = useState(true);
   const prevPetRef                      = useRef(pet);
   const seenUnlocks                     = useRef(new Set<string>());
@@ -363,28 +362,13 @@ export default function PetchoSection() {
       {species && <CreatureCard speciesId={species} />}
 
       {/* ── Footer ─────────────────────────────────────────── */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <p style={{
-          fontSize: '0.65rem', color: 'var(--text-muted)', margin: 0, fontFamily: 'monospace',
-        }}>
-          {'>'} read posts to feed {pet.name} →
-        </p>
-        <button
-          onClick={() => setShowShare(true)}
-          style={{
-            background: 'var(--warm-white)', border: '1.5px solid var(--ink)',
-            borderRadius: '4px', boxShadow: '2px 2px 0 var(--ink)',
-            padding: '0.28em 0.75em', fontSize: '0.65rem', fontWeight: 700,
-            cursor: 'pointer', color: 'var(--brown-mid)',
-            fontFamily: '"Courier New", monospace', flexShrink: 0,
-          }}
-        >
-          share {species ? '🐾' : '🤖'}
-        </button>
-      </div>
+      <p style={{
+        fontSize: '0.65rem', color: 'var(--text-muted)', margin: 0, fontFamily: 'monospace',
+      }}>
+        {'>'} read posts to feed {pet.name} →
+      </p>
 
-      {toast    && <UnlockToast message={toast} onDone={() => setToast(null)} />}
-      {showShare && <PetShareCard pet={pet} onClose={() => setShowShare(false)} />}
+      {toast && <UnlockToast message={toast} onDone={() => setToast(null)} />}
     </div>
   );
 }

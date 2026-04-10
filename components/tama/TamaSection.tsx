@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { useTama } from './useTama';
 import TamaHatch from './TamaHatch';
 import { SPECIES_NAME } from './types';
+import PetShareCard from '@/components/petcho/PetShareCard';
 
 const TamaDevice = dynamic(() => import('./TamaDevice'), { ssr: false });
 
@@ -16,7 +17,8 @@ export default function TamaSection() {
     doGameResult, toggleMute, initPet, dismissEvolved,
   } = useTama();
 
-  const [showEvolved, setShowEvolved] = useState<string | null>(null);
+  const [showEvolved, setShowEvolved]   = useState<string | null>(null);
+  const [showShareCard, setShowShareCard] = useState(false);
 
   useEffect(() => {
     if (evolved) {
@@ -111,6 +113,28 @@ export default function TamaSection() {
           : `📖 Reading posts = XP + food. Keep ${pet.name} thriving!`}
       </div>
 
+      {/* Share button */}
+      {pet.stage !== 'egg' && pet.stage !== 'angel' && (
+        <button
+          onClick={() => setShowShareCard(true)}
+          style={{
+            marginTop:   '8px',
+            background:  'var(--warm-white)',
+            border:      '2px solid var(--ink)',
+            borderRadius: '4px',
+            boxShadow:   '2px 2px 0 var(--ink)',
+            padding:     '0.35em 0.9em',
+            fontSize:    '0.78rem',
+            fontWeight:  700,
+            cursor:      'pointer',
+            fontFamily:  "'Space Grotesk', sans-serif",
+            color:       'var(--brown-dark)',
+          }}
+        >
+          📤 Share {pet.name}
+        </button>
+      )}
+
       {/* Reset link for angel state */}
       {pet.stage === 'angel' && (
         <button
@@ -130,6 +154,10 @@ export default function TamaSection() {
         >
           Start a new pet
         </button>
+      )}
+
+      {showShareCard && (
+        <PetShareCard pet={pet} onClose={() => setShowShareCard(false)} />
       )}
     </div>
   );
