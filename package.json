@@ -10,7 +10,9 @@
     "digest": "npx tsx --env-file=.env.local scripts/run-digest.ts",
     "githot": "npx tsx --env-file=.env.local scripts/run-githot.ts",
     "post": "npx tsx --env-file=.env.local scripts/run-post.ts",
-    "refresh:jsa": "npx tsx scripts/fetch-jsa.ts"
+    "refresh:jsa": "npx tsx scripts/fetch-jsa.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.82.0",
@@ -44,11 +46,16 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^6.0.1",
+    "jsdom": "^28.1.0",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.4"
   }
 }

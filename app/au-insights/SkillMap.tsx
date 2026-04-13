@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { SKILL_CATEGORIES, ROLE_REQUIREMENTS, ROLE_COMPANY_MAP } from './data/skill-requirements';
 
 function scoreRole(selectedSkills: Set<string>, role: (typeof ROLE_REQUIREMENTS)[0]) {
@@ -135,12 +136,19 @@ export default function SkillMap() {
             Your Matches
           </h3>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem', marginBottom: '1.5rem' }}>
+          <motion.div
+            style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem', marginBottom: '1.5rem' }}
+            initial="hidden"
+            animate="visible"
+            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.07 } } }}
+          >
             {sorted.map(role => {
               const dimmed = role.score < 10;
               return (
-                <div
+                <motion.div
                   key={role.role}
+                  variants={{ hidden: { opacity: 0, y: 8 }, visible: { opacity: 1, y: 0 } }}
+                  transition={{ duration: 0.35 }}
                   style={{
                     background: dimmed ? 'var(--warm-white)' : 'var(--parchment)',
                     border: '1px solid var(--parchment)',
@@ -171,22 +179,25 @@ export default function SkillMap() {
                     </div>
                   </div>
                   <div style={{ marginTop: '0.5rem', background: 'rgba(0,0,0,0.06)', borderRadius: '99px', height: '6px', overflow: 'hidden' }}>
-                    <div style={{
-                      width: `${role.score}%`,
-                      height: '100%',
-                      background: role.score >= 70
-                        ? 'var(--jade)'
-                        : role.score >= 40
-                        ? 'var(--gold)'
-                        : 'var(--terracotta)',
-                      borderRadius: '99px',
-                      transition: 'width 0.3s ease',
-                    }} />
+                    <motion.div
+                      initial={{ width: '0%' }}
+                      animate={{ width: `${role.score}%` }}
+                      transition={{ duration: 0.7, ease: 'easeOut' }}
+                      style={{
+                        height: '100%',
+                        background: role.score >= 70
+                          ? 'var(--jade)'
+                          : role.score >= 40
+                          ? 'var(--gold)'
+                          : 'var(--terracotta)',
+                        borderRadius: '99px',
+                      }}
+                    />
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
 
           {/* Unlock skills */}
           {unlockSkills.length > 0 && (

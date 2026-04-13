@@ -74,6 +74,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
   return (
     <div style={{ maxWidth: '720px', margin: '0 auto', padding: '0 1.5rem' }}>
+      <div className="reading-progress" aria-hidden="true" />
       {/* eslint-disable-next-line react/no-danger -- safe: server-owned content, JSON.stringify escapes </script> */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
       <div style={{ paddingTop: '3rem', paddingBottom: '1.5rem' }}>

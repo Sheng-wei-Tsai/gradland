@@ -131,12 +131,13 @@ These features tie everything together into a coherent product. Without them, ev
 - [ ] "Analyse this job" button on every job search result card
 - [ ] Saves analysis history per user
 
-### 4. Readiness Score — `features/readiness-score.md`
+### ✅ 4. Readiness Score — `features/readiness-score.md`
 **Why now:** Creates a measurable goal users chase daily. Drives retention.
-- [ ] Score 0–100 composed of: resume quality (25%) + skill completion (25%) + quiz scores (25%) + interview sessions (25%)
-- [ ] Shown on dashboard as a ring/gauge
-- [ ] Breakdown tooltip explaining each component
-- [ ] Score persisted + historicised in Supabase (daily snapshot)
+- [x] Score 0–100 composed of: resume quality (25%) + skill completion (25%) + quiz scores (25%) + interview sessions (25%)
+- [x] Shown on dashboard as a ring/gauge
+- [x] Breakdown with detail labels per component (`ReadinessScore` widget)
+- [x] Score persisted + historicised in Supabase (`readiness_snapshots` table, daily upsert)
+- [x] `ReadinessScoreMini` ring around avatar in Header for logged-in users
 - [ ] Displayed on profile page
 
 ---

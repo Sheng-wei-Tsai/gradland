@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { COMPANIES } from '../au-insights/companies/data';
 
 const DIFFICULTY: Record<string, number> = {
@@ -97,16 +98,20 @@ function RadarChart({ slugs }: { slugs: string[] }) {
         <line key={i} x1={cx} y1={cy} x2={pt.x} y2={pt.y} stroke="var(--parchment)" strokeWidth="0.8" />
       ))}
 
-      {/* Data polygons */}
+      {/* Data polygons — scale in from center on mount */}
       {slugs.map((slug, si) => {
         const vals = getRadarValues(slug);
         return (
-          <polygon
+          <motion.polygon
             key={slug}
             points={valueToPoints(vals)}
             fill={FILL_COLORS[si]}
             stroke={COLORS[si]}
             strokeWidth="1.5"
+            initial={{ opacity: 0, scale: 0.15 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: si * 0.18, duration: 0.55, ease: 'easeOut' }}
+            style={{ transformOrigin: `${cx}px ${cy}px` }}
           />
         );
       })}

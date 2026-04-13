@@ -338,6 +338,23 @@ h3, h4 {
   to   { opacity: 1; transform: translateY(0); clip-path: inset(0 0 0% 0); }
 }
 
+/* ── Reading Progress Bar — pure CSS scroll-driven animation ── */
+.reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--vermilion);
+  transform-origin: left;
+  scale: 0 1;
+  animation: grow-progress linear;
+  animation-timeline: scroll();
+  z-index: 9999;
+  pointer-events: none;
+}
+@keyframes grow-progress { to { scale: 1 1; } }
+
 /* Bell shake (keep original) */
 @keyframes bellShake {
   0%, 100% { transform: rotate(0deg); }

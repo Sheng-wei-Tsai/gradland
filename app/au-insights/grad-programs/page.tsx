@@ -1,5 +1,6 @@
 'use client';
 import { useState, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { GRAD_PROGRAMS, computeStatus, daysUntilClose, type GradProgram, type ProgramStatus } from '../data/grad-programs';
 
@@ -279,9 +280,23 @@ export function GradProgramsContent() {
           No programs match your filters.
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
-          {filtered.map(prog => <GradCard key={prog.company} prog={prog} />)}
-        </div>
+        <motion.div
+          style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }}
+        >
+          {filtered.map(prog => (
+            <motion.div
+              key={prog.company}
+              variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }}
+              transition={{ duration: 0.4 }}
+            >
+              <GradCard prog={prog} />
+            </motion.div>
+          ))}
+        </motion.div>
       )}
 
       {/* Note */}
