@@ -7,13 +7,15 @@ const sb = createClient(
 );
 
 export interface DashboardSummary {
-  onboardingCompleted: boolean;
-  onboardingRole:      string | null;
-  visaStep:            { step: number; status: string; startedAt: string | null } | null;
-  reviewDue:           { skillId: string; pathId: string } | null;
-  resumeStaleDays:     number | null;  // null = never analysed
-  applicationCount:    number;
-  interviewCount:      number;
+  onboardingCompleted:  boolean;
+  onboardingRole:       string | null;
+  onboardingVisaStatus: string | null;
+  onboardingJobStage:   string | null;
+  visaStep:             { step: number; status: string; startedAt: string | null } | null;
+  reviewDue:            { skillId: string; pathId: string } | null;
+  resumeStaleDays:      number | null;  // null = never analysed
+  applicationCount:     number;
+  interviewCount:       number;
 }
 
 export async function GET(req: NextRequest) {
@@ -27,7 +29,7 @@ export async function GET(req: NextRequest) {
 
   const [profile, visaRow, reviewRow, resumeRow, apps] = await Promise.all([
     sb.from('profiles')
-      .select('onboarding_completed, onboarding_role')
+      .select('onboarding_completed, onboarding_role, onboarding_visa_status, onboarding_job_stage')
       .eq('id', uid)
       .maybeSingle(),
 
@@ -75,8 +77,10 @@ export async function GET(req: NextRequest) {
 
   const applicationList = apps.data ?? [];
   const summary: DashboardSummary = {
-    onboardingCompleted: profile.data?.onboarding_completed ?? false,
-    onboardingRole:      profile.data?.onboarding_role ?? null,
+    onboardingCompleted:  profile.data?.onboarding_completed ?? false,
+    onboardingRole:       profile.data?.onboarding_role ?? null,
+    onboardingVisaStatus: profile.data?.onboarding_visa_status ?? null,
+    onboardingJobStage:   profile.data?.onboarding_job_stage ?? null,
     visaStep,
     reviewDue:           reviewRow.data
       ? { skillId: reviewRow.data.skill_id, pathId: reviewRow.data.path_id }

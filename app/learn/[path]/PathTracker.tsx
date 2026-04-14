@@ -8,6 +8,7 @@ import { SKILL_CONTENT, RichTopic } from '@/lib/skill-content';
 import {
   scheduleReview, clearReview, requestPermission, fireIfDue,
 } from '@/lib/review-notifications';
+import MermaidDiagram from '@/components/MermaidDiagram';
 
 type Status = 'not_started' | 'learning' | 'needs_review' | 'mastered';
 
@@ -44,6 +45,18 @@ function BellIcon() {
   );
 }
 
+const DIAGRAM_KEY = 'skill_diagrams';
+
+function loadDiagramCache(): Record<string, string> {
+  if (typeof window === 'undefined') return {};
+  try { return JSON.parse(localStorage.getItem(DIAGRAM_KEY) || '{}'); }
+  catch { return {}; }
+}
+
+function saveDiagramCache(cache: Record<string, string>) {
+  localStorage.setItem(DIAGRAM_KEY, JSON.stringify(cache));
+}
+
 export default function PathTracker({ path }: { path: SkillPath }) {
   const { user } = useAuth();
   const [progress,   setProgress]   = useState<Record<string, SkillProgress>>({});
@@ -52,9 +65,36 @@ export default function PathTracker({ path }: { path: SkillPath }) {
   const [notifAsked, setNotifAsked] = useState(false);
   const [topics,     setTopics]     = useState<Record<string, boolean>>({});
   const [justChecked, setJustChecked] = useState<string | null>(null);
+  const [diagrams,    setDiagrams]    = useState<Record<string, string>>({});
+  const [diagramLoading, setDiagramLoading] = useState<string | null>(null);
+  const [diagramError,   setDiagramError]   = useState<string | null>(null);
 
-  // Load topic checkboxes from localStorage on mount
+  // Load topic checkboxes and diagram cache from localStorage on mount
   useEffect(() => { setTopics(loadTopics()); }, []);
+  useEffect(() => { setDiagrams(loadDiagramCache()); }, []);
+
+  async function generateDiagram(skill: Skill) {
+    const cacheKey = `${path.id}:${skill.id}`;
+    if (diagrams[cacheKey]) return; // already cached
+    setDiagramLoading(cacheKey);
+    setDiagramError(null);
+    try {
+      const res = await fetch('/api/learn/diagram', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ skillId: skill.id, skillName: skill.name, topics: skill.topics, pathId: path.id }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setDiagramError(data.error ?? 'Generation failed'); return; }
+      const updated = { ...loadDiagramCache(), [cacheKey]: data.mermaidCode };
+      saveDiagramCache(updated);
+      setDiagrams(updated);
+    } catch {
+      setDiagramError('Network error — please try again.');
+    } finally {
+      setDiagramLoading(null);
+    }
+  }
 
   const loadProgress = useCallback(async () => {
     if (!user) return;
@@ -582,6 +622,58 @@ export default function PathTracker({ path }: { path: SkillPath }) {
                           {skill.project}
                         </p>
                       </div>
+
+                      {/* Concept Diagram */}
+                      {(() => {
+                        const cacheKey = `${path.id}:${skill.id}`;
+                        const img = diagrams[cacheKey];
+                        const loading = diagramLoading === cacheKey;
+                        return (
+                          <div style={{ marginBottom: '1.4rem' }}>
+                            {img ? (
+                              <div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                                  <p style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>
+                                    Concept Diagram
+                                  </p>
+                                  <button
+                                    onClick={() => {
+                                      const updated = { ...loadDiagramCache() };
+                                      delete updated[cacheKey];
+                                      saveDiagramCache(updated);
+                                      setDiagrams(updated);
+                                    }}
+                                    style={{ background: 'none', border: 'none', fontSize: '0.75rem', color: 'var(--text-muted)', cursor: 'pointer', padding: 0 }}
+                                  >
+                                    regenerate
+                                  </button>
+                                </div>
+                                <MermaidDiagram chart={img} />
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => generateDiagram(skill)}
+                                disabled={loading || !user}
+                                style={{
+                                  display: 'flex', alignItems: 'center', gap: '0.4rem',
+                                  background: loading ? 'var(--parchment)' : 'rgba(192,40,28,0.06)',
+                                  border: '1px dashed var(--parchment)',
+                                  borderRadius: '8px', padding: '0.5rem 0.9rem',
+                                  fontSize: '0.82rem', fontWeight: 600,
+                                  color: loading ? 'var(--text-muted)' : 'var(--terracotta)',
+                                  cursor: loading || !user ? 'default' : 'pointer',
+                                  fontFamily: 'inherit',
+                                }}
+                              >
+                                {loading ? '⏳ Generating…' : '✨ Generate diagram'}
+                              </button>
+                            )}
+                            {diagramError && diagramLoading === null && (
+                              <p style={{ fontSize: '0.75rem', color: 'var(--terracotta)', margin: '0.3rem 0 0' }}>{diagramError}</p>
+                            )}
+                          </div>
+                        );
+                      })()}
 
                       {/* Review dots */}
                       {progress[skill.id]?.review_count > 0 && (

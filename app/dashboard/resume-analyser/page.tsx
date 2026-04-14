@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/components/AuthProvider';
@@ -51,6 +52,80 @@ function SectionScore({ label, score }: { label: string; score: number }) {
       <div style={{ height: 6, background: 'var(--parchment)', borderRadius: 99, overflow: 'hidden' }}>
         <div style={{ height: '100%', width: `${score}%`, background: color, borderRadius: 99, transition: 'width 0.8s ease' }} />
       </div>
+    </div>
+  );
+}
+
+function ResumeRadar({ analysis }: { analysis: Analysis }) {
+  const criticalCount = analysis.auFormatting.issues.filter(i => i.severity === 'critical').length;
+  const missingCount  = analysis.auMarketFit.missingSkills.length;
+
+  const axes = [
+    { label: 'AU Formatting',  value: analysis.auFormatting.score },
+    { label: 'Content Quality', value: analysis.contentQuality.score },
+    { label: 'Market Fit',     value: analysis.auMarketFit.score },
+    { label: 'ATS Readiness',  value: Math.max(0, 100 - criticalCount * 20) },
+    { label: 'Completeness',   value: Math.max(0, 100 - missingCount * 8) },
+  ];
+
+  const cx = 120, cy = 120, r = 76;
+
+  function pt(angleDeg: number, radius: number) {
+    const rad = (angleDeg - 90) * (Math.PI / 180);
+    return { x: cx + radius * Math.cos(rad), y: cy + radius * Math.sin(rad) };
+  }
+
+  const axisData = axes.map((a, i) => ({
+    ...a,
+    angle: (360 / 5) * i,
+    tip: pt((360 / 5) * i, r),
+    dp:  pt((360 / 5) * i, r * a.value / 100),
+  }));
+
+  const dataPoints = axisData.map(a => `${a.dp.x},${a.dp.y}`).join(' ');
+  const overall    = analysis.overallScore;
+  const color      = overall >= 70 ? 'var(--jade)' : overall >= 40 ? 'var(--gold)' : 'var(--terracotta)';
+  const fillColor  = overall >= 70 ? 'rgba(30,122,82,0.18)' : overall >= 40 ? 'rgba(200,138,20,0.18)' : 'rgba(192,40,28,0.18)';
+
+  return (
+    <div style={{ marginTop: '1.5rem', borderTop: '1px solid var(--parchment)', paddingTop: '1.2rem' }}>
+      <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.5rem' }}>
+        Resume Radar
+      </div>
+      <svg viewBox="0 0 240 240" style={{ width: '100%', maxWidth: 240, display: 'block', margin: '0 auto' }}>
+        {[0.25, 0.5, 0.75, 1.0].map(level => (
+          <polygon key={level}
+            points={axisData.map(a => { const p = pt(a.angle, r * level); return `${p.x},${p.y}`; }).join(' ')}
+            fill="none" stroke="var(--parchment)" strokeWidth="1"
+          />
+        ))}
+        {axisData.map((a, i) => (
+          <line key={i} x1={cx} y1={cy} x2={a.tip.x} y2={a.tip.y} stroke="var(--parchment)" strokeWidth="1" />
+        ))}
+        <motion.polygon
+          points={dataPoints}
+          fill={fillColor} stroke={color} strokeWidth="2" strokeLinejoin="round"
+          initial={{ opacity: 0, scale: 0.15 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+          style={{ transformOrigin: `${cx}px ${cy}px` }}
+        />
+        {axisData.map((a, i) => (
+          <circle key={i} cx={a.dp.x} cy={a.dp.y} r={3.5} fill={color} />
+        ))}
+        {axisData.map((a, i) => {
+          const lp = pt(a.angle, r + 22);
+          return (
+            <text key={i} x={lp.x} y={lp.y}
+              textAnchor="middle" dominantBaseline="middle"
+              fontSize="9" fill="var(--text-muted)"
+              fontFamily="'Space Grotesk', sans-serif"
+            >
+              {a.label}
+            </text>
+          );
+        })}
+      </svg>
     </div>
   );
 }
@@ -247,6 +322,8 @@ export default function ResumeAnalyserPage() {
               <SectionScore label="Content Quality" score={result.contentQuality.score} />
               <SectionScore label="AU Market Fit" score={result.auMarketFit.score} />
             </div>
+
+            <ResumeRadar analysis={result} />
           </div>
 
           {/* Action items */}

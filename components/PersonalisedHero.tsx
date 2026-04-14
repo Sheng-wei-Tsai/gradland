@@ -1,8 +1,21 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import MermaidDiagram from '@/components/MermaidDiagram';
 import { supabase } from '@/lib/supabase';
+
+const ROADMAP_KEY = 'roadmap_images';
+
+function loadRoadmapCache(): Record<string, string> {
+  if (typeof window === 'undefined') return {};
+  try { return JSON.parse(localStorage.getItem(ROADMAP_KEY) || '{}'); }
+  catch { return {}; }
+}
+
+function saveRoadmapCache(cache: Record<string, string>) {
+  localStorage.setItem(ROADMAP_KEY, JSON.stringify(cache));
+}
 
 function Shimmer({ w, h, radius = 8 }: { w: string; h: number; radius?: number }) {
   return (
@@ -96,14 +109,19 @@ function getTodayCards(s: DashboardSummary, nextActionTitle: string) {
 }
 
 export default function PersonalisedHero({ user }: { user: User }) {
-  const [summary, setSummary] = useState<DashboardSummary | null>(null);
-  const [loadError, setLoadError] = useState(false);
+  const [summary,         setSummary]         = useState<DashboardSummary | null>(null);
+  const [loadError,       setLoadError]       = useState(false);
+  const [roadmapImage,    setRoadmapImage]    = useState<string | null>(null);
+  const [roadmapLoading,  setRoadmapLoading]  = useState(false);
+  const [roadmapError,    setRoadmapError]    = useState(false);
+  const [token,           setToken]           = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) return;
+        setToken(session.access_token);
         const res = await fetch('/api/dashboard/summary', {
           headers: { Authorization: `Bearer ${session.access_token}` },
         });
@@ -114,6 +132,40 @@ export default function PersonalisedHero({ user }: { user: User }) {
       }
     })();
   }, []);
+
+  // Load cached roadmap from localStorage on mount
+  useEffect(() => {
+    if (!summary?.onboardingCompleted || !summary.onboardingRole) return;
+    const cacheKey = `${summary.onboardingRole}_${summary.onboardingVisaStatus ?? 'other'}_${summary.onboardingJobStage ?? 'exploring'}`;
+    const cached = loadRoadmapCache()[cacheKey];
+    if (cached) setRoadmapImage(cached);
+  }, [summary]);
+
+  const generateRoadmap = useCallback(async () => {
+    if (!summary?.onboardingRole || !token) return;
+    setRoadmapLoading(true);
+    setRoadmapError(false);
+    try {
+      const res = await fetch('/api/learn/roadmap-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          role:       summary.onboardingRole,
+          visaStatus: summary.onboardingVisaStatus ?? 'other',
+          jobStage:   summary.onboardingJobStage   ?? 'exploring',
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setRoadmapError(true); return; }
+      const updated = { ...loadRoadmapCache(), [data.cacheKey]: data.mermaidCode };
+      saveRoadmapCache(updated);
+      setRoadmapImage(data.mermaidCode);
+    } catch {
+      setRoadmapError(true);
+    } finally {
+      setRoadmapLoading(false);
+    }
+  }, [summary, token]);
 
   const name = user.user_metadata?.full_name?.split(' ')[0] ?? user.email?.split('@')[0] ?? 'there';
   const nextAction = summary ? getNextAction(summary) : null;
@@ -233,6 +285,56 @@ export default function PersonalisedHero({ user }: { user: User }) {
           <Link href="/dashboard" style={{ color: 'var(--terracotta)', textDecoration: 'none', fontWeight: 600, marginLeft: 'auto' }}>
             Full dashboard →
           </Link>
+        </div>
+      )}
+
+      {/* Personalised Roadmap — only when onboarding complete */}
+      {summary?.onboardingCompleted && summary.onboardingRole && (
+        <div style={{ marginTop: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+            <p style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
+              🗺 Your learning roadmap
+            </p>
+            {roadmapImage && (
+              <button
+                onClick={() => { setRoadmapImage(null); generateRoadmap(); }}
+                style={{ background: 'none', border: 'none', fontSize: '0.75rem', color: 'var(--text-muted)', cursor: 'pointer', padding: 0 }}
+              >
+                regenerate
+              </button>
+            )}
+          </div>
+
+          {roadmapImage ? (
+            <MermaidDiagram chart={roadmapImage} />
+          ) : roadmapLoading ? (
+            <div style={{
+              width: '100%', height: '180px',
+              borderRadius: '12px', overflow: 'hidden',
+              background: 'linear-gradient(90deg, var(--parchment) 25%, #f5ece0 50%, var(--parchment) 75%)',
+              backgroundSize: '200% 100%',
+              animation: 'shimmer 1.4s infinite',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Generating your roadmap…</span>
+            </div>
+          ) : roadmapError ? (
+            <div style={{ padding: '1rem', background: 'var(--warm-white)', border: '1px solid var(--parchment)', borderRadius: '12px', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+              Couldn't generate roadmap. <button onClick={generateRoadmap} style={{ background: 'none', border: 'none', color: 'var(--terracotta)', cursor: 'pointer', fontWeight: 600, padding: 0, fontFamily: 'inherit', fontSize: 'inherit' }}>Try again</button>
+            </div>
+          ) : (
+            <button
+              onClick={generateRoadmap}
+              style={{
+                width: '100%', padding: '1rem',
+                background: 'rgba(192,40,28,0.04)', border: '1px dashed var(--parchment)',
+                borderRadius: '12px', fontSize: '0.88rem', fontWeight: 600,
+                color: 'var(--terracotta)', cursor: 'pointer', fontFamily: 'inherit',
+              }}
+            >
+              ✨ Generate my personalised roadmap
+            </button>
+          )}
         </div>
       )}
     </section>
