@@ -35,29 +35,34 @@ export async function GET() {
     sb.from('page_views')
       .select('created_at, session_id')
       .gte('created_at', cutoff)
-      .order('created_at', { ascending: true }),
+      .order('created_at', { ascending: true })
+      .limit(50000),
 
     // Top pages
     sb.from('page_views')
       .select('path')
-      .gte('created_at', cutoff),
+      .gte('created_at', cutoff)
+      .limit(50000),
 
     // Referrers
     sb.from('page_views')
       .select('referrer')
       .gte('created_at', cutoff)
-      .not('referrer', 'is', null),
+      .not('referrer', 'is', null)
+      .limit(10000),
 
     // Countries
     sb.from('page_views')
       .select('country')
       .gte('created_at', cutoff)
-      .not('country', 'is', null),
+      .not('country', 'is', null)
+      .limit(10000),
 
     // Devices
     sb.from('page_views')
       .select('device')
-      .gte('created_at', cutoff),
+      .gte('created_at', cutoff)
+      .limit(10000),
   ]);
 
   const views = allViews.data ?? [];

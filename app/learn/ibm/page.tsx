@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 
 interface Video {
@@ -435,9 +436,8 @@ export default function LearnIBMPage() {
                   borderRadius: '12px', overflow: 'hidden', cursor: 'pointer',
                   textAlign: 'left', padding: 0, transition: 'box-shadow 0.15s',
                 }}>
-                  <div style={{ position: 'relative' }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={v.thumbnail} alt={v.title} style={{ width: '100%', display: 'block', aspectRatio: '16/9', objectFit: 'cover' }} />
+                  <div style={{ position: 'relative', aspectRatio: '16/9' }}>
+                    <Image src={v.thumbnail} alt={v.title} fill style={{ objectFit: 'cover' }} sizes="(max-width: 640px) 100vw, 280px" />
                     {p?.completed && (
                       <span style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', background: '#10b981', color: 'white',
                         fontSize: '0.7rem', fontWeight: 700, padding: '0.15em 0.5em', borderRadius: '5px' }}>

@@ -1,5 +1,6 @@
 'use client';
 import { useState, useRef, useEffect, Suspense } from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/components/AuthProvider';
 import { supabase } from '@/lib/supabase';
 import { useSearchParams } from 'next/navigation';
@@ -155,7 +156,7 @@ function CoverLetterContent() {
         </h1>
         <p className="animate-fade-up delay-1" style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>
           Paste a job description → get a tailored, human-sounding cover letter in seconds.
-          {!user && <span> <a href="/login" style={{ color: 'var(--terracotta)' }}>Sign in</a> to save your history.</span>}
+          {!user && <span> <Link href="/login" style={{ color: 'var(--terracotta)' }}>Sign in</Link> to save your history.</span>}
         </p>
       </div>
 

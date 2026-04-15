@@ -45,7 +45,8 @@ async function skillsScore(userId: string, role: string | null): Promise<{ score
   const { data: rows } = await sb
     .from('skill_progress')
     .select('path_id, review_count, status')
-    .eq('user_id', userId);
+    .eq('user_id', userId)
+    .limit(500);
 
   if (!rows || rows.length === 0) return { score: 0, detail: 'No skills started yet' };
 
@@ -86,7 +87,8 @@ async function quizScore(userId: string): Promise<{ score: number; detail: strin
     .from('video_progress')
     .select('quiz_score, quiz_taken')
     .eq('user_id', userId)
-    .eq('quiz_taken', true);
+    .eq('quiz_taken', true)
+    .limit(200);
 
   if (!rows || rows.length === 0) return { score: 0, detail: 'No quizzes taken yet' };
 

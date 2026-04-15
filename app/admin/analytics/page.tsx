@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
+import Link from 'next/link';
 import AdminGuard from '@/components/AdminGuard';
 
 interface DailyPoint { date: string; views: number }
@@ -139,7 +140,7 @@ function Dashboard() {
           Analytics
         </h1>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-          Last 30 days · <a href="/admin" style={{ color: 'var(--terracotta)' }}>← Admin</a>
+          Last 30 days · <Link href="/admin" style={{ color: 'var(--terracotta)' }}>← Admin</Link>
         </p>
       </div>
 

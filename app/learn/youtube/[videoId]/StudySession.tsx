@@ -689,7 +689,7 @@ function QuizTab({ guide, videoId, videoTitle, onScoreSaved, prefetchedQuestions
           padding: '0.9rem 1.2rem', marginBottom: '1.2rem', fontSize: '0.87rem', color: '#92400e', lineHeight: 1.6 }}>
           {quizError}{' '}
           {quizError.includes('Subscribe') && (
-            <a href="/pricing" style={{ color: 'var(--terracotta)', fontWeight: 600, textDecoration: 'none' }}>View pricing →</a>
+            <Link href="/pricing" style={{ color: 'var(--terracotta)', fontWeight: 600, textDecoration: 'none' }}>View pricing →</Link>
           )}
         </div>
       )}

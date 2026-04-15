@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Link from 'next/link';
 import { resume } from '@/lib/resume-data';
 import { Metadata } from 'next';
 
@@ -162,11 +163,11 @@ export default function ResumePage() {
 
         {/* Top actions — no-print */}
         <div className="no-print" style={{ paddingTop: '2rem', display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginBottom: '1.5rem' }}>
-          <a href="/jobs" style={{
+          <Link href="/jobs" style={{
             padding: '0.5rem 1.2rem', borderRadius: '99px',
             border: '1px solid var(--parchment)', background: 'var(--warm-white)',
             color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.88rem',
-          }}>🔍 Find Jobs</a>
+          }}>🔍 Find Jobs</Link>
           <button onClick={print} style={{
             padding: '0.5rem 1.2rem', borderRadius: '99px',
             background: 'var(--terracotta)', color: 'white',

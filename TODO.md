@@ -69,6 +69,19 @@ Product vision: The definitive career platform for international IT graduates en
 
 ## 🔴 Priority 0 — In Progress
 
+### ✅ Production Quality Sprint (6.2 → 8.0)
+**What:** Harden codebase for MVP launch — security, performance, correctness.
+- [x] `proxy.ts` — server-side auth guard for `/dashboard` and `/admin` already in place (Next.js 16 pattern)
+- [x] `error.tsx` in `app/dashboard/`, `app/interview-prep/`, `app/learn/`, `app/jobs/` (4 files)
+- [x] Add `.limit()` to 7 unbounded Supabase queries (`analytics/summary`, `readiness-score`)
+- [x] Remove unused Tailwind deps (`tailwindcss`, `@tailwindcss/postcss`, `postcss.config.mjs`)
+- [x] Replace 8 `<a href="/">` with `<Link>` (full-page reloads on internal nav)
+- [x] Replace `<img>` with `<Image>` in `app/learn/ibm/page.tsx`
+
+**Files:** `middleware.ts`, `app/*/error.tsx` ×4, `app/api/analytics/summary/route.ts`, `app/api/readiness-score/route.ts`, `package.json`, `postcss.config.mjs`, 8 component files, `app/learn/ibm/page.tsx`
+
+---
+
 ### ✅ 0.2 Yin-Yang Dark Mode Toggle
 **What:** Circular yin-yang SVG toggle button. CSS `transition: transform` on accumulated rotation state — smooth 180° spin on click, no snap-back. Fill colours cross-fade at spin midpoint. Comic panel shadow adapts to theme.
 **Files:** `components/ThemeToggle.tsx`, `app/globals.css`
@@ -125,11 +138,13 @@ These features tie everything together into a coherent product. Without them, ev
 
 ### 3. Job-to-Gap Engine — `features/gap-engine.md`
 **Why now:** The single feature that makes every other feature more valuable.
-- [ ] `supabase/012_embeddings.sql` — `pgvector` extension, `resume_embedding` on profiles
-- [ ] `POST /api/gap-analysis` — embed JD, cosine similarity vs resume, cross-ref completed skills
-- [ ] Gap results: ✅ matched skills, ❌ missing skills → linked to learning paths + YouTube
-- [ ] "Analyse this job" button on every job search result card
-- [ ] Saves analysis history per user
+- [x] `supabase/019_gap_analysis.sql` — pgvector extension (enabled), job_gap_analyses cache table
+- [x] `POST /api/gap-analysis` — GPT-4o-mini skill extraction from JD, cross-ref user skill_progress + SKILL_PATHS
+- [x] Gap results: ✅ matched skills (jade), ❌ missing skills with "Learn →" link to skill path
+- [x] Match % ring displayed per job + expandable inline gap panel in job cards
+- [x] Results cached in Supabase (7-day TTL) + localStorage
+- [x] `components/GapAnalysisPanel.tsx` — animated expandable panel, match ring, skill chips
+- [x] Rate limited: 5 gap analyses per user per day
 
 ### ✅ 4. Readiness Score — `features/readiness-score.md`
 **Why now:** Creates a measurable goal users chase daily. Drives retention.

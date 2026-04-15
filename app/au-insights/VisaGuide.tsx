@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Link from 'next/link';
 
 interface VisaStep {
   number: number;
@@ -163,13 +164,13 @@ export default function VisaGuide() {
           Your share of costs: <strong>~$3,965+</strong> (excludes employer-paid fees).{' '}
           This is a public reference only — always verify with a registered migration agent.
         </span>
-        <a href="/dashboard/visa-tracker" style={{
+        <Link href="/dashboard/visa-tracker" style={{
           background: 'var(--terracotta)', color: '#fff', padding: '0.45rem 1rem',
           borderRadius: '8px', textDecoration: 'none', fontSize: '0.82rem', fontWeight: 600,
           whiteSpace: 'nowrap', flexShrink: 0,
         }}>
           Track my journey →
-        </a>
+        </Link>
       </div>
 
       {/* Stepper */}

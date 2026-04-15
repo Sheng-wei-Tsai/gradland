@@ -442,23 +442,23 @@ export default function ResumeAnalyserPage() {
                   <span style={whatNowArrow}>→</span>
                 </a>
               )}
-              <a href="/interview-prep" style={whatNowLink}>
+              <Link href="/interview-prep" style={whatNowLink}>
                 <span style={whatNowEmoji}>🎯</span>
                 <div>
                   <div style={whatNowTitle}>Practice your interview</div>
                   <div style={whatNowDesc}>Your resume is ready — now make sure you can talk to it</div>
                 </div>
                 <span style={whatNowArrow}>→</span>
-              </a>
+              </Link>
               {result.auMarketFit.missingSkills.length > 0 && (
-                <a href="/learn" style={whatNowLink}>
+                <Link href="/learn" style={whatNowLink}>
                   <span style={whatNowEmoji}>📚</span>
                   <div>
                     <div style={whatNowTitle}>Close your skill gaps</div>
                     <div style={whatNowDesc}>Missing: {result.auMarketFit.missingSkills.slice(0, 3).join(', ')}</div>
                   </div>
                   <span style={whatNowArrow}>→</span>
-                </a>
+                </Link>
               )}
             </div>
           </div>
