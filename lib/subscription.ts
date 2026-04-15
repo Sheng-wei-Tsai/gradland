@@ -34,8 +34,9 @@ export const ENDPOINT_LIMITS: Record<string, number> = {
   'interview/mentor':    30, // per mentor stage
   'cover-letter':        15, // relatively expensive prompt
   'learn/quiz':          25, // per video
-  'learn/diagram':        3, // Gemini image gen — 3/day
-  'learn/roadmap-image':  2, // Gemini image gen — 2/day
+  'learn/diagram':        3, // Mermaid diagram via GPT-4o-mini — 3/day
+  'learn/roadmap-image':  2, // Mermaid roadmap via GPT-4o-mini — 2/day
+  'gap-analysis':         5, // Job-to-gap skill extraction — 5/day
 };
 
 // ── Subscription status ───────────────────────────────────────────────

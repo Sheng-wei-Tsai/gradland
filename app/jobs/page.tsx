@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '@/components/AuthProvider';
 import { supabase } from '@/lib/supabase';
 import type { AdzunaJob } from '../api/jobs/route';
+import GapAnalysisPanel from '@/components/GapAnalysisPanel';
 
 const LOCATIONS    = ['Brisbane', 'Sydney', 'Melbourne', 'Perth', 'Adelaide', 'Remote', 'Australia'];
 const SORT_OPTIONS = [
@@ -81,11 +82,12 @@ function freshness(dateStr: string): { label: string; color: string } {
 
 // ─── Job card ─────────────────────────────────────────────────────────────────
 
-function JobCard({ job, savedIds, onSaveToggle, onApply }: {
+function JobCard({ job, savedIds, onSaveToggle, onApply, isLoggedIn }: {
   job: AdzunaJob;
   savedIds: Set<string>;
   onSaveToggle: (job: AdzunaJob) => void;
   onApply: (job: AdzunaJob) => void;
+  isLoggedIn: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
   const isSaved = savedIds.has(job.id);
@@ -163,6 +165,17 @@ function JobCard({ job, savedIds, onSaveToggle, onApply }: {
           }}>
           Apply →
         </a>
+      </div>
+
+      {/* Skill Gap Analysis */}
+      <div style={{ marginBottom: '0.5rem' }}>
+        <GapAnalysisPanel
+          jobId={job.id}
+          jobTitle={job.title}
+          company={job.company}
+          description={job.description}
+          isLoggedIn={isLoggedIn}
+        />
       </div>
 
       <div style={{ marginTop: '0.8rem', fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
@@ -476,7 +489,7 @@ export default function JobsPage() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem', paddingBottom: '2rem' }}>
         {jobs.map(job => (
-          <JobCard key={job.id} job={job} savedIds={savedIds} onSaveToggle={handleSaveToggle} onApply={handleApply} />
+          <JobCard key={job.id} job={job} savedIds={savedIds} onSaveToggle={handleSaveToggle} onApply={handleApply} isLoggedIn={!!user} />
         ))}
       </div>
 

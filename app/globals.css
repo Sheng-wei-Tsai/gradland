@@ -893,6 +893,10 @@ h3, h4 {
   to   { background-position: -200% 0; }
 }
 
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 /* ── Hide scrollbar on horizontally scrollable rows ── */
 .scroll-x-hide::-webkit-scrollbar { display: none; }
 
