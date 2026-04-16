@@ -43,10 +43,18 @@ function savePrefs(prefs: object) {
   try { localStorage.setItem(LS_KEY, JSON.stringify(prefs)); } catch { /* quota */ }
 }
 
+interface SourceCounts {
+  jsearch: number;
+  scraped: number;
+  adzuna:  number;
+}
+
 interface JobsCache {
-  jobs: AdzunaJob[];
-  total: number;
-  query: string;
+  jobs:     AdzunaJob[];
+  total:    number;  // Adzuna total (for pagination)
+  count:    number;  // merged jobs on this page
+  sources?: SourceCounts;
+  query:    string;
   cachedAt: number;
 }
 
@@ -61,8 +69,8 @@ function loadJobsCache(query: string): JobsCache | null {
   } catch { return null; }
 }
 
-function saveJobsCache(jobs: AdzunaJob[], total: number, query: string) {
-  try { localStorage.setItem(JOBS_CACHE_KEY, JSON.stringify({ jobs, total, query, cachedAt: Date.now() })); } catch { /* quota */ }
+function saveJobsCache(jobs: AdzunaJob[], total: number, count: number, sources: SourceCounts | undefined, query: string) {
+  try { localStorage.setItem(JOBS_CACHE_KEY, JSON.stringify({ jobs, total, count, sources, query, cachedAt: Date.now() })); } catch { /* quota */ }
 }
 
 function clearJobsCache() {
@@ -92,12 +100,16 @@ function JobCard({ job, savedIds, onSaveToggle, onApply, isLoggedIn }: {
   const [expanded, setExpanded] = useState(false);
   const isSaved = savedIds.has(job.id);
   const { label: ageLabel, color: ageColor } = freshness(job.created);
-  const sourceBadge = job.source === 'jsearch'
-    ? (job.publisher ?? 'Google Jobs')
-    : job.source === 'jora'   ? 'Jora'
-    : job.source === 'indeed' ? 'Indeed'
-    : job.source === 'acs'    ? 'ACS'
-    : null;
+
+  const SOURCE_STYLES: Record<string, { label: string; color: string; bg: string; border: string }> = {
+    jsearch: { label: job.publisher ?? 'Google Jobs', color: '#1d4ed8', bg: '#eff6ff', border: '#bfdbfe' },
+    jora:    { label: 'Jora',   color: '#7c3aed', bg: '#f5f3ff', border: '#ddd6fe' },
+    indeed:  { label: 'Indeed', color: '#b45309', bg: '#fffbeb', border: '#fde68a' },
+    acs:     { label: 'ACS',    color: '#047857', bg: '#ecfdf5', border: '#a7f3d0' },
+    seek:    { label: 'Seek',   color: '#1e40af', bg: '#eff6ff', border: '#93c5fd' },
+    adzuna:  { label: 'Adzuna', color: '#0369a1', bg: '#f0f9ff', border: '#bae6fd' },
+  };
+  const sourceStyle = SOURCE_STYLES[job.source] ?? { label: job.source, color: 'var(--text-muted)', bg: 'var(--warm-white)', border: 'var(--parchment)' };
 
   return (
     <div style={{
@@ -120,11 +132,9 @@ function JobCard({ job, savedIds, onSaveToggle, onApply, isLoggedIn }: {
             {job.contract_type && <span className="tag">{job.contract_type}</span>}
             {job.category      && <span className="tag">{job.category}</span>}
             {job.salary        && <span className="tag" style={{ color: 'var(--terracotta)' }}>💰 {job.salary}</span>}
-            {sourceBadge && (
-              <span className="tag" style={{ color: '#2563eb', borderColor: '#bfdbfe', background: '#eff6ff' }}>
-                via {sourceBadge}
-              </span>
-            )}
+            <span className="tag" style={{ color: sourceStyle.color, background: sourceStyle.bg, borderColor: sourceStyle.border }}>
+              via {sourceStyle.label}
+            </span>
           </div>
         </div>
         <span style={{ fontSize: '0.78rem', fontWeight: 600, color: ageColor, flexShrink: 0 }}>{ageLabel}</span>
@@ -211,7 +221,9 @@ export default function JobsPage() {
   const [salaryMax, setSalaryMax] = useState<string>(prefs.salaryMax ?? '');
 
   const [jobs,       setJobs]       = useState<AdzunaJob[]>([]);
-  const [total,      setTotal]      = useState(0);
+  const [total,      setTotal]      = useState(0);  // Adzuna total for pagination
+  const [count,      setCount]      = useState(0);  // merged jobs on this page
+  const [sources,    setSources]    = useState<SourceCounts | null>(null);
   const [page,       setPage]       = useState(1);
   const [loading,    setLoading]    = useState(false);
   const [searched,   setSearched]   = useState(false);
@@ -265,6 +277,8 @@ export default function JobsPage() {
       if (cached) {
         setJobs(cached.jobs);
         setTotal(cached.total);
+        setCount(cached.count ?? cached.jobs.length);
+        setSources(cached.sources ?? null);
         setPage(1);
         setSearched(true);
         setFromCache(true);
@@ -277,15 +291,14 @@ export default function JobsPage() {
     try {
       const res  = await fetch(`/api/jobs?${params}`);
       const data = await res.json();
-      if (!res.ok) {
-        if (res.status === 503) throw new Error('Job search is not configured yet. Add ADZUNA_APP_ID and ADZUNA_APP_KEY to enable it.');
-        throw new Error(data.error || 'Failed to fetch jobs. Please try again.');
-      }
+      if (!res.ok) throw new Error(data.error || 'Failed to fetch jobs. Please try again.');
       setJobs(data.jobs);
       setTotal(data.total);
+      setCount(data.count ?? data.jobs?.length ?? 0);
+      setSources(data.sources ?? null);
       setPage(p);
       setSearched(true);
-      if (p === 1) saveJobsCache(data.jobs, data.total, cacheKey);
+      if (p === 1) saveJobsCache(data.jobs, data.total, data.count ?? data.jobs?.length ?? 0, data.sources, cacheKey);
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -336,7 +349,7 @@ export default function JobsPage() {
     setAlertSaved(true);
   };
 
-  const totalPages = Math.ceil(total / 20);
+  const totalPages = Math.ceil(total / 100); // 2 Adzuna pages × 50 each
 
   return (
     <div style={{ maxWidth: '760px', margin: '0 auto', padding: '0 1.5rem' }}>
@@ -448,14 +461,33 @@ export default function JobsPage() {
 
       {searched && !loading && (
         <div style={{ marginBottom: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            {total > 0 ? `${total.toLocaleString()} jobs found` : 'No jobs found — try different keywords'}
-            {fromCache && (
-              <span style={{ fontSize: '0.72rem', color: 'var(--jade)', background: 'rgba(30,122,82,0.08)', border: '1px solid rgba(30,122,82,0.2)', padding: '0.1em 0.5em', borderRadius: '4px' }}>
-                ⚡ cached
-              </span>
-            )}
-          </p>
+          <div>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              {count > 0
+                ? `Showing ${count} jobs${total > count ? ` of ${total.toLocaleString()} available` : ''}`
+                : 'No jobs found — try different keywords'}
+              {fromCache && (
+                <span style={{ fontSize: '0.72rem', color: 'var(--jade)', background: 'rgba(30,122,82,0.08)', border: '1px solid rgba(30,122,82,0.2)', padding: '0.1em 0.5em', borderRadius: '4px' }}>
+                  ⚡ cached
+                </span>
+              )}
+            </p>
+            {sources && (() => {
+              const active = [
+                sources.jsearch > 0 && 'Google Jobs',
+                sources.scraped > 0 && 'Jora/ACS',
+                sources.adzuna  > 0 && 'Adzuna',
+              ].filter(Boolean) as string[];
+              if (active.length === 3) return null;
+              return (
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+                  {active.length > 0
+                    ? `${active.length} of 3 sources active (${active.join(', ')})`
+                    : 'All sources unavailable — check Vercel env vars'}
+                </p>
+              );
+            })()}
+          </div>
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             {fromCache && (
               <button onClick={() => { clearJobsCache(); search(1, true); }}
@@ -463,7 +495,7 @@ export default function JobsPage() {
                 ↻ Refresh
               </button>
             )}
-            {total > 0 && <span style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>Page {page} of {totalPages}</span>}
+            {total > 100 && <span style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>Page {page} of {totalPages}</span>}
             {alertSaved
               ? <span style={{ fontSize: '0.82rem', color: '#16a34a' }}>✓ Alert saved</span>
               : (
@@ -514,7 +546,7 @@ export default function JobsPage() {
         </div>
       )}
 
-      {total > 20 && (
+      {total > 100 && (
         <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', paddingBottom: '4rem' }}>
           <button onClick={() => search(page - 1)} disabled={page <= 1 || loading}
             style={{ padding: '0.5rem 1.2rem', borderRadius: '99px', border: '1px solid var(--parchment)', background: 'var(--warm-white)', cursor: page <= 1 ? 'not-allowed' : 'pointer', color: page <= 1 ? 'var(--text-muted)' : 'var(--brown-dark)', fontSize: '0.9rem' }}>

@@ -40,7 +40,7 @@ const rssParser = new Parser({ timeout: 20000 });
 
 interface ScrapedJob {
   id:            string;
-  source:        'jora' | 'acs' | 'indeed';
+  source:        'jora' | 'acs' | 'indeed' | 'seek';
   title:         string;
   company:       string;
   location:      string;
@@ -71,6 +71,13 @@ const IT_KEYWORDS = [
 ];
 
 const LOCATIONS = ['Brisbane', 'Sydney', 'Melbourne', 'Perth', 'Adelaide'];
+
+// ── IT job filter — reject sponsored/unrelated results from Jora ──────────────
+const IT_TITLE_RE = /\b(developer|engineer|devops|architect|analyst|scientist|dba|database|software|frontend|backend|fullstack|full.?stack|qa|tester|testing|security|cloud|aws|azure|gcp|machine.?learning|data|python|java|javascript|react|node|php|ruby|golang|kotlin|mobile|android|ios|sre|platform|infrastructure|network|systems|it.?support|helpdesk|cyber|soc|scrum|agile|product.?manager|ux|ui.?ux|devSecOps)\b/i;
+
+function isITJob(title: string, description: string): boolean {
+  return IT_TITLE_RE.test(title) || IT_TITLE_RE.test(description.slice(0, 300));
+}
 
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36';
 
@@ -131,9 +138,14 @@ async function scrapeJoraPage(keyword: string, location: string): Promise<Scrape
   const $    = cheerioLoad(html);
   const jobs: ScrapedJob[] = [];
 
-  // Jora job cards: container has class "job-card result [organic-job|sponsored-job]"
-  // data-job-id is on the save button inside the card, not on the card itself
-  $('[class*="job-card"][class*="result"]').each((_, el) => {
+  // Prefer organic results only; fall back to all results if none found
+  // (Jora sponsored slots show unrelated jobs — we filter by IT title later)
+  const cardSel = '.organic-job, [class*="job-card"][class*="organic"]';
+  const organicCards = $(cardSel);
+  const allCards = $('[class*="job-card"][class*="result"]');
+  const cards = organicCards.length > 0 ? organicCards : allCards;
+
+  cards.each((_, el) => {
     const saveBtn = $(el).find('.save-job-button, [class*="save-job"]').first();
     const jobId   = saveBtn.attr('data-job-id') ?? saveBtn.attr('data-id') ?? '';
 
@@ -337,6 +349,82 @@ async function scrapeIndeed(): Promise<ScrapedJob[]> {
   return all;
 }
 
+// ── Seek via Apify ────────────────────────────────────────────────────────────
+// Apify hosts a Seek.com.au scraper actor. Set APIFY_TOKEN env var to enable.
+// Free tier: 5 USD/month credit. Sign up at https://apify.com (free plan available).
+// Actor used: https://apify.com/websift/seek-job-scraper
+
+const APIFY_TOKEN  = process.env.APIFY_TOKEN;
+const SEEK_ACTOR   = 'websift~seek-job-scraper';
+
+async function scrapeSeekViaApify(): Promise<ScrapedJob[]> {
+  if (!APIFY_TOKEN) {
+    console.log('  Seek/Apify: APIFY_TOKEN not set — skipping (set it to enable Seek.com.au results)');
+    return [];
+  }
+
+  const allJobs: ScrapedJob[] = [];
+
+  for (const keyword of IT_KEYWORDS.slice(0, 5)) {   // limit to 5 keywords to save Apify credits
+    for (const location of LOCATIONS.slice(0, 3)) {   // Brisbane, Sydney, Melbourne
+      try {
+        // Run actor synchronously and wait for results (timeout 120s)
+        const runRes = await fetch(
+          `https://api.apify.com/v2/acts/${SEEK_ACTOR}/run-sync-get-dataset-items?token=${APIFY_TOKEN}&timeout=90&memory=256`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              keyword,
+              location,
+              maxPages:  2,
+              maxItems:  20,
+            }),
+            signal: AbortSignal.timeout(120000),
+          },
+        );
+
+        if (!runRes.ok) {
+          const errText = await runRes.text();
+          console.warn(`  Seek/Apify: HTTP ${runRes.status} for "${keyword}" ${location}: ${errText.slice(0, 100)}`);
+          continue;
+        }
+
+        const items: any[] = await runRes.json();
+        console.log(`  Seek: "${keyword}" in ${location} → ${items.length}`);
+
+        for (const item of items) {
+          const sal = normalizeSalary(item.salary ?? null);
+          allJobs.push({
+            id:            `seek-${item.jobId ?? hashId('seek', item.title ?? '', item.company ?? '', item.url ?? '')}`,
+            source:        'seek' as const,
+            title:         item.title ?? '',
+            company:       item.advertiser ?? item.company ?? 'Unknown',
+            location:      item.location ?? location,
+            description:   item.teaser ?? item.description ?? '',
+            salary:        sal.text ?? item.salary ?? null,
+            salary_min:    sal.min,
+            salary_max:    sal.max,
+            url:           item.url ?? `https://www.seek.com.au/job/${item.jobId ?? ''}`,
+            category:      item.classification ?? 'IT Jobs',
+            contract_type: item.workType ?? null,
+            created:       item.listingDate ?? new Date().toISOString(),
+            dedup_key:     dedupKey(item.title ?? '', item.advertiser ?? item.company ?? ''),
+            expires_at:    expiresAt(),
+          });
+        }
+
+        await sleep(DELAY_MS);
+      } catch (e) {
+        console.warn(`  Seek/Apify error "${keyword}" ${location}: ${(e as Error).message}`);
+      }
+    }
+    await sleep(SOURCE_DELAY_MS);
+  }
+
+  return allJobs;
+}
+
 // ── Deduplication ─────────────────────────────────────────────────────────────
 
 function deduplicateJobs(jobs: ScrapedJob[]): ScrapedJob[] {
@@ -403,9 +491,23 @@ async function main() {
   const indeedJobs = await scrapeIndeed();
   console.log(`  → ${indeedJobs.length} Indeed results\n`);
 
+  await sleep(SOURCE_DELAY_MS);
+
+  // Seek via Apify (set APIFY_TOKEN env var to enable)
+  console.log('📋 Seek.com.au (via Apify — requires APIFY_TOKEN)...');
+  const seekJobs = await scrapeSeekViaApify();
+  console.log(`  → ${seekJobs.length} Seek results\n`);
+
+  // Filter non-IT jobs (Jora/Indeed sponsored results are often unrelated)
+  const joraIT   = joraJobs.filter(j => isITJob(j.title, j.description));
+  const indeedIT = indeedJobs.filter(j => isITJob(j.title, j.description));
+  const seekIT   = seekJobs.filter(j => isITJob(j.title, j.description));
+  console.log(`  Jora IT-filtered: ${joraJobs.length} raw → ${joraIT.length} kept`);
+  console.log(`  Seek IT-filtered: ${seekJobs.length} raw → ${seekIT.length} kept`);
+
   // Dedup + save
-  const allUniq = deduplicateJobs([...joraJobs, ...acsJobs, ...indeedJobs]);
-  console.log(`📊 ${joraJobs.length} Jora + ${acsJobs.length} ACS + ${indeedJobs.length} Indeed = ${joraJobs.length + acsJobs.length + indeedJobs.length} raw → ${allUniq.length} unique`);
+  const allUniq = deduplicateJobs([...seekIT, ...joraIT, ...acsJobs, ...indeedIT]);
+  console.log(`📊 ${seekIT.length} Seek + ${joraIT.length} Jora + ${acsJobs.length} ACS + ${indeedIT.length} Indeed = ${seekIT.length + joraIT.length + acsJobs.length + indeedIT.length} IT jobs → ${allUniq.length} unique`);
 
   console.log('\n💾 Saving to Supabase...');
   const saved = await upsertJobs(allUniq);
