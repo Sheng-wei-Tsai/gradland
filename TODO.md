@@ -69,6 +69,51 @@ Product vision: The definitive career platform for international IT graduates en
 
 ## 🔴 Priority 0 — In Progress
 
+### Jobs API — Expanded Multi-Source AU IT Jobs (Indeed, LinkedIn, Seek, Jora, Remote, Freelance)
+**What:** Expand `/api/jobs` to aggregate 7+ job sources for AU IT roles with dedicated Remote and Freelance tabs.
+**Branch:** `jobs-api`
+**Status:** 🟡 In Progress
+
+**Data Sources:**
+| Source | Method | Coverage | Cost |
+|--------|--------|----------|------|
+| Jora (au.jora.com) | HTML scrape → Supabase cache | AU IT, Seek-owned | Free |
+| ACS TechCareers | RSS feed → Supabase cache | AU IT professional | Free |
+| Indeed | RapidAPI `indeed12` scraper → Supabase cache | AU IT broad | ~$10/mo RapidAPI |
+| LinkedIn | JSearch (Google for Jobs) via RapidAPI | AU IT, LinkedIn/Glassdoor | ~$10/mo RapidAPI |
+| Seek | Apify actor → Supabase cache | AU IT, largest AU board | Free tier $5/mo |
+| Adzuna | Direct API | AU IT broad | Free |
+| Arbeitnow | Public REST API (remote filter + AU country) | AU remote IT | Free |
+| Freelancer.com | Public REST API (AU location filter) | AU freelance IT | Free |
+
+**New features:**
+- `job_type` filter: `all` / `onsite` / `remote` / `freelance` on API + frontend
+- RapidAPI Indeed fetcher in API route (more reliable than direct scraping)
+- Arbeitnow remote AU jobs fetcher
+- Freelancer.com AU IT projects fetcher
+- Job type tabs on `/jobs` page (All Jobs / Remote / Freelance)
+- New source badges (Indeed API, Remote, Freelance)
+- Updated scraper with Indeed RapidAPI + LinkedIn RapidAPI sources
+
+**Files:**
+- `app/api/jobs/route.ts` — add Indeed RapidAPI, Arbeitnow, Freelancer fetchers + `job_type` filter
+- `app/jobs/page.tsx` — add job type tabs (All/Remote/Freelance), new source badges
+- `scripts/scrape-au-jobs.ts` — add RapidAPI Indeed scraper for daily cron
+- `supabase/020_job_type_column.sql` — add `job_type` column to `scraped_jobs`
+- `.github/workflows/scrape-jobs.yml` — add `RAPIDAPI_KEY` env var
+- `TODO.md` — this entry
+
+**Acceptance criteria:**
+- [ ] API returns jobs from all configured sources concurrently
+- [ ] `?job_type=remote` filters to remote-only jobs
+- [ ] `?job_type=freelance` filters to freelance-only jobs
+- [ ] Frontend has 3 tabs: All Jobs / Remote / Freelance
+- [ ] New source badges render correctly
+- [ ] Graceful fallback when any API key is missing
+- [ ] `npm run check` passes clean
+
+---
+
 ### ✅ Security Hardening Sprint
 **What:** Fix all Critical/High security issues before public launch.
 - [ ] Fix `o4-mini` → `gpt-4o-mini` and `gpt-4.1` → `gpt-4o` (5 files — `o4-mini` is not a stable model ID)

@@ -40,7 +40,7 @@ const rssParser = new Parser({ timeout: 20000 });
 
 interface ScrapedJob {
   id:            string;
-  source:        'jora' | 'acs' | 'indeed' | 'seek';
+  source:        'jora' | 'acs' | 'indeed' | 'seek' | 'arbeitnow' | 'freelancer';
   title:         string;
   company:       string;
   location:      string;
@@ -54,6 +54,7 @@ interface ScrapedJob {
   created:       string;
   dedup_key:     string;
   expires_at:    string;
+  job_type:      'onsite' | 'remote' | 'freelance';
 }
 
 // ── Config ────────────────────────────────────────────────────────────────────
@@ -173,6 +174,8 @@ async function scrapeJoraPage(keyword: string, location: string): Promise<Scrape
 
     if (!title || !effectiveId) return;
 
+    const isRemote = /\bremote\b/i.test(title) || /\bremote\b/i.test(loc);
+
     jobs.push({
       id:            `jora-${effectiveId}`,
       source:        'jora',
@@ -189,6 +192,7 @@ async function scrapeJoraPage(keyword: string, location: string): Promise<Scrape
       created:       new Date().toISOString(),
       dedup_key:     dedupKey(title, company),
       expires_at:    expiresAt(),
+      job_type:      isRemote ? 'remote' : 'onsite',
     });
   });
 
@@ -261,6 +265,7 @@ async function scrapeACS(): Promise<ScrapedJob[]> {
         created:       item.pubDate ? new Date(item.pubDate).toISOString() : new Date().toISOString(),
         dedup_key:     dedupKey(title, company),
         expires_at:    expiresAt(),
+        job_type:      /\bremote\b/i.test(loc) ? 'remote' : 'onsite',
       });
     }
 
@@ -317,6 +322,7 @@ async function scrapeIndeedPage(keyword: string, location: string): Promise<Scra
       created:       new Date().toISOString(),
       dedup_key:     dedupKey(title, company),
       expires_at:    expiresAt(),
+      job_type:      /\bremote\b/i.test(title) || /\bremote\b/i.test(loc) ? 'remote' : 'onsite',
     });
   });
 
@@ -395,12 +401,14 @@ async function scrapeSeekViaApify(): Promise<ScrapedJob[]> {
 
         for (const item of items) {
           const sal = normalizeSalary(item.salary ?? null);
+          const seekTitle = item.title ?? '';
+          const seekLoc   = item.location ?? location;
           allJobs.push({
             id:            `seek-${item.jobId ?? hashId('seek', item.title ?? '', item.company ?? '', item.url ?? '')}`,
             source:        'seek' as const,
-            title:         item.title ?? '',
+            title:         seekTitle,
             company:       item.advertiser ?? item.company ?? 'Unknown',
-            location:      item.location ?? location,
+            location:      seekLoc,
             description:   item.teaser ?? item.description ?? '',
             salary:        sal.text ?? item.salary ?? null,
             salary_min:    sal.min,
@@ -411,6 +419,7 @@ async function scrapeSeekViaApify(): Promise<ScrapedJob[]> {
             created:       item.listingDate ?? new Date().toISOString(),
             dedup_key:     dedupKey(item.title ?? '', item.advertiser ?? item.company ?? ''),
             expires_at:    expiresAt(),
+            job_type:      /\bremote\b/i.test(seekTitle) || /\bremote\b/i.test(seekLoc) ? 'remote' : 'onsite',
           });
         }
 
@@ -433,6 +442,160 @@ function deduplicateJobs(jobs: ScrapedJob[]): ScrapedJob[] {
     if (!seen.has(job.dedup_key)) seen.set(job.dedup_key, job);
   }
   return Array.from(seen.values());
+}
+
+// ── Indeed via RapidAPI (more reliable than direct scraping) ──────────────────
+// Uses the "Indeed12" API on RapidAPI. Shares the same RAPIDAPI_KEY as JSearch.
+
+const RAPIDAPI_KEY_SCRAPER = process.env.RAPIDAPI_KEY;
+
+async function scrapeIndeedRapidAPI(): Promise<ScrapedJob[]> {
+  if (!RAPIDAPI_KEY_SCRAPER) {
+    console.log('  Indeed/RapidAPI: RAPIDAPI_KEY not set — skipping (set it to enable Indeed API results)');
+    return [];
+  }
+
+  const allJobs: ScrapedJob[] = [];
+  const sampleKeywords  = IT_KEYWORDS.slice(0, 5);
+  const sampleLocations = LOCATIONS.slice(0, 3);
+
+  for (const keyword of sampleKeywords) {
+    for (const location of sampleLocations) {
+      try {
+        const params = new URLSearchParams({
+          query:    `${keyword} in ${location}`,
+          location: `${location}, Australia`,
+          page_id:  '1',
+          country:  'au',
+          locality: 'au',
+        });
+        const res = await fetch(
+          `https://indeed12.p.rapidapi.com/jobs/search?${params}`,
+          {
+            headers: {
+              'X-RapidAPI-Key':  RAPIDAPI_KEY_SCRAPER,
+              'X-RapidAPI-Host': 'indeed12.p.rapidapi.com',
+            },
+            signal: AbortSignal.timeout(15000),
+          },
+        );
+        if (!res.ok) {
+          console.warn(`  Indeed/RapidAPI: HTTP ${res.status} for "${keyword}" ${location}`);
+          continue;
+        }
+
+        const json = await res.json();
+        const hits: any[] = json.hits ?? json.results ?? json.data ?? [];
+        console.log(`  Indeed/RapidAPI: "${keyword}" in ${location} → ${hits.length}`);
+
+        for (const r of hits.slice(0, 20)) {
+          const title   = r.title ?? r.job_title ?? '';
+          const company = r.company_name ?? r.company ?? 'Unknown';
+          const loc     = r.location ?? `${location}, Australia`;
+          const isRemote = /\bremote\b/i.test(title) || /\bremote\b/i.test(loc);
+
+          let salText: string | null = null;
+          let salMin: number | null = null;
+          let salMax: number | null = null;
+          if (r.salary_min && r.salary_max) {
+            salMin = r.salary_min;
+            salMax = r.salary_max;
+            salText = `$${Math.round(salMin / 1000)}k – $${Math.round(salMax / 1000)}k`;
+          } else if (r.formatted_salary) {
+            salText = r.formatted_salary;
+          }
+
+          const jobId = r.id ?? r.job_id ?? r.indeed_final_url?.match(/jk=([a-f0-9]+)/i)?.[1] ?? hashId('indeed-api', title, company, loc).replace('indeed-api-', '');
+
+          allJobs.push({
+            id:            `indeed-${jobId}`,
+            source:        'indeed',
+            title,
+            company,
+            location:      loc,
+            description:   (r.snippet ?? r.description ?? '').slice(0, 500),
+            salary:        salText,
+            salary_min:    salMin,
+            salary_max:    salMax,
+            url:           r.indeed_final_url ?? r.link ?? r.url ?? `https://au.indeed.com/jobs?q=${encodeURIComponent(keyword)}&l=${encodeURIComponent(location)}`,
+            category:      r.job_type ?? 'IT Jobs',
+            contract_type: r.job_type ?? null,
+            created:       r.pub_date_ts_milli ? new Date(r.pub_date_ts_milli).toISOString() : new Date().toISOString(),
+            dedup_key:     dedupKey(title, company),
+            expires_at:    expiresAt(),
+            job_type:      isRemote ? 'remote' : 'onsite',
+          });
+        }
+
+        await sleep(DELAY_MS);
+      } catch (e) {
+        console.warn(`  Indeed/RapidAPI error "${keyword}" ${location}: ${(e as Error).message}`);
+      }
+    }
+    await sleep(SOURCE_DELAY_MS);
+  }
+
+  return allJobs;
+}
+
+// ── Arbeitnow (Remote AU IT Jobs — free public API) ──────────────────────────
+// arbeitnow.com/api/job-board-api — free, no auth required.
+
+async function scrapeArbeitnowRemote(): Promise<ScrapedJob[]> {
+  const allJobs: ScrapedJob[] = [];
+  const remoteKeywords = ['developer', 'engineer', 'devops', 'data', 'software'];
+
+  for (const keyword of remoteKeywords) {
+    try {
+      const params = new URLSearchParams({
+        search:   keyword,
+        location: 'australia',
+        remote:   'true',
+        page:     '1',
+      });
+      const res = await fetch(
+        `https://arbeitnow.com/api/job-board-api?${params}`,
+        { signal: AbortSignal.timeout(10000) },
+      );
+      if (!res.ok) {
+        console.warn(`  Arbeitnow: HTTP ${res.status} for "${keyword}"`);
+        continue;
+      }
+
+      const json = await res.json();
+      const items: any[] = json.data ?? [];
+      console.log(`  Arbeitnow: "${keyword}" → ${items.length}`);
+
+      for (const r of items.slice(0, 15)) {
+        const title   = r.title ?? '';
+        const company = r.company_name ?? 'Unknown';
+        allJobs.push({
+          id:            `arbeitnow-${r.slug ?? hashId('arbeitnow', title, company, '').replace('arbeitnow-', '')}`,
+          source:        'arbeitnow',
+          title,
+          company,
+          location:      r.location ?? 'Remote (Australia)',
+          description:   (r.description ?? '').replace(/<[^>]*>/g, '').slice(0, 500),
+          salary:        null,
+          salary_min:    null,
+          salary_max:    null,
+          url:           r.url ?? `https://arbeitnow.com/view/${r.slug ?? ''}`,
+          category:      r.tags?.join(', ') ?? 'IT Jobs',
+          contract_type: 'Remote',
+          created:       r.created_at ? new Date(r.created_at * 1000).toISOString() : new Date().toISOString(),
+          dedup_key:     dedupKey(title, company),
+          expires_at:    expiresAt(),
+          job_type:      'remote',
+        });
+      }
+
+      await sleep(DELAY_MS);
+    } catch (e) {
+      console.warn(`  Arbeitnow error "${keyword}": ${(e as Error).message}`);
+    }
+  }
+
+  return allJobs;
 }
 
 // ── Upsert ────────────────────────────────────────────────────────────────────
@@ -486,10 +649,17 @@ async function main() {
 
   await sleep(SOURCE_DELAY_MS);
 
-  // Indeed (best-effort)
+  // Indeed (best-effort direct scraping)
   console.log('📋 Indeed (best-effort — may be blocked)...');
   const indeedJobs = await scrapeIndeed();
   console.log(`  → ${indeedJobs.length} Indeed results\n`);
+
+  await sleep(SOURCE_DELAY_MS);
+
+  // Indeed via RapidAPI (more reliable, requires RAPIDAPI_KEY)
+  console.log('📋 Indeed via RapidAPI (requires RAPIDAPI_KEY)...');
+  const indeedAPIJobs = await scrapeIndeedRapidAPI();
+  console.log(`  → ${indeedAPIJobs.length} Indeed/RapidAPI results\n`);
 
   await sleep(SOURCE_DELAY_MS);
 
@@ -498,16 +668,29 @@ async function main() {
   const seekJobs = await scrapeSeekViaApify();
   console.log(`  → ${seekJobs.length} Seek results\n`);
 
+  await sleep(SOURCE_DELAY_MS);
+
+  // Arbeitnow (remote AU IT jobs — free, no auth)
+  console.log('📋 Arbeitnow (remote AU IT jobs — free API)...');
+  const arbeitnowJobs = await scrapeArbeitnowRemote();
+  console.log(`  → ${arbeitnowJobs.length} Arbeitnow remote results\n`);
+
   // Filter non-IT jobs (Jora/Indeed sponsored results are often unrelated)
-  const joraIT   = joraJobs.filter(j => isITJob(j.title, j.description));
-  const indeedIT = indeedJobs.filter(j => isITJob(j.title, j.description));
-  const seekIT   = seekJobs.filter(j => isITJob(j.title, j.description));
+  const joraIT          = joraJobs.filter(j => isITJob(j.title, j.description));
+  const indeedIT        = indeedJobs.filter(j => isITJob(j.title, j.description));
+  const indeedAPIIT     = indeedAPIJobs.filter(j => isITJob(j.title, j.description));
+  const seekIT          = seekJobs.filter(j => isITJob(j.title, j.description));
+  const arbeitnowIT     = arbeitnowJobs.filter(j => isITJob(j.title, j.description));
   console.log(`  Jora IT-filtered: ${joraJobs.length} raw → ${joraIT.length} kept`);
+  console.log(`  Indeed (direct) IT-filtered: ${indeedJobs.length} raw → ${indeedIT.length} kept`);
+  console.log(`  Indeed (RapidAPI) IT-filtered: ${indeedAPIJobs.length} raw → ${indeedAPIIT.length} kept`);
   console.log(`  Seek IT-filtered: ${seekJobs.length} raw → ${seekIT.length} kept`);
+  console.log(`  Arbeitnow IT-filtered: ${arbeitnowJobs.length} raw → ${arbeitnowIT.length} kept`);
 
   // Dedup + save
-  const allUniq = deduplicateJobs([...seekIT, ...joraIT, ...acsJobs, ...indeedIT]);
-  console.log(`📊 ${seekIT.length} Seek + ${joraIT.length} Jora + ${acsJobs.length} ACS + ${indeedIT.length} Indeed = ${seekIT.length + joraIT.length + acsJobs.length + indeedIT.length} IT jobs → ${allUniq.length} unique`);
+  const allUniq = deduplicateJobs([...seekIT, ...joraIT, ...acsJobs, ...indeedIT, ...indeedAPIIT, ...arbeitnowIT]);
+  const totalRaw = seekIT.length + joraIT.length + acsJobs.length + indeedIT.length + indeedAPIIT.length + arbeitnowIT.length;
+  console.log(`📊 ${seekIT.length} Seek + ${joraIT.length} Jora + ${acsJobs.length} ACS + ${indeedIT.length} Indeed(direct) + ${indeedAPIIT.length} Indeed(API) + ${arbeitnowIT.length} Arbeitnow = ${totalRaw} IT jobs → ${allUniq.length} unique`);
 
   console.log('\n💾 Saving to Supabase...');
   const saved = await upsertJobs(allUniq);

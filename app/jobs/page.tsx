@@ -21,6 +21,13 @@ const CATEGORIES: { label: string; keyword: string }[] = [
   { label: 'QA',              keyword: 'QA tester' },
 ];
 
+const JOB_TYPE_TABS: { value: string; label: string; icon: string }[] = [
+  { value: 'all',       label: 'All Jobs',   icon: '🔍' },
+  { value: 'onsite',    label: 'On-site',    icon: '🏢' },
+  { value: 'remote',    label: 'Remote',     icon: '🌏' },
+  { value: 'freelance', label: 'Freelance',  icon: '💼' },
+];
+
 const QUICK_STARTS = [
   'Graduate Developer',
   'Junior Full Stack',
@@ -44,9 +51,12 @@ function savePrefs(prefs: object) {
 }
 
 interface SourceCounts {
-  jsearch: number;
-  scraped: number;
-  adzuna:  number;
+  jsearch:    number;
+  scraped:    number;
+  adzuna:     number;
+  indeed:     number;
+  arbeitnow:  number;
+  freelancer: number;
 }
 
 interface JobsCache {
@@ -102,12 +112,14 @@ function JobCard({ job, savedIds, onSaveToggle, onApply, isLoggedIn }: {
   const { label: ageLabel, color: ageColor } = freshness(job.created);
 
   const SOURCE_STYLES: Record<string, { label: string; color: string; bg: string; border: string }> = {
-    jsearch: { label: job.publisher ?? 'Google Jobs', color: '#1d4ed8', bg: '#eff6ff', border: '#bfdbfe' },
-    jora:    { label: 'Jora',   color: '#7c3aed', bg: '#f5f3ff', border: '#ddd6fe' },
-    indeed:  { label: 'Indeed', color: '#b45309', bg: '#fffbeb', border: '#fde68a' },
-    acs:     { label: 'ACS',    color: '#047857', bg: '#ecfdf5', border: '#a7f3d0' },
-    seek:    { label: 'Seek',   color: '#1e40af', bg: '#eff6ff', border: '#93c5fd' },
-    adzuna:  { label: 'Adzuna', color: '#0369a1', bg: '#f0f9ff', border: '#bae6fd' },
+    jsearch:    { label: job.publisher ?? 'Google Jobs', color: '#1d4ed8', bg: '#eff6ff', border: '#bfdbfe' },
+    jora:       { label: 'Jora',       color: '#7c3aed', bg: '#f5f3ff', border: '#ddd6fe' },
+    indeed:     { label: 'Indeed',     color: '#b45309', bg: '#fffbeb', border: '#fde68a' },
+    acs:        { label: 'ACS',        color: '#047857', bg: '#ecfdf5', border: '#a7f3d0' },
+    seek:       { label: 'Seek',       color: '#1e40af', bg: '#eff6ff', border: '#93c5fd' },
+    adzuna:     { label: 'Adzuna',     color: '#0369a1', bg: '#f0f9ff', border: '#bae6fd' },
+    arbeitnow:  { label: 'Remote',     color: '#059669', bg: '#ecfdf5', border: '#6ee7b7' },
+    freelancer: { label: 'Freelancer', color: '#dc2626', bg: '#fef2f2', border: '#fca5a5' },
   };
   const sourceStyle = SOURCE_STYLES[job.source] ?? { label: job.source, color: 'var(--text-muted)', bg: 'var(--warm-white)', border: 'var(--parchment)' };
 
@@ -135,6 +147,16 @@ function JobCard({ job, savedIds, onSaveToggle, onApply, isLoggedIn }: {
             <span className="tag" style={{ color: sourceStyle.color, background: sourceStyle.bg, borderColor: sourceStyle.border }}>
               via {sourceStyle.label}
             </span>
+            {job.job_type === 'remote' && (
+              <span className="tag" style={{ color: '#059669', background: '#ecfdf5', borderColor: '#6ee7b7' }}>
+                🌏 Remote
+              </span>
+            )}
+            {job.job_type === 'freelance' && (
+              <span className="tag" style={{ color: '#7c3aed', background: '#f5f3ff', borderColor: '#ddd6fe' }}>
+                💼 Freelance
+              </span>
+            )}
           </div>
         </div>
         <span style={{ fontSize: '0.78rem', fontWeight: 600, color: ageColor, flexShrink: 0 }}>{ageLabel}</span>
@@ -219,6 +241,7 @@ export default function JobsPage() {
   const [category,  setCategory]  = useState<string>(prefs.category  ?? 'All');
   const [salaryMin, setSalaryMin] = useState<string>(prefs.salaryMin ?? '');
   const [salaryMax, setSalaryMax] = useState<string>(prefs.salaryMax ?? '');
+  const [jobType,   setJobType]   = useState<string>(prefs.jobType   ?? 'all');
 
   const [jobs,       setJobs]       = useState<AdzunaJob[]>([]);
   const [total,      setTotal]      = useState(0);  // Adzuna total for pagination
@@ -250,21 +273,23 @@ export default function JobsPage() {
 
   // Persist prefs to localStorage whenever they change
   useEffect(() => {
-    savePrefs({ keywords, location, sortBy, fullTime, workingRights, category, salaryMin, salaryMax });
-  }, [keywords, location, sortBy, fullTime, workingRights, category, salaryMin, salaryMax]);
+    savePrefs({ keywords, location, sortBy, fullTime, workingRights, category, salaryMin, salaryMax, jobType });
+  }, [keywords, location, sortBy, fullTime, workingRights, category, salaryMin, salaryMax, jobType]);
 
   // overrideKeywords: used by quick-start pills to pass the new value before state updates
-  const search = useCallback(async (p = 1, forceRefresh = false, overrideKeywords?: string) => {
+  const search = useCallback(async (p = 1, forceRefresh = false, overrideKeywords?: string, overrideJobType?: string) => {
     setLoading(true);
     setError('');
     setAlertSaved(false);
 
     const effectiveKeywords = overrideKeywords ?? keywords;
+    const effectiveJobType  = overrideJobType ?? jobType;
     const catKeyword        = CATEGORIES.find(c => c.label === category)?.keyword ?? '';
     const rightsKeyword     = workingRights ? 'full working rights' : '';
     const fullQuery         = [effectiveKeywords, catKeyword, rightsKeyword].filter(Boolean).join(' ');
     const params = new URLSearchParams({
       keywords: fullQuery, location, sort_by: sortBy, page: String(p),
+      job_type: effectiveJobType,
       ...(fullTime  ? { full_time: '1' }      : {}),
       ...(salaryMin ? { salary_min: salaryMin } : {}),
       ...(salaryMax ? { salary_max: salaryMax } : {}),
@@ -304,7 +329,7 @@ export default function JobsPage() {
     } finally {
       setLoading(false);
     }
-  }, [keywords, location, sortBy, fullTime, workingRights, salaryMin, salaryMax, category]);
+  }, [keywords, location, sortBy, fullTime, workingRights, salaryMin, salaryMax, category, jobType]);
 
   const handleSaveToggle = async (job: AdzunaJob) => {
     if (!user) { router.push('/login'); return; }
@@ -359,11 +384,39 @@ export default function JobsPage() {
           IT Jobs in Australia
         </h1>
         <p className="animate-fade-up delay-1" style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>
-          Aggregated from Jora, ACS TechCareers, Adzuna + Google for Jobs — same-day listings.
+          Aggregated from Indeed, LinkedIn, Seek, Jora, ACS, Adzuna + remote &amp; freelance sources — same-day listings.
           {user
             ? <span> <Link href="/dashboard" style={{ color: 'var(--terracotta)' }}>View saved jobs →</Link></span>
             : ' Sign in to save jobs.'}
         </p>
+      </div>
+
+      {/* Job type tabs */}
+      <div className="animate-fade-up delay-1" style={{
+        display: 'flex', gap: '0.35rem', marginBottom: '1rem',
+        background: 'var(--warm-white)', border: '1px solid var(--parchment)',
+        borderRadius: '12px', padding: '0.35rem',
+      }}>
+        {JOB_TYPE_TABS.map(tab => (
+          <button
+            key={tab.value}
+            onClick={() => { setJobType(tab.value); search(1, true, undefined, tab.value); }}
+            style={{
+              flex: 1,
+              padding: '0.55rem 0.6rem',
+              borderRadius: '9px',
+              border: 'none',
+              fontSize: '0.85rem',
+              fontWeight: jobType === tab.value ? 600 : 400,
+              cursor: 'pointer',
+              background: jobType === tab.value ? 'var(--terracotta)' : 'transparent',
+              color: jobType === tab.value ? 'white' : 'var(--text-secondary)',
+              transition: 'all 0.2s',
+            }}
+          >
+            {tab.icon} {tab.label}
+          </button>
+        ))}
       </div>
 
       {/* Quick-start pills */}
@@ -474,15 +527,19 @@ export default function JobsPage() {
             </p>
             {sources && (() => {
               const active = [
-                sources.jsearch > 0 && 'Google Jobs',
-                sources.scraped > 0 && 'Jora/ACS',
-                sources.adzuna  > 0 && 'Adzuna',
+                sources.jsearch    > 0 && 'LinkedIn/Google',
+                sources.scraped    > 0 && 'Jora/Seek/ACS',
+                sources.adzuna     > 0 && 'Adzuna',
+                sources.indeed     > 0 && 'Indeed',
+                sources.arbeitnow  > 0 && 'Remote',
+                sources.freelancer > 0 && 'Freelancer',
               ].filter(Boolean) as string[];
-              if (active.length === 3) return null;
+              const totalSources = 6;
+              if (active.length === totalSources) return null;
               return (
                 <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
                   {active.length > 0
-                    ? `${active.length} of 3 sources active (${active.join(', ')})`
+                    ? `${active.length} of ${totalSources} sources active (${active.join(', ')})`
                     : 'All sources unavailable — check Vercel env vars'}
                 </p>
               );

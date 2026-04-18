@@ -40,7 +40,7 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob: https://*.googleusercontent.com https://*.githubusercontent.com https://img.youtube.com https://i.ytimg.com",
               "font-src 'self'",
-              "connect-src 'self' https://*.supabase.co https://api.stripe.com https://api.anthropic.com https://api.openai.com",
+              "connect-src 'self' https://*.supabase.co https://api.stripe.com https://api.anthropic.com https://api.openai.com https://*.rapidapi.com https://arbeitnow.com https://www.freelancer.com https://api.adzuna.com",
               "frame-src https://js.stripe.com https://hooks.stripe.com https://www.youtube.com",
               "object-src 'none'",
               "base-uri 'self'",
