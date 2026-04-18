@@ -93,6 +93,17 @@ function dedupKey(title: string, company: string) {
   return `${title}|${company}`.toLowerCase().replace(/\s+/g, ' ').trim();
 }
 
+function stripHtmlTags(html: string): string {
+  // Iteratively strip tags to handle nested/malformed HTML like <scr<script>ipt>
+  let result = html;
+  let prev = '';
+  while (prev !== result) {
+    prev = result;
+    result = result.replace(/<[^>]*>/g, '');
+  }
+  return result;
+}
+
 function expiresAt() {
   const d = new Date(); d.setDate(d.getDate() + 30); return d.toISOString();
 }
@@ -575,7 +586,7 @@ async function scrapeArbeitnowRemote(): Promise<ScrapedJob[]> {
           title,
           company,
           location:      r.location ?? 'Remote (Australia)',
-          description:   (r.description ?? '').replace(/<[^>]*>/g, '').slice(0, 500),
+          description:   stripHtmlTags(r.description ?? '').slice(0, 500),
           salary:        null,
           salary_min:    null,
           salary_max:    null,

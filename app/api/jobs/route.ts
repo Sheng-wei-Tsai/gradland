@@ -7,6 +7,9 @@ const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY;
 
 const ALLOWED_SORT     = new Set(['date', 'salary']);
 const ALLOWED_JOB_TYPE = new Set(['all', 'onsite', 'remote', 'freelance']);
+const REMOTE_PATTERN   = /\bremote\b/i;
+const FREELANCE_PATTERN = /\bfreelanc/i;
+const CONTRACT_PATTERN  = /\bcontract/i;
 
 export type JobSource = 'adzuna' | 'jsearch' | 'jora' | 'indeed' | 'acs' | 'seek' | 'arbeitnow' | 'freelancer';
 export type JobType   = 'onsite' | 'remote' | 'freelance';
@@ -79,8 +82,8 @@ async function fetchJSearch(keywords: string, location: string): Promise<AdzunaJ
       }
 
       const isRemote = r.job_is_remote === true
-        || /\bremote\b/i.test(r.job_title ?? '')
-        || /\bremote\b/i.test(loc);
+        || REMOTE_PATTERN.test(r.job_title ?? '')
+        || REMOTE_PATTERN.test(loc);
 
       return {
         id:            `jsearch-${r.job_id}`,
@@ -203,7 +206,7 @@ async function fetchAdzuna(
     const data = await res.json();
     const jobs = (data.results ?? []).map((r: any) => {
       const loc = r.location?.display_name ?? location;
-      const isRemote = /\bremote\b/i.test(r.title ?? '') || /\bremote\b/i.test(loc);
+      const isRemote = REMOTE_PATTERN.test(r.title ?? '') || REMOTE_PATTERN.test(loc);
       return {
         id:            r.id,
         title:         r.title,
@@ -270,7 +273,7 @@ async function fetchIndeedAPI(keywords: string, location: string): Promise<Adzun
       const title   = r.title ?? r.job_title ?? '';
       const company = r.company_name ?? r.company ?? 'Unknown';
       const loc     = r.location ?? `${location}, Australia`;
-      const isRemote = /\bremote\b/i.test(title) || /\bremote\b/i.test(loc);
+      const isRemote = REMOTE_PATTERN.test(title) || REMOTE_PATTERN.test(loc);
 
       let salary: string | null = null;
       if (r.salary_min && r.salary_max) {
@@ -306,6 +309,17 @@ async function fetchIndeedAPI(keywords: string, location: string): Promise<Adzun
 // arbeitnow.com/api/job-board-api — free, no auth required, supports location filter.
 // Excellent source for remote positions that specify Australian companies.
 
+function stripHtmlTags(html: string): string {
+  // Iteratively strip tags to handle nested/malformed HTML like <scr<script>ipt>
+  let result = html;
+  let prev = '';
+  while (prev !== result) {
+    prev = result;
+    result = result.replace(/<[^>]*>/g, '');
+  }
+  return result;
+}
+
 async function fetchArbeitnowRemote(keywords: string): Promise<AdzunaJob[]> {
   try {
     const params = new URLSearchParams({
@@ -334,7 +348,7 @@ async function fetchArbeitnowRemote(keywords: string): Promise<AdzunaJob[]> {
       title:         r.title ?? '',
       company:       r.company_name ?? 'Unknown',
       location:      r.location ?? 'Remote (Australia)',
-      description:   (r.description ?? '').replace(/<[^>]*>/g, '').slice(0, 500),
+      description:   stripHtmlTags(r.description ?? '').slice(0, 500),
       salary:        null,
       salary_min:    undefined,
       salary_max:    undefined,
@@ -533,14 +547,14 @@ export async function GET(req: NextRequest) {
   if (jobType === 'remote') {
     merged = merged.filter(j =>
       j.job_type === 'remote'
-      || /\bremote\b/i.test(j.title)
-      || /\bremote\b/i.test(j.location)
+      || REMOTE_PATTERN.test(j.title)
+      || REMOTE_PATTERN.test(j.location)
     );
   } else if (jobType === 'freelance') {
     merged = merged.filter(j =>
       j.job_type === 'freelance'
-      || /\bfreelanc/i.test(j.title)
-      || /\bcontract/i.test(j.contract_type ?? '')
+      || FREELANCE_PATTERN.test(j.title)
+      || CONTRACT_PATTERN.test(j.contract_type ?? '')
     );
   }
 

@@ -148,12 +148,12 @@ function JobCard({ job, savedIds, onSaveToggle, onApply, isLoggedIn }: {
               via {sourceStyle.label}
             </span>
             {job.job_type === 'remote' && (
-              <span className="tag" style={{ color: '#059669', background: '#ecfdf5', borderColor: '#6ee7b7' }}>
+              <span className="tag" style={{ color: 'var(--jade)', background: 'rgba(30,122,82,0.08)', borderColor: 'rgba(30,122,82,0.25)' }}>
                 🌏 Remote
               </span>
             )}
             {job.job_type === 'freelance' && (
-              <span className="tag" style={{ color: '#7c3aed', background: '#f5f3ff', borderColor: '#ddd6fe' }}>
+              <span className="tag" style={{ color: 'var(--gold)', background: 'rgba(200,138,20,0.08)', borderColor: 'rgba(200,138,20,0.25)' }}>
                 💼 Freelance
               </span>
             )}
@@ -534,7 +534,7 @@ export default function JobsPage() {
                 sources.arbeitnow  > 0 && 'Remote',
                 sources.freelancer > 0 && 'Freelancer',
               ].filter(Boolean) as string[];
-              const totalSources = 6;
+              const totalSources = Object.keys(sources).length;
               if (active.length === totalSources) return null;
               return (
                 <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
