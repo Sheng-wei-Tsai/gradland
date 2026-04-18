@@ -108,6 +108,7 @@ RAPIDAPI_KEY=            # JSearch (Google for Jobs)
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+STRIPE_PRICE_ID=                     # recurring price ID for the Pro plan
 
 # App
 NEXT_PUBLIC_APP_URL=https://yourapp.vercel.app
