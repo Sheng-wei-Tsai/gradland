@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import CompanyLogo from '@/components/CompanyLogo';
 import { SPONSORSHIP_RANKINGS } from './companies/data';
 
 const SponsorshipCharts = dynamic(() => import('./SponsorshipCharts'), { ssr: false });
@@ -99,7 +100,10 @@ export default function Sponsorship() {
 
             {/* Company name */}
             <div style={{ flex: 1, minWidth: '160px' }}>
-              <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--brown-dark)' }}>{row.company}</div>
+              <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--brown-dark)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <CompanyLogo name={row.company} size={28} variant="bare" />
+                {row.company}
+              </div>
               <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.3rem', flexWrap: 'wrap' }}>
                 <span style={{
                   fontSize: '0.7rem', fontWeight: 600,

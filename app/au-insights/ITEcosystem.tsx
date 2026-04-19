@@ -1,4 +1,5 @@
 'use client';
+import CompanyLogo from '@/components/CompanyLogo';
 
 const LAYERS = [
   {
@@ -139,10 +140,12 @@ export default function ITEcosystem() {
                   {[...layer.auExamples, ...layer.globalAU].map(c => (
                     <span key={c} style={{
                       fontSize: '0.77rem', fontWeight: 600,
-                      padding: '0.2rem 0.6rem', borderRadius: '4px',
+                      padding: '0.2rem 0.5rem 0.2rem 0.35rem', borderRadius: '4px',
                       background: 'rgba(255,255,255,0.7)', border: `1px solid ${layer.border}`,
                       color: layer.color,
+                      display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
                     }}>
+                      <CompanyLogo name={c} size={16} variant="bare" />
                       {c}
                     </span>
                   ))}

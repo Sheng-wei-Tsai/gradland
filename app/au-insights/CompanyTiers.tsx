@@ -1,68 +1,7 @@
 'use client';
-import Link from 'next/link';
-import { useState, useRef } from 'react';
-import { motion, AnimatePresence, useInView } from 'framer-motion';
-
-const COMPANY_SLUGS: Record<string, string> = {
-  'Optiver': 'optiver',
-  'Atlassian': 'atlassian',
-  'Canva': 'canva',
-  'SafetyCulture': 'safetyCulture',
-  'Google AU': 'google-au',
-  'AWS': 'amazon-aws',
-  'Accenture': 'accenture',
-  'Deloitte Tech': 'deloitte-digital',
-  'IBM AU': 'ibm-au',
-  'TCS': 'tcs',
-  'CBA / CommBank': 'cba',
-};
-
-const COMPANY_DOMAINS: Record<string, string> = {
-  'Palantir': 'palantir.com',
-  'TGS': 'tgs.com',
-  'Radix': 'radixtrading.com',
-  'Optiver': 'optiver.com',
-  'IMC Trading': 'imc.com',
-  'Canva': 'canva.com',
-  'Atlassian': 'atlassian.com',
-  'Afterpay / Block': 'block.xyz',
-  'Seek': 'seek.com.au',
-  'Rokt': 'rokt.com',
-  'SafetyCulture': 'safetyculture.com',
-  'Google AU': 'google.com',
-  'Meta AU': 'meta.com',
-  'Apple AU': 'apple.com',
-  'AWS': 'aws.amazon.com',
-  'Stripe': 'stripe.com',
-  'Airbnb': 'airbnb.com',
-  'Uber': 'uber.com',
-  'Notion': 'notion.so',
-  'Discord': 'discord.com',
-  'Figma': 'figma.com',
-  'Spotify AU': 'spotify.com',
-  'LinkedIn AU': 'linkedin.com',
-  'Dropbox': 'dropbox.com',
-  'Pinterest': 'pinterest.com',
-  'Salesforce AU': 'salesforce.com',
-  'Adobe AU': 'adobe.com',
-  'Cloudflare': 'cloudflare.com',
-  'GitHub': 'github.com',
-  'Twilio': 'twilio.com',
-  'Oracle AU': 'oracle.com',
-  'IBM AU': 'ibm.com',
-  'Accenture': 'accenture.com',
-  'Deloitte Tech': 'deloitte.com',
-  'Booking.com': 'booking.com',
-  'Morgan Stanley AU': 'morganstanley.com',
-  'Intel': 'intel.com',
-  'TCS': 'tcs.com',
-  'HCL': 'hcltech.com',
-  'Infosys': 'infosys.com',
-  'Citi AU ops': 'citi.com',
-  'Booz Allen AU': 'boozallen.com',
-  'DXC': 'dxc.com',
-  'CBA / CommBank': 'commbank.com.au',
-};
+import { useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
+import CompanyLogo from '@/components/CompanyLogo';
 
 const TIERS = [
   {
@@ -170,87 +109,6 @@ const TIERS = [
   },
 ];
 
-// ── Company chip with favicon + ghost logo watermark on hover ──────────────
-function CompanyChip({ name, tierColor, borderColor }: { name: string; tierColor: string; borderColor: string }) {
-  const [hovered, setHovered] = useState(false);
-  const slug = COMPANY_SLUGS[name];
-  const domain = COMPANY_DOMAINS[name];
-  const faviconUrl = domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=64` : null;
-
-  const inner = (
-    <motion.span
-      onHoverStart={() => setHovered(true)}
-      onHoverEnd={() => setHovered(false)}
-      whileHover={{ scale: 1.06, y: -1 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-      style={{
-        position: 'relative',
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '0.3rem',
-        fontSize: '0.78rem',
-        fontWeight: 600,
-        padding: '0.22rem 0.6rem',
-        borderRadius: '4px',
-        background: 'var(--warm-white)',
-        border: `1px solid ${borderColor}`,
-        color: tierColor,
-        textDecoration: 'none',
-        cursor: slug ? 'pointer' : 'default',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Ghost logo watermark */}
-      <AnimatePresence>
-        {hovered && faviconUrl && (
-          <motion.img
-            key="ghost"
-            src={faviconUrl}
-            alt=""
-            aria-hidden="true"
-            initial={{ opacity: 0, scale: 0.7 }}
-            animate={{ opacity: 0.12, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.7 }}
-            transition={{ duration: 0.25 }}
-            style={{
-              position: 'absolute',
-              right: '-6px',
-              bottom: '-6px',
-              width: '52px',
-              height: '52px',
-              filter: 'blur(3px) saturate(0)',
-              pointerEvents: 'none',
-              userSelect: 'none',
-            }}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Favicon badge */}
-      {faviconUrl && (
-        <img
-          src={faviconUrl}
-          alt=""
-          aria-hidden="true"
-          width={13}
-          height={13}
-          style={{ borderRadius: '2px', flexShrink: 0, objectFit: 'contain' }}
-        />
-      )}
-
-      <span style={{ position: 'relative', zIndex: 1 }}>
-        {name}{slug ? ' →' : ''}
-      </span>
-    </motion.span>
-  );
-
-  return slug ? (
-    <Link key={name} href={`/au-insights/companies/${slug}`} style={{ textDecoration: 'none' }}>
-      {inner}
-    </Link>
-  ) : inner;
-}
-
 // ── Tier card with scroll-triggered entrance ───────────────────────────────
 function TierCard({ tier, index }: { tier: typeof TIERS[number]; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -296,7 +154,7 @@ function TierCard({ tier, index }: { tier: typeof TIERS[number]; index: number }
       {tier.companies.length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '0.9rem' }}>
           {tier.companies.map(c => (
-            <CompanyChip key={c} name={c} tierColor={tier.color} borderColor={tier.borderColor} />
+            <CompanyLogo key={c} name={c} size={32} variant="chip" tierColor={tier.color} borderColor={tier.borderColor} />
           ))}
         </div>
       )}

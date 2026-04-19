@@ -3,6 +3,7 @@ import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { GRAD_PROGRAMS, computeStatus, daysUntilClose, type GradProgram, type ProgramStatus } from '../data/grad-programs';
+import CompanyLogo from '@/components/CompanyLogo';
 
 const STATUS_CONFIG: Record<ProgramStatus, { label: string; bg: string; text: string; border: string }> = {
   'open':          { label: '🟢 Open',          bg: 'rgba(30,122,82,0.08)',   text: 'var(--jade)',       border: 'rgba(30,122,82,0.25)' },
@@ -15,27 +16,10 @@ const STATUS_CONFIG: Record<ProgramStatus, { label: string; bg: string; text: st
 const ALL_ROLES = Array.from(new Set(GRAD_PROGRAMS.flatMap(p => p.program.roles))).sort();
 const ALL_CITIES = Array.from(new Set(GRAD_PROGRAMS.flatMap(p => p.program.locations))).sort();
 
-const COMPANY_DOMAINS: Record<string, string> = {
-  'Atlassian':               'atlassian.com',
-  'Canva':                   'canva.com',
-  'Google AU':               'google.com',
-  'Amazon / AWS AU':         'amazon.com',
-  'Commonwealth Bank (CBA)': 'commbank.com.au',
-  'Accenture AU':            'accenture.com',
-  'Deloitte Digital AU':     'deloitte.com',
-  'IBM AU':                  'ibm.com',
-  'Optiver':                 'optiver.com',
-  'TCS AU':                  'tcs.com',
-  'Westpac':                 'westpac.com.au',
-  'ANZ Bank':                'anz.com.au',
-  'NAB':                     'nab.com.au',
-};
-
 function GradCard({ prog }: { prog: GradProgram }) {
   const status = computeStatus(prog);
   const days = daysUntilClose(prog);
   const sc = STATUS_CONFIG[status];
-  const domain = COMPANY_DOMAINS[prog.company];
 
   return (
     <div style={{
@@ -65,14 +49,7 @@ function GradCard({ prog }: { prog: GradProgram }) {
 
         {/* Company logo + name */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', marginBottom: '0.3rem' }}>
-          {domain && (
-            <img
-              src={`https://www.google.com/s2/favicons?domain=${domain}&sz=64`}
-              alt=""
-              width={20} height={20}
-              style={{ borderRadius: '4px', flexShrink: 0, objectFit: 'contain' }}
-            />
-          )}
+          <CompanyLogo name={prog.company} size={20} variant="bare" />
           <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--brown-dark)' }}>
             {prog.company}
           </div>

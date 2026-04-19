@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { COMPANIES } from '../au-insights/companies/data';
+import CompanyLogo from '@/components/CompanyLogo';
 
 const DIFFICULTY: Record<string, number> = {
   'atlassian': 4, 'canva': 3, 'google-au': 5, 'amazon-aws': 4,
@@ -192,6 +193,7 @@ export default function CompanyCompare() {
                 transition: 'all 0.12s ease',
               }}
             >
+              <CompanyLogo name={c.name} size={18} variant="bare" />
               <span>{c.name}</span>
               <span style={{
                 background: active ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.08)',
@@ -218,8 +220,11 @@ export default function CompanyCompare() {
                   </th>
                   {selectedData.map((c, ci) => (
                     <th key={c.slug} style={{ padding: '0.7rem 0.9rem', textAlign: 'center', minWidth: '140px' }}>
-                      <div style={{ fontWeight: 700, color: COLORS[ci], fontSize: '0.9rem' }}>{c.name}</div>
-                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 400, marginTop: '0.1rem' }}>{c.tierLabel}</div>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.35rem' }}>
+                        <CompanyLogo name={c.name} size={28} variant="bare" />
+                        <div style={{ fontWeight: 700, color: COLORS[ci], fontSize: '0.9rem' }}>{c.name}</div>
+                        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 400 }}>{c.tierLabel}</div>
+                      </div>
                     </th>
                   ))}
                 </tr>
@@ -319,8 +324,8 @@ export default function CompanyCompare() {
             <div style={{ display: 'flex', justifyContent: 'center', gap: '1.2rem', marginBottom: '0.7rem', flexWrap: 'wrap' }}>
               {selectedData.map((c, ci) => (
                 <div key={c.slug} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem' }}>
-                  <div style={{ width: '12px', height: '12px', borderRadius: '2px', background: COLORS[ci], opacity: 0.8 }} />
-                  <span style={{ color: 'var(--text-secondary)' }}>{c.name}</span>
+                  <CompanyLogo name={c.name} size={16} variant="bare" />
+                  <span style={{ color: COLORS[ci], fontWeight: 600 }}>{c.name}</span>
                 </div>
               ))}
             </div>
