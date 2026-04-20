@@ -6,6 +6,9 @@ import { useAuth } from '@/components/AuthProvider';
 import { supabase } from '@/lib/supabase';
 import type { AdzunaJob } from '../api/jobs/route';
 import GapAnalysisPanel from '@/components/GapAnalysisPanel';
+import EIcon from '@/components/icons/EIcon';
+import CityIcon from '@/components/icons/CityIcon';
+import CitySelector from '@/components/CitySelector';
 
 type JobTab = 'au' | 'remote' | 'freelance';
 
@@ -171,7 +174,11 @@ function JobCard({ job, savedIds, onSaveToggle, onApply, isLoggedIn }: {
   const isHtml = hasHtmlTags(job.description);
 
   return (
-    <div className="job-card">
+    <div className="job-card" style={{ position: 'relative', overflow: 'hidden' }}>
+      {/* City mascot — slides in on hover/focus-within via .job-card-mascot CSS class */}
+      <div className="job-card-mascot" aria-hidden="true" role="presentation">
+        <CityIcon city={job.location ?? ''} size={80} style={{ color: 'var(--text-muted)', opacity: 0.6 }} />
+      </div>
       {/* Top row: title/meta + age badge */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem', marginBottom: '0.75rem' }}>
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -184,7 +191,7 @@ function JobCard({ job, savedIds, onSaveToggle, onApply, isLoggedIn }: {
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
             {job.contract_type && <span className="tag">{job.contract_type}</span>}
             {job.category      && <span className="tag">{job.category}</span>}
-            {job.salary        && <span className="tag" style={{ color: 'var(--terracotta)' }}>💰 {job.salary}</span>}
+            {job.salary        && <span className="tag" style={{ color: 'var(--terracotta)', display: 'inline-flex', alignItems: 'center', gap: '0.25em' }}><EIcon name="coin" size={12} />{job.salary}</span>}
             <span className={srcMeta.cls}>via {srcMeta.label}</span>
           </div>
         </div>
@@ -203,12 +210,13 @@ function JobCard({ job, savedIds, onSaveToggle, onApply, isLoggedIn }: {
             color: isSaved ? 'var(--terracotta)' : undefined,
           }}
         >
-          {isSaved ? '♥ Saved' : '♡ Save'}
+          <EIcon name={isSaved ? 'heart-filled' : 'heart'} size={13} style={{ marginRight: '0.3em' }} />
+          {isSaved ? 'Saved' : 'Save'}
         </button>
         <Link
           href={`/cover-letter?title=${encodeURIComponent(job.title)}&company=${encodeURIComponent(job.company)}&desc=${encodeURIComponent(job.description)}`}
           className="job-btn-cover">
-          ✍️ Cover Letter
+          <EIcon name="pencil-letter" size={13} style={{ marginRight: '0.3em' }} />Cover Letter
         </Link>
         <a href={job.url} target="_blank" rel="noopener noreferrer"
           onClick={() => onApply(job)}
@@ -273,6 +281,7 @@ export default function JobsPage() {
   const [category,  setCategory]  = useState<string>(prefs.category  ?? 'All');
   const [salaryMin, setSalaryMin] = useState<string>(prefs.salaryMin ?? '');
   const [salaryMax, setSalaryMax] = useState<string>(prefs.salaryMax ?? '');
+  const [advancedOpen, setAdvancedOpen] = useState(false);
 
   const [jobs,         setJobs]         = useState<AdzunaJob[]>([]);
   const [scrapedCount, setScrapedCount] = useState(0);
@@ -491,82 +500,133 @@ export default function JobsPage() {
         ))}
       </div>
 
-      {/* Search panel */}
+      {/* Search panel — hero command + chip filters + advanced drawer */}
       <div className="animate-fade-up delay-2 search-panel">
-        {/* Row 1: keywords + location */}
-        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-          <input
-            type="text" value={keywords}
-            onChange={e => setKeywords(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && search(1)}
-            placeholder="e.g. software developer, devops, data engineer"
-            className="search-input search-select-lg"
-            style={{ flex: 2, minWidth: '200px' }}
-          />
-          <select value={location} onChange={e => setLocation(e.target.value)}
-            className="search-select search-select-lg"
-            style={{ flex: 1, minWidth: '130px' }}>
-            {LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
-          </select>
-        </div>
 
-        {/* Row 2: filters */}
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
-          <select value={sortBy} onChange={e => setSortBy(e.target.value)}
-            className="search-select">
-            {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
-
-          <select value={category} onChange={e => setCategory(e.target.value)}
-            className="search-select">
-            {CATEGORIES.map(c => <option key={c.label} value={c.label}>{c.label === 'All' ? 'All categories' : c.label}</option>)}
-          </select>
-
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.88rem', color: 'var(--text-secondary)', cursor: 'pointer' }}>
-            <input type="checkbox" checked={fullTime} onChange={e => setFullTime(e.target.checked)}
-              style={{ accentColor: 'var(--terracotta)', width: '15px', height: '15px' }} />
-            Full-time only
-          </label>
-
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.88rem', color: 'var(--text-secondary)', cursor: 'pointer' }} title="Filters for roles that specify 'full working rights' — useful for 485 visa holders and citizens">
-            <input type="checkbox" checked={workingRights} onChange={e => setWorkingRights(e.target.checked)}
-              style={{ accentColor: 'var(--jade)', width: '15px', height: '15px' }} />
-            Full working rights
-          </label>
-
+        {/* Hero row: large keyword input + location + search button */}
+        <div className="search-panel-hero">
+          <div style={{ flex: 2, minWidth: '200px', position: 'relative' }}>
+            <label htmlFor="job-keywords" className="visually-hidden">Search keywords</label>
+            <div style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }}>
+              <EIcon name="magnifier" size={18} />
+            </div>
+            <input
+              id="job-keywords"
+              type="text" value={keywords}
+              onChange={e => setKeywords(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && search(1)}
+              placeholder="e.g. software developer, devops…"
+              className="search-input-hero"
+              aria-describedby="job-keywords-hint"
+            />
+          </div>
+          <CitySelector value={location} onChange={setLocation} />
           <button onClick={() => search(1)} disabled={loading} style={{
-            marginLeft: 'auto',
             background: loading ? 'var(--parchment)' : 'var(--terracotta)',
             color: loading ? 'var(--text-muted)' : 'white',
-            border: 'none', borderRadius: '10px', padding: '0.65rem 1.6rem',
-            fontSize: '0.95rem', fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer',
+            border: 'none', borderRadius: '10px',
+            padding: '0.85rem 1.5rem', minWidth: '130px',
+            fontSize: '0.95rem', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer',
+            boxShadow: loading ? 'none' : '3px 3px 0 var(--ink)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4em',
+            transition: 'all 0.15s',
           }}>
-            {loading ? 'Searching...' : 'Search Jobs'}
+            {loading ? 'Searching…' : (
+              <>
+                <EIcon name="magnifier" size={15} />
+                Search
+                <kbd style={{ fontSize: '0.75em', opacity: 0.75, fontFamily: 'inherit', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '3px', padding: '0 0.3em' }}>↵</kbd>
+              </>
+            )}
           </button>
         </div>
 
-        {/* Row 3: salary range */}
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Salary (AUD):</span>
-          <input
-            type="number" value={salaryMin} onChange={e => setSalaryMin(e.target.value)}
-            placeholder="Min" min="0" step="10000"
-            className="search-input search-input-sm"
-          />
-          <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>–</span>
-          <input
-            type="number" value={salaryMax} onChange={e => setSalaryMax(e.target.value)}
-            placeholder="Max" min="0" step="10000"
-            className="search-input search-input-sm"
-          />
+        <span id="job-keywords-hint" style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '-0.5rem' }}>
+          Press <kbd style={{ padding: '0 0.3em', border: '1px solid var(--parchment)', borderRadius: '3px', fontSize: '0.85em' }}>Enter</kbd> to search
+        </span>
+
+        {/* Chip filter row */}
+        <div className="search-chip-row">
+          <label htmlFor="job-sort" className="visually-hidden">Sort by</label>
+          <select id="job-sort" value={sortBy} onChange={e => setSortBy(e.target.value)}
+            className="search-select" style={{ fontSize: '0.84rem', padding: '0.4rem 0.8rem' }}>
+            {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+
+          <label htmlFor="job-category" className="visually-hidden">Job category</label>
+          <select id="job-category" value={category} onChange={e => setCategory(e.target.value)}
+            className="search-select" style={{ fontSize: '0.84rem', padding: '0.4rem 0.8rem' }}>
+            {CATEGORIES.map(c => <option key={c.label} value={c.label}>{c.label === 'All' ? 'All categories' : c.label}</option>)}
+          </select>
+
+          <button
+            onClick={() => setFullTime(v => !v)}
+            className={fullTime ? 'search-chip active' : 'search-chip'}
+            title="Full-time positions only"
+          >
+            {fullTime && <EIcon name="tick" size={12} />}
+            Full-time
+          </button>
+
+          <button
+            onClick={() => setWorkingRights(v => !v)}
+            className={workingRights ? 'search-chip active' : 'search-chip'}
+            title="Roles specifying full working rights — ideal for 485 visa holders and citizens"
+          >
+            {workingRights && <EIcon name="tick" size={12} />}
+            Working rights
+          </button>
+
+          <button
+            onClick={() => setAdvancedOpen(v => !v)}
+            className="search-adv-toggle"
+            aria-expanded={advancedOpen}
+          >
+            <EIcon name="sparkle" size={12} />
+            {advancedOpen ? 'Less filters' : 'More filters'}
+          </button>
+        </div>
+
+        {/* Advanced drawer — salary range */}
+        <div className={`search-adv-drawer${advancedOpen ? ' open' : ''}`}>
+          <div>
+            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', paddingTop: '0.5rem', borderTop: '1px solid var(--parchment)' }}>
+              <span id="salary-range-label" style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.35em' }}>
+                <EIcon name="coin" size={14} />Salary (AUD):
+              </span>
+              <label htmlFor="salary-min" className="visually-hidden">Minimum salary AUD</label>
+              <input id="salary-min" type="number" value={salaryMin} onChange={e => setSalaryMin(e.target.value)}
+                placeholder="Min" min="0" step="10000"
+                className="search-input search-input-sm"
+                aria-labelledby="salary-range-label"
+              />
+              <span aria-hidden="true" style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>–</span>
+              <label htmlFor="salary-max" className="visually-hidden">Maximum salary AUD</label>
+              <input id="salary-max" type="number" value={salaryMax} onChange={e => setSalaryMax(e.target.value)}
+                placeholder="Max" min="0" step="10000"
+                className="search-input search-input-sm"
+                aria-labelledby="salary-range-label"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
       {error && (
-        <div style={{ background: '#fff0f0', border: '1px solid #fcc', borderRadius: '10px', padding: '1rem', marginBottom: '1rem', color: '#c00', fontSize: '0.9rem' }}>
+        <div role="alert" style={{ background: '#fff0f0', border: '1px solid #fcc', borderRadius: '10px', padding: '1rem', marginBottom: '1rem', color: '#c00', fontSize: '0.9rem' }}>
           {error}
         </div>
       )}
+
+      {/* Live region — announces search results to screen readers */}
+      <div role="status" aria-live="polite" aria-atomic="true" className="visually-hidden">
+        {searched && !loading && (
+          count > 0
+            ? `${visibleJobs.length} IT jobs found${hasMore ? ', more available on next page' : ''}`
+            : 'No IT jobs found. Try broader keywords.'
+        )}
+        {loading && 'Searching for jobs…'}
+      </div>
 
       {searched && !loading && (
         <div style={{ marginBottom: '0.75rem' }}>
@@ -577,8 +637,8 @@ export default function JobsPage() {
                 ? `${visibleJobs.length} IT jobs found${hasMore ? ' — more on next page' : ''}`
                 : 'No IT jobs found — try broader keywords'}
               {fromCache && (
-                <span style={{ fontSize: '0.72rem', color: 'var(--jade)', background: 'rgba(30,122,82,0.08)', border: '1px solid rgba(30,122,82,0.2)', padding: '0.1em 0.5em', borderRadius: '4px' }}>
-                  ⚡ cached
+                <span style={{ fontSize: '0.72rem', color: 'var(--jade)', background: 'rgba(30,122,82,0.08)', border: '1px solid rgba(30,122,82,0.2)', padding: '0.1em 0.5em', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '0.2em' }}>
+                  <EIcon name="bolt" size={10} />cached
                 </span>
               )}
             </p>
@@ -598,7 +658,7 @@ export default function JobsPage() {
                     borderRadius: '99px', padding: '0.3rem 0.8rem',
                     fontSize: '0.82rem', cursor: 'pointer', color: 'var(--text-secondary)',
                   }}>
-                    🔔 Save this search
+                    <EIcon name="bell" size={13} style={{ marginRight: '0.3em' }} />Save this search
                   </button>
                 )
               }
@@ -636,7 +696,9 @@ export default function JobsPage() {
 
       {!searched && !loading && (
         <div style={{ textAlign: 'center', padding: '4rem 2rem', color: 'var(--text-muted)' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
+          <div style={{ marginBottom: '1.25rem', color: 'var(--terracotta)', opacity: 0.7 }}>
+            <EIcon name="magnifier" size={56} />
+          </div>
           <p style={{ fontFamily: "'Caveat', cursive", fontSize: '1.3rem' }}>Search for your dream IT job in Australia</p>
         </div>
       )}
