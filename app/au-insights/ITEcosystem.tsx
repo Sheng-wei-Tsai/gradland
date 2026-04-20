@@ -99,7 +99,7 @@ function LayerArrow({ index }: { index: number }) {
       initial={{ opacity: 0, scaleY: 0 }}
       animate={isInView ? { opacity: 1, scaleY: 1 } : {}}
       transition={{ duration: 0.35, delay: Math.min(index * 0.1, 0.2) + 0.2, ease: 'easeOut' }}
-      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0.1rem 0', transformOrigin: 'top' }}
+      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0.75rem 0', transformOrigin: 'top' }}
     >
       <motion.span
         initial={{ opacity: 0, y: -4 }}
