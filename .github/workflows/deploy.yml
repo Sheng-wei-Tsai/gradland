@@ -28,7 +28,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - run: npm ci
@@ -53,6 +53,8 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: https://dummy.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy-anon-key-ci
           SUPABASE_SERVICE_ROLE_KEY: dummy-service-role-ci
+          NEXT_PUBLIC_APP_URL: https://henrysdigitallife.com
+          NEXT_PUBLIC_LOGO_DEV_TOKEN: ${{ secrets.NEXT_PUBLIC_LOGO_DEV_TOKEN }}
         run: npm run build
 
   # ── Deploy — only runs if check passes ──────────────────────────────────────
@@ -67,7 +69,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - run: npm ci

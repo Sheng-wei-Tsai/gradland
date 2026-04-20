@@ -93,7 +93,15 @@ export async function POST(req: NextRequest) {
     return new Response(JSON.stringify({ error: 'Invalid stage' }), { status: 400 });
   }
 
-  const userPrompt = buildPrompt(body);
+  // Sanitise free-text inputs before interpolation into AI prompts
+  const safeBody: MentorData = {
+    ...body,
+    roleTitle: String(roleTitle).trim().slice(0, 100),
+    question:  String(question).trim().slice(0, 500),
+    userAnswer: body.userAnswer ? String(body.userAnswer).trim().slice(0, 800) : body.userAnswer,
+  };
+
+  const userPrompt = buildPrompt(safeBody);
 
   try {
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });

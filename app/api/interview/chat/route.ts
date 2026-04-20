@@ -31,8 +31,9 @@ export async function POST(req: NextRequest) {
     return new Response(JSON.stringify({ error: 'Missing messages' }), { status: 400 });
   }
 
-  const systemContent = roleTitle
-    ? `${SYSTEM}\nThe user is currently practising for a ${roleTitle} interview.`
+  const safeRole = roleTitle ? String(roleTitle).trim().slice(0, 100) : null;
+  const systemContent = safeRole
+    ? `${SYSTEM}\nThe user is currently practising for a ${safeRole} interview.`
     : SYSTEM;
 
   try {

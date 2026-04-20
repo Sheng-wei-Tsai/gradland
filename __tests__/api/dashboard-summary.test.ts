@@ -1,5 +1,4 @@
 import { describe, it, expect, vi } from 'vitest';
-import { NextRequest } from 'next/server';
 
 vi.mock('@/lib/auth-server', () => ({
   createSupabaseServer: vi.fn().mockResolvedValue({
@@ -23,14 +22,12 @@ const { GET } = await import('@/app/api/dashboard/summary/route');
 
 describe('GET /api/dashboard/summary', () => {
   it('returns 401 without a session cookie', async () => {
-    const req = new NextRequest('http://localhost/api/dashboard/summary');
-    const res = await GET(req);
+    const res = await GET();
     expect(res.status).toBe(401);
   });
 
   it('returns 401 when session is invalid', async () => {
-    const req = new NextRequest('http://localhost/api/dashboard/summary');
-    const res = await GET(req);
+    const res = await GET();
     expect(res.status).toBe(401);
   });
 });
