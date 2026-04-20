@@ -1,43 +1,40 @@
 import { describe, it, expect, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 
-const mockGetUser = vi.fn();
+// Mock auth-server directly — @supabase/ssr creates its own GoTrueClient
+// internally and doesn't go through the @supabase/supabase-js mock.
+const mockGetUser = vi.fn().mockResolvedValue({ data: { user: null }, error: null });
+const mockUpsert  = vi.fn().mockResolvedValue({ error: null });
 
-vi.mock('@supabase/supabase-js', () => ({
-  createClient: () => ({
+vi.mock('@/lib/auth-server', () => ({
+  createSupabaseServer: vi.fn().mockResolvedValue({
     auth: { getUser: mockGetUser },
-    from: () => ({
-      upsert: vi.fn().mockResolvedValue({ error: null }),
+  }),
+  createSupabaseService: vi.fn().mockReturnValue({
+    from: vi.fn().mockReturnValue({
+      upsert: mockUpsert,
     }),
   }),
 }));
 
 const { POST } = await import('@/app/api/onboarding/route');
 
-function makeRequest(body: object, token = 'valid-token') {
+function makeRequest(body: object) {
   return new NextRequest('http://localhost/api/onboarding', {
     method: 'POST',
     body: JSON.stringify(body),
-    headers: {
-      'content-type': 'application/json',
-      authorization: `Bearer ${token}`,
-    },
+    headers: { 'content-type': 'application/json' },
   });
 }
 
 describe('POST /api/onboarding', () => {
-  it('returns 401 without auth token', async () => {
-    const req = new NextRequest('http://localhost/api/onboarding', {
-      method: 'POST',
-      body: JSON.stringify({}),
-      headers: { 'content-type': 'application/json' },
-    });
-    const res = await POST(req);
+  it('returns 401 without auth — no session cookie', async () => {
+    const res = await POST(makeRequest({}));
     expect(res.status).toBe(401);
   });
 
-  it('returns 401 when token is invalid', async () => {
-    mockGetUser.mockResolvedValueOnce({ data: { user: null }, error: new Error('bad token') });
+  it('returns 401 when session is invalid', async () => {
+    mockGetUser.mockResolvedValueOnce({ data: { user: null }, error: new Error('bad session') });
     const res = await POST(makeRequest({}));
     expect(res.status).toBe(401);
   });
@@ -70,7 +67,7 @@ describe('POST /api/onboarding', () => {
     expect(body.ok).toBe(true);
   });
 
-  it('accepts partial data (skip questions → null values)', async () => {
+  it('accepts partial data (skipped questions → null values)', async () => {
     mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'u1' } }, error: null });
     const res = await POST(makeRequest({}));
     expect(res.status).toBe(200);
