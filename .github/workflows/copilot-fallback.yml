@@ -33,12 +33,13 @@ jobs:
 
           AUTO=$(git ls-remote --heads origin "auto/${TODAY}/" 2>/dev/null | wc -l | tr -d ' ')
           ANALYSIS=$(git ls-remote --heads origin "analysis/${TODAY}" 2>/dev/null | wc -l | tr -d ' ')
+          EXHAUSTED=$(git ls-remote --heads origin "quota-exhausted/${TODAY}" 2>/dev/null | wc -l | tr -d ' ')
 
           echo "auto_branches=${AUTO}" >> $GITHUB_OUTPUT
 
-          if [ "$AUTO" -gt "0" ] || [ "$ANALYSIS" -gt "0" ]; then
+          if [ "$AUTO" -gt "0" ] || [ "$ANALYSIS" -gt "0" ] || [ "$EXHAUSTED" -gt "0" ]; then
             echo "ran=true" >> $GITHUB_OUTPUT
-            echo "Anthropic agents ran today. No fallback needed."
+            echo "Anthropic agents ran (or credits exhausted and Copilot issue already created) today. No fallback needed."
           else
             echo "ran=false" >> $GITHUB_OUTPUT
             echo "No Anthropic activity today. Will check for Copilot fallback."

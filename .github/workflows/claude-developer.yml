@@ -3,6 +3,8 @@ name: Claude Daily Developer (Sonnet)
 # Runs every hour. Exits in seconds if already ran today.
 # First run after Anthropic quota resets → picks next TODO task,
 # implements it, passes quality gate, opens [Auto] PR for owner review.
+# On credit exhaustion → pushes quota-exhausted/DATE sentinel branch,
+# creates Copilot fallback issue inline, exits green.
 
 on:
   schedule:
@@ -12,6 +14,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  issues: write
 
 jobs:
   developer:
@@ -24,15 +27,19 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Check if implementation already done today
+      - name: Check if implementation or credit-exhaustion already recorded today
         id: guard
         run: |
           TODAY=$(date -u +%Y-%m-%d)
           echo "today=${TODAY}" >> $GITHUB_OUTPUT
-          EXISTING=$(git ls-remote --heads origin "auto/${TODAY}/" 2>/dev/null | wc -l | tr -d ' ')
-          if [ "$EXISTING" -gt "0" ]; then
+          AUTO=$(git ls-remote --heads origin "auto/${TODAY}/" 2>/dev/null | wc -l | tr -d ' ')
+          EXHAUSTED=$(git ls-remote --heads origin "quota-exhausted/${TODAY}" 2>/dev/null | wc -l | tr -d ' ')
+          if [ "$AUTO" -gt "0" ]; then
             echo "skip=true" >> $GITHUB_OUTPUT
             echo "Already implemented today. Exiting."
+          elif [ "$EXHAUSTED" -gt "0" ]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "Credits already exhausted today. Exiting."
           else
             echo "skip=false" >> $GITHUB_OUTPUT
             echo "Starting Sonnet implementation."
@@ -62,9 +69,10 @@ jobs:
         run: npm install -g @anthropic-ai/claude-code
 
       - name: Run Sonnet developer
+        id: claude
         if: steps.guard.outputs.skip == 'false'
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: sk-dummy-ci-build
@@ -76,9 +84,173 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: dummy-service-role-ci
           NEXT_PUBLIC_APP_URL: https://henrysdigitallife.com
         run: |
+          set +e
           claude \
             --bare \
             --dangerously-skip-permissions \
             --model claude-sonnet-4-6 \
             --allowedTools "Bash,Read,Write,Edit,Glob,Grep" \
-            -p "$(cat .github/prompts/developer.md)"
+            -p "$(cat .github/prompts/developer.md)" 2>&1 | tee claude.log
+          CLAUDE_EXIT=${PIPESTATUS[0]}
+          echo "exit_code=${CLAUDE_EXIT}" >> "$GITHUB_OUTPUT"
+
+          if grep -qiE "credit balance is too low|insufficient credits?|quota.*exceeded|billing.*hard limit|usage limit reached|rate limit(ed)?|5-hour limit|claude ai usage limit|try again.{0,30}(hour|later)" claude.log; then
+            echo "quota_exhausted=true"   >> "$GITHUB_OUTPUT"
+            echo "succeeded=false"        >> "$GITHUB_OUTPUT"
+            echo "::warning::Anthropic quota exhausted. Handing off to Copilot fallback."
+          elif [ "$CLAUDE_EXIT" -eq 0 ]; then
+            echo "quota_exhausted=false"  >> "$GITHUB_OUTPUT"
+            echo "succeeded=true"         >> "$GITHUB_OUTPUT"
+          else
+            echo "quota_exhausted=false"  >> "$GITHUB_OUTPUT"
+            echo "succeeded=false"        >> "$GITHUB_OUTPUT"
+            echo "::error::Claude failed with exit code ${CLAUDE_EXIT} (not quota-related)."
+          fi
+
+          # Always exit 0 here — downstream steps decide actual job outcome
+          exit 0
+
+      - name: Create quota-exhausted sentinel branch
+        if: steps.guard.outputs.skip == 'false' && steps.claude.outputs.quota_exhausted == 'true'
+        env:
+          TODAY: ${{ steps.guard.outputs.today }}
+        run: |
+          git checkout -b "quota-exhausted/${TODAY}" 2>/dev/null || git checkout "quota-exhausted/${TODAY}"
+          git push origin "quota-exhausted/${TODAY}" 2>/dev/null || true
+          git checkout main
+          echo "Sentinel branch pushed. Future runs today will skip immediately."
+
+      - name: Check for existing Copilot fallback issue
+        id: existing_issue
+        if: steps.guard.outputs.skip == 'false' && steps.claude.outputs.quota_exhausted == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TODAY: ${{ steps.guard.outputs.today }}
+        run: |
+          COUNT=$(gh issue list \
+            --search "Copilot Fallback ${TODAY} in:title" \
+            --state all \
+            --json number \
+            --jq 'length')
+          echo "count=${COUNT}" >> "$GITHUB_OUTPUT"
+
+      - name: Parse next TODO task for Copilot
+        id: todo
+        if: |
+          steps.guard.outputs.skip == 'false' &&
+          steps.claude.outputs.quota_exhausted == 'true' &&
+          steps.existing_issue.outputs.count == '0'
+        run: |
+          python3 - << 'PYEOF'
+          import re, os
+
+          with open("TODO.md", "r") as f:
+              content = f.read()
+
+          skip_sections = ["Stripe Production Launch"]
+          skip_keywords = [
+              "community network", "b2b", "claude lab", "i18n", "zh-tw",
+              "navigation restructure", "gemini multimodal", "vercel kv",
+              "anonymous job seeker", "company research ai"
+          ]
+
+          lines = content.split("\n")
+          in_skip = False
+          tasks = []
+
+          for line in lines:
+              for s in skip_sections:
+                  if s in line:
+                      in_skip = True
+              if in_skip and re.match(r'^## ', line) and not any(s in line for s in skip_sections):
+                  in_skip = False
+              if in_skip:
+                  continue
+              if re.match(r'^- \[ \] .+', line):
+                  clean = line.replace("- [ ] ", "").strip()
+                  if not any(k in clean.lower() for k in skip_keywords):
+                      tasks.append(clean)
+
+          task = tasks[0] if tasks else "NO_TASK"
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"task={task}\n")
+
+          print(f"Next task: {task}")
+          PYEOF
+
+      - name: Create Copilot fallback issue
+        if: |
+          steps.guard.outputs.skip == 'false' &&
+          steps.claude.outputs.quota_exhausted == 'true' &&
+          steps.existing_issue.outputs.count == '0' &&
+          steps.todo.outputs.task != 'NO_TASK'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TASK: ${{ steps.todo.outputs.task }}
+          TODAY: ${{ steps.guard.outputs.today }}
+        run: |
+          gh issue create \
+            --title "[Copilot Fallback] ${TODAY} — ${TASK}" \
+            --assignee "copilot" \
+            --label "copilot-fallback" \
+            --body "## Task
+
+${TASK}
+
+This issue was created automatically. The Anthropic API quota was exhausted today so GitHub Copilot is handling this task using the GitHub Pro+ allocation.
+
+---
+
+## Project context
+
+**TechPath AU** — career platform for international IT graduates in Australia.
+Live at: https://henrysdigitallife.com
+
+**Stack:** Next.js 16.2 App Router, TypeScript strict, Supabase, Stripe, Vercel
+
+**Critical rules (read AGENTS.md before touching any file):**
+- \`cookies()\`, \`headers()\`, \`params\` are async in Next.js 16 — always \`await\` them
+- Every AI-calling API route must call \`requireSubscription()\` first
+- Colours: \`var(--token-name)\` only — never hardcoded hex
+- Images: \`next/image\` only — never raw \`<img>\`
+- Internal links: \`<Link>\` only — never \`<a href>\`
+- Styling: CSS custom properties + inline styles — no Tailwind
+
+## Quality gate — run before opening PR
+
+\`\`\`bash
+export OPENAI_API_KEY=sk-dummy-ci-build STRIPE_SECRET_KEY=sk_test_dummy_ci
+export STRIPE_PRICE_ID=price_dummy_ci STRIPE_WEBHOOK_SECRET=whsec_dummy_ci
+export NEXT_PUBLIC_SUPABASE_URL=https://dummy.supabase.co
+export NEXT_PUBLIC_SUPABASE_ANON_KEY=dummy-anon-key-ci
+export SUPABASE_SERVICE_ROLE_KEY=dummy-service-role-ci
+export NEXT_PUBLIC_APP_URL=https://henrysdigitallife.com
+
+npx tsc --noEmit && npm audit --audit-level=moderate && npx vitest run && npm run build
+\`\`\`
+
+## Commit format
+
+\`\`\`
+type(scope): summary under 72 chars
+\`\`\`
+Types: feat | fix | security | perf | refactor | style | chore
+
+## When done
+
+- Open PR titled \`[Copilot] type(scope): description\`
+- Mark task done in TODO.md: \`- [ ]\` → \`- [x] ${TODAY}\`
+- Do NOT merge — owner reviews on phone and merges
+
+---
+*Copilot Fallback — Anthropic credit balance exhausted on ${TODAY}*"
+
+      - name: Propagate non-credit Claude failure
+        if: |
+          steps.guard.outputs.skip == 'false' &&
+          steps.claude.outputs.succeeded == 'false' &&
+          steps.claude.outputs.quota_exhausted != 'true'
+        run: |
+          echo "::error::Claude developer failed with exit code ${{ steps.claude.outputs.exit_code }} (not credit-related). Failing the workflow."
+          exit 1
