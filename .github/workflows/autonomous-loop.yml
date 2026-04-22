@@ -1,0 +1,354 @@
+name: Autonomous Loop
+
+# Triggered automatically after 1 hour of idle Claude Code usage,
+# or manually via workflow_dispatch.
+#
+# Flow per iteration:
+#   Iteration 1 only  → Opus 4.7 analyses codebase + updates TODO.md
+#   Every iteration   → Sonnet picks one task, implements, opens PR
+#   Loop ends when    → quota exhausted (→ Copilot issue) OR PR cap hit
+#                       OR max iterations reached
+
+on:
+  workflow_dispatch:
+    inputs:
+      iteration:
+        description: 'Current loop iteration (starts at 1)'
+        default: '1'
+        type: string
+      session_id:
+        description: 'Session ID for this autonomous run'
+        default: ''
+        type: string
+      max_iterations:
+        description: 'Max iterations before stopping (default 8)'
+        default: '8'
+        type: string
+      max_open_prs:
+        description: 'Stop if this many unreviewed auto PRs are open'
+        default: '5'
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  loop:
+    name: "Iteration ${{ inputs.iteration }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── Guard 1: quota already exhausted today ───────────────────────────
+      - name: Check quota-exhausted sentinel
+        id: quota_guard
+        run: |
+          TODAY=$(date -u +%Y-%m-%d)
+          echo "today=${TODAY}" >> $GITHUB_OUTPUT
+          EXHAUSTED=$(git ls-remote --heads origin "quota-exhausted/${TODAY}" 2>/dev/null | wc -l | tr -d ' ')
+          if [ "$EXHAUSTED" -gt "0" ]; then
+            echo "skip=true"  >> $GITHUB_OUTPUT
+            echo "Quota already exhausted today. Stopping."
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      # ── Guard 2: too many open auto PRs ──────────────────────────────────
+      - name: Check open PR cap
+        id: pr_guard
+        if: steps.quota_guard.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MAX_PRS: ${{ inputs.max_open_prs }}
+        run: |
+          OPEN=$(gh pr list \
+            --json headRefName \
+            --jq '[.[] | select(.headRefName | startswith("auto/"))] | length')
+          echo "open_prs=${OPEN}" >> $GITHUB_OUTPUT
+          if [ "$OPEN" -ge "$MAX_PRS" ]; then
+            echo "skip=true"  >> $GITHUB_OUTPUT
+            echo "Reached ${MAX_PRS} open PRs. Pausing until you review them."
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      # ── Guard 3: iteration cap ────────────────────────────────────────────
+      - name: Check iteration cap
+        id: iter_guard
+        if: steps.quota_guard.outputs.skip == 'false' && steps.pr_guard.outputs.skip == 'false'
+        run: |
+          CURRENT=${{ inputs.iteration }}
+          MAX=${{ inputs.max_iterations }}
+          if [ "$CURRENT" -gt "$MAX" ]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "Reached max iterations (${MAX}). Stopping."
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      # ── Setup ─────────────────────────────────────────────────────────────
+      - name: Configure git and gh auth
+        if: |
+          steps.quota_guard.outputs.skip == 'false' &&
+          steps.pr_guard.outputs.skip == 'false' &&
+          steps.iter_guard.outputs.skip == 'false'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "TechPath Autonomous Agent"
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+
+      - uses: actions/setup-node@v4
+        if: |
+          steps.quota_guard.outputs.skip == 'false' &&
+          steps.pr_guard.outputs.skip == 'false' &&
+          steps.iter_guard.outputs.skip == 'false'
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        if: |
+          steps.quota_guard.outputs.skip == 'false' &&
+          steps.pr_guard.outputs.skip == 'false' &&
+          steps.iter_guard.outputs.skip == 'false'
+        run: npm ci
+
+      - name: Install Claude Code CLI
+        if: |
+          steps.quota_guard.outputs.skip == 'false' &&
+          steps.pr_guard.outputs.skip == 'false' &&
+          steps.iter_guard.outputs.skip == 'false'
+        run: npm install -g @anthropic-ai/claude-code
+
+      # ── Phase 1: Opus analysis (iteration 1 only) ────────────────────────
+      - name: Check if Opus analysis done today
+        id: analysis_guard
+        if: |
+          steps.quota_guard.outputs.skip == 'false' &&
+          steps.pr_guard.outputs.skip == 'false' &&
+          steps.iter_guard.outputs.skip == 'false' &&
+          inputs.iteration == '1'
+        run: |
+          TODAY=${{ steps.quota_guard.outputs.today }}
+          DONE=$(git ls-remote --heads origin "analysis/${TODAY}" 2>/dev/null | wc -l | tr -d ' ')
+          if [ "$DONE" -gt "0" ]; then
+            echo "skip=true"  >> $GITHUB_OUTPUT
+            echo "Analysis already done today — skipping to Sonnet."
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run Opus analyst
+        id: opus
+        if: |
+          steps.quota_guard.outputs.skip == 'false' &&
+          steps.pr_guard.outputs.skip == 'false' &&
+          steps.iter_guard.outputs.skip == 'false' &&
+          inputs.iteration == '1' &&
+          steps.analysis_guard.outputs.skip == 'false'
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          claude \
+            --bare \
+            --dangerously-skip-permissions \
+            --model claude-opus-4-7 \
+            --allowedTools "Bash,Read,Write,Edit,Glob,Grep" \
+            -p "$(cat .github/prompts/analyst.md)" 2>&1 | tee opus.log
+          if grep -qiE "credit balance is too low|insufficient credits?|quota.*exceeded|billing.*hard limit|usage limit reached|rate limit(ed)?|5-hour limit|claude ai usage limit" opus.log; then
+            echo "quota_exhausted=true" >> "$GITHUB_OUTPUT"
+            echo "::warning::Opus quota exhausted during analysis."
+          else
+            echo "quota_exhausted=false" >> "$GITHUB_OUTPUT"
+          fi
+          exit 0
+
+      - name: Create analysis marker branch
+        if: |
+          steps.quota_guard.outputs.skip == 'false' &&
+          steps.pr_guard.outputs.skip == 'false' &&
+          steps.iter_guard.outputs.skip == 'false' &&
+          inputs.iteration == '1' &&
+          steps.analysis_guard.outputs.skip == 'false' &&
+          steps.opus.outputs.quota_exhausted != 'true'
+        env:
+          TODAY: ${{ steps.quota_guard.outputs.today }}
+        run: |
+          git checkout -b "analysis/${TODAY}" 2>/dev/null || true
+          git push origin "analysis/${TODAY}" 2>/dev/null || true
+          git checkout main
+
+      # ── Phase 2: Sonnet implementation ───────────────────────────────────
+      - name: Run Sonnet developer
+        id: sonnet
+        if: |
+          steps.quota_guard.outputs.skip == 'false' &&
+          steps.pr_guard.outputs.skip == 'false' &&
+          steps.iter_guard.outputs.skip == 'false' &&
+          steps.opus.outputs.quota_exhausted != 'true'
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: sk-dummy-ci-build
+          STRIPE_SECRET_KEY: sk_test_dummy_ci
+          STRIPE_PRICE_ID: price_dummy_ci
+          STRIPE_WEBHOOK_SECRET: whsec_dummy_ci
+          NEXT_PUBLIC_SUPABASE_URL: https://dummy.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy-anon-key-ci
+          SUPABASE_SERVICE_ROLE_KEY: dummy-service-role-ci
+          NEXT_PUBLIC_APP_URL: https://henrysdigitallife.com
+        run: |
+          set +e
+          claude \
+            --bare \
+            --dangerously-skip-permissions \
+            --model claude-sonnet-4-6 \
+            --allowedTools "Bash,Read,Write,Edit,Glob,Grep" \
+            -p "$(cat .github/prompts/developer.md)" 2>&1 | tee sonnet.log
+          SONNET_EXIT=${PIPESTATUS[0]}
+          echo "exit_code=${SONNET_EXIT}" >> "$GITHUB_OUTPUT"
+
+          if grep -qiE "credit balance is too low|insufficient credits?|quota.*exceeded|billing.*hard limit|usage limit reached|rate limit(ed)?|5-hour limit|claude ai usage limit|try again.{0,30}(hour|later)" sonnet.log; then
+            echo "quota_exhausted=true"  >> "$GITHUB_OUTPUT"
+            echo "succeeded=false"       >> "$GITHUB_OUTPUT"
+            echo "::warning::Sonnet quota exhausted."
+          elif [ "$SONNET_EXIT" -eq 0 ]; then
+            echo "quota_exhausted=false" >> "$GITHUB_OUTPUT"
+            echo "succeeded=true"        >> "$GITHUB_OUTPUT"
+          else
+            echo "quota_exhausted=false" >> "$GITHUB_OUTPUT"
+            echo "succeeded=false"       >> "$GITHUB_OUTPUT"
+          fi
+          exit 0
+
+      # ── Quota exhausted: sentinel + Copilot fallback ─────────────────────
+      - name: Create quota-exhausted sentinel branch
+        if: |
+          steps.quota_guard.outputs.skip == 'false' &&
+          (steps.opus.outputs.quota_exhausted == 'true' || steps.sonnet.outputs.quota_exhausted == 'true')
+        env:
+          TODAY: ${{ steps.quota_guard.outputs.today }}
+        run: |
+          git checkout -b "quota-exhausted/${TODAY}" 2>/dev/null || true
+          git push origin "quota-exhausted/${TODAY}" 2>/dev/null || true
+          git checkout main
+
+      - name: Check for existing Copilot issue
+        id: existing_issue
+        if: |
+          steps.quota_guard.outputs.skip == 'false' &&
+          (steps.opus.outputs.quota_exhausted == 'true' || steps.sonnet.outputs.quota_exhausted == 'true')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TODAY: ${{ steps.quota_guard.outputs.today }}
+        run: |
+          COUNT=$(gh issue list \
+            --search "Copilot Fallback ${TODAY} in:title" \
+            --state all --json number --jq 'length')
+          echo "count=${COUNT}" >> $GITHUB_OUTPUT
+
+      - name: Parse next TODO task for Copilot
+        id: copilot_todo
+        if: |
+          steps.quota_guard.outputs.skip == 'false' &&
+          (steps.opus.outputs.quota_exhausted == 'true' || steps.sonnet.outputs.quota_exhausted == 'true') &&
+          steps.existing_issue.outputs.count == '0'
+        run: |
+          python3 - << 'PYEOF'
+          import re, os
+          with open("TODO.md", "r") as f:
+              content = f.read()
+          skip_sections = ["Stripe Production Launch"]
+          skip_keywords = ["community network","b2b","claude lab","i18n","zh-tw","navigation restructure","gemini multimodal","vercel kv","anonymous job seeker","company research ai"]
+          lines = content.split("\n")
+          in_skip = False
+          tasks = []
+          for line in lines:
+              for s in skip_sections:
+                  if s in line: in_skip = True
+              if in_skip and re.match(r'^## ', line) and not any(s in line for s in skip_sections):
+                  in_skip = False
+              if in_skip: continue
+              if re.match(r'^- \[ \] .+', line):
+                  clean = line.replace("- [ ] ", "").strip()
+                  if not any(k in clean.lower() for k in skip_keywords):
+                      tasks.append(clean)
+          task = tasks[0] if tasks else "NO_TASK"
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"task={task}\n")
+          print(f"Next task: {task}")
+          PYEOF
+
+      - name: Create Copilot fallback issue
+        if: |
+          steps.quota_guard.outputs.skip == 'false' &&
+          (steps.opus.outputs.quota_exhausted == 'true' || steps.sonnet.outputs.quota_exhausted == 'true') &&
+          steps.existing_issue.outputs.count == '0' &&
+          steps.copilot_todo.outputs.task != 'NO_TASK'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TASK: ${{ steps.copilot_todo.outputs.task }}
+          TODAY: ${{ steps.quota_guard.outputs.today }}
+        run: |
+          gh issue create \
+            --title "[Copilot Fallback] ${TODAY} — ${TASK}" \
+            --assignee "copilot" \
+            --label "copilot-fallback" \
+            --body "## Task
+
+${TASK}
+
+Quota exhausted during autonomous loop. GitHub Copilot Pro+ picking up.
+
+---
+
+**Stack:** Next.js 16.2 App Router, TypeScript strict, Supabase, Stripe, Vercel
+Read AGENTS.md before touching any file.
+
+Open PR titled \`[Copilot] type(scope): description\`. Do NOT merge.
+
+*Autonomous Loop — quota exhausted on ${TODAY}*"
+
+      # ── Re-dispatch next iteration ────────────────────────────────────────
+      - name: Queue next iteration
+        if: |
+          steps.quota_guard.outputs.skip == 'false' &&
+          steps.pr_guard.outputs.skip == 'false' &&
+          steps.iter_guard.outputs.skip == 'false' &&
+          steps.sonnet.outputs.succeeded == 'true' &&
+          steps.sonnet.outputs.quota_exhausted != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SESSION_ID: ${{ inputs.session_id }}
+          MAX_ITER: ${{ inputs.max_iterations }}
+          MAX_PRS: ${{ inputs.max_open_prs }}
+        run: |
+          NEXT=$(( ${{ inputs.iteration }} + 1 ))
+          echo "Iteration ${{ inputs.iteration }} complete. Queuing iteration ${NEXT}..."
+          gh workflow run autonomous-loop.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref main \
+            --field iteration="${NEXT}" \
+            --field session_id="${SESSION_ID}" \
+            --field max_iterations="${MAX_ITER}" \
+            --field max_open_prs="${MAX_PRS}"
+
+      # ── Propagate real failures ───────────────────────────────────────────
+      - name: Propagate non-quota Sonnet failure
+        if: |
+          steps.sonnet.outputs.succeeded == 'false' &&
+          steps.sonnet.outputs.quota_exhausted != 'true'
+        run: |
+          echo "::error::Sonnet failed (exit ${{ steps.sonnet.outputs.exit_code }}, not quota-related)."
+          exit 1
