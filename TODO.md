@@ -361,6 +361,39 @@ These features tie everything together into a coherent product. Without them, ev
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-04-23
+
+> Opus 4.7 scan: `tsc --noEmit` clean, `npm audit` = 0 vulns. No new Critical findings.
+> Today's real surface: three unauth routes interpolating user strings into external URLs/libs (`learn/transcript`, `learn/channel-videos`), four route handlers still returning `err.message` verbatim, and a `fs.readFileSync` in a live request handler. Existing Security Hardening Sprint items (lines 74–80) are still unchecked — prioritise those first.
+
+### Security
+- [ ] Validate `channelId` against `/^UC[A-Za-z0-9_-]{22}$/` before interpolating into Google API URL in app/api/learn/channel-videos/route.ts:22-26 — currently any string is accepted [security]
+- [ ] Validate `videoId` against `/^[A-Za-z0-9_-]{11}$/` before passing to `YoutubeTranscript.fetchTranscript` in app/api/learn/transcript/route.ts:34-35 — no auth + no rate limit makes this a quota-burn vector [security]
+- [ ] Truncate `jobTitle` and `company` with `.slice(0, 200)` before interpolating into the GPT-4o prompt in app/api/cover-letter/route.ts:47-48 — only jobDescription/background are capped today [security]
+- [ ] Cap `body.steps` JSONB payload (reject if `JSON.stringify(body.steps).length > 20_000`) in app/api/visa-tracker/route.ts:48 — unbounded per-user JSON storage [security]
+- [ ] Replace raw `error.message` pass-through with generic `'Failed to save visa tracker'` in app/api/visa-tracker/route.ts:54 — leaks Supabase internals to client [security]
+- [ ] Replace `(err as Error).message` with generic `'YouTube API error'` in app/api/learn/channel-videos/route.ts:87 — info leak on upstream failure [security]
+- [ ] Replace `(err as Error).message` with generic `'Failed to fetch videos'` in app/api/learn/videos/route.ts:66 [security]
+- [ ] Replace `(err as Error).message` with generic `'Quiz generation failed'` in app/api/learn/quiz/route.ts:106 — OpenAI errors are surfacing to the client [security]
+
+### Performance
+- [ ] Replace `fs.readFileSync` with `await fs.promises.readFile` + try/catch fallback in app/api/ai-usage/route.ts:7 — sync I/O blocks the event loop and the handler 500s if `data/ai-usage.json` is missing [perf]
+
+### Style (dark-mode breakage)
+- [ ] Replace BANDS hex palette (`#10b981`/`#22c55e`/`#f59e0b`/`#f97316`/`#ef4444`) with semantic token names (`var(--jade)` / `var(--gold)` / `var(--vermilion)`) in app/api/readiness-score/route.ts:9-13 — the payload is rendered client-side, so dark mode never picks up the override [style]
+
+### Code Quality
+- [ ] Replace `.single()` with `.maybeSingle()` on first-load fetch in app/api/visa-tracker/route.ts:28 — AGENTS §10.3 rule, first-time user currently logs a PGRST116 error [quality]
+- [ ] Replace `.single()` with `.maybeSingle()` on cache lookup in app/api/learn/quiz/route.ts:41 — cache miss currently logs PGRST116 [quality]
+- [ ] Replace `.single()` with `.maybeSingle()` on cache lookup in app/api/learn/analyse/route.ts:165 — same pattern, noisy logs on cold video [quality]
+
+### Tests
+- [ ] Add Vitest test for /api/ai-usage — returns 200 with data when `data/ai-usage.json` exists, graceful failure (not a crash) when the file is absent [tests]
+- [ ] Add Vitest test for /api/learn/channel-videos — rejects invalid channelId format with 400, 503 when `YOUTUBE_API_KEY` env is unset, 404 when upstream playlist missing [tests]
+- [ ] Add Vitest test for /api/learn/transcript — 400 on missing videoId, 404 when transcript unavailable after all 6 language attempts [tests]
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
