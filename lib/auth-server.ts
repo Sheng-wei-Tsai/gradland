@@ -75,3 +75,12 @@ export function rateLimitResponse() {
     { status: 429 },
   );
 }
+
+// ── Require admin role — returns user if admin, null otherwise ────────
+export async function requireAdmin(): Promise<User | null> {
+  const sb = await createSupabaseServer();
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) return null;
+  const { data: profile } = await sb.from('profiles').select('role').eq('id', user.id).single();
+  return profile?.role === 'admin' ? user : null;
+}

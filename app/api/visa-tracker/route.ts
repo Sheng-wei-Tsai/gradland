@@ -1,24 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
-
-async function getClient() {
-  const cookieStore = await cookies();
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { getAll: () => cookieStore.getAll(), setAll: () => {} } },
-  );
-}
-
-async function getUser(sb: Awaited<ReturnType<typeof getClient>>) {
-  const { data: { user } } = await sb.auth.getUser();
-  return user;
-}
+import { createSupabaseServer } from '@/lib/auth-server';
 
 export async function GET() {
-  const sb   = await getClient();
-  const user = await getUser(sb);
+  const sb   = await createSupabaseServer();
+  const { data: { user } } = await sb.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { data } = await sb
@@ -31,8 +16,8 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const sb   = await getClient();
-  const user = await getUser(sb);
+  const sb   = await createSupabaseServer();
+  const { data: { user } } = await sb.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   let body: { employer?: string; occupation?: string; started_at?: string; steps?: Record<string, unknown> };
