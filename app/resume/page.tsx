@@ -9,9 +9,8 @@ function ExternalLink({ href, children }: { href: string; children: React.ReactN
   const url = href.startsWith('http') ? href : `https://${href}`;
   return (
     <a href={url} target="_blank" rel="noopener noreferrer"
+      className="resume-ext-link"
       style={{ color: 'var(--terracotta)', textDecoration: 'none' }}
-      onMouseEnter={e => (e.currentTarget.style.textDecoration = 'underline')}
-      onMouseLeave={e => (e.currentTarget.style.textDecoration = 'none')}
     >
       {children}
     </a>

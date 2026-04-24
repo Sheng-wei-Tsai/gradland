@@ -18,9 +18,12 @@ async function requireAdmin(sb: Awaited<ReturnType<typeof adminSupabase>>) {
   return profile?.role === 'admin' ? user : null;
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 // PATCH /api/admin/users/[id] — update role
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  if (!UUID_RE.test(id)) return NextResponse.json({ error: 'Invalid id' }, { status: 400 });
   const sb = await adminSupabase();
   const admin = await requireAdmin(sb);
   if (!admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -45,6 +48,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 // DELETE /api/admin/users/[id] — ban: delete all comments, set role to banned
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  if (!UUID_RE.test(id)) return NextResponse.json({ error: 'Invalid id' }, { status: 400 });
   const sb = await adminSupabase();
   const admin = await requireAdmin(sb);
   if (!admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });

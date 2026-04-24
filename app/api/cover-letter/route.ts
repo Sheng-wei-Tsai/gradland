@@ -44,8 +44,8 @@ export async function POST(req: NextRequest) {
 
   const userPrompt = `Write a cover letter for this role.
 
-JOB TITLE: ${jobTitle}
-COMPANY: ${company}
+JOB TITLE: ${jobTitle.slice(0, 200)}
+COMPANY: ${company.slice(0, 200)}
 
 JOB DESCRIPTION:
 ${jobDescription.slice(0, 3000)}

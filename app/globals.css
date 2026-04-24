@@ -1450,3 +1450,13 @@ h3, h4 {
   background-image: radial-gradient(circle, rgba(0,0,0,0.18) 0.06em, transparent 0.06em);
   background-size: 0.55em 0.55em;
 }
+
+/* Cover-letter history item hover */
+.cover-letter-history-item:hover {
+  background: var(--parchment);
+}
+
+/* Resume external link hover */
+.resume-ext-link:hover {
+  text-decoration: underline;
+}

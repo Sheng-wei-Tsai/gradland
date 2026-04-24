@@ -266,13 +266,13 @@ function CoverLetterContent() {
               display: 'flex', flexDirection: 'column', gap: '0.4rem',
             }}>
               {history.map(item => (
-                <button key={item.id} onClick={() => loadFromHistory(item)} style={{
-                  background: 'none', border: 'none', textAlign: 'left',
-                  padding: '0.5rem 0.6rem', borderRadius: '8px', cursor: 'pointer',
-                  fontSize: '0.85rem', color: 'var(--brown-dark)',
-                }}
-                  onMouseEnter={e => (e.currentTarget.style.background = 'var(--parchment)')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+                <button key={item.id} onClick={() => loadFromHistory(item)}
+                  className="cover-letter-history-item"
+                  style={{
+                    background: 'none', border: 'none', textAlign: 'left',
+                    padding: '0.5rem 0.6rem', borderRadius: '8px', cursor: 'pointer',
+                    fontSize: '0.85rem', color: 'var(--brown-dark)',
+                  }}
                 >
                   <strong>{item.job_title}</strong> at {item.company}
                   <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', marginLeft: '0.5rem' }}>

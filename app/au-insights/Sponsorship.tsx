@@ -49,9 +49,9 @@ export default function Sponsorship() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '0.8rem', marginBottom: '1.5rem' }}>
         {[
           { label: 'TSS/482 visa grants (FY2023)', value: '98,980', color: 'var(--terracotta)' },
-          { label: 'Top occupation (2023)', value: 'Software Dev', color: '#7c3aed' },
-          { label: 'Applications growth (2024–25)', value: '+53%', color: '#10b981' },
-          { label: 'ICT share of 482 grants', value: '~12%', color: '#0369a1' },
+          { label: 'Top occupation (2023)', value: 'Software Dev', color: 'var(--gold)' },
+          { label: 'Applications growth (2024–25)', value: '+53%', color: 'var(--jade)' },
+          { label: 'ICT share of 482 grants', value: '~12%', color: 'var(--text-secondary)' },
         ].map(stat => (
           <div key={stat.label} style={{
             background: 'var(--warm-white)', border: '1px solid var(--parchment)',

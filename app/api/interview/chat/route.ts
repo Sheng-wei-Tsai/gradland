@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
       model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: systemContent },
-        ...messages.slice(-10),
+        ...messages.slice(-10).map(m => ({ ...m, content: String(m.content).slice(0, 2000) })),
       ],
       max_tokens: 200,
       stream: true,
