@@ -280,6 +280,34 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-04-24
+
+> Opus scan: `npm audit` = 0 vulns, `tsc --noEmit` = clean, CSP includes `frame-ancestors 'none'` is still missing. Homepage no longer has `force-dynamic`; `--text-muted` dark-mode contrast is already `#a09080` (AGENTS.md §15 is stale on both). Today's surface: unbounded user strings in LLM prompts, unvalidated UUIDs on `[id]` routes, and a cluster of `console.error` / `onMouseEnter` anti-patterns that have leaked into new code.
+
+### Security
+- [ ] Truncate `jobTitle` and `company` with `.slice(0, 200)` before GPT-4o prompt in app/api/cover-letter/route.ts:47-48 — currently interpolated raw, prompt-injection + cost risk [security]
+- [ ] Cap per-message `content` at 2000 chars before spreading into OpenAI in app/api/interview/chat/route.ts:45 — `messages.slice(-10)` bounds count but not size, user can send 1 MB payloads [security]
+- [ ] Validate `id` against `/^[0-9a-f-]{36}$/i` before Supabase `.eq('id', id)` in app/api/admin/users/[id]/route.ts:22-23,47 and app/api/comments/[id]/route.ts:15,40 — reject malformed UUIDs early [security]
+
+### Code Quality
+- [ ] Replace `<a href="/login">` with `<Link href="/login">` in components/Comments.tsx:289 — AGENTS §8 forbids `<a>` for internal routes [quality]
+- [ ] Gate `console.error` behind `process.env.NODE_ENV !== 'production'` in app/api/learn/analyse/route.ts:266, app/api/learn/diagram/route.ts:69, app/api/learn/roadmap-image/route.ts:89, app/api/interview/chat/route.ts:67, app/api/interview/questions/route.ts:90, app/api/interview/evaluate/route.ts:95, app/api/interview/mentor/route.ts:134 — same leakage pattern as jobs console.log [quality]
+- [ ] Extend admin/supabase helper consolidation (existing TODO item) to also cover app/api/admin/stats/route.ts:5-19, app/api/comments/route.ts:5, app/api/comments/[id]/route.ts:5, app/api/learn/progress/route.ts:6-11 — all open-code `createServerClient` instead of `createSupabaseServer()` [quality]
+
+### Style (touch-hostile inline hover)
+- [ ] Replace inline `onMouseEnter/Leave` shadow toggle with a CSS `:hover` class in app/au-insights/VisaNews.tsx:111-112 — AGENTS §7.3 (breaks on touch) [style]
+- [ ] Replace inline `onMouseEnter/Leave` background toggle with a CSS `:hover` class on the history item in app/cover-letter/page.tsx:274-275 [style]
+- [ ] Replace inline `onMouseEnter/Leave` underline toggle with CSS `:hover` in app/resume/page.tsx:13-14 [style]
+
+### Style (dark-mode hex leakage)
+- [ ] Replace hardcoded `#7c3aed` / `#10b981` / `#0369a1` KPI accent colours with tokens (`var(--terracotta)` / `var(--jade)` / `var(--gold)`) in app/au-insights/Sponsorship.tsx:52-54 — unreadable against dark page background [style]
+
+### Tests
+- [ ] Add Vitest test for /api/interview/chat — 401 without session, 429 after daily cap, rejects messages larger than 2000 chars per message [tests]
+- [ ] Add Vitest test for /api/resume-match — 401 without session, 429 after 30/day cap, JSON response shape passes through unchanged [tests]
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
