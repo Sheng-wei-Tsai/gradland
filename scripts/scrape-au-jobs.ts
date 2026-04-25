@@ -2,19 +2,16 @@
  * scrape-au-jobs.ts
  *
  * Scrapes IT job listings from:
- *   - Jora.com.au  (Seek-owned, scrapeable HTML — 15+ jobs per search)
+ *   - Jora.com.au  (public HTML aggregator — 15+ jobs per search)
  *   - ACS TechCareers RSS feed  (official RSS, clean structured data)
- *   - Indeed.com.au  (attempted; gracefully skipped if Cloudflare blocks)
  *
  * Results cached in the `scraped_jobs` Supabase table (30-day TTL).
  *
  * Run: npx tsx --env-file=.env.local scripts/scrape-au-jobs.ts
  *
- * Note on Seek/LinkedIn/Indeed:
- *   Seek and Indeed deploy Cloudflare bot-protection (HTTP 403) against server-side
- *   fetches from CI/VPS IPs. Jora (au.jora.com) is Seek-owned and serves the same
- *   listings without Cloudflare protection. LinkedIn is covered by the existing
- *   JSearch integration in /api/jobs.
+ * Note: Seek/Indeed/LinkedIn Apify actors removed — those sites prohibit automated
+ * scraping in their ToS. Live coverage for Seek/LinkedIn/Indeed is now provided by
+ * ScraperAPI Google Jobs in /api/jobs (per-search, not cached in Supabase).
  */
 
 import dotenv from 'dotenv';
@@ -40,7 +37,7 @@ const rssParser = new Parser({ timeout: 20000 });
 
 interface ScrapedJob {
   id:            string;
-  source:        'jora' | 'acs' | 'indeed' | 'seek';
+  source:        'jora' | 'acs';
   title:         string;
   company:       string;
   location:      string;
@@ -75,8 +72,8 @@ const LOCATIONS = ['Brisbane', 'Sydney', 'Melbourne', 'Perth', 'Adelaide'];
 // ── IT job filter — reject sponsored/unrelated results from Jora ──────────────
 const IT_TITLE_RE = /\b(developer|engineer|devops|architect|analyst|scientist|dba|database|software|frontend|backend|fullstack|full.?stack|qa|tester|testing|security|cloud|aws|azure|gcp|machine.?learning|data|python|java|javascript|react|node|php|ruby|golang|kotlin|mobile|android|ios|sre|platform|infrastructure|network|systems|it.?support|helpdesk|cyber|soc|scrum|agile|product.?manager|ux|ui.?ux|devSecOps)\b/i;
 
-function isITJob(title: string, description: string): boolean {
-  return IT_TITLE_RE.test(title) || IT_TITLE_RE.test(description.slice(0, 300));
+function isITJob(title: string, _description: string): boolean {
+  return IT_TITLE_RE.test(title);
 }
 
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36';
@@ -272,158 +269,6 @@ async function scrapeACS(): Promise<ScrapedJob[]> {
   }
 }
 
-// ── Indeed (best-effort) ──────────────────────────────────────────────────────
-// Indeed blocks most server-side requests with Cloudflare 403.
-// Included as best-effort; script continues gracefully if blocked.
-
-async function scrapeIndeedPage(keyword: string, location: string): Promise<ScrapedJob[]> {
-  const params = new URLSearchParams({ q: keyword, l: location });
-  const res = await fetch(`https://au.indeed.com/jobs?${params}`, {
-    headers: {
-      'User-Agent': UA,
-      'Accept': 'text/html,application/xhtml+xml',
-      'Accept-Language': 'en-AU,en;q=0.9',
-      'sec-fetch-dest': 'document',
-      'sec-fetch-mode': 'navigate',
-      'sec-fetch-site': 'none',
-    },
-    signal: AbortSignal.timeout(15000),
-  });
-  if (!res.ok) throw new Error(`Indeed ${res.status}`);
-
-  const html = await res.text();
-  const $    = cheerioLoad(html);
-  const jobs: ScrapedJob[] = [];
-
-  $('[class*="job_seen_beacon"], [class*="tapItem"]').each((_, el) => {
-    const titleEl   = $(el).find('h2[class*="jobTitle"] a, a[class*="jcs-JobTitle"]');
-    const title     = titleEl.attr('aria-label') ?? titleEl.text().trim();
-    const company   = $(el).find('[data-testid="company-name"], [class*="companyName"]').text().trim() || 'Unknown';
-    const loc       = $(el).find('[data-testid="text-location"], [class*="companyLocation"]').text().trim() || location;
-    const sal       = normalizeSalary($(el).find('[class*="salary-snippet"], [class*="salaryText"]').first().text());
-    const href      = titleEl.attr('href') ?? '';
-    const jkMatch   = href.match(/jk=([a-f0-9]+)/i);
-    const jobId     = jkMatch?.[1] ?? hashId('indeed', title, company, new Date().toDateString()).replace('indeed-', '');
-
-    if (!title) return;
-    jobs.push({
-      id:            `indeed-${jobId}`,
-      source:        'indeed',
-      title, company, location: loc,
-      description:   $(el).find('[class*="job-snippet"] li').map((_, li) => $(li).text().trim()).get().join(' '),
-      salary:        sal.text, salary_min: sal.min, salary_max: sal.max,
-      url:           href.startsWith('http') ? href : `https://au.indeed.com${href}`,
-      category:      '', contract_type: null,
-      created:       new Date().toISOString(),
-      dedup_key:     dedupKey(title, company),
-      expires_at:    expiresAt(),
-    });
-  });
-
-  return jobs;
-}
-
-async function scrapeIndeed(): Promise<ScrapedJob[]> {
-  const all: ScrapedJob[] = [];
-  // Only try a few searches — Indeed blocks quickly
-  const sampleKeywords  = IT_KEYWORDS.slice(0, 3);
-  const sampleLocations = LOCATIONS.slice(0, 2);
-
-  for (const keyword of sampleKeywords) {
-    for (const location of sampleLocations) {
-      try {
-        const jobs = await scrapeIndeedPage(keyword, location);
-        console.log(`  Indeed: "${keyword}" in ${location} → ${jobs.length}`);
-        all.push(...jobs);
-      } catch (e) {
-        const msg = String((e as Error).message);
-        if (msg.includes('403') || msg.includes('429')) {
-          console.warn(`  Indeed: blocked by Cloudflare — skipping`);
-          return all;  // stop entirely, don't retry
-        }
-        console.warn(`  Indeed error "${keyword}" ${location}: ${msg}`);
-      }
-      await sleep(DELAY_MS);
-    }
-  }
-  return all;
-}
-
-// ── Seek via Apify ────────────────────────────────────────────────────────────
-// Apify hosts a Seek.com.au scraper actor. Set APIFY_TOKEN env var to enable.
-// Free tier: 5 USD/month credit. Sign up at https://apify.com (free plan available).
-// Actor used: https://apify.com/websift/seek-job-scraper
-
-const APIFY_TOKEN  = process.env.APIFY_TOKEN;
-const SEEK_ACTOR   = 'websift~seek-job-scraper';
-
-async function scrapeSeekViaApify(): Promise<ScrapedJob[]> {
-  if (!APIFY_TOKEN) {
-    console.log('  Seek/Apify: APIFY_TOKEN not set — skipping (set it to enable Seek.com.au results)');
-    return [];
-  }
-
-  const allJobs: ScrapedJob[] = [];
-
-  for (const keyword of IT_KEYWORDS.slice(0, 5)) {   // limit to 5 keywords to save Apify credits
-    for (const location of LOCATIONS.slice(0, 3)) {   // Brisbane, Sydney, Melbourne
-      try {
-        // Run actor synchronously and wait for results (timeout 120s)
-        const runRes = await fetch(
-          `https://api.apify.com/v2/acts/${SEEK_ACTOR}/run-sync-get-dataset-items?token=${APIFY_TOKEN}&timeout=90&memory=256`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              keyword,
-              location,
-              maxPages:  2,
-              maxItems:  20,
-            }),
-            signal: AbortSignal.timeout(120000),
-          },
-        );
-
-        if (!runRes.ok) {
-          const errText = await runRes.text();
-          console.warn(`  Seek/Apify: HTTP ${runRes.status} for "${keyword}" ${location}: ${errText.slice(0, 100)}`);
-          continue;
-        }
-
-        const items: any[] = await runRes.json();
-        console.log(`  Seek: "${keyword}" in ${location} → ${items.length}`);
-
-        for (const item of items) {
-          const sal = normalizeSalary(item.salary ?? null);
-          allJobs.push({
-            id:            `seek-${item.jobId ?? hashId('seek', item.title ?? '', item.company ?? '', item.url ?? '')}`,
-            source:        'seek' as const,
-            title:         item.title ?? '',
-            company:       item.advertiser ?? item.company ?? 'Unknown',
-            location:      item.location ?? location,
-            description:   item.teaser ?? item.description ?? '',
-            salary:        sal.text ?? item.salary ?? null,
-            salary_min:    sal.min,
-            salary_max:    sal.max,
-            url:           item.url ?? `https://www.seek.com.au/job/${item.jobId ?? ''}`,
-            category:      item.classification ?? 'IT Jobs',
-            contract_type: item.workType ?? null,
-            created:       item.listingDate ?? new Date().toISOString(),
-            dedup_key:     dedupKey(item.title ?? '', item.advertiser ?? item.company ?? ''),
-            expires_at:    expiresAt(),
-          });
-        }
-
-        await sleep(DELAY_MS);
-      } catch (e) {
-        console.warn(`  Seek/Apify error "${keyword}" ${location}: ${(e as Error).message}`);
-      }
-    }
-    await sleep(SOURCE_DELAY_MS);
-  }
-
-  return allJobs;
-}
 
 // ── Deduplication ─────────────────────────────────────────────────────────────
 
@@ -465,7 +310,7 @@ async function main() {
     process.exit(1);
   }
 
-  console.log('🔍 Scraping Australian IT jobs...\n');
+  console.log('🔍 Scraping Australian IT jobs (Jora + ACS)...\n');
 
   // Cleanup expired
   const { error: cleanErr } = await sb.from('scraped_jobs').delete().lt('expires_at', new Date().toISOString());
@@ -484,30 +329,13 @@ async function main() {
   const acsJobs = await scrapeACS();
   console.log(`  → ${acsJobs.length} ACS listings\n`);
 
-  await sleep(SOURCE_DELAY_MS);
-
-  // Indeed (best-effort)
-  console.log('📋 Indeed (best-effort — may be blocked)...');
-  const indeedJobs = await scrapeIndeed();
-  console.log(`  → ${indeedJobs.length} Indeed results\n`);
-
-  await sleep(SOURCE_DELAY_MS);
-
-  // Seek via Apify (set APIFY_TOKEN env var to enable)
-  console.log('📋 Seek.com.au (via Apify — requires APIFY_TOKEN)...');
-  const seekJobs = await scrapeSeekViaApify();
-  console.log(`  → ${seekJobs.length} Seek results\n`);
-
-  // Filter non-IT jobs (Jora/Indeed sponsored results are often unrelated)
-  const joraIT   = joraJobs.filter(j => isITJob(j.title, j.description));
-  const indeedIT = indeedJobs.filter(j => isITJob(j.title, j.description));
-  const seekIT   = seekJobs.filter(j => isITJob(j.title, j.description));
+  // Filter non-IT jobs from Jora (sponsored results can be unrelated)
+  const joraIT = joraJobs.filter(j => isITJob(j.title, j.description));
   console.log(`  Jora IT-filtered: ${joraJobs.length} raw → ${joraIT.length} kept`);
-  console.log(`  Seek IT-filtered: ${seekJobs.length} raw → ${seekIT.length} kept`);
 
   // Dedup + save
-  const allUniq = deduplicateJobs([...seekIT, ...joraIT, ...acsJobs, ...indeedIT]);
-  console.log(`📊 ${seekIT.length} Seek + ${joraIT.length} Jora + ${acsJobs.length} ACS + ${indeedIT.length} Indeed = ${seekIT.length + joraIT.length + acsJobs.length + indeedIT.length} IT jobs → ${allUniq.length} unique`);
+  const allUniq = deduplicateJobs([...joraIT, ...acsJobs]);
+  console.log(`📊 ${joraIT.length} Jora + ${acsJobs.length} ACS = ${joraIT.length + acsJobs.length} IT jobs → ${allUniq.length} unique`);
 
   console.log('\n💾 Saving to Supabase...');
   const saved = await upsertJobs(allUniq);

@@ -21,11 +21,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Scrape AU IT jobs
+      - name: Scrape AU IT jobs (Jora + ACS only)
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        # Run tsx directly — no --env-file flag, secrets are already in env above.
-        # npm run scrape:jobs uses --env-file=.env.local which hard-fails (exit 9)
-        # in Node 22 when the file doesn't exist on the CI runner.
+        # Seek/Indeed/LinkedIn Apify actors removed — ToS violation.
+        # Live Seek/LinkedIn/Indeed coverage now via ScraperAPI Google Jobs in /api/jobs.
         run: npx tsx scripts/scrape-au-jobs.ts
+
