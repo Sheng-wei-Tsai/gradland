@@ -96,9 +96,9 @@
 **Files already done:** `app/api/stripe/webhook/route.ts`, `lib/subscription.ts`, `app/pricing/page.tsx`
 
 ### Remaining Security Items
-- [ ] Add `.limit()` to unbounded queries in `app/api/comments/route.ts` + `app/api/alerts/route.ts`
-- [ ] Fix async `cookies()` in `alerts/route.ts` (Next.js 16 breaking change)
-- [ ] Stripe webhook signature validation tests — `app/api/stripe/webhook/route.test.ts`
+- [x] ~~Add `.limit()` to unbounded queries in `app/api/comments/route.ts` + `app/api/alerts/route.ts`~~ ✅ both routes now `.limit(500)` / `.limit(100)`
+- [x] ~~Fix async `cookies()` in `alerts/route.ts` (Next.js 16 breaking change)~~ ✅ now uses `await createSupabaseServer()`
+- [x] ~~Stripe webhook signature validation tests — `app/api/stripe/webhook/route.test.ts`~~ ✅ test file exists (7.7 KB, mocked Stripe SDK)
 
 ---
 
@@ -203,11 +203,14 @@
 ### Known Tech Debt
 | Issue | Location | Impact |
 |-------|----------|--------|
-| `@import` Google Fonts | `app/globals.css:1` | Render-blocking — replace with `next/font` |
-| `--text-muted` dark mode contrast | `globals.css:75` | 3.5:1 (fails WCAG) — target `#a09080` |
+| ~~`@import` Google Fonts~~ ✅ | `app/globals.css:1` | Now loaded via `next/font` (header comment confirms) |
+| ~~`--text-muted` dark mode contrast~~ ✅ | `globals.css:113` | Now `#a09080` (passes WCAG AA 4.5:1) |
+| ~~`images: { unoptimized: true }`~~ ✅ | `next.config.ts` | Removed; `remotePatterns` configured for all 10 hosts |
+| ~~`force-dynamic` on homepage~~ ✅ | `app/page.tsx:11` | Now `revalidate = 3600` (ISR) |
 | No CSP `nonce` | `next.config.ts` | Static CSP — upgrade to dynamic nonce-based |
 | Accessible components (ARIA) | Multiple | Keyboard nav, focus rings, `aria-expanded` |
 | Core Web Vitals budget | `/jobs`, `/learn` | LCP and CLS not measured yet |
+| 2 moderate npm vulns (postcss via next) | `package-lock.json` | Cannot fix without breaking change in `next` — accept until next minor |
 
 ---
 
@@ -277,6 +280,45 @@
 - [ ] Add Vitest test for /api/admin/users/[id] — 403 without admin role, PATCH rejects invalid role enum, DELETE blocks self-ban [tests]
 - [ ] Add Vitest test for /api/alerts — DELETE id ownership check rejects another user's alert (PGRST affected-rows = 0) [tests]
 - [ ] Add Vitest test for /api/learn/progress — POST 401 without session, upsert on `(user_id, video_id)` conflict preserves prior quiz_score [tests]
+
+---
+
+## 🛡 Daily Analyst Findings — 2026-04-25
+
+> Today's Opus scan. `tsc --noEmit` clean. `npm audit` = 2 moderate (postcss via next, not fixable without breaking change). Several Priority 0 items above were already resolved in code — marked complete.
+> Today's surface area: missing input regex validation on YouTube `videoId`/`channelId` routes, untruncated prompt strings in cover-letter, and dark-mode hex leakage in `/dashboard/visa-tracker` + `/resume`.
+
+### Security
+- [ ] Validate `videoId` with `/^[A-Za-z0-9_-]{11}$/` before YoutubeTranscript fetch in app/api/learn/transcript/route.ts:34 — currently any string passed [security]
+- [ ] Validate `channelId` with `/^UC[A-Za-z0-9_-]{22}$/` before YouTube API URL interpolation in app/api/learn/channel-videos/route.ts:22-26 [security]
+- [ ] Truncate `jobTitle` (`.slice(0,150)`) and `company` (`.slice(0,150)`) before prompt interpolation in app/api/cover-letter/route.ts:40-43 — only jobDescription/background are sliced [security]
+- [ ] Validate `id` is UUID format `/^[0-9a-f-]{36}$/` before DB ops in app/api/admin/users/[id]/route.ts:23,47 [security]
+- [ ] Truncate `videoTitle` (`.slice(0,300)`) before insert in app/api/learn/progress/route.ts:19-25 — unbounded user input written to Supabase [security]
+- [ ] Escape commas/parens in `keywords`/`location` before Supabase `.or()` in app/api/jobs/route.ts:115-116 — PostgREST filter syntax can be broken by user input [security]
+
+### Performance
+- [ ] Replace sync `fs.readFileSync` with `import data from '@/data/ai-usage.json'` (build-time bake) in app/api/ai-usage/route.ts:6-8 — currently runs sync I/O per request, no error handling, no cache-control [perf]
+
+### Style (dark-mode breakage)
+- [ ] Replace `#fef9c3`/`#fde047`/`#854d0e` warning box with `var(--gold)` + `rgba(240,184,48,0.12)` in app/dashboard/visa-tracker/page.tsx:268-270 [style]
+- [ ] Replace `#ecfdf5`/`#6ee7b7`/`#065f46` success banner with `var(--jade)` tokens in app/dashboard/visa-tracker/page.tsx:281 [style]
+- [ ] Replace `#f0fdf4`/`#065f46`/`#166534` tips box with `var(--jade)` tints in app/dashboard/visa-tracker/page.tsx:388-392 [style]
+- [ ] Replace `#fff7ed`/`#9a3412` watch-out box with `var(--vermilion)` tints in app/dashboard/visa-tracker/page.tsx:396-400 [style]
+- [ ] Replace `#3b82f6`/`#8b5cf6`/`#10b981` payer/category map with tokens (var(--terracotta) for "You", var(--gold) for DHA) in app/dashboard/visa-tracker/page.tsx:73-74,230-232,441 [style]
+- [ ] Replace `scoreColor` returns `#10b981`/`#f59e0b`/`#ef4444` with var(--jade)/var(--gold)/var(--vermilion) in app/resume/page.tsx:54 [style]
+- [ ] Replace matched/missing keyword pill colours `#ecfdf5`/`#10b981`/`#a7f3d0`/`#fef2f2`/`#ef4444`/`#fecaca` with token tints in app/resume/page.tsx:108-123 [style]
+- [ ] Replace printable resume colours `#374151`/`#111827`/`#4b5563`/`#6b7280`/`#9ca3af`/`#93c5fd` with var(--text-primary/secondary/muted) — affects light + dark in app/resume/page.tsx:241,254,275-316 [style]
+- [ ] Replace `color: '#10b981'` saved indicator with `var(--jade)` in app/cover-letter/page.tsx:296 [style]
+- [ ] Replace `color: '#dc2626'` postErr text with `var(--vermilion)` in components/Comments.tsx:281 [style]
+
+### Code Quality
+- [ ] Extract duplicated `sampleTranscript()` (12k char intro/middle/outro sampler) into `lib/transcript-sampler.ts` — currently copy-pasted in app/api/learn/transcript/route.ts:8-31 and app/api/learn/analyse/route.ts:85-135 [quality]
+- [ ] Replace `<a href="/login">` with `<Link href="/login">` in components/Comments.tsx:289 — full page reload on internal nav [quality]
+
+### Tests
+- [ ] Add Vitest test for /api/onboarding — POST 401 unauth, 400 on invalid role/visaStatus/jobStage enum, 200 on valid payload [tests]
+- [ ] Add Vitest test for /api/track — 400 on bad sessionId regex, 400 on path not starting with `/`, 429 after 60 IP requests in 60s, never 5xx (always 200/400/429) [tests]
+- [ ] Add Vitest test for /api/learn/quiz — POST 401 unauth, 403 SUBSCRIPTION_REQUIRED, returns cached `quiz_questions` on cache hit (skips OpenAI), saves to `video_content` on miss [tests]
 
 ---
 
