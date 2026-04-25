@@ -43,13 +43,24 @@ const QUESTION_TITLES: Record<1 | 2 | 3, string> = {
   3: 'Where are you in your job search?',
 };
 
+const PARTIAL_KEY = 'onboarding_partial';
+
+function loadPartial(): { role: string | null; visaStatus: string | null; jobStage: string | null; step: Step } {
+  try {
+    const raw = localStorage.getItem(PARTIAL_KEY);
+    if (!raw) return { role: null, visaStatus: null, jobStage: null, step: 0 };
+    return JSON.parse(raw);
+  } catch { return { role: null, visaStatus: null, jobStage: null, step: 0 }; }
+}
+
 export default function OnboardingModal({ onComplete }: Props) {
   const router = useRouter();
-  const [step,       setStep]       = useState<Step>(0);
+  const partial = typeof window !== 'undefined' ? loadPartial() : { role: null, visaStatus: null, jobStage: null, step: 0 as Step };
+  const [step,       setStep]       = useState<Step>(partial.step);
   const [dir,        setDir]        = useState<1 | -1>(1);   // slide direction
-  const [role,       setRole]       = useState<string | null>(null);
-  const [visaStatus, setVisaStatus] = useState<string | null>(null);
-  const [jobStage,   setJobStage]   = useState<string | null>(null);
+  const [role,       setRole]       = useState<string | null>(partial.role);
+  const [visaStatus, setVisaStatus] = useState<string | null>(partial.visaStatus);
+  const [jobStage,   setJobStage]   = useState<string | null>(partial.jobStage);
   const [saving,     setSaving]     = useState(false);
   const [done,       setDone]       = useState(false);
   const [animKey,    setAnimKey]    = useState(0);  // remount content to trigger slide
@@ -66,9 +77,13 @@ export default function OnboardingModal({ onComplete }: Props) {
     setDir(next > step ? 1 : -1);
     setAnimKey(k => k + 1);
     setStep(next);
+    // Persist progress so re-opening the modal resumes from here
+    try {
+      localStorage.setItem(PARTIAL_KEY, JSON.stringify({ role, visaStatus, jobStage, step: next }));
+    } catch { /* storage unavailable */ }
   };
 
-  // ESC → skip + focus trap
+  // ESC → close without dismissing (user can come back); focus trap
   useEffect(() => {
     const modal = modalRef.current;
     if (!modal) return;
@@ -78,7 +93,8 @@ export default function OnboardingModal({ onComplete }: Props) {
     firstFocusable?.focus();
 
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { handleSkip(); return; }
+      // ESC closes modal but does NOT set dismissed — so it reopens next visit
+      if (e.key === 'Escape') { onComplete(); return; }
 
       // Focus trap: keep Tab within modal
       if (e.key === 'Tab') {
@@ -112,10 +128,12 @@ export default function OnboardingModal({ onComplete }: Props) {
   const submit = useCallback(async () => {
     setSaving(true);
     await postOnboarding(role, visaStatus, jobStage);
+    localStorage.removeItem(PARTIAL_KEY);
     setDone(true);
     setTimeout(() => { onComplete(); router.push('/dashboard'); }, 1200);
   }, [role, visaStatus, jobStage, postOnboarding, onComplete, router]);
 
+  // "I'll do this later" — marks dismissed so it won't auto-reopen
   const handleSkip = useCallback(() => {
     localStorage.setItem('onboarding_dismissed', '1');
     onComplete();
@@ -302,7 +320,7 @@ function optionCardStyle(selected: boolean): React.CSSProperties {
     padding: '0.65rem 0.4rem',
     borderRadius: '10px',
     border: selected ? '2px solid var(--terracotta)' : '1.5px solid var(--parchment)',
-    background: selected ? '#fff5f2' : 'white',
+    background: selected ? 'rgba(192,40,28,0.06)' : 'var(--warm-white)',
     cursor: 'pointer', textAlign: 'center',
     transition: 'border-color 0.15s, background 0.15s',
   };
@@ -312,7 +330,7 @@ function listOptionStyle(selected: boolean): React.CSSProperties {
   return {
     padding: '0.7rem 1rem', borderRadius: '10px',
     border: selected ? '2px solid var(--terracotta)' : '1.5px solid var(--parchment)',
-    background: selected ? '#fff5f2' : 'white',
+    background: selected ? 'rgba(192,40,28,0.06)' : 'var(--warm-white)',
     cursor: 'pointer', textAlign: 'left',
     fontSize: '0.88rem',
     fontWeight: selected ? 600 : 400,

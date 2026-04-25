@@ -107,8 +107,10 @@ export default function Breadcrumb() {
 
 function Separator() {
   return (
-    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ flexShrink: 0, opacity: 0.5 }}>
-      <path d="M3.5 2L6.5 5L3.5 8" stroke="var(--text-muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true" style={{ flexShrink: 0, opacity: 0.55 }}>
+      {/* Ink-brush chevron: thick stroke + tail dot for comic feel */}
+      <path d="M3.5 2.5L7.5 6L3.5 9.5" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="3" cy="6" r="1" fill="var(--text-muted)"/>
     </svg>
   );
 }

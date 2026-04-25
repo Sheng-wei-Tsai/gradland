@@ -1,6 +1,6 @@
 'use client';
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import CityIcon from '@/components/icons/CityIcon';
 
 const CITY_META: Record<string, { landmark: string; color: string }> = {
@@ -14,6 +14,10 @@ const CITY_META: Record<string, { landmark: string; color: string }> = {
 };
 
 const CITIES = Object.keys(CITY_META);
+
+// Wide enough for longest city ("Melbourne"/"Australia") + icon + chevron + padding.
+// Fixed so the button never resizes when the selection changes.
+const TRIGGER_WIDTH = 164;
 
 interface CitySelectorProps {
   value: string;
@@ -68,55 +72,54 @@ export default function CitySelector({ value, onChange }: CitySelectorProps) {
           fontSize: '0.95rem',
           fontFamily: 'inherit',
           cursor: 'pointer',
-          minWidth: '130px',
+          width: `${TRIGGER_WIDTH}px`,
+          flexShrink: 0,
           justifyContent: 'space-between',
           transition: 'border-color 0.18s ease, background 0.18s ease',
         }}
       >
-        {/* Icon — bounces on hover, stays inside button */}
-        <motion.span
-          animate={hovered ? { scale: 1.18, rotate: -8 } : { scale: 1, rotate: 0 }}
-          transition={{ type: 'spring', stiffness: 380, damping: 18 }}
-          style={{ display: 'inline-flex', flexShrink: 0 }}
-        >
+        {/* Icon — no animation */}
+        <span style={{ display: 'inline-flex', flexShrink: 0 }}>
           <CityIcon city={value} size={20} style={{ color: meta.color }} />
-        </motion.span>
+        </span>
 
-        {/* City name + landmark subtitle — fixed height, only opacity changes */}
-        <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flex: 1, lineHeight: 1 }}>
-          <span>{value}</span>
-          <motion.span
-            animate={{ opacity: hovered ? 1 : 0 }}
-            transition={{ duration: 0.18 }}
+        {/* City name + landmark subtitle (CSS opacity fade, no motion) */}
+        <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flex: 1, lineHeight: 1, overflow: 'hidden' }}>
+          <span style={{ whiteSpace: 'nowrap' }}>{value}</span>
+          <span
             style={{
               fontSize: '0.6rem', color: meta.color, fontWeight: 600,
               letterSpacing: '0.04em', marginTop: '0.15rem', display: 'block',
+              opacity: hovered ? 1 : 0,
+              transition: 'opacity 0.18s ease',
             }}
           >
             {meta.landmark}
-          </motion.span>
+          </span>
         </span>
 
-        {/* Chevron */}
-        <motion.span
-          animate={{ rotate: open ? 180 : 0 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-          style={{ display: 'inline-block', fontSize: '0.6rem', opacity: 0.5, flexShrink: 0 }}
+        {/* Chevron — CSS rotate, no spring */}
+        <span
+          style={{
+            display: 'inline-block', fontSize: '0.6rem', opacity: 0.5, flexShrink: 0,
+            transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
+            transition: 'transform 0.2s ease',
+          }}
         >
           ▼
-        </motion.span>
+        </span>
       </button>
 
-      {/* ── Dropdown ───────────────────────────────────────────────────── */}
+      {/* ── Dropdown — simple opacity fade, no scale/spring/stagger ────── */}
       <AnimatePresence>
         {open && (
           <motion.ul
             role="listbox"
             aria-label="Select city"
-            initial={{ opacity: 0, y: -4, scaleY: 0.94 }}
-            animate={{ opacity: 1, y: 0, scaleY: 1 }}
-            exit={{ opacity: 0, y: -3, scaleY: 0.96 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.14, ease: 'easeOut' }}
             style={{
               position: 'absolute',
               top: 'calc(100% + 6px)', left: 0,
@@ -128,22 +131,19 @@ export default function CitySelector({ value, onChange }: CitySelectorProps) {
               padding: '0.3rem',
               zIndex: 200,
               listStyle: 'none', margin: 0,
-              transformOrigin: 'top',
               overflow: 'hidden',
             }}
           >
-            {CITIES.map((city, i) => {
+            {CITIES.map((city) => {
               const cm = CITY_META[city];
               const isSelected = city === value;
               return (
-                <motion.li
+                <li
                   key={city}
                   role="option"
                   aria-selected={isSelected}
-                  initial={{ opacity: 0, x: -6 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.03 }}
                   onClick={() => select(city)}
+                  className="city-option"
                   style={{
                     display: 'flex', alignItems: 'center', gap: '0.55rem',
                     padding: '0.4rem 0.6rem',
@@ -154,14 +154,13 @@ export default function CitySelector({ value, onChange }: CitySelectorProps) {
                     color: isSelected ? cm.color : 'var(--text-secondary)',
                     background: isSelected ? `${cm.color}0d` : 'transparent',
                   }}
-                  className="city-option"
                 >
                   <CityIcon city={city} size={18} style={{ color: cm.color, flexShrink: 0 }} />
                   {city}
                   {isSelected && (
                     <span style={{ marginLeft: 'auto', fontSize: '0.7rem', color: cm.color }}>✓</span>
                   )}
-                </motion.li>
+                </li>
               );
             })}
           </motion.ul>

@@ -6,54 +6,55 @@ import { useAuth } from '@/components/AuthProvider';
 import ThemeToggle from '@/components/ThemeToggle';
 import { ReadinessScoreMini } from '@/components/ReadinessScore';
 import { useState, useRef, useEffect } from 'react';
+import EIcon, { EIconName } from '@/components/icons/EIcon';
 
 /* ── Zone data ─────────────────────────────────────────────── */
 const contentLinks = [
-  { href: '/posts',             label: 'All Posts', desc: 'Everything in one feed',         emoji: '📚' },
-  { href: '/posts/blog',        label: 'Blog',      desc: 'Posts & articles',               emoji: '✍️' },
-  { href: '/posts/research',    label: 'Research',  desc: 'AI research digest',             emoji: '🤖' },
-  { href: '/posts/githot',      label: 'Githot',    desc: 'GitHub trending today',          emoji: '🔥' },
-  { href: '/posts/ai-news',     label: 'AI News',   desc: 'Anthropic · OpenAI · Google',    emoji: '📡' },
-  { href: '/posts/visa-news',   label: 'Visa News', desc: 'Daily AU immigration updates',   emoji: '📰' },
+  { href: '/posts',             label: 'All Posts', desc: 'Everything in one feed',           icon: 'brush'     as EIconName },
+  { href: '/posts/blog',        label: 'Blog',      desc: 'Posts & articles',                 icon: 'brush'     as EIconName },
+  { href: '/posts/research',    label: 'Research',  desc: 'AI research digest',               icon: 'robot'     as EIconName },
+  { href: '/posts/githot',      label: 'Githot',    desc: 'GitHub trending today',            icon: 'fire'      as EIconName },
+  { href: '/posts/ai-news',     label: 'AI News',   desc: 'Anthropic · OpenAI · Google',      icon: 'newspaper' as EIconName },
+  { href: '/posts/visa-news',   label: 'Visa News', desc: 'Daily AU immigration updates',     icon: 'passport'  as EIconName },
 ];
 
 const LEARN_ITEMS = [
-  { href: '/learn',             label: 'Learning Paths',    desc: '5 AU IT career paths + spaced rep',    emoji: '📚' },
-  { href: '/learn/youtube',     label: 'YouTube Learning',  desc: 'Gemini study guide from any video',    emoji: '🎥' },
-  { href: '/learn/claude-code', label: 'Claude Code Guide', desc: '30 interactive lessons, beginner→pro', emoji: '🤖' },
-  { href: '/learn/github',      label: 'GitHub Skills',     desc: '37 official courses — Git to Copilot', emoji: '🐙' },
+  { href: '/learn',             label: 'Learning Paths',    desc: '5 AU IT career paths + spaced rep',    icon: 'books'     as EIconName },
+  { href: '/learn/youtube',     label: 'YouTube Learning',  desc: 'Gemini study guide from any video',    icon: 'video'     as EIconName },
+  { href: '/learn/claude-code', label: 'Claude Code Guide', desc: '30 interactive lessons, beginner→pro', icon: 'robot'     as EIconName },
+  { href: '/learn/github',      label: 'GitHub Skills',     desc: '37 official courses — Git to Copilot', icon: 'github'    as EIconName },
 ];
 
 const AU_INSIGHTS_ITEMS = [
-  { href: '/au-insights',                  label: 'AU Companies',   desc: 'Company tiers, culture & interview Qs', emoji: '🏆' },
-  { href: '/au-insights?tab=salary',       label: 'Salary Checker', desc: 'Paste your offer → AI verdict',         emoji: '💰' },
-  { href: '/au-insights?tab=skillmap',     label: 'Skill Map',      desc: 'Your skills → matching AU roles',       emoji: '🗺️' },
-  { href: '/au-insights?tab=sponsorship',  label: 'Visa Sponsors',  desc: 'Top 20 by 482 sponsorship volume',      emoji: '🛂' },
-  { href: '/au-insights?tab=gradprograms', label: 'Grad Programs',  desc: 'Live status, deadlines, apply links',   emoji: '🎓' },
-  { href: '/au-insights?tab=visa',         label: 'Visa Guide',     desc: '482/SID — 6 steps, costs & timeline',  emoji: '🛫' },
-  { href: '/au-insights?tab=visa-news',   label: 'Visa News',      desc: 'Daily immigration & student visa updates', emoji: '📰' },
+  { href: '/au-insights',                  label: 'AU Companies',   desc: 'Company tiers, culture & interview Qs', icon: 'trophy'   as EIconName },
+  { href: '/au-insights?tab=salary',       label: 'Salary Checker', desc: 'Paste your offer → AI verdict',         icon: 'coin'     as EIconName },
+  { href: '/au-insights?tab=skillmap',     label: 'Skill Map',      desc: 'Your skills → matching AU roles',       icon: 'map'      as EIconName },
+  { href: '/au-insights?tab=sponsorship',  label: 'Visa Sponsors',  desc: 'Top 20 by 482 sponsorship volume',      icon: 'passport' as EIconName },
+  { href: '/au-insights?tab=gradprograms', label: 'Grad Programs',  desc: 'Live status, deadlines, apply links',   icon: 'cap'      as EIconName },
+  { href: '/au-insights?tab=visa',         label: 'Visa Guide',     desc: '482/SID — 6 steps, costs & timeline',  icon: 'plane'    as EIconName },
+  { href: '/au-insights?tab=visa-news',    label: 'Visa News',      desc: 'Daily immigration & student visa updates', icon: 'newspaper' as EIconName },
 ];
 
 /* Two-column grouping for the mega-menu */
 const AU_COL_LEFT = [
-  { href: '/au-insights',                   label: 'Company Tiers',  tag: 'Rankings',    emoji: '🏆' },
-  { href: '/au-insights?tab=ecosystem',     label: 'IT Ecosystem',   tag: 'Overview',    emoji: '🗂️' },
-  { href: '/au-insights?tab=market',        label: 'Job Market',     tag: 'Data',        emoji: '📊' },
-  { href: '/au-insights?tab=gradprograms',  label: 'Grad Programs',  tag: 'Listings',    emoji: '🎓' },
-  { href: '/au-insights?tab=compare',       label: 'Compare',        tag: 'Side-by-side', emoji: '⚖️' },
+  { href: '/au-insights',                   label: 'Company Tiers',  tag: 'Rankings',     icon: 'trophy'   as EIconName },
+  { href: '/au-insights?tab=ecosystem',     label: 'IT Ecosystem',   tag: 'Overview',     icon: 'chart'    as EIconName },
+  { href: '/au-insights?tab=market',        label: 'Job Market',     tag: 'Data',         icon: 'coin'     as EIconName },
+  { href: '/au-insights?tab=gradprograms',  label: 'Grad Programs',  tag: 'Listings',     icon: 'cap'      as EIconName },
+  { href: '/au-insights?tab=compare',       label: 'Compare',        tag: 'Side-by-side', icon: 'scale'    as EIconName },
 ];
 const AU_COL_RIGHT = [
-  { href: '/au-insights?tab=guide',        label: 'Career Guide',   tag: 'Strategy',    emoji: '🚀' },
-  { href: '/au-insights?tab=salary',       label: 'Salary Checker', tag: 'Tools',       emoji: '💰' },
-  { href: '/au-insights?tab=skillmap',     label: 'Skill Map',      tag: 'Interactive', emoji: '🗺️' },
-  { href: '/au-insights?tab=sponsorship',  label: 'Visa Sponsors',  tag: 'Visa',        emoji: '🛂' },
-  { href: '/au-insights?tab=visa',         label: 'Visa Guide',     tag: '482 / SID',   emoji: '🛫' },
+  { href: '/au-insights?tab=guide',        label: 'Career Guide',   tag: 'Strategy',    icon: 'rocket'   as EIconName },
+  { href: '/au-insights?tab=salary',       label: 'Salary Checker', tag: 'Tools',       icon: 'coin'     as EIconName },
+  { href: '/au-insights?tab=skillmap',     label: 'Skill Map',      tag: 'Interactive', icon: 'map'      as EIconName },
+  { href: '/au-insights?tab=sponsorship',  label: 'Visa Sponsors',  tag: 'Visa',        icon: 'passport' as EIconName },
+  { href: '/au-insights?tab=visa',         label: 'Visa Guide',     tag: '482 / SID',   icon: 'plane'    as EIconName },
 ];
 
 const INTERVIEW_ITEMS = [
-  { href: '/resume',         label: 'Resume Analyser', desc: 'AI feedback for AU IT roles',       emoji: '📄' },
-  { href: '/cover-letter',   label: 'Cover Letter',    desc: 'GPT-4.1, AU English structure',     emoji: '✉️' },
-  { href: '/interview-prep', label: 'Interview Prep',  desc: 'Alex mentor, company-specific Qs', emoji: '🎯' },
+  { href: '/resume',         label: 'Resume Analyser', desc: 'AI feedback for AU IT roles',       icon: 'resume'        as EIconName },
+  { href: '/cover-letter',   label: 'Cover Letter',    desc: 'GPT-4.1, AU English structure',     icon: 'pencil-letter' as EIconName },
+  { href: '/interview-prep', label: 'Interview Prep',  desc: 'Alex mentor, company-specific Qs', icon: 'target'        as EIconName },
 ];
 
 type Drawer = 'learn' | 'au-insights' | 'interview' | 'me' | null;
@@ -81,11 +82,13 @@ function DropPanel({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
-function DropItem({ href, emoji, label, desc, onClick }: { href: string; emoji: string; label: string; desc: string; onClick: () => void }) {
+function DropItem({ href, icon, label, desc, onClick }: { href: string; icon: EIconName; label: string; desc: string; onClick: () => void }) {
   return (
     <Link href={href} onClick={onClick} className="drop-item"
       style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem', padding: '0.5rem 0.6rem', borderRadius: '7px', textDecoration: 'none', transition: 'background 0.12s ease' }}>
-      <span style={{ fontSize: '1.05rem', flexShrink: 0, marginTop: '1px' }}>{emoji}</span>
+      <div style={{ width: '28px', height: '28px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '6px', background: 'rgba(192,40,28,0.07)', color: 'var(--terracotta)', marginTop: '1px' }}>
+        <EIcon name={icon} size={15} />
+      </div>
       <div>
         <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--brown-dark)', lineHeight: 1.2 }}>{label}</div>
         <div style={{ fontSize: '0.71rem', color: 'var(--text-muted)', lineHeight: 1.35, marginTop: '1px' }}>{desc}</div>
@@ -105,15 +108,15 @@ function GroupDivider() {
 }
 
 /* Compact item for the AU Insights mega-menu: emoji + label + tag badge only */
-function MegaItem({ href, emoji, label, tag, onClick }: { href: string; emoji: string; label: string; tag: string; onClick: () => void }) {
+function MegaItem({ href, icon, label, tag, onClick }: { href: string; icon: EIconName; label: string; tag: string; onClick: () => void }) {
   return (
     <Link href={href} onClick={onClick} className="drop-item"
       style={{
-        display: 'flex', alignItems: 'center', gap: '0.45rem',
+        display: 'flex', alignItems: 'center', gap: '0.5rem',
         padding: '0.38rem 0.55rem', borderRadius: '7px', textDecoration: 'none',
         transition: 'background 0.12s ease',
       }}>
-      <span style={{ fontSize: '0.95rem', flexShrink: 0 }}>{emoji}</span>
+      <EIcon name={icon} size={14} style={{ color: 'var(--terracotta)', flexShrink: 0 }} />
       <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--brown-dark)', whiteSpace: 'nowrap' }}>{label}</span>
     </Link>
   );
@@ -230,10 +233,10 @@ export default function Header() {
               </button>
               {learnOpen && (
                 <DropPanel>
-                  <DropItem href="/learn"              emoji="🗺" label="Career Paths"      desc="5 AU IT roadmaps with spaced repetition" onClick={() => setOpenMenu(null)} />
-                  <DropItem href="/learn/youtube"      emoji="🎥" label="YouTube Learning"  desc="Gemini builds your study guide + quiz"   onClick={() => setOpenMenu(null)} />
-                  <DropItem href="/learn/claude-code"  emoji="🤖" label="Claude Code Guide" desc="30 interactive lessons, beginner→pro"    onClick={() => setOpenMenu(null)} />
-                  <DropItem href="/learn/github"       emoji="🐙" label="GitHub Skills"     desc="37 official courses — Git to Copilot"    onClick={() => setOpenMenu(null)} />
+                  <DropItem href="/learn"              icon="map"    label="Career Paths"      desc="5 AU IT roadmaps with spaced repetition" onClick={() => setOpenMenu(null)} />
+                  <DropItem href="/learn/youtube"      icon="video"  label="YouTube Learning"  desc="Gemini builds your study guide + quiz"   onClick={() => setOpenMenu(null)} />
+                  <DropItem href="/learn/claude-code"  icon="robot"  label="Claude Code Guide" desc="30 interactive lessons, beginner→pro"    onClick={() => setOpenMenu(null)} />
+                  <DropItem href="/learn/github"       icon="github" label="GitHub Skills"     desc="37 official courses — Git to Copilot"    onClick={() => setOpenMenu(null)} />
                 </DropPanel>
               )}
             </div>
@@ -260,27 +263,27 @@ export default function Header() {
 
                   {/* Group 1 — AU IT Trends */}
                   <GroupLabel label="AU IT Trends" />
-                  <MegaItem href="/au-insights?tab=ecosystem"    emoji="🗂️" label="IT Ecosystem"   tag="Overview"  onClick={() => setOpenMenu(null)} />
-                  <MegaItem href="/au-insights?tab=market"       emoji="📊" label="Job Market"     tag="Data"      onClick={() => setOpenMenu(null)} />
-                  <MegaItem href="/au-insights?tab=gradprograms" emoji="🎓" label="Grad Programs"  tag="Listings"  onClick={() => setOpenMenu(null)} />
+                  <MegaItem href="/au-insights?tab=ecosystem"    icon="chart"    label="IT Ecosystem"   tag="Overview"  onClick={() => setOpenMenu(null)} />
+                  <MegaItem href="/au-insights?tab=market"       icon="coin"     label="Job Market"     tag="Data"      onClick={() => setOpenMenu(null)} />
+                  <MegaItem href="/au-insights?tab=gradprograms" icon="cap"      label="Grad Programs"  tag="Listings"  onClick={() => setOpenMenu(null)} />
 
                   <GroupDivider />
 
                   {/* Group 2 — Companies */}
                   <GroupLabel label="Companies" />
-                  <MegaItem href="/au-insights"              emoji="🏆" label="Company Tiers" tag="Rankings"    onClick={() => setOpenMenu(null)} />
-                  <MegaItem href="/au-insights?tab=compare"  emoji="⚖️" label="Compare"       tag="Side-by-side" onClick={() => setOpenMenu(null)} />
+                  <MegaItem href="/au-insights"              icon="trophy"  label="Company Tiers" tag="Rankings"     onClick={() => setOpenMenu(null)} />
+                  <MegaItem href="/au-insights?tab=compare"  icon="scale"   label="Compare"       tag="Side-by-side" onClick={() => setOpenMenu(null)} />
 
                   <GroupDivider />
 
                   {/* Group 3 — Visa & Career Tools */}
                   <GroupLabel label="Visa & Career" />
-                  <MegaItem href="/au-insights?tab=sponsorship" emoji="🛂" label="Visa Sponsors"  tag="Visa"        onClick={() => setOpenMenu(null)} />
-                  <MegaItem href="/au-insights?tab=visa"        emoji="🛫" label="Visa Guide"     tag="482 / SID"   onClick={() => setOpenMenu(null)} />
-                  <MegaItem href="/au-insights?tab=visa-news"   emoji="📰" label="Visa News"      tag="Live"        onClick={() => setOpenMenu(null)} />
-                  <MegaItem href="/au-insights?tab=guide"       emoji="🚀" label="Career Guide"   tag="Strategy"    onClick={() => setOpenMenu(null)} />
-                  <MegaItem href="/au-insights?tab=salary"      emoji="💰" label="Salary Checker" tag="Tools"       onClick={() => setOpenMenu(null)} />
-                  <MegaItem href="/au-insights?tab=skillmap"    emoji="🗺️" label="Skill Map"      tag="Interactive" onClick={() => setOpenMenu(null)} />
+                  <MegaItem href="/au-insights?tab=sponsorship" icon="passport"  label="Visa Sponsors"  tag="Visa"        onClick={() => setOpenMenu(null)} />
+                  <MegaItem href="/au-insights?tab=visa"        icon="plane"     label="Visa Guide"     tag="482 / SID"   onClick={() => setOpenMenu(null)} />
+                  <MegaItem href="/au-insights?tab=visa-news"   icon="newspaper" label="Visa News"      tag="Live"        onClick={() => setOpenMenu(null)} />
+                  <MegaItem href="/au-insights?tab=guide"       icon="rocket"    label="Career Guide"   tag="Strategy"    onClick={() => setOpenMenu(null)} />
+                  <MegaItem href="/au-insights?tab=salary"      icon="coin"      label="Salary Checker" tag="Tools"       onClick={() => setOpenMenu(null)} />
+                  <MegaItem href="/au-insights?tab=skillmap"    icon="map"       label="Skill Map"      tag="Interactive" onClick={() => setOpenMenu(null)} />
                 </div>
               )}
             </div>
@@ -391,7 +394,7 @@ export default function Header() {
             {INTERVIEW_ITEMS.map(item => (
               <MobileDrawerItem key={item.href} {...item} active={isActive(item.href)} onClick={() => setMobileDrawer(null)} />
             ))}
-            <MobileDrawerItem href="/jobs" emoji="💼" label="Job Search" desc="Live AU jobs, working rights filter" active={isActive('/jobs')} onClick={() => setMobileDrawer(null)} />
+            <MobileDrawerItem href="/jobs" icon="briefcase" label="Job Search" desc="Live AU jobs, working rights filter" active={isActive('/jobs')} onClick={() => setMobileDrawer(null)} />
           </MobileDrawer>
         )}
 
@@ -410,12 +413,12 @@ export default function Header() {
                   {user.email}
                 </div>
                 {[
-                  { href: '/dashboard',              label: 'Dashboard',      emoji: '📋' },
-                  { href: '/dashboard/visa-tracker', label: 'Visa Tracker',   emoji: '🛂' },
-                  { href: '/pricing',                label: 'Upgrade to Pro', emoji: '⭐' },
-                  { href: '/about',                  label: 'About',          emoji: 'ℹ️' },
-                ].map(({ href, label, emoji }) => (
-                  <MobileDrawerItem key={href} href={href} emoji={emoji} label={label} desc="" active={isActive(href)} onClick={() => setMobileDrawer(null)} />
+                  { href: '/dashboard',              label: 'Dashboard',      icon: 'chart'     as EIconName },
+                  { href: '/dashboard/visa-tracker', label: 'Visa Tracker',   icon: 'passport'  as EIconName },
+                  { href: '/pricing',                label: 'Upgrade to Pro', icon: 'sparkles'  as EIconName },
+                  { href: '/about',                  label: 'About',          icon: 'wave'      as EIconName },
+                ].map(({ href, label, icon }) => (
+                  <MobileDrawerItem key={href} href={href} icon={icon} label={label} desc="" active={isActive(href)} onClick={() => setMobileDrawer(null)} />
                 ))}
                 <div style={{ height: '1px', background: 'var(--parchment)', margin: '0.3rem 0.5rem' }} />
                 <button onClick={() => { setMobileDrawer(null); handleSignOut(); }} style={{
@@ -423,7 +426,7 @@ export default function Header() {
                   padding: '0.65rem 0.75rem', borderRadius: '10px',
                   background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit',
                 }}>
-                  <span style={{ fontSize: '1.1rem' }}>👋</span>
+                  <EIcon name="wave" size={18} style={{ color: 'var(--text-muted)' }} />
                   <span style={{ fontSize: '0.92rem', fontWeight: 500, color: 'var(--text-muted)' }}>Sign out</span>
                 </button>
               </>
@@ -433,7 +436,7 @@ export default function Header() {
                 padding: '0.75rem 1rem', borderRadius: '12px',
                 textDecoration: 'none', background: 'var(--vermilion)',
               }}>
-                <span style={{ fontSize: '1.1rem' }}>👤</span>
+                <EIcon name="person" size={18} style={{ color: 'white' }} />
                 <span style={{ fontSize: '0.95rem', fontWeight: 600, color: 'white' }}>Sign in</span>
               </Link>
             )}
@@ -546,8 +549,8 @@ function MobileDrawer({ title, children, onClose }: { title: string; children: R
 }
 
 /* ── Mobile drawer item ── */
-function MobileDrawerItem({ href, emoji, label, desc, active, onClick }: {
-  href: string; emoji: string; label: string; desc: string; active: boolean; onClick: () => void;
+function MobileDrawerItem({ href, icon, label, desc, active, onClick }: {
+  href: string; icon: EIconName; label: string; desc: string; active: boolean; onClick: () => void;
 }) {
   return (
     <Link href={href} onClick={onClick} style={{
@@ -559,8 +562,12 @@ function MobileDrawerItem({ href, emoji, label, desc, active, onClick }: {
     }}>
       <div style={{
         width: '36px', height: '36px', borderRadius: '8px', flexShrink: 0,
-        background: 'var(--parchment)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem',
-      }}>{emoji}</div>
+        background: active ? 'rgba(192,40,28,0.12)' : 'var(--parchment)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        color: active ? 'var(--terracotta)' : 'var(--text-muted)',
+      }}>
+        <EIcon name={icon} size={18} />
+      </div>
       <div>
         <div style={{ fontSize: '0.92rem', fontWeight: 600, color: active ? 'var(--terracotta)' : 'var(--brown-dark)' }}>{label}</div>
         {desc && <div style={{ fontSize: '0.73rem', color: 'var(--text-muted)', marginTop: '1px' }}>{desc}</div>}
@@ -590,48 +597,83 @@ function MobileDrawerTab({ label, active, open, onClick, icon }: {
   );
 }
 
-/* ── SVG icons ── */
+/* ── Comic-style SVG icons ─────────────────────────────────────────────────
+   Design language: 2.5px brush strokes · round caps/joins · ink-blob accent
+   dots · one character detail per icon that feels hand-drawn, not generic.
+─────────────────────────────────────────────────────────────────────────── */
 function IconHome({ active }: { active: boolean }) {
   const c = active ? 'white' : 'var(--text-muted)';
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-      <polyline points="9 22 9 12 15 12 15 22" />
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      {/* Thick roof peak */}
+      <path d="M3 11.5L12 3L21 11.5" stroke={c} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+      {/* Walls + door gap */}
+      <path d="M5 10V21H9.5V14.5H14.5V21H19V10" stroke={c} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+      {/* Chimney — ink brush stroke */}
+      <path d="M16 6.5V4" stroke={c} strokeWidth="2.5" strokeLinecap="round"/>
+      {/* Smoke puff — ink blob dot */}
+      <circle cx="17" cy="3" r="1.3" fill={c}/>
     </svg>
   );
 }
 function IconSearch({ active }: { active: boolean }) {
   const c = active ? 'white' : 'var(--text-muted)';
+  // Compass — better metaphor for "AU Insights" navigation
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      {/* Compass ring */}
+      <circle cx="12" cy="12" r="9" stroke={c} strokeWidth="2.5"/>
+      {/* North needle — filled ink, points up */}
+      <path d="M12 4.5L13.8 11.5L12 10.2L10.2 11.5Z" fill={c}/>
+      {/* South needle — outline only */}
+      <path d="M12 19.5L10.2 12.5L12 13.8L13.8 12.5Z" stroke={c} strokeWidth="1.5" strokeLinejoin="round"/>
+      {/* Pivot dot */}
+      <circle cx="12" cy="12" r="1.5" fill={c}/>
     </svg>
   );
 }
 function IconLearn({ active }: { active: boolean }) {
   const c = active ? 'white' : 'var(--text-muted)';
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-      <path d="M6 12v5c3 3 9 3 12 0v-5" />
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      {/* Left page */}
+      <path d="M12 4.5L5 5.5V19.5L12 18.5V4.5Z" stroke={c} strokeWidth="2.5" strokeLinejoin="round"/>
+      {/* Right page */}
+      <path d="M12 4.5L19 5.5V19.5L12 18.5V4.5Z" stroke={c} strokeWidth="2.5" strokeLinejoin="round"/>
+      {/* Text lines on left page */}
+      <path d="M7.5 9H10.5M7.5 11.5H9.5" stroke={c} strokeWidth="1.5" strokeLinecap="round"/>
+      {/* Star accent on right page — ink burst */}
+      <path d="M15.5 8.5L16 10L17.5 10L16.3 11L16.8 12.5L15.5 11.6L14.2 12.5L14.7 11L13.5 10L15 10Z" fill={c}/>
     </svg>
   );
 }
 function IconBriefcase({ active }: { active: boolean }) {
   const c = active ? 'white' : 'var(--text-muted)';
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
-      <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16" />
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      {/* Handle */}
+      <path d="M9 7V5.5C9 4.7 9.4 4 10 4H14C14.6 4 15 4.7 15 5.5V7" stroke={c} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+      {/* Body */}
+      <rect x="3" y="7" width="18" height="13" rx="2" stroke={c} strokeWidth="2.5" strokeLinejoin="round"/>
+      {/* Center divider */}
+      <path d="M3 13.5H21" stroke={c} strokeWidth="1.5"/>
+      {/* Rivet ink dots at clasp — comic panel detail */}
+      <circle cx="10.5" cy="13.5" r="1.3" fill={c}/>
+      <circle cx="13.5" cy="13.5" r="1.3" fill={c}/>
     </svg>
   );
 }
 function IconAbout({ active }: { active: boolean }) {
   const c = active ? 'white' : 'var(--text-muted)';
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      {/* Head — slightly larger, manga proportions */}
+      <circle cx="12" cy="8" r="4.5" stroke={c} strokeWidth="2.5"/>
+      {/* Shoulders */}
+      <path d="M4.5 21C4.5 17 8 14 12 14C16 14 19.5 17 19.5 21" stroke={c} strokeWidth="2.5" strokeLinecap="round"/>
+      {/* Manga ink-dot eyes — the character detail */}
+      <circle cx="10.3" cy="8" r="1" fill={c}/>
+      <circle cx="13.7" cy="8" r="1" fill={c}/>
     </svg>
   );
 }

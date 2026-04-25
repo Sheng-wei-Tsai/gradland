@@ -61,12 +61,18 @@ export default function BlogList({ posts, tags }: { posts: Post[]; tags: string[
 
         {/* Search input */}
         <div style={{ position: 'relative' }}>
+          {/* Comic-style search: bold lens + crosshair detail + thick handle */}
           <svg
             width="15" height="15" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+            aria-hidden="true"
             style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }}
           >
-            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            <circle cx="10.5" cy="10.5" r="7" strokeWidth="2.5"/>
+            <line x1="10.5" y1="6.5" x2="10.5" y2="14.5" strokeWidth="1.2" opacity="0.5"/>
+            <line x1="6.5" y1="10.5" x2="14.5" y2="10.5" strokeWidth="1.2" opacity="0.5"/>
+            <circle cx="10.5" cy="10.5" r="1.3" fill="currentColor" strokeWidth="0"/>
+            <path d="M16 16L21 21" strokeWidth="3" strokeLinecap="round"/>
           </svg>
           <input
             type="text"

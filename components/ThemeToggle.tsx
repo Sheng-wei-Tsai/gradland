@@ -4,14 +4,18 @@ import { useEffect, useState } from 'react';
 export default function ThemeToggle() {
   const [theme,    setTheme]    = useState<'light' | 'dark'>('light');
   const [rotation, setRotation] = useState(0);
+  // Transition is disabled until after the initial snap so the icon doesn't
+  // spin from 0→180 on page load when restoring dark mode from localStorage.
+  const [canTransition, setCanTransition] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('theme') as 'light' | 'dark' | null;
     const initial = saved ?? 'light';
     setTheme(initial);
-    // Restore persisted rotation parity so first click continues from correct angle
     if (initial === 'dark') setRotation(180);
     document.documentElement.setAttribute('data-theme', initial);
+    // Double rAF: first frame paints the snapped position, second enables transitions
+    requestAnimationFrame(() => requestAnimationFrame(() => setCanTransition(true)));
   }, []);
 
   const toggle = () => {
@@ -61,7 +65,7 @@ export default function ThemeToggle() {
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         transform: `rotate(${rotation}deg)`,
-        transition: 'transform 0.56s cubic-bezier(0.4, 0, 0.2, 1)',
+        transition: canTransition ? 'transform 0.56s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
       }}>
         <svg viewBox="0 0 40 40" width="28" height="28" style={{ display: 'block' }}>
           <circle cx="20" cy="20" r="18" fill={yinColor} style={{ transition: 'fill 0.25s ease' }} />

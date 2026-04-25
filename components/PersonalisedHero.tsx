@@ -57,6 +57,16 @@ function getGreeting() {
   return 'Good evening';
 }
 
+const ROLE_TO_PREP: Record<string, string> = {
+  'frontend':      'junior-frontend',
+  'fullstack':     'junior-fullstack',
+  'backend':       'junior-backend',
+  'data-engineer': 'junior-data',
+  'devops':        'junior-devops',
+  'mobile':        'junior-mobile',
+  'qa':            'junior-qa',
+};
+
 // Determine top next action from summary
 function getNextAction(s: DashboardSummary): { emoji: string; title: string; body: string; href: string; cta: string } {
   if (!s.onboardingCompleted) return {
@@ -64,6 +74,15 @@ function getNextAction(s: DashboardSummary): { emoji: string; title: string; bod
     body:  '3 questions · 90 seconds. We\'ll personalise everything for you.',
     href:  '/dashboard', cta: 'Set up profile →',
   };
+  // Active interview in pipeline — highest urgency
+  if (s.interviewCount > 0) {
+    const prepPath = s.onboardingRole ? (ROLE_TO_PREP[s.onboardingRole] ?? 'junior-fullstack') : 'junior-fullstack';
+    return {
+      emoji: '🎯', title: `Interview lined up — prep with Alex`,
+      body:  `You have ${s.interviewCount} active interview${s.interviewCount > 1 ? 's' : ''}. Practice ${ROLE_LABELS[s.onboardingRole ?? ''] ?? 'your role'} questions now.`,
+      href:  `/interview-prep/${prepPath}`, cta: 'Prep now →',
+    };
+  }
   if (s.visaStep) return {
     emoji: '🛂', title: `Visa Step ${s.visaStep.step} — ${VISA_STEP_NAMES[s.visaStep.step] ?? 'In Progress'}`,
     body:  s.visaStep.startedAt

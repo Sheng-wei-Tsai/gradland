@@ -237,9 +237,28 @@ export default function DashboardPage() {
           {activeTab === 'saved' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', paddingBottom: '4rem' }}>
               {savedJobs.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
-                  <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>♡</div>
-                  <p>No saved jobs yet. <Link href="/jobs" style={{ color: 'var(--terracotta)' }}>Search for jobs →</Link></p>
+                <div style={{ textAlign: 'center', padding: '2.5rem 1.5rem', background: 'var(--warm-white)', border: '1px solid var(--parchment)', borderRadius: '16px' }}>
+                  <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>♡</div>
+                  <p style={{ fontFamily: "'Lora', serif", fontWeight: 600, color: 'var(--brown-dark)', fontSize: '1rem', marginBottom: '0.4rem' }}>Nothing saved yet</p>
+                  <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', marginBottom: '1.2rem', maxWidth: '36ch', margin: '0 auto 1.2rem' }}>
+                    Hit the heart on any job listing to save it here for later.
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.25rem', textAlign: 'left', maxWidth: '280px', margin: '0 auto 1.25rem' }}>
+                    <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.3rem' }}>Popular searches</p>
+                    {[
+                      { role: 'Junior Full Stack', loc: 'Sydney', keywords: 'junior+full+stack' },
+                      { role: 'DevOps Engineer', loc: 'Melbourne', keywords: 'devops+engineer' },
+                      { role: 'Data Engineer', loc: 'Brisbane', keywords: 'data+engineer' },
+                    ].map(s => (
+                      <Link key={s.role} href={`/jobs?keywords=${s.keywords}`}
+                        style={{ fontSize: '0.85rem', color: 'var(--terracotta)', textDecoration: 'none', padding: '0.4rem 0.6rem', border: '1px solid var(--parchment)', borderRadius: '8px', background: 'var(--cream)' }}>
+                        → {s.role} · {s.loc}
+                      </Link>
+                    ))}
+                  </div>
+                  <Link href="/jobs" style={{ display: 'inline-block', padding: '0.55rem 1.3rem', borderRadius: '99px', background: 'var(--terracotta)', color: 'white', fontSize: '0.9rem', fontWeight: 600, textDecoration: 'none' }}>
+                    Browse all jobs →
+                  </Link>
                 </div>
               ) : savedJobs.map(job => (
                 <div key={job.id} style={{ background: 'var(--warm-white)', border: '1px solid var(--parchment)', borderRadius: '14px', padding: '1.2rem 1.4rem' }}>
@@ -255,7 +274,7 @@ export default function DashboardPage() {
                     <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
                       <button onClick={() => addToTracker(job)} style={{
                         padding: '0.35rem 0.8rem', borderRadius: '99px',
-                        border: '1px solid var(--parchment)', background: 'white',
+                        border: '1px solid var(--parchment)', background: 'var(--warm-white)',
                         fontSize: '0.8rem', cursor: 'pointer', color: 'var(--text-secondary)',
                       }}>
                         + Track
@@ -281,9 +300,15 @@ export default function DashboardPage() {
           {activeTab === 'alerts' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', paddingBottom: '4rem' }}>
               {alerts.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
-                  <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🔔</div>
-                  <p>No saved searches yet. <Link href="/jobs" style={{ color: 'var(--terracotta)' }}>Search for jobs →</Link> and click "Save this search".</p>
+                <div style={{ textAlign: 'center', padding: '2.5rem 1.5rem', background: 'var(--warm-white)', border: '1px solid var(--parchment)', borderRadius: '16px' }}>
+                  <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>🔔</div>
+                  <p style={{ fontFamily: "'Lora', serif", fontWeight: 600, color: 'var(--brown-dark)', fontSize: '1rem', marginBottom: '0.4rem' }}>No saved searches yet</p>
+                  <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', marginBottom: '1.2rem', maxWidth: '38ch', margin: '0 auto 1.2rem' }}>
+                    Search for jobs and click <strong>"Save this search"</strong> to get notified about new listings that match.
+                  </p>
+                  <Link href="/jobs" style={{ display: 'inline-block', padding: '0.55rem 1.3rem', borderRadius: '99px', background: 'var(--terracotta)', color: 'white', fontSize: '0.9rem', fontWeight: 600, textDecoration: 'none' }}>
+                    Go to job search →
+                  </Link>
                 </div>
               ) : alerts.map(alert => (
                 <div key={alert.id} style={{ background: 'var(--warm-white)', border: '1px solid var(--parchment)', borderRadius: '14px', padding: '1.2rem 1.4rem' }}>
@@ -320,9 +345,15 @@ export default function DashboardPage() {
           {activeTab === 'applications' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', paddingBottom: '4rem' }}>
               {applications.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
-                  <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📋</div>
-                  <p>No applications yet. Save a job and click "+ Track" to start.</p>
+                <div style={{ textAlign: 'center', padding: '2.5rem 1.5rem', background: 'var(--warm-white)', border: '1px solid var(--parchment)', borderRadius: '16px' }}>
+                  <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>📋</div>
+                  <p style={{ fontFamily: "'Lora', serif", fontWeight: 600, color: 'var(--brown-dark)', fontSize: '1rem', marginBottom: '0.4rem' }}>No applications yet</p>
+                  <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', marginBottom: '1.2rem', maxWidth: '40ch', margin: '0 auto 1.2rem' }}>
+                    Save a job from the listings, then click <strong>"+ Track"</strong> to move it here and track your application status.
+                  </p>
+                  <Link href="/jobs" style={{ display: 'inline-block', padding: '0.55rem 1.3rem', borderRadius: '99px', background: 'var(--terracotta)', color: 'white', fontSize: '0.9rem', fontWeight: 600, textDecoration: 'none' }}>
+                    Find jobs to apply →
+                  </Link>
                 </div>
               ) : applications.map(app => (
                 <div key={app.id} style={{ background: 'var(--warm-white)', border: '1px solid var(--parchment)', borderRadius: '14px', padding: '1.2rem 1.4rem' }}>
@@ -340,7 +371,7 @@ export default function DashboardPage() {
                         padding: '0.3rem 0.7rem', borderRadius: '99px',
                         border: `1.5px solid ${STATUS_COLORS[app.status]}`,
                         color: STATUS_COLORS[app.status], fontWeight: 600,
-                        fontSize: '0.82rem', background: 'white', cursor: 'pointer',
+                        fontSize: '0.82rem', background: 'var(--warm-white)', cursor: 'pointer',
                       }}>
                         {Object.entries(STATUS_LABELS).map(([val, label]) => (
                           <option key={val} value={val}>{label}</option>
