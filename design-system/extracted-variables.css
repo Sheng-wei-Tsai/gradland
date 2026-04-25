@@ -1,0 +1,117 @@
+:root {
+  /* Colors — Primary */
+  --color-primary: #c0281c;
+  --color-secondary: #0000ee;
+  --color-accent: #fdf5e4;
+
+  /* Colors — Neutrals */
+  --color-neutral-50: #140a05;
+  --color-neutral-100: #000000;
+  --color-neutral-200: #ffffff;
+
+  /* Colors — Backgrounds */
+  --color-bg: #fdf5e4;
+  --color-bg-1: #fffef6;
+
+  /* Colors — Text */
+  --color-text: #000000;
+  --color-text-1: #140a05;
+  --color-text-2: #ffffff;
+  --color-text-3: #3d1c0e;
+  --color-text-4: #0000ee;
+
+  /* Typography — Families */
+  --font-body: 'Space Grotesk', sans-serif;
+  --font-body: 'Times', sans-serif;
+  --font-body: 'Arial', sans-serif;
+  --font-font-3: 'Lora', sans-serif;
+  --font-body: 'Caveat', sans-serif;
+
+  /* Typography — Scale */
+  --font-size-60.8: 60.8px;
+  --font-size-25.6: 25.6px;
+  --font-size-22.4: 22.4px;
+  --font-size-18.4: 18.4px;
+  --font-size-17: 17px;
+  --font-size-16.8: 16.8px;
+  --font-size-16: 16px;
+  --font-size-15.2: 15.2px;
+  --font-size-14.4: 14.4px;
+  --font-size-14.08: 14.08px;
+  --font-size-13.6: 13.6px;
+  --font-size-13.44: 13.44px;
+
+  /* Spacing */
+  --spacing-1: 1px;
+  --spacing-12: 12px;
+  --spacing-16: 16px;
+  --spacing-23: 23px;
+  --spacing-28: 28px;
+  --spacing-32: 32px;
+  --spacing-40: 40px;
+  --spacing-48: 48px;
+  --spacing-64: 64px;
+  --spacing-96: 96px;
+  --spacing-252: 252px;
+  --spacing-272: 272px;
+
+  /* Border Radius */
+  --radius-xs: 2px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 50px;
+  --radius-full: 99px;
+
+  /* Box Shadows */
+  --shadow-xs: rgb(20, 10, 5) 1px 1px 0px 0px;
+  --shadow-xs: rgba(20, 10, 5, 0.3) 2px 2px 0px 0px;
+  --shadow-xs: rgba(20, 10, 5, 0.2) 2px 2px 0px 0px;
+  --shadow-xs: rgb(20, 10, 5) 2px 2px 0px 0px;
+  --shadow-sm: rgba(20, 10, 5, 0.14) 3px 3px 0px 0px;
+  --shadow-sm: rgb(20, 10, 5) 3px 3px 0px 0px;
+  --shadow-sm: rgb(20, 10, 5) 4px 4px 0px 0px;
+  --shadow-md: rgba(180, 60, 40, 0.2) 0px 2px 10px 0px;
+
+  /* Original Site Variables */
+  /* — colors — */
+  --panel-border: 3px solid #140a05;
+  --text-secondary: #3d1c0e;
+  --text-primary: #140a05;
+  --text-muted: #7a5030;
+  --shadow-color: #140a051a;
+  /* — spacing — */
+  --font-space: "Space Grotesk", "Space Grotesk Fallback";
+  /* — typography — */
+  --font-lora: "Lora", "Lora Fallback";
+  --font-caveat: "Caveat", "Caveat Fallback";
+  /* — shadows — */
+  --panel-shadow: 4px 4px 0 #140a05;
+  --panel-shadow-lg: 6px 6px 0 #140a05;
+  /* — other — */
+  --gold: #c88a14;
+  --vermilion-light: #e03828;
+  --sage: #1e7a52;
+  --lightningcss-dark: ;
+  --gold-light: #e0a020;
+  --terracotta: #c0281c;
+  --forest: #140a05;
+  --lightningcss-light: ;
+  --parchment: #e8d5a8;
+  --glow: none;
+  --amber: #c88a14;
+  --terracotta-light: #e03828;
+  --brown-dark: #140a05;
+  --vermilion: #c0281c;
+  --cream: #fdf5e4;
+  --jade: #1e7a52;
+  --brown-mid: #3d1c0e;
+  --ink: #140a05;
+  --warm-white: #fffef6;
+  --brown-light: #7a5030;
+  /* — semantic — */
+  success: [object Object];
+  warning: [object Object];
+  error: [object Object];
+  info: [object Object];
+
+}

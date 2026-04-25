@@ -13,7 +13,11 @@
     "refresh:jsa": "npx tsx scripts/fetch-jsa.ts",
     "scrape:jobs": "npx tsx --env-file=.env.local scripts/scrape-au-jobs.ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "usage": "npx codeburn",
+    "usage:report": "npx codeburn report",
+    "usage:week": "npx codeburn report --period week",
+    "design:extract": "npx designlang http://localhost:3000 --out design-system/live-extract"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.82.0",

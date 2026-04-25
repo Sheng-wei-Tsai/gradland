@@ -1,0 +1,50 @@
+{
+  "tone": "neutral",
+  "pronoun": "you-only",
+  "headingStyle": "Title Case",
+  "headingLengthClass": "verbose",
+  "ctaVerbs": [
+    {
+      "value": "posts",
+      "count": 1
+    },
+    {
+      "value": "learn",
+      "count": 1
+    },
+    {
+      "value": "au",
+      "count": 1
+    }
+  ],
+  "buttonPatterns": [
+    {
+      "value": "posts",
+      "count": 1
+    },
+    {
+      "value": "learn",
+      "count": 1
+    },
+    {
+      "value": "au insights",
+      "count": 1
+    }
+  ],
+  "sampleHeadings": [
+    "Getting your first IT job\nin Australia is harder\nthan it should be.",
+    "Writing activity",
+    "Recent writing",
+    "Browser Harness: Give Your LLM a Real Browser and Get Out of the Way",
+    "Self-Healing Browser Automation with browser-harness and Next.js",
+    "Getting your first IT job\nin Australia is harder\nthan it should be.",
+    "Recent writing",
+    "Browser Harness: Give Your LLM a Real Browser and Get Out of the Way",
+    "Self-Healing Browser Automation with browser-harness and Next.js",
+    "CodeBurn: Track Your AI Coding Spend Before It Tracks You"
+  ],
+  "stats": {
+    "buttons": 3,
+    "headings": 10
+  }
+}
