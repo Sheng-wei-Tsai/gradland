@@ -1,13 +1,14 @@
 name: Phone Task (Claude on demand)
 
-# Dispatch from the GitHub mobile app to run any free-text task in the cloud.
-# Mac does not need to be on — Claude runs inside GitHub Actions.
+# Two trigger paths — Mac does NOT need to be on for either:
+#
+# 1. workflow_dispatch  — GitHub mobile app / web UI (manual)
+# 2. repository_dispatch (phone-task) — Cloudflare Worker receives a Telegram
+#    message and forwards it here. Investigate results are replied back to Telegram.
 #
 # implement   → new phone/ branch → Claude makes code changes → PR opened for review
 # investigate → Claude reads the codebase → posts findings as a GitHub Issue
-#
-# Usage:
-#   GitHub iOS → Sheng-wei-Tsai/henrys-blog → Actions → Phone Task → Run workflow
+#               + replies to the original Telegram message if triggered via Telegram
 
 on:
   workflow_dispatch:
@@ -28,6 +29,9 @@ on:
         default: 'main'
         type: string
 
+  repository_dispatch:
+    types: [phone-task]  # fired by cf-worker-telegram-bridge
+
 permissions:
   contents: write
   pull-requests: write
@@ -35,14 +39,15 @@ permissions:
 
 jobs:
   phone-task:
-    name: "Phone Task (${{ inputs.mode }})"
+    name: "Phone Task"
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.base_branch }}
+          # Works for both triggers — falls back to main if base_branch not provided
+          ref: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.base_branch || inputs.base_branch || 'main' }}
           fetch-depth: 0
 
       - name: Configure git and gh auth
@@ -52,6 +57,36 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "TechPath Phone Bot"
           git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+
+      # Normalise inputs from both trigger sources into step outputs.
+      # All github.event.client_payload values flow through env vars — never
+      # interpolated directly into shell commands (prevents injection).
+      - name: Resolve inputs
+        id: inp
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          WD_TASK:    ${{ inputs.task }}
+          WD_MODE:    ${{ inputs.mode }}
+          WD_BASE:    ${{ inputs.base_branch }}
+          RD_TASK:    ${{ github.event.client_payload.task }}
+          RD_MODE:    ${{ github.event.client_payload.mode }}
+          RD_BASE:    ${{ github.event.client_payload.base_branch }}
+          RD_CHAT_ID: ${{ github.event.client_payload.telegram_chat_id }}
+          RD_MSG_ID:  ${{ github.event.client_payload.telegram_message_id }}
+        run: |
+          if [ "$EVENT_NAME" = "repository_dispatch" ]; then
+            echo "task=${RD_TASK}"               >> "$GITHUB_OUTPUT"
+            echo "mode=${RD_MODE:-implement}"    >> "$GITHUB_OUTPUT"
+            echo "base=${RD_BASE:-main}"         >> "$GITHUB_OUTPUT"
+            echo "tg_chat=${RD_CHAT_ID}"         >> "$GITHUB_OUTPUT"
+            echo "tg_msg=${RD_MSG_ID}"           >> "$GITHUB_OUTPUT"
+          else
+            echo "task=${WD_TASK}"               >> "$GITHUB_OUTPUT"
+            echo "mode=${WD_MODE:-implement}"    >> "$GITHUB_OUTPUT"
+            echo "base=${WD_BASE:-main}"         >> "$GITHUB_OUTPUT"
+            echo "tg_chat="                      >> "$GITHUB_OUTPUT"
+            echo "tg_msg="                       >> "$GITHUB_OUTPUT"
+          fi
 
       - uses: actions/setup-node@v4
         with:
@@ -76,7 +111,7 @@ jobs:
       # ── Create working branch (implement mode only) ──────────────────────
       - name: Create working branch
         id: branch
-        if: inputs.mode == 'implement'
+        if: steps.inp.outputs.mode == 'implement'
         run: |
           BRANCH="phone/$(date -u +%Y%m%d-%H%M%S)"
           git checkout -b "$BRANCH"
@@ -85,13 +120,12 @@ jobs:
       # ── Implement mode: Claude makes code changes ────────────────────────
       - name: Run Claude — implement
         id: claude_impl
-        if: inputs.mode == 'implement'
+        if: steps.inp.outputs.mode == 'implement'
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ steps.tok.outputs.token }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TASK: ${{ inputs.task }}
-          # Dummy values so npm run check (next build) can run without real secrets
+          TASK: ${{ steps.inp.outputs.task }}
           OPENAI_API_KEY: sk-dummy-ci-build
           STRIPE_SECRET_KEY: sk_test_dummy_ci
           STRIPE_PRICE_ID: price_dummy_ci
@@ -131,10 +165,10 @@ jobs:
       # ── Investigate mode: Claude reads codebase, posts findings ─────────
       - name: Run Claude — investigate
         id: claude_inv
-        if: inputs.mode == 'investigate'
+        if: steps.inp.outputs.mode == 'investigate'
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ steps.tok.outputs.token }}
-          TASK: ${{ inputs.task }}
+          TASK: ${{ steps.inp.outputs.task }}
         run: |
           set +e
           cat .github/prompts/phone-investigate.md > /tmp/full_prompt.txt
@@ -160,9 +194,9 @@ jobs:
       # ── Implement mode: commit + open PR ────────────────────────────────
       - name: Commit changes
         id: commit
-        if: inputs.mode == 'implement' && steps.claude_impl.outputs.succeeded == 'true'
+        if: steps.inp.outputs.mode == 'implement' && steps.claude_impl.outputs.succeeded == 'true'
         env:
-          TASK: ${{ inputs.task }}
+          TASK:   ${{ steps.inp.outputs.task }}
           BRANCH: ${{ steps.branch.outputs.name }}
         run: |
           git add -A
@@ -177,12 +211,13 @@ jobs:
           fi
 
       - name: Open pull request
-        if: inputs.mode == 'implement' && steps.commit.outputs.has_changes == 'true'
+        id: pr
+        if: steps.inp.outputs.mode == 'implement' && steps.commit.outputs.has_changes == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TASK: ${{ inputs.task }}
+          TASK:   ${{ steps.inp.outputs.task }}
           BRANCH: ${{ steps.branch.outputs.name }}
-          BASE: ${{ inputs.base_branch }}
+          BASE:   ${{ steps.inp.outputs.base }}
         run: |
           python3 - << 'PYEOF'
           import os, subprocess
@@ -190,11 +225,10 @@ jobs:
           branch = os.environ['BRANCH']
           base   = os.environ['BASE']
           slug   = task[:60]
-          b3     = '`' * 3
           lines  = [
               '## Phone-dispatched task', '',
               f'**Task:** {task}', '',
-              f'**Dispatched via:** `phone-task.yml` (workflow_dispatch from GitHub mobile)',
+              '**Dispatched via:** `phone-task.yml` (Telegram → Cloudflare Worker → repository_dispatch or GitHub mobile workflow_dispatch)',
               f'**Branch:** `{branch}` → `{base}`', '',
               '---', '',
               'Review the changes, then merge when satisfied.',
@@ -202,25 +236,30 @@ jobs:
           ]
           with open('/tmp/pr_body.txt', 'w') as f:
               f.write('\n'.join(lines))
-          subprocess.run([
+          result = subprocess.run([
               'gh', 'pr', 'create',
               '--title', f'[Phone] {slug}',
               '--body-file', '/tmp/pr_body.txt',
               '--base', base,
               '--head', branch,
-          ], check=True)
+          ], capture_output=True, text=True, check=True)
+          pr_url = result.stdout.strip()
+          print(pr_url)
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f'url={pr_url}\n')
           PYEOF
 
       - name: Log no-changes result
-        if: inputs.mode == 'implement' && steps.claude_impl.outputs.succeeded == 'true' && steps.commit.outputs.has_changes == 'false'
+        if: steps.inp.outputs.mode == 'implement' && steps.claude_impl.outputs.succeeded == 'true' && steps.commit.outputs.has_changes == 'false'
         run: echo "::notice::Claude completed the task but made no file changes. Check logs for output."
 
       # ── Investigate mode: post findings as GitHub Issue ─────────────────
       - name: Create investigation issue
-        if: inputs.mode == 'investigate' && steps.claude_inv.outputs.claude_unavailable != 'true'
+        id: issue
+        if: steps.inp.outputs.mode == 'investigate' && steps.claude_inv.outputs.claude_unavailable != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TASK: ${{ inputs.task }}
+          TASK: ${{ steps.inp.outputs.task }}
         run: |
           python3 - << 'PYEOF'
           import os, subprocess
@@ -235,11 +274,96 @@ jobs:
           ]
           with open('/tmp/issue_body.txt', 'w') as f:
               f.write('\n'.join(lines))
-          subprocess.run([
+          result = subprocess.run([
               'gh', 'issue', 'create',
               '--title', f'[Phone Investigation] {slug}',
               '--body-file', '/tmp/issue_body.txt',
-          ], check=True)
+          ], capture_output=True, text=True, check=True)
+          issue_url = result.stdout.strip()
+          print(issue_url)
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f'url={issue_url}\n')
+          PYEOF
+
+      # ── Reply to Telegram (only when triggered via Telegram bridge) ──────
+      - name: Reply to Telegram — investigate result
+        if: |
+          steps.inp.outputs.tg_chat != '' &&
+          steps.inp.outputs.mode == 'investigate' &&
+          steps.claude_inv.outputs.claude_unavailable != 'true'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TG_CHAT:   ${{ steps.inp.outputs.tg_chat }}
+          TG_MSG:    ${{ steps.inp.outputs.tg_msg }}
+          ISSUE_URL: ${{ steps.issue.outputs.url }}
+        run: |
+          python3 - << 'PYEOF'
+          import os, urllib.request, json
+          token     = os.environ['TELEGRAM_BOT_TOKEN']
+          chat_id   = os.environ['TG_CHAT']
+          reply_to  = os.environ.get('TG_MSG', '')
+          issue_url = os.environ.get('ISSUE_URL', '')
+          response  = open('claude_response.txt').read()
+          MAX = 3800
+          if len(response) > MAX:
+              response = response[:MAX] + f'\n\n…[truncated]\n\n📋 Full: {issue_url}'
+          elif issue_url:
+              response = response + f'\n\n📋 GitHub Issue: {issue_url}'
+          payload = {'chat_id': chat_id, 'text': response}
+          if reply_to:
+              try: payload['reply_to_message_id'] = int(reply_to)
+              except ValueError: pass
+          data = json.dumps(payload).encode()
+          req = urllib.request.Request(
+              f'https://api.telegram.org/bot{token}/sendMessage',
+              data=data, headers={'Content-Type': 'application/json'}, method='POST')
+          try:
+              urllib.request.urlopen(req, timeout=15)
+              print('Telegram reply sent.')
+          except Exception as e:
+              print(f'Telegram reply failed (non-fatal): {e}')
+          PYEOF
+
+      - name: Reply to Telegram — implement result
+        if: |
+          steps.inp.outputs.tg_chat != '' &&
+          steps.inp.outputs.mode == 'implement' &&
+          steps.claude_impl.outputs.claude_unavailable != 'true'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TG_CHAT:     ${{ steps.inp.outputs.tg_chat }}
+          TG_MSG:      ${{ steps.inp.outputs.tg_msg }}
+          PR_URL:      ${{ steps.pr.outputs.url }}
+          HAS_CHANGES: ${{ steps.commit.outputs.has_changes }}
+          SUCCEEDED:   ${{ steps.claude_impl.outputs.succeeded }}
+        run: |
+          python3 - << 'PYEOF'
+          import os, urllib.request, json
+          token      = os.environ['TELEGRAM_BOT_TOKEN']
+          chat_id    = os.environ['TG_CHAT']
+          reply_to   = os.environ.get('TG_MSG', '')
+          pr_url     = os.environ.get('PR_URL', '')
+          succeeded  = os.environ.get('SUCCEEDED', 'false')
+          has_changes = os.environ.get('HAS_CHANGES', 'false')
+          if succeeded == 'true' and has_changes == 'true' and pr_url:
+              text = f'✅ Done — PR opened for review:\n{pr_url}'
+          elif succeeded == 'true':
+              text = 'ℹ️ Task complete — no file changes were needed.'
+          else:
+              text = '⚠️ Task did not complete. Check the workflow log.'
+          payload = {'chat_id': chat_id, 'text': text}
+          if reply_to:
+              try: payload['reply_to_message_id'] = int(reply_to)
+              except ValueError: pass
+          data = json.dumps(payload).encode()
+          req = urllib.request.Request(
+              f'https://api.telegram.org/bot{token}/sendMessage',
+              data=data, headers={'Content-Type': 'application/json'}, method='POST')
+          try:
+              urllib.request.urlopen(req, timeout=15)
+              print('Telegram reply sent.')
+          except Exception as e:
+              print(f'Telegram reply failed (non-fatal): {e}')
           PYEOF
 
       # ── Quota exhaustion → Copilot fallback ─────────────────────────────
@@ -248,7 +372,7 @@ jobs:
           steps.claude_impl.outputs.claude_unavailable == 'true' ||
           steps.claude_inv.outputs.claude_unavailable == 'true'
         env:
-          BASE: ${{ inputs.base_branch }}
+          BASE: ${{ steps.inp.outputs.base }}
         run: |
           TODAY=$(date -u +%Y-%m-%d)
           git checkout "${BASE}" 2>/dev/null || git checkout main
@@ -261,14 +385,14 @@ jobs:
           steps.claude_inv.outputs.claude_unavailable == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TASK: ${{ inputs.task }}
-          MODE: ${{ inputs.mode }}
+          TASK: ${{ steps.inp.outputs.task }}
+          MODE: ${{ steps.inp.outputs.mode }}
         run: |
           python3 - << 'PYEOF'
           import os, subprocess
+          from datetime import datetime, timezone
           task  = os.environ['TASK']
           mode  = os.environ['MODE']
-          from datetime import datetime, timezone
           today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
           result = subprocess.run(
               ['gh', 'issue', 'list',
@@ -318,10 +442,38 @@ jobs:
               capture_output=True)
           PYEOF
 
+      - name: Reply to Telegram — quota exhausted
+        if: |
+          steps.inp.outputs.tg_chat != '' && (
+          steps.claude_impl.outputs.claude_unavailable == 'true' ||
+          steps.claude_inv.outputs.claude_unavailable == 'true')
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TG_CHAT: ${{ steps.inp.outputs.tg_chat }}
+          TG_MSG:  ${{ steps.inp.outputs.tg_msg }}
+        run: |
+          python3 - << 'PYEOF'
+          import os, urllib.request, json
+          token   = os.environ['TELEGRAM_BOT_TOKEN']
+          chat_id = os.environ['TG_CHAT']
+          reply_to = os.environ.get('TG_MSG', '')
+          text = '🔴 Claude quota exhausted — task queued for GitHub Copilot.\nCheck back after quota resets.'
+          payload = {'chat_id': chat_id, 'text': text}
+          if reply_to:
+              try: payload['reply_to_message_id'] = int(reply_to)
+              except ValueError: pass
+          data = json.dumps(payload).encode()
+          req = urllib.request.Request(
+              f'https://api.telegram.org/bot{token}/sendMessage',
+              data=data, headers={'Content-Type': 'application/json'}, method='POST')
+          try: urllib.request.urlopen(req, timeout=15)
+          except Exception as e: print(f'Telegram reply failed (non-fatal): {e}')
+          PYEOF
+
       # ── Propagate unexpected non-quota failures ──────────────────────────
       - name: Fail on unexpected Claude error
         if: |
-          inputs.mode == 'implement' &&
+          steps.inp.outputs.mode == 'implement' &&
           steps.claude_impl.outputs.succeeded == 'false' &&
           steps.claude_impl.outputs.claude_unavailable != 'true'
         env:

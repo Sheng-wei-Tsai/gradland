@@ -1,0 +1,19 @@
+name              = "telegram-claude-bridge"
+main              = "src/index.ts"
+compatibility_date = "2025-01-01"
+workers_dev       = true
+
+[vars]
+GITHUB_REPO     = "Sheng-wei-Tsai/henrys-blog"
+ALLOWED_CHAT_ID = "6191405894"
+
+# Secrets — set these with `wrangler secret put <NAME>`:
+#   GITHUB_TOKEN         PAT with repo + workflow scopes
+#                        (github.com → Settings → Developer settings → PAT)
+#   TELEGRAM_BOT_TOKEN   from BotFather (same value as ~/.claude/channels/telegram/.env)
+#   TELEGRAM_SECRET      any random string — used to verify Telegram webhook calls
+
+# After `wrangler deploy`, register the webhook with:
+#   curl "https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook" \
+#     -d "url=https://telegram-claude-bridge.<your-subdomain>.workers.dev" \
+#     -d "secret_token=<TELEGRAM_SECRET>"
