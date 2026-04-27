@@ -1,13 +1,19 @@
 name: Autonomous Loop Scheduler
 
-# Fires every hour. Allows up to 4 autonomous-loop runs per UTC day (one per
-# 5-hour quota window). Enforces a 4.5-hour spacing guard so two runs never
-# land inside the same window. Falls back gracefully: quota-exhausted sentinel
-# stops all further runs; each window tracks a dev-done/<DATE>-w<N> sentinel.
+# Fires every hour. Up to 4 autonomous-loop runs per UTC day (one per
+# ~5-hour quota window). 4.5h spacing guard prevents double-firing.
 #
-# Complements the local claude-window-watcher.sh daemon:
-#   Mac on  → watcher fires immediately after each window opens
-#   Mac off → this cron picks up within the hour as a cloud fallback
+# Brisbane (UTC+10) daily quota windows — aligned to your schedule:
+#   Window 1: 04:50 AEST (18:50 UTC) — quota reset while you SLEEP
+#             → cron fires at 19:00 UTC (05:00 AEST), runs until ~07:50
+#   Window 2: ~12:30 AEST (02:30 UTC) — quota reset while you're AT WORK
+#             → cron fires at 03:00 UTC (13:00 AEST), posts + dev tasks
+#   Window 3: ~17:30 AEST (07:30 UTC) — quota reset when you get HOME
+#             → idle-trigger handles this (you end session, 60 min fires)
+#   Window 4: as available — watcher or cron
+#
+# Mac on  → claude-window-watcher.sh fires immediately at reset epoch
+# Mac off → this hourly cron fires within 60 min as cloud fallback
 
 on:
   schedule:

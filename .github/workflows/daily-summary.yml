@@ -1,0 +1,186 @@
+name: Daily Summary
+
+# Fires at 08:00 UTC = 18:00 AEST (6pm Brisbane) — when you get home.
+# Compiles everything the bot did today:
+#   - How many dev windows ran + what was fixed
+#   - Today's commits from automation
+#   - Open Copilot issues ready to review
+#   - Post published today
+# Opens a GitHub Issue + sends Telegram if TELEGRAM_CHAT_ID secret is set.
+
+on:
+  schedule:
+    - cron: '0 8 * * *'    # 18:00 AEST (6pm Brisbane) — you just got home
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  summarise:
+    name: Build & send daily summary
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compile daily activity
+        id: summary
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TODAY=$(date -u +%Y-%m-%d)
+          echo "today=${TODAY}" >> $GITHUB_OUTPUT
+
+          # Count dev windows completed
+          WIN_COUNT=$(git ls-remote --heads origin | grep "dev-done/${TODAY}-w" | wc -l | tr -d ' ')
+          echo "windows=${WIN_COUNT}" >> $GITHUB_OUTPUT
+
+          # Quota status
+          EXHAUSTED=$(gh api "repos/${GITHUB_REPOSITORY}/git/refs/heads/quota-exhausted/${TODAY}" \
+            --silent 2>/dev/null && echo "yes" || echo "no")
+          echo "exhausted=${EXHAUSTED}" >> $GITHUB_OUTPUT
+
+          # Today's bot commits on main (by github-actions bot or TechPath bots)
+          COMMITS=$(git log --since="${TODAY}T00:00:00Z" --until="${TODAY}T23:59:59Z" \
+            --format="%s" --author="github-actions\[bot\]@\|TechPath" 2>/dev/null \
+            | grep -v "^$" | head -10 || echo "")
+          # Save to file to handle multi-line
+          echo "$COMMITS" > /tmp/commits.txt
+
+          # Post published today?
+          POST_FILE=$(ls content/posts/${TODAY}-*.md 2>/dev/null | head -1 || echo "")
+          if [ -n "$POST_FILE" ]; then
+            POST_TITLE=$(grep "^title:" "$POST_FILE" | sed 's/title: "//;s/"$//' | head -1)
+            echo "post_title=${POST_TITLE}" >> $GITHUB_OUTPUT
+          fi
+
+          # Open Copilot issues (tasks for review)
+          COPILOT_ISSUES=$(gh issue list \
+            --label "copilot-task,copilot-fallback" \
+            --state open \
+            --json number,title \
+            --jq '.[] | "  #\(.number) — \(.title)"' 2>/dev/null | head -5 || echo "")
+          echo "$COPILOT_ISSUES" > /tmp/copilot_issues.txt
+
+      - name: Open summary issue + send Telegram
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TODAY: ${{ steps.summary.outputs.today }}
+          WINDOWS: ${{ steps.summary.outputs.windows }}
+          EXHAUSTED: ${{ steps.summary.outputs.exhausted }}
+          POST_TITLE: ${{ steps.summary.outputs.post_title }}
+        run: |
+          python3 - << 'PYEOF'
+          import os, json, subprocess, urllib.request
+
+          today     = os.environ.get('TODAY', '')
+          windows   = int(os.environ.get('WINDOWS', '0'))
+          exhausted = os.environ.get('EXHAUSTED', 'no')
+          post_title = os.environ.get('POST_TITLE', '')
+
+          commits = [l for l in open('/tmp/commits.txt').read().splitlines() if l.strip()]
+          copilot = [l for l in open('/tmp/copilot_issues.txt').read().splitlines() if l.strip()]
+
+          # ── Build summary ─────────────────────────────────────────────────
+          quota_status = "🔴 Exhausted" if exhausted == "yes" else "🟢 Available"
+
+          lines = [f'## Daily Summary — {today}', '']
+
+          lines += [f'**Quota:** {quota_status}   **Dev windows:** {windows}/4', '']
+
+          if commits:
+              lines += ['### ✅ Pushed to main today', '']
+              for c in commits[:8]:
+                  lines.append(f'- {c}')
+              lines.append('')
+          else:
+              lines += ['### No bot commits today\n']
+
+          if post_title:
+              lines += [f'### 📝 Post published', '', f'"{post_title}"', '']
+          else:
+              lines += ['### 📝 No post today (quota may have been exhausted)\n']
+
+          if copilot:
+              lines += ['### 🤖 Copilot issues open (review & merge)', '']
+              for i in copilot:
+                  lines.append(i)
+              lines.append('')
+          else:
+              lines += ['### No open Copilot issues\n']
+
+          lines += [
+              '---',
+              '**Next steps:**',
+              '1. Review any commits above on `main`',
+              '2. Check open Copilot issues if any',
+              f'3. Tomorrow: automation fires again at 4:50am Brisbane',
+              '',
+              f'*TechPath Daily Summary — auto-generated {today}*',
+          ]
+
+          body = '\n'.join(lines)
+
+          # ── GitHub Issue ──────────────────────────────────────────────────
+          with open('/tmp/summary_body.txt', 'w') as fh:
+              fh.write(body)
+
+          result = subprocess.run([
+              'gh', 'issue', 'create',
+              '--title', f'[Daily Summary] {today} — {windows} windows, {len(commits)} commits',
+              '--body-file', '/tmp/summary_body.txt',
+          ], capture_output=True, text=True)
+
+          if result.returncode == 0:
+              print(f'Summary issue: {result.stdout.strip()}')
+          else:
+              print(f'Issue creation failed: {result.stderr}')
+
+          # ── Telegram ─────────────────────────────────────────────────────
+          bot_token = os.environ.get('TELEGRAM_BOT_TOKEN', '')
+          chat_id   = os.environ.get('TELEGRAM_CHAT_ID', '')
+
+          if not bot_token or not chat_id:
+              print('Telegram skipped (TELEGRAM_CHAT_ID not configured — add it in repo secrets)')
+          else:
+              # Compact Telegram version
+              tg_lines = [f'📊 *Daily Summary — {today}*', '']
+              tg_lines.append(f'Quota: {quota_status}  |  Dev windows: {windows}/4')
+              if commits:
+                  tg_lines.append(f'Commits: {len(commits)} pushed to main')
+                  for c in commits[:3]:
+                      tg_lines.append(f'  • {c[:60]}')
+              else:
+                  tg_lines.append('Commits: none today')
+              if post_title:
+                  tg_lines.append(f'Post: "{post_title[:50]}"')
+              if copilot:
+                  tg_lines.append(f'Copilot issues: {len(copilot)} open for review')
+              tg_lines.append('\n_Check GitHub Issues for full summary_')
+
+              msg = '\n'.join(tg_lines)
+              payload = {
+                  'chat_id': chat_id,
+                  'text': msg,
+                  'parse_mode': 'Markdown',
+              }
+              data = json.dumps(payload).encode()
+              req = urllib.request.Request(
+                  f'https://api.telegram.org/bot{bot_token}/sendMessage',
+                  data=data,
+                  headers={'Content-Type': 'application/json'},
+                  method='POST',
+              )
+              try:
+                  urllib.request.urlopen(req, timeout=15)
+                  print('Telegram summary sent.')
+              except Exception as e:
+                  print(f'Telegram send failed (non-fatal): {e}')
+          PYEOF

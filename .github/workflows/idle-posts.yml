@@ -7,7 +7,8 @@ name: Idle-Triggered Daily Post
 
 on:
   schedule:
-    - cron: '0 22 * * *'   # 08:00 AEST daily — fires before autonomous loop
+    - cron: '0 22 * * *'   # 08:00 AEST — fires early, before morning loop
+    - cron: '0 2 * * *'    # 12:00 AEST — fires after noon quota reset window
   repository_dispatch:
     types: [idle-posts]
   workflow_dispatch:
