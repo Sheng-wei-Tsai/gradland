@@ -141,8 +141,8 @@ The daily analyst and developer GitHub Actions workflows authenticate using the 
 
 | Secret | Purpose | How to generate |
 |--------|---------|-----------------|
-| `CLAUDE_CODE_OAUTH_TOKEN` | Lets the `claude` CLI in GitHub Actions bill against your Pro subscription quota instead of API credits | Run `claude setup-token` in your local terminal (must be signed into Claude Code Pro), then paste the output into GitHub → repo Settings → Secrets → `CLAUDE_CODE_OAUTH_TOKEN` |
-| `ANTHROPIC_API_KEY` | Used only by `daily-posts.yml` and the content scripts (`fetch-ai-news`, `fetch-visa-news`, `run-githot`) which call the Anthropic SDK directly and cannot use the OAuth token | Anthropic Console → API Keys |
+| `CLAUDE_CODE_OAUTH_TOKEN` | Lets the `claude` CLI in GitHub Actions bill against your Pro subscription quota instead of API credits. Used by the daily analyst, developer, and **all daily content workflows** (digest, githot, ai-news, visa-news, idle-posts). Content scripts shell out via `scripts/llm-claude.ts`. | Run `claude setup-token` in your local terminal (must be signed into Claude Code Pro), then paste the output into GitHub → repo Settings → Secrets → `CLAUDE_CODE_OAUTH_TOKEN` |
+| `ANTHROPIC_API_KEY` | Optional fallback only. No active workflow consumes it after the OAuth migration; kept available for ad-hoc local runs of legacy scripts. | Anthropic Console → API Keys |
 
 When the Pro subscription quota is exhausted, the developer workflow automatically creates a GitHub Issue assigned to `@copilot` so the GitHub Copilot Pro+ coding agent picks up the task instead. No manual intervention needed.
 
