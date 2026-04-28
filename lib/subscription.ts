@@ -36,6 +36,7 @@ export const ENDPOINT_LIMITS: Record<string, number> = {
   'learn/quiz':          25, // per video
   'learn/diagram':        3, // Mermaid diagram via GPT-4o-mini — 3/day
   'learn/roadmap-image':  2, // Mermaid roadmap via GPT-4o-mini — 2/day
+  'diagrams/generate':   10, // Generic Mermaid diagram via GPT-4o-mini — 10/day
   'gap-analysis':         5, // Job-to-gap skill extraction — 5/day
   'analytics/ai-insights': 10, // GPT-4o admin analytics — 10/day
 };
