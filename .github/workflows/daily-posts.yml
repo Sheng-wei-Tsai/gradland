@@ -8,16 +8,22 @@ name: Daily Posts
 #
 # The blog `post` job lives in idle-posts.yml — do not reintroduce it here.
 #
-# Cron: 23:00 UTC = 9am AEST. Jobs spread to avoid quota burst:
-#   ai-news + visa-news → 23:00
-#   githot              → 23:15
-#   digest              → 23:30
+# Cron windows are spread across the day so each heavy job gets its own
+# 5-hour Claude Pro quota window (quota resets ~every 5h). Schedule:
+#   22:00 UTC (8am AEST)  → blog post           (idle-posts.yml)
+#   05:00 UTC (3pm AEST)  → githot              (this file, 10 Sonnet calls)
+#   11:00 UTC (9pm AEST)  → digest              (this file, ~7 Sonnet calls)
+#   17:00 UTC (3am AEST)  → ai-news + visa-news (this file, light enrichment)
+#
+# Each pair is ≥5h apart so no two heavy jobs share a quota window.
+# Previously all four ran 23:00–23:30 UTC sharing one window → 7 days of
+# silent failures (quota exhausted by the 3rd job).
 
 on:
   schedule:
-    - cron: '0 23 * * *'
-    - cron: '15 23 * * *'
-    - cron: '30 23 * * *'
+    - cron: '0 17 * * *'   # ai-news + visa-news (3am AEST — own quota window)
+    - cron: '0 5 * * *'    # githot (3pm AEST)
+    - cron: '0 11 * * *'   # digest (9pm AEST)
   workflow_dispatch:
 
 permissions:
@@ -25,7 +31,7 @@ permissions:
 
 jobs:
   ai-news:
-    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 23 * * *'
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 17 * * *'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -62,7 +68,7 @@ jobs:
           exit $EXIT
 
   visa-news:
-    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 23 * * *'
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 17 * * *'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -99,7 +105,7 @@ jobs:
           exit $EXIT
 
   githot:
-    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '15 23 * * *'
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 5 * * *'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -137,7 +143,7 @@ jobs:
           exit $EXIT
 
   digest:
-    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '30 23 * * *'
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 11 * * *'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
