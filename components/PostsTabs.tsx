@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 const TABS = [
   { href: '/posts',            label: 'All',       emoji: '📚' },
   { href: '/posts/blog',       label: 'Blog',      emoji: '✍️'  },
+  { href: '/posts/diagram',    label: 'Diagrams',  emoji: '📊' },
   { href: '/posts/research',   label: 'Research',  emoji: '🤖' },
   { href: '/posts/githot',     label: 'Githot',    emoji: '🔥' },
   { href: '/posts/ai-news',    label: 'AI News',   emoji: '📡' },

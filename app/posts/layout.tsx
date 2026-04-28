@@ -1,4 +1,5 @@
 import { getAllPosts, getAllDigests, getAllGithot, getAllAINews, getAllVisaNews } from '@/lib/posts';
+import { STARTER_DIAGRAMS } from '@/data/starter-diagrams';
 import PostsTabs from '@/components/PostsTabs';
 
 export default function PostsLayout({ children }: { children: React.ReactNode }) {
@@ -13,6 +14,7 @@ export default function PostsLayout({ children }: { children: React.ReactNode })
   const counts = {
     '/posts':           total,
     '/posts/blog':      posts.length,
+    '/posts/diagram':   STARTER_DIAGRAMS.length,
     '/posts/research':  digests.length,
     '/posts/githot':    githot.length,
     '/posts/ai-news':   ainews.length,
