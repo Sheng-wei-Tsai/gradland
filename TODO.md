@@ -96,16 +96,16 @@
 **Files already done:** `app/api/stripe/webhook/route.ts`, `lib/subscription.ts`, `app/pricing/page.tsx`
 
 ### Remaining Security Items
-- [ ] Add `.limit()` to unbounded queries in `app/api/comments/route.ts` + `app/api/alerts/route.ts`
-- [ ] Fix async `cookies()` in `alerts/route.ts` (Next.js 16 breaking change)
-- [ ] Stripe webhook signature validation tests — `app/api/stripe/webhook/route.test.ts`
+- [x] 2026-04-29 Add `.limit()` to unbounded queries in `app/api/comments/route.ts` + `app/api/alerts/route.ts`
+- [x] 2026-04-29 Fix async `cookies()` in `alerts/route.ts` (Next.js 16 breaking change)
+- [x] 2026-04-29 Stripe webhook signature validation tests — `app/api/stripe/webhook/route.test.ts`
 
 ---
 
 ## 🔴 Priority 1 — Retention Engine
 
 ### Readiness Score on Profile Page
-- [ ] Show the 0–100 score ring + breakdown on `/profile` or `/dashboard/profile`
+- [x] 2026-04-29 Show the 0–100 score ring + breakdown on `/dashboard/profile`
 - Small effort (S) — widget already exists as `ReadinessScore` component
 
 ### B2B Recruiter / Company Job Posting — `features/recruiter-portal.md`
