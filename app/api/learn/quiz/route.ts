@@ -45,13 +45,20 @@ export async function POST(req: NextRequest) {
   }
 
   // ── Generate quiz ───────────────────────────────────────────────────
-  const concepts = (studyGuide.keyConcepts ?? []).map(c => `${c.term}: ${c.definition}`).join('\n');
-  const insights = (studyGuide.coreInsights ?? []).join('\n');
+  // Truncate untrusted client-supplied strings before prompt interpolation
+  const safeTitle   = videoTitle.slice(0, 200);
+  const safeSummary = (studyGuide.summary ?? '').slice(0, 1000);
+  const concepts = (studyGuide.keyConcepts ?? [])
+    .map(c => `${String(c.term ?? '').slice(0, 100)}: ${String(c.definition ?? '').slice(0, 300)}`)
+    .join('\n');
+  const insights = (studyGuide.coreInsights ?? [])
+    .map(s => String(s).slice(0, 200))
+    .join('\n');
 
-  const prompt = `Create a 5-question multiple choice quiz about the YouTube video: "${videoTitle}"
+  const prompt = `Create a 5-question multiple choice quiz about the YouTube video: "${safeTitle}"
 
 Study guide content:
-Summary: ${studyGuide.summary ?? ''}
+Summary: ${safeSummary}
 Key concepts:
 ${concepts}
 Core insights:
