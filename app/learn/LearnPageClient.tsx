@@ -507,6 +507,55 @@ export default function LearnPageClient({ paths }: { paths: SkillPath[] }) {
             </span>
           </motion.div>
         </Link>
+
+        {/* Visual System Design card */}
+        <Link href="/learn/diagrams" style={{ textDecoration: 'none' }}>
+          <motion.div
+            initial="rest" whileHover="hover" whileTap={{ scale: 0.99 }}
+            style={{
+              background: 'linear-gradient(135deg, #0c1a2e 0%, #1a2744 55%, #0f2233 100%)',
+              border: '1px solid #3b6ea8', borderRadius: '14px',
+              padding: '1.4rem 1.6rem', position: 'relative', overflow: 'hidden',
+              display: 'flex', flexDirection: 'column',
+            }}
+          >
+            {/* Ambient glow */}
+            <div style={{ position: 'absolute', top: '-10px', right: '40px', width: '140px', height: '140px', borderRadius: '50%', background: 'rgba(59,110,168,0.25)', filter: 'blur(40px)', pointerEvents: 'none' }} />
+            {/* Diagram icon — slides in on hover */}
+            <motion.div
+              variants={{ rest: { x: 18, opacity: 0 }, hover: { x: 0, opacity: 0.18 } }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
+              style={{ position: 'absolute', top: '1rem', right: '1.3rem', pointerEvents: 'none' }}
+            >
+              <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+                <rect x="8" y="8" width="20" height="12" rx="3" fill="white" />
+                <rect x="36" y="8" width="20" height="12" rx="3" fill="white" />
+                <rect x="22" y="44" width="20" height="12" rx="3" fill="white" />
+                <line x1="18" y1="20" x2="32" y2="44" stroke="white" strokeWidth="2.5" />
+                <line x1="46" y1="20" x2="32" y2="44" stroke="white" strokeWidth="2.5" />
+              </svg>
+            </motion.div>
+            <div style={{ position: 'relative', flex: 1 }}>
+              <p style={{ fontSize: '0.7rem', fontWeight: 700, color: '#7eb8f7', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.3rem' }}>
+                Daily Diagrams — Updated Every Day
+              </p>
+              <h3 style={{ fontFamily: "'Lora', serif", fontSize: '1.05rem', fontWeight: 700, color: '#e8f4ff', marginBottom: '0.3rem' }}>
+                Visual System Design
+              </h3>
+              <p style={{ fontSize: '0.82rem', color: '#8db8d8', lineHeight: 1.55, marginBottom: '0.7rem' }}>
+                Software engineering concepts explained with Mermaid diagrams. CDN, OAuth, databases, microservices — ByteByteGo style.
+              </p>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.2rem' }}>
+                {['🌐 Networking', '🗄️ Databases', '⚙️ System Design', '🔐 Security'].map(tag => (
+                  <span key={tag} style={{ fontSize: '0.68rem', fontWeight: 600, color: '#7eb8f7', background: 'rgba(126,184,247,0.1)', padding: '0.2em 0.55em', borderRadius: '5px' }}>{tag}</span>
+                ))}
+              </div>
+            </div>
+            <span style={{ alignSelf: 'flex-start', background: '#3b6ea8', color: 'white', padding: '0.5rem 1.1rem', borderRadius: '99px', fontSize: '0.85rem', fontWeight: 600, boxShadow: '0 2px 12px rgba(59,110,168,0.4)', position: 'relative' }}>
+              Explore diagrams →
+            </span>
+          </motion.div>
+        </Link>
       </motion.section>
 
     </div>
