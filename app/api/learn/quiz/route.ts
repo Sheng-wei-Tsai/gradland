@@ -25,6 +25,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
   }
 
+  const safeTitle   = videoTitle.slice(0, 200);
+  const safeSummary = (studyGuide.summary ?? '').slice(0, 2000);
+
   if (!process.env.OPENAI_API_KEY) return NextResponse.json({ error: 'OpenAI API not configured' }, { status: 503 });
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -45,13 +48,19 @@ export async function POST(req: NextRequest) {
   }
 
   // ── Generate quiz ───────────────────────────────────────────────────
-  const concepts = (studyGuide.keyConcepts ?? []).map(c => `${c.term}: ${c.definition}`).join('\n');
-  const insights = (studyGuide.coreInsights ?? []).join('\n');
+  const concepts = (studyGuide.keyConcepts ?? [])
+    .slice(0, 20)
+    .map(c => `${c.term.slice(0, 100)}: ${c.definition.slice(0, 300)}`)
+    .join('\n');
+  const insights = (studyGuide.coreInsights ?? [])
+    .slice(0, 10)
+    .map(s => s.slice(0, 200))
+    .join('\n');
 
-  const prompt = `Create a 5-question multiple choice quiz about the YouTube video: "${videoTitle}"
+  const prompt = `Create a 5-question multiple choice quiz about the YouTube video: "${safeTitle}"
 
 Study guide content:
-Summary: ${studyGuide.summary ?? ''}
+Summary: ${safeSummary}
 Key concepts:
 ${concepts}
 Core insights:
