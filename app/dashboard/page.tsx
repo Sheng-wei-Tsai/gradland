@@ -156,6 +156,11 @@ export default function DashboardPage() {
 
       {/* Readiness Score */}
       <ReadinessScore />
+      <div style={{ textAlign: 'right', marginTop: '-1rem', marginBottom: '1.5rem' }}>
+        <Link href="/dashboard/profile" style={{ fontSize: '0.82rem', color: 'var(--text-muted)', textDecoration: 'none' }}>
+          View full profile →
+        </Link>
+      </div>
 
       {/* Career Tools */}
       <div style={{ marginBottom: '2rem' }}>
