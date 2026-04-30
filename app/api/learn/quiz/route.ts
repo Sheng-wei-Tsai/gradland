@@ -25,6 +25,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
   }
 
+  const safeTitle = videoTitle.slice(0, 200);
+  const safeSummary = (studyGuide.summary ?? '').slice(0, 1000);
+  const safeConcepts = (studyGuide.keyConcepts ?? []).map(c => ({
+    term: c.term.slice(0, 100),
+    definition: c.definition.slice(0, 300),
+  }));
+  const safeInsights = (studyGuide.coreInsights ?? []).map(s => s.slice(0, 300));
+
   if (!process.env.OPENAI_API_KEY) return NextResponse.json({ error: 'OpenAI API not configured' }, { status: 503 });
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -45,13 +53,13 @@ export async function POST(req: NextRequest) {
   }
 
   // ── Generate quiz ───────────────────────────────────────────────────
-  const concepts = (studyGuide.keyConcepts ?? []).map(c => `${c.term}: ${c.definition}`).join('\n');
-  const insights = (studyGuide.coreInsights ?? []).join('\n');
+  const concepts = safeConcepts.map(c => `${c.term}: ${c.definition}`).join('\n');
+  const insights = safeInsights.join('\n');
 
-  const prompt = `Create a 5-question multiple choice quiz about the YouTube video: "${videoTitle}"
+  const prompt = `Create a 5-question multiple choice quiz about the YouTube video: "${safeTitle}"
 
 Study guide content:
-Summary: ${studyGuide.summary ?? ''}
+Summary: ${safeSummary}
 Key concepts:
 ${concepts}
 Core insights:
@@ -94,7 +102,7 @@ Rules:
     if (questions.length) {
       await sb.from('video_content').upsert({
         video_id: videoId,
-        video_title: videoTitle,
+        video_title: safeTitle,
         quiz_questions: questions,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'video_id' });
