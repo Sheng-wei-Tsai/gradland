@@ -133,7 +133,7 @@
 **Why:** Current YouTube study guides fail on videos without captions. Gemini watches the video directly.
 - [x] Replace `youtube-transcript` + OpenAI with Gemini 1.5 Flash direct video URL input ✅ 2026-05-01
 - [x] 2026-05-01 Gains: visual content (slides, code on screen), architecture diagrams, no caption dependency
-- [ ] Error handling for long videos (>2h) and music-only content
+- [x] Error handling for long videos (>2h) and music-only content ✅ 2026-05-01
 - **Effort:** S (1–2 days)
 
 ### Vercel KV / Redis Caching — `features/vercel-kv-cache.md`

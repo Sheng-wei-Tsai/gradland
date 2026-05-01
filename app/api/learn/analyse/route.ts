@@ -51,12 +51,19 @@ export async function POST(req: NextRequest) {
   // Per-endpoint daily limit (20 calls — most expensive route at ~$0.035/call)
   if (!(await checkEndpointRateLimit(auth.user.id, 'learn/analyse'))) return rateLimitResponse();
 
-  let body: { videoId?: string; videoTitle?: string; channelTitle?: string };
+  let body: { videoId?: string; videoTitle?: string; channelTitle?: string; durationSeconds?: number };
   try { body = await req.json(); }
   catch { return new Response('Bad request', { status: 400 }); }
 
-  const { videoId, videoTitle, channelTitle } = body;
+  const { videoId, videoTitle, channelTitle, durationSeconds } = body;
   if (!videoId) return new Response('Missing videoId', { status: 400 });
+
+  if (typeof durationSeconds === 'number' && durationSeconds > 7200) {
+    return NextResponse.json(
+      { error: 'This video is over 2 hours long. Gemini cannot reliably analyse videos this long. Try a shorter video, or open it in NotebookLM instead.' },
+      { status: 422 },
+    );
+  }
 
   if (!process.env.GEMINI_API_KEY) return new Response('Gemini API not configured', { status: 503 });
 
@@ -130,9 +137,18 @@ Rules:
           }
         }
       } catch (err) {
-        const msg = (err as Error).message ?? 'Analysis failed';
-        console.error('[analyse] Gemini error:', msg);
-        controller.enqueue(encoder.encode(JSON.stringify({ error: msg })));
+        const raw = (err as Error).message ?? 'Analysis failed';
+        console.error('[analyse] Gemini error:', raw);
+        const lower = raw.toLowerCase();
+        let friendly: string;
+        if (lower.includes('too long') || lower.includes('exceed') || lower.includes('duration') || lower.includes('length')) {
+          friendly = 'This video is too long for AI analysis (Gemini supports up to ~2 hours). Try a shorter video, or open it in NotebookLM.';
+        } else if (lower.includes('audio') || lower.includes('music') || lower.includes('sound only')) {
+          friendly = 'This appears to be a music or audio-only video. AI analysis works best on tech tutorials with spoken explanations and on-screen content.';
+        } else {
+          friendly = raw;
+        }
+        controller.enqueue(encoder.encode(JSON.stringify({ error: friendly })));
       }
       controller.close();
 

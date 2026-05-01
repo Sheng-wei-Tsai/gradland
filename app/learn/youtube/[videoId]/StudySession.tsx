@@ -1021,6 +1021,19 @@ function StreamingEssayPreview({ text, stage }: { text: string; stage: 'transcri
   );
 }
 
+/* ─── Helpers: duration + permanent error detection ─────────────────── */
+function parseDurationSeconds(iso: string): number {
+  const m = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  if (!m) return 0;
+  return (+(m[1] ?? 0) * 3600) + (+(m[2] ?? 0) * 60) + +(m[3] ?? 0);
+}
+
+function isPermanentAnalysisError(msg: string): boolean {
+  const lower = msg.toLowerCase();
+  return lower.includes('over 2 hours') || lower.includes('too long for') ||
+    lower.includes('audio-only') || lower.includes('music or audio');
+}
+
 /* ─── Main component — imported by the server page wrapper ──────────── */
 interface StudySessionProps {
   /** Passed by the server wrapper when the guide is already cached — skips streaming */
@@ -1056,11 +1069,11 @@ export default function StudySession({
       .catch(() => setMetaError('Could not load video'));
   }, [videoId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const loadGuide = useCallback(async (videoTitle: string, channelTitle: string) => {
+  const loadGuide = useCallback(async (videoTitle: string, channelTitle: string, durationSeconds?: number) => {
     setGuideLoading(true); setGuideError(''); setStreamingEssay(''); setLoadingStage('transcript');
     const res = await fetch('/api/learn/analyse', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ videoId, videoTitle, channelTitle }),
+      body: JSON.stringify({ videoId, videoTitle, channelTitle, durationSeconds }),
     });
     if (!res.ok) {
       if (res.status === 401) {
@@ -1155,7 +1168,11 @@ export default function StudySession({
     if (guide) return; // cached guide from server — no analysis needed
     if (!analysisStarted.current) {
       analysisStarted.current = true;
-      loadGuide(meta?.title ?? videoId, meta?.channelTitle ?? '');
+      loadGuide(
+        meta?.title ?? videoId,
+        meta?.channelTitle ?? '',
+        meta?.duration ? parseDurationSeconds(meta.duration) : undefined,
+      );
     }
   }, [videoId, loadGuide]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1295,11 +1312,19 @@ export default function StudySession({
                 <p style={{ color: '#991b1b', fontSize: '0.88rem', lineHeight: 1.6, marginBottom: '0.75rem' }}>
                   {guideError}
                 </p>
-                <button onClick={() => loadGuide(meta?.title ?? videoId, meta?.channelTitle ?? '')} style={{
-                  background: 'var(--terracotta)', color: 'white', border: 'none',
-                  borderRadius: '8px', padding: '0.5rem 1rem', fontSize: '0.84rem',
-                  fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-                }}>Try again</button>
+                {isPermanentAnalysisError(guideError) ? (
+                  <button onClick={saveToNLM} style={{
+                    background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe',
+                    borderRadius: '8px', padding: '0.5rem 1rem', fontSize: '0.84rem',
+                    fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+                  }}>📓 Open in NotebookLM →</button>
+                ) : (
+                  <button onClick={() => loadGuide(meta?.title ?? videoId, meta?.channelTitle ?? '', meta?.duration ? parseDurationSeconds(meta.duration) : undefined)} style={{
+                    background: 'var(--terracotta)', color: 'white', border: 'none',
+                    borderRadius: '8px', padding: '0.5rem 1rem', fontSize: '0.84rem',
+                    fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+                  }}>Try again</button>
+                )}
               </div>
             )}
 
