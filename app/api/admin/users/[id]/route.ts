@@ -54,8 +54,11 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({ error: 'Cannot ban yourself' }, { status: 400 });
   }
 
-  await sb.from('post_comments').delete().eq('user_id', id);
-  await sb.from('profiles').update({ role: 'banned' }).eq('id', id);
+  const { error: deleteError } = await sb.from('post_comments').delete().eq('user_id', id);
+  if (deleteError) return NextResponse.json({ error: 'Failed to delete comments' }, { status: 500 });
+
+  const { error: banError } = await sb.from('profiles').update({ role: 'banned' }).eq('id', id);
+  if (banError) return NextResponse.json({ error: 'Failed to ban user' }, { status: 500 });
 
   return NextResponse.json({ ok: true });
 }
