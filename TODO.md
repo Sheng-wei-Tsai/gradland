@@ -120,7 +120,7 @@
 **Why:** First B2B revenue lever. AU companies pay thousands to reach qualified international IT grads.
 - [x] `/post-a-role` landing page ✅ 2026-05-01
 - [x] 2026-05-01 Stripe checkout: $99 AUD per 30-day listing
-- [ ] `job_listings` Supabase table — company, role, description, url, expires_at
+- [x] 2026-05-01 `job_listings` Supabase table — company, role, description, url, expires_at
 - [ ] Featured listings at top of `/jobs` page with "Featured" badge
 - [ ] Admin approval queue + auto-expiry via Resend email
 - **Effort:** M (3–5 days)
