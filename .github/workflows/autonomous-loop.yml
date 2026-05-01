@@ -207,6 +207,96 @@ jobs:
           git push origin "analysis/${TODAY}" 2>/dev/null || true
           git checkout main
 
+      # ── Pick and claim a task before Sonnet runs ──────────────────────────
+      - name: Pick and claim task
+        id: task_claim
+        if: |
+          steps.quota_guard.outputs.skip == 'false' &&
+          steps.pr_guard.outputs.skip == 'false' &&
+          steps.iter_guard.outputs.skip == 'false' &&
+          steps.opus.outputs.quota_exhausted != 'true'
+        env:
+          WINDOW: ${{ inputs.window || '1' }}
+        run: |
+          python3 - << 'PYEOF'
+          import re, os, subprocess, sys
+
+          window = int(os.environ.get('WINDOW', '1'))
+          priority_order = {
+              1: ['[security]', '[quality]', '[tests]', '[a11y]', '[style]'],
+              2: ['[quality]', '[tests]', '[a11y]', '[style]', '[security]'],
+              3: ['[tests]', '[a11y]', '[style]', '[security]', '[quality]'],
+              4: ['[a11y]', '[style]', '[security]', '[quality]', '[tests]'],
+          }.get(window, ['[security]', '[quality]', '[tests]', '[a11y]', '[style]'])
+
+          skip_sections = ['Stripe Production Launch']
+          skip_keywords = [
+              'community network', 'b2b', 'claude lab', 'i18n', 'zh-tw',
+              'navigation restructure', 'gemini multimodal', 'vercel kv',
+          ]
+          skip_effort = [' L ', ' XL ']
+
+          with open('TODO.md', 'r') as f:
+              lines = f.read().split('\n')
+
+          in_skip = False
+          all_tasks = []
+          for line in lines:
+              if any(s in line for s in skip_sections):
+                  in_skip = True
+              if in_skip and re.match(r'^## ', line) and not any(s in line for s in skip_sections):
+                  in_skip = False
+              if in_skip:
+                  continue
+              if re.match(r'^- \[ \] .+', line):
+                  clean = line.replace('- [ ] ', '').strip()
+                  if any(k in clean.lower() for k in skip_keywords):
+                      continue
+                  if any(e in clean for e in skip_effort):
+                      continue
+                  all_tasks.append(clean)
+
+          # Sort by window priority order
+          def task_priority(t):
+              for i, tag in enumerate(priority_order):
+                  if tag in t:
+                      return i
+              return len(priority_order)
+
+          ordered = sorted(all_tasks, key=task_priority)
+
+          # Try to claim each task atomically until one succeeds
+          claimed_task = ''
+          claimed_id = ''
+          for task in ordered:
+              task_id_result = subprocess.run(
+                  ['bash', '-c', f'printf "%s" "{{}}" | sha1sum | cut -c1-12'.format(task)],
+                  capture_output=True, text=True
+              )
+              task_id = task_id_result.stdout.strip()
+              lock_result = subprocess.run(
+                  ['bash', 'scripts/agent-claim-lock.sh', 'claude', task_id],
+                  capture_output=True, text=True
+              )
+              if lock_result.returncode == 0:
+                  claimed_task = task
+                  claimed_id = task_id
+                  print(f'Claimed task: {task[:80]}')
+                  print(f'Task ID: {task_id}')
+                  break
+              else:
+                  print(f'Locked (skip): {task[:60]}')
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as gh_out:
+              gh_out.write(f'task_id={claimed_id}\n')
+              gh_out.write(f'task_text={claimed_task[:200]}\n')
+              gh_out.write(f'claimed={"true" if claimed_id else "false"}\n')
+
+          if not claimed_id:
+              print('No unlocked task available — Sonnet will pick freely')
+              sys.exit(0)
+          PYEOF
+
       # ── Phase 2: Sonnet implementation ───────────────────────────────────
       - name: Run Sonnet developer
         id: sonnet
@@ -228,6 +318,8 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: dummy-service-role-ci
           NEXT_PUBLIC_APP_URL: https://henrysdigitallife.com
           WINDOW: ${{ inputs.window || '1' }}
+          CLAIMED_TASK_ID: ${{ steps.task_claim.outputs.task_id }}
+          CLAIMED_TASK_TEXT: ${{ steps.task_claim.outputs.task_text }}
         run: |
           set +e
           claude \
@@ -251,6 +343,12 @@ jobs:
             echo "succeeded=false"       >> "$GITHUB_OUTPUT"
           fi
           exit 0
+
+      - name: Release task lock
+        id: release_lock
+        if: always() && steps.task_claim.outputs.task_id != ''
+        run: |
+          bash scripts/agent-release-lock.sh "${{ steps.task_claim.outputs.task_id }}" || true
 
       # ── Quota exhausted: parse reset time, sentinel, sleep-restart ──────
       - name: Parse reset time and push quota sentinel

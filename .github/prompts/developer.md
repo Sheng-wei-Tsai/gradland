@@ -18,7 +18,9 @@ Pick ONE small task from TODO.md. Implement it correctly. Pass all quality check
 
 ## STEP 1 — Pick ONE task
 
-Read TODO.md. Select a task that meets ALL criteria:
+**If `$CLAIMED_TASK_TEXT` is set in the environment**: work on exactly that task. Do not pick a different one. Skip the TODO.md selection logic below and go directly to STEP 2.
+
+Otherwise, read TODO.md and select a task that meets ALL criteria:
 - Has `- [ ]` checkbox in Priority 0, 1, or 2 section
 - Small and mechanical — NOT a feature build
 - No DB migrations, no new npm packages, no new API keys

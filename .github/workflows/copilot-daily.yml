@@ -22,6 +22,7 @@ on:
 
 permissions:
   issues: write
+  contents: write   # agent-lock/* branch push/delete
 
 jobs:
   assign:
@@ -48,6 +49,12 @@ jobs:
           else
             echo "skip=false" >> $GITHUB_OUTPUT
           fi
+
+
+      - name: Configure git for lock branches
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Parse mechanical tasks from TODO.md
         id: tasks
@@ -196,6 +203,19 @@ jobs:
               body = '\n'.join(lines)
               with open('/tmp/issue_body.txt', 'w') as fh:
                   fh.write(body)
+
+              # Claim atomic lock — skip task if another agent already holds it
+              task_id = subprocess.run(
+                  ['bash', '-c', f'echo -n "{task}" | sha1sum | cut -c1-12'],
+                  capture_output=True, text=True
+              ).stdout.strip()
+              lock_result = subprocess.run(
+                  ['bash', 'scripts/agent-claim-lock.sh', 'copilot', task_id],
+                  capture_output=True, text=True
+              )
+              if lock_result.returncode != 0:
+                  print(f'  task {i} skipped — lock held: {lock_result.stdout.strip()}')
+                  continue
 
               result = subprocess.run([
                   'gh', 'issue', 'create',

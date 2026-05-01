@@ -1,0 +1,54 @@
+name: Agent Lock Sweeper
+
+# Runs nightly at 00:30 UTC — after content workflows have settled.
+# Deletes any agent-lock/* branches older than 24 hours so abandoned
+# locks don't permanently block task reclaiming.
+
+on:
+  schedule:
+    - cron: '30 0 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  sweep:
+    name: Delete stale agent locks
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Sweep stale agent-lock/* branches
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          CUTOFF=$(date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || \
+                   date -u -v-24H +%Y-%m-%dT%H:%M:%SZ)
+
+          echo "Cutoff: ${CUTOFF}"
+          DELETED=0
+
+          BRANCHES=$(gh api "repos/${REPO}/branches" \
+            --paginate --jq '.[].name' | grep '^agent-lock/' || true)
+
+          for branch in $BRANCHES; do
+            COMMITTED=$(gh api "repos/${REPO}/commits/${branch}" \
+              --jq '.commit.committer.date' 2>/dev/null || echo "")
+
+            if [ -z "$COMMITTED" ]; then
+              echo "  skip ${branch} — could not fetch timestamp"
+              continue
+            fi
+
+            if [[ "$COMMITTED" < "$CUTOFF" ]]; then
+              echo "  deleting ${branch} (committed ${COMMITTED})"
+              gh api -X DELETE "repos/${REPO}/git/refs/heads/${branch}" 2>/dev/null && \
+                DELETED=$((DELETED + 1)) || echo "  failed to delete ${branch}"
+            else
+              echo "  keep ${branch} (committed ${COMMITTED})"
+            fi
+          done
+
+          echo "Swept ${DELETED} stale lock(s)."
