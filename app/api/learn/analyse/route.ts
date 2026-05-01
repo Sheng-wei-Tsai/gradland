@@ -30,7 +30,14 @@ const SCHEMA_FULL = `{
     }
   ],
   "coreInsights": ["most important insight", "second", "third", "fourth", "fifth"],
-  "architectureNote": "describe any system architecture or technical concept explained — or null",
+  "codeExamples": [
+    {
+      "language": "e.g. Python, TypeScript, bash, SQL, YAML — or 'diagram' for visual-only",
+      "snippet": "the exact or representative code/command shown on screen (max 20 lines)",
+      "context": "1 sentence explaining what this code demonstrates and where in the video it appears"
+    }
+  ],
+  "architectureNote": "describe any system architecture diagrams, flow charts, or infrastructure visuals shown on screen — reference what was drawn or displayed, not just mentioned — or null",
   "australianContext": "1-2 sentences on how this appears in AU IT job ads or enterprise tech",
   "studyTips": ["specific tip 1", "tip 2", "tip 3"],
   "videoType": "tutorial | explainer | deep-dive | talk | demo",
@@ -79,17 +86,23 @@ export async function POST(req: NextRequest) {
 
 Video title: "${videoTitle || videoId}"${channelTitle ? `\nChannel: ${channelTitle}` : ''}
 
-Watch this video and extract maximum learning value.
+Analyse this video using your full multimodal capabilities — watch the video frames directly. Do NOT rely solely on audio or captions. Pay close attention to:
+- Slides, presentation text, and diagrams displayed on screen
+- Code, terminal output, configuration files, or SQL shown on screen
+- Architecture diagrams, flowcharts, and infrastructure visuals drawn or displayed
+- Any text that appears on screen but may not be spoken aloud
 
 Return ONLY valid JSON matching this exact schema (no markdown fences, no preamble):
 ${SCHEMA_FULL}
 
 Rules:
-- Base all content strictly on what is shown in the video.
+- Base all content strictly on what is shown in the video — visual frames take precedence over inferred meaning.
 - essay: flowing prose, **bold** key terms, 250-300 words.
 - keyConcepts: 5-8 terms actually covered in the video.
 - sections: infer logical chapters from topic shifts; include accurate timestamps (e.g. "0:00 – 3:20").
 - useCases: 3-4 real-world applications discussed or implied by the video.
+- codeExamples: extract every distinct code snippet, command, or configuration visible on screen. Return [] if no code appears on screen. Use "diagram" as the language for visual-only content (e.g. a drawn flowchart).
+- architectureNote: describe diagrams or architecture visuals shown on screen in detail — what boxes, arrows, services, or layers are drawn. Set null only if no visual diagram is shown.
 - audioScript: podcast-style narration, natural and conversational, ~750 words.
 - Do not fabricate claims not supported by the video.`;
 

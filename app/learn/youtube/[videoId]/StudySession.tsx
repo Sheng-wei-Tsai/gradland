@@ -9,6 +9,7 @@ interface VideoMeta { id: string; title: string; channelTitle: string; thumbnail
 interface Concept { term: string; definition: string; example: string; whyMatters: string }
 interface Section { title: string; timestamp: string; summary: string }
 interface UseCase { scenario: string; description: string; industry: string }
+interface CodeExample { language: string; snippet: string; context: string }
 interface Infographic {
   title: string; tagline: string; palette: string;
   stats:     Array<{ value: string; label: string; icon: string }>;
@@ -22,6 +23,7 @@ interface StudyGuide {
   sections: Section[];
   useCases: UseCase[];
   coreInsights: string[];
+  codeExamples?: CodeExample[];
   architectureNote: string | null;
   australianContext: string;
   studyTips: string[];
@@ -223,6 +225,46 @@ function StudyGuideTab({ guide }: { guide: StudyGuide }) {
           ))}
         </ol>
       </div>
+      )}
+
+      {/* Code examples from visual frames */}
+      {(guide.codeExamples?.length ?? 0) > 0 && (
+        <div>
+          <Label>Code from Video</Label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {(guide.codeExamples ?? []).map((ex, i) => (
+              <div key={i} style={{ border: '1px solid var(--parchment)', borderRadius: '10px', overflow: 'hidden' }}>
+                <div style={{
+                  padding: '0.4rem 0.9rem',
+                  background: 'var(--ink)',
+                  display: 'flex', alignItems: 'center', gap: '0.5rem',
+                }}>
+                  <span style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--gold)',
+                    textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+                    {ex.language}
+                  </span>
+                </div>
+                <pre style={{
+                  margin: 0, padding: '0.9rem',
+                  background: '#1a1a2e',
+                  color: '#e2e8f0',
+                  fontSize: '0.78rem', lineHeight: 1.7,
+                  fontFamily: '"Courier New", monospace',
+                  overflowX: 'auto', whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+                }}>
+                  {ex.snippet}
+                </pre>
+                {ex.context && (
+                  <p style={{ margin: 0, padding: '0.55rem 0.9rem',
+                    fontSize: '0.76rem', color: 'var(--text-secondary)',
+                    background: 'var(--warm-white)', borderTop: '1px solid var(--parchment)' }}>
+                    {ex.context}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Architecture note */}
