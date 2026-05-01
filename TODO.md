@@ -118,7 +118,7 @@
 
 ### B2B Recruiter / Company Job Posting — `features/recruiter-portal.md`
 **Why:** First B2B revenue lever. AU companies pay thousands to reach qualified international IT grads.
-- [ ] `/post-a-role` landing page
+- [x] `/post-a-role` landing page ✅ 2026-05-01
 - [ ] Stripe checkout: $99 AUD per 30-day listing
 - [ ] `job_listings` Supabase table — company, role, description, url, expires_at
 - [ ] Featured listings at top of `/jobs` page with "Featured" badge
