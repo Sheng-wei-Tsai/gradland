@@ -146,7 +146,7 @@
 
 ### Expand Test Coverage
 **Current:** 41 tests. Target: critical paths covered.
-- [ ] `track` API route (currently swallows errors silently)
+- [x] 2026-05-01 `track` API route (currently swallows errors silently)
 - [ ] `gap-analysis` route (pgvector path)
 - [ ] `cover-letter` route (streaming)
 - [x] Stripe webhook events (checkout, renewal, cancellation) ✅ 2026-05-01

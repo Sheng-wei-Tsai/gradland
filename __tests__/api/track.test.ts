@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
-// Mock supabase — module-level createClient is called on import
+// Shared mock so individual tests can override upsert behaviour
+const mockUpsert = vi.fn().mockResolvedValue({ error: null });
+
 vi.mock('@supabase/supabase-js', () => ({
   createClient: () => ({
-    from: () => ({
-      upsert: vi.fn().mockResolvedValue({ error: null }),
-    }),
+    from: () => ({ upsert: mockUpsert }),
   }),
 }));
 
@@ -22,6 +22,10 @@ function makeRequest(body: object, ip = '1.2.3.4') {
 }
 
 describe('POST /api/track', () => {
+  beforeEach(() => {
+    mockUpsert.mockResolvedValue({ error: null });
+  });
+
   it('returns 400 when sessionId is missing', async () => {
     const res = await POST(makeRequest({ path: '/blog' }));
     expect(res.status).toBe(400);
@@ -47,7 +51,6 @@ describe('POST /api/track', () => {
       path: '/blog',
       sessionId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
     }));
-    // 200 or 400 depending on db mock — key check is NOT 400 for validation reasons
     const body = await res.json();
     expect(res.status).not.toBe(400);
     expect(body).toHaveProperty('ok');
@@ -61,5 +64,26 @@ describe('POST /api/track', () => {
     const body = await res.json();
     expect(res.status).not.toBe(400);
     expect(body.ok).toBe(true);
+  });
+
+  it('returns 429 on the 61st POST from the same IP within a minute', async () => {
+    const ip = '7.7.7.7';
+    const validBody = { path: '/blog', sessionId: 'abcdef1234567890abcdef1234567890' };
+    for (let i = 0; i < 60; i++) {
+      await POST(makeRequest(validBody, ip));
+    }
+    const res = await POST(makeRequest(validBody, ip));
+    expect(res.status).toBe(429);
+  });
+
+  it('returns 200 ok:false when Supabase upsert throws (silent error swallowing)', async () => {
+    mockUpsert.mockRejectedValueOnce(new Error('connection refused'));
+    const res = await POST(makeRequest({
+      path: '/blog',
+      sessionId: 'abcdef1234567890abcdef1234567891',
+    }, '8.8.8.8'));
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.ok).toBe(false);
   });
 });
