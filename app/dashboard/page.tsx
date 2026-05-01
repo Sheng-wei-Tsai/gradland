@@ -105,9 +105,9 @@ export default function DashboardPage() {
     if (data) setApplications(prev => [data, ...prev]);
   };
 
-  const updateStatus = async (appId: string, status: string) => {
+  const updateStatus = async (appId: string, status: JobApplication['status']) => {
     await supabase.from('job_applications').update({ status, updated_at: new Date().toISOString() }).eq('id', appId);
-    setApplications(prev => prev.map(a => a.id === appId ? { ...a, status: status as any } : a));
+    setApplications(prev => prev.map(a => a.id === appId ? { ...a, status } : a));
   };
 
   if (loading || !user) return null;
@@ -372,7 +372,7 @@ export default function DashboardPage() {
                       </p>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                      <select value={app.status} onChange={e => updateStatus(app.id, e.target.value)} style={{
+                      <select value={app.status} onChange={e => updateStatus(app.id, e.target.value as JobApplication['status'])} style={{
                         padding: '0.3rem 0.7rem', borderRadius: '99px',
                         border: `1.5px solid ${STATUS_COLORS[app.status]}`,
                         color: STATUS_COLORS[app.status], fontWeight: 600,
