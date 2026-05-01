@@ -52,6 +52,15 @@ export function isOwner(email: string | undefined | null): boolean {
   return email.toLowerCase() === OWNER_EMAIL;
 }
 
+// ── Admin check — returns User if role=admin, null otherwise ─────────
+export async function requireAdmin(): Promise<User | null> {
+  const sb = await createSupabaseServer();
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) return null;
+  const { data: profile } = await sb.from('profiles').select('role').eq('id', user.id).maybeSingle();
+  return profile?.role === 'admin' ? user : null;
+}
+
 // ── Standard 401 JSON response ────────────────────────────────────────
 export function unauthorizedResponse() {
   return NextResponse.json(

@@ -1,21 +1,7 @@
 import { NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { requireAdmin } from '@/lib/auth-server';
 import OpenAI from 'openai';
 import { checkEndpointRateLimit, recordUsage, rateLimitResponse } from '@/lib/subscription';
-
-async function requireAdmin() {
-  const cookieStore = await cookies();
-  const authClient = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { getAll: () => cookieStore.getAll(), setAll: () => {} } },
-  );
-  const { data: { user } } = await authClient.auth.getUser();
-  if (!user) return null;
-  const { data: profile } = await authClient.from('profiles').select('role').eq('id', user.id).single();
-  return profile?.role === 'admin' ? user : null;
-}
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
