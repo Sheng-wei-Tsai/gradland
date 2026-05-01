@@ -149,7 +149,7 @@
 - [ ] `track` API route (currently swallows errors silently)
 - [ ] `gap-analysis` route (pgvector path)
 - [ ] `cover-letter` route (streaming)
-- [ ] Stripe webhook events (checkout, renewal, cancellation)
+- [x] Stripe webhook events (checkout, renewal, cancellation) ✅ 2026-05-01
 - [ ] `AuthProvider` component
 - **Effort:** M (3–5 days)
 

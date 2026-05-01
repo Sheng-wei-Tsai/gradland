@@ -172,6 +172,43 @@ describe('POST /api/stripe/webhook', () => {
     expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({ subscription_tier: 'pro' }));
   });
 
+  // ── invoice.payment_succeeded ──────────────────────────────────────────────
+
+  it('extends pro expiry on invoice.payment_succeeded', async () => {
+    const userId   = 'user-renewal';
+    const futureTs = Math.floor(Date.now() / 1000) + 2592000;
+    mockRetrieve.mockResolvedValue({
+      metadata: { supabase_user_id: userId },
+      items:    { data: [{ current_period_end: futureTs }] },
+    });
+    mockConstructEvent.mockReturnValue(makeEvent('invoice.payment_succeeded', {
+      subscription: 'sub_renewal',
+    }));
+
+    const res = await POST(makeRequest('{}'));
+    expect(res.status).toBe(200);
+    expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({ subscription_tier: 'pro' }));
+  });
+
+  it('skips renewal when subscription ref is missing', async () => {
+    mockConstructEvent.mockReturnValue(makeEvent('invoice.payment_succeeded', {}));
+
+    const res = await POST(makeRequest('{}'));
+    expect(res.status).toBe(200);
+    expect(mockUpdate).not.toHaveBeenCalled();
+  });
+
+  it('skips renewal when userId is missing from subscription metadata', async () => {
+    mockRetrieve.mockResolvedValue({ metadata: {}, items: { data: [] } });
+    mockConstructEvent.mockReturnValue(makeEvent('invoice.payment_succeeded', {
+      subscription: 'sub_no_user',
+    }));
+
+    const res = await POST(makeRequest('{}'));
+    expect(res.status).toBe(200);
+    expect(mockUpdate).not.toHaveBeenCalled();
+  });
+
   // ── invoice.payment_failed ──────────────────────────────────────────────────
 
   it('preserves period-end expiry on invoice.payment_failed', async () => {
