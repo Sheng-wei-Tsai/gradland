@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '@/components/AuthProvider';
 import { supabase } from '@/lib/supabase';
 import type { AdzunaJob } from '../api/jobs/route';
+import type { FeaturedListing } from '../api/jobs/listings/route';
 import GapAnalysisPanel from '@/components/GapAnalysisPanel';
 import EIcon from '@/components/icons/EIcon';
 import CityIcon from '@/components/icons/CityIcon';
@@ -120,6 +121,61 @@ function SectionDivider({ label, count }: { label: string; count: number }) {
         {count}
       </span>
       <div style={{ flex: 1, height: '1px', background: 'var(--parchment)' }} />
+    </div>
+  );
+}
+
+// ─── Featured listing card ────────────────────────────────────────────────────
+
+function FeaturedJobCard({ listing }: { listing: FeaturedListing }) {
+  return (
+    <div className="job-card job-card-featured" style={{ position: 'relative', overflow: 'hidden' }}>
+      {/* Featured badge */}
+      <span className="tag tag-featured" style={{ position: 'absolute', top: '1rem', right: '1rem' }}>
+        ★ Featured
+      </span>
+
+      {/* Title + meta */}
+      <div style={{ marginBottom: '0.75rem', paddingRight: '5rem' }}>
+        <h3 className="job-card-title">{listing.title}</h3>
+        <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
+          {listing.company} · {listing.location}
+        </p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+          <span className="tag">{listing.job_type}</span>
+          {listing.salary && (
+            <span className="tag" style={{ color: 'var(--terracotta)', display: 'inline-flex', alignItems: 'center', gap: '0.25em' }}>
+              <EIcon name="coin" size={12} />{listing.salary}
+            </span>
+          )}
+          <span className="tag tag-featured-source">Direct listing</span>
+        </div>
+      </div>
+
+      {/* Description snippet */}
+      <p style={{
+        fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.6,
+        marginBottom: '0.75rem',
+        overflow: 'hidden', display: '-webkit-box',
+        WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const,
+      }}>
+        {listing.description}
+      </p>
+
+      {/* Apply button */}
+      <a
+        href={listing.apply_url}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          display: 'inline-block',
+          background: 'var(--gold)', color: 'var(--ink)',
+          padding: '0.4rem 1.1rem', borderRadius: '99px',
+          fontSize: '0.85rem', fontWeight: 600, textDecoration: 'none',
+        }}
+      >
+        Apply →
+      </a>
     </div>
   );
 }
@@ -283,6 +339,8 @@ export default function JobsPage() {
   const [salaryMax, setSalaryMax] = useState<string>(prefs.salaryMax ?? '');
   const [advancedOpen, setAdvancedOpen] = useState(false);
 
+  const [featuredListings, setFeaturedListings] = useState<FeaturedListing[]>([]);
+
   const [jobs,         setJobs]         = useState<AdzunaJob[]>([]);
   const [scrapedCount, setScrapedCount] = useState(0);
   const [googleCount,  setGoogleCount]  = useState(0);
@@ -322,6 +380,14 @@ export default function JobsPage() {
         if (data) setSavedIds(new Set(data.map(r => r.job_id)));
       });
   }, [user]);
+
+  // Fetch featured (paid) job listings — shown at top of AU tab
+  useEffect(() => {
+    fetch('/api/jobs/listings')
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(d => setFeaturedListings(d.listings ?? []))
+      .catch(() => { /* silently hide featured section on error */ });
+  }, []);
 
   // Persist prefs to localStorage whenever they change
   useEffect(() => {
@@ -691,6 +757,21 @@ export default function JobsPage() {
               </div>
             );
           })()}
+        </div>
+      )}
+
+      {/* Featured listings — shown at top of AU tab whenever listings exist */}
+      {activeTab === 'au' && featuredListings.length > 0 && (
+        <div style={{ marginBottom: '1.25rem' }}>
+          <SectionDivider label="Featured — Direct from Employers" count={featuredListings.length} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
+            {featuredListings.map(listing => (
+              <FeaturedJobCard key={listing.id} listing={listing} />
+            ))}
+          </div>
+          <div style={{ marginTop: '0.5rem', fontSize: '0.78rem', color: 'var(--text-muted)', textAlign: 'right' }}>
+            <Link href="/post-a-role" style={{ color: 'var(--text-muted)' }}>Post a role →</Link>
+          </div>
         </div>
       )}
 

@@ -515,6 +515,18 @@ h3, h4 {
 .tag-google      { color: #1a73e8;          background: rgba(26,115,232,0.07);  border-color: rgba(26,115,232,0.25); }
 .tag-jobicy      { color: var(--jade);      background: rgba(30,122,82,0.06);   border-color: rgba(30,122,82,0.25); }
 .tag-remotive    { color: var(--gold);      background: rgba(200,138,20,0.07);  border-color: rgba(200,138,20,0.28); }
+.tag-featured    { color: var(--ink);       background: var(--gold);            border-color: var(--gold); font-weight: 700; }
+.tag-featured-source { color: var(--gold); background: rgba(200,138,20,0.08);  border-color: rgba(200,138,20,0.3); }
+
+/* Featured job card — gold border accent */
+.job-card-featured {
+  border-color: var(--gold);
+  border-width: 2px;
+}
+[data-theme="dark"] .job-card-featured,
+:root:not([data-theme="light"]) .job-card-featured {
+  border-color: rgba(240,184,48,0.5);
+}
 
 /* ── Job tabs ── */
 .job-tab {

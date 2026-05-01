@@ -121,7 +121,7 @@
 - [x] `/post-a-role` landing page ✅ 2026-05-01
 - [x] 2026-05-01 Stripe checkout: $99 AUD per 30-day listing
 - [x] 2026-05-01 `job_listings` Supabase table — company, role, description, url, expires_at
-- [ ] Featured listings at top of `/jobs` page with "Featured" badge
+- [x] 2026-05-01 Featured listings at top of `/jobs` page with "Featured" badge
 - [ ] Admin approval queue + auto-expiry via Resend email
 - **Effort:** M (3–5 days)
 
