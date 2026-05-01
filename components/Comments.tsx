@@ -223,8 +223,8 @@ export default function Comments({ slug }: { slug: string }) {
     setPosting(true); setPostErr('');
     try {
       await post(null, text.trim(), () => setText(''));
-    } catch (err: any) {
-      setPostErr(err.message ?? 'Failed to post comment');
+    } catch (err) {
+      setPostErr(err instanceof Error ? err.message : 'Failed to post comment');
     } finally {
       setPosting(false);
     }

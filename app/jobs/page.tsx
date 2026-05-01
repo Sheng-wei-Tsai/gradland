@@ -396,8 +396,8 @@ export default function JobsPage() {
         total: data.total, count: c, hasMore: data.hasMore ?? false,
         sources: data.sources, query: cacheKey,
       });
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
     } finally {
       setLoading(false);
     }
