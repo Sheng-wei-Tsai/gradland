@@ -150,7 +150,7 @@
 - [x] `gap-analysis` route (pgvector path) ✅ 2026-05-01
 - [x] 2026-05-01 `cover-letter` route (streaming)
 - [x] Stripe webhook events (checkout, renewal, cancellation) ✅ 2026-05-01
-- [ ] `AuthProvider` component
+- [x] `AuthProvider` component ✅ 2026-05-01
 - **Effort:** M (3–5 days)
 
 ### Phone Remote Control (GitHub mobile + Telegram)
