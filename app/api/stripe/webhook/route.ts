@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createSupabaseService } from '@/lib/auth-server';
+import { sendJobListingConfirmation } from '@/lib/email';
 
 async function updateSubscription(
   userId: string,
@@ -60,19 +61,28 @@ export async function POST(req: NextRequest) {
       if (session.metadata?.type === 'job_listing') {
         const m = session.metadata;
         const { error } = await sb.from('job_listings').insert({
-          company:          m.company,
-          title:            m.title,
-          location:         m.location,
-          job_type:         m.jobType,
-          description:      m.description,
-          apply_url:        m.applyUrl,
-          salary:           m.salary || null,
-          contact_email:    m.contactEmail,
-          status:           'active',
+          company:           m.company,
+          title:             m.title,
+          location:          m.location,
+          job_type:          m.jobType,
+          description:       m.description,
+          apply_url:         m.applyUrl,
+          salary:            m.salary || null,
+          contact_email:     m.contactEmail,
+          status:            'pending',
           stripe_session_id: session.id,
-          expires_at:       new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          expires_at:        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         });
-        if (error) console.error(`[stripe/webhook] job_listings insert failed event=${event.id}:`, error.message);
+        if (error) {
+          console.error(`[stripe/webhook] job_listings insert failed event=${event.id}:`, error.message);
+        } else {
+          await sendJobListingConfirmation({
+            to:        m.contactEmail,
+            company:   m.company,
+            title:     m.title,
+            listingId: session.id,
+          });
+        }
         break;
       }
 
