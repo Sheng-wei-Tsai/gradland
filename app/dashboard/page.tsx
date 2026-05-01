@@ -41,11 +41,11 @@ function inferPrepRole(title: string): string {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  applied:   '#3b82f6',
-  interview: '#f59e0b',
-  offer:     '#10b981',
-  rejected:  '#ef4444',
-  withdrawn: '#6b7280',
+  applied:   'var(--terracotta)',
+  interview: 'var(--gold)',
+  offer:     'var(--jade)',
+  rejected:  'var(--vermilion)',
+  withdrawn: 'var(--text-muted)',
 };
 const STATUS_LABELS: Record<string, string> = {
   applied: 'Applied', interview: 'Interview', offer: 'Offer 🎉', rejected: 'Rejected', withdrawn: 'Withdrawn',
@@ -138,9 +138,9 @@ export default function DashboardPage() {
         <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
           {[
             { label: 'Saved Jobs',    value: savedJobs.length,                         color: 'var(--terracotta)' },
-            { label: 'Applications',  value: applications.length,                      color: '#3b82f6' },
-            { label: 'Interviews',    value: applications.filter(a => a.status === 'interview').length, color: '#f59e0b' },
-            { label: 'Offers',        value: applications.filter(a => a.status === 'offer').length,     color: '#10b981' },
+            { label: 'Applications',  value: applications.length,                      color: 'var(--terracotta)' },
+            { label: 'Interviews',    value: applications.filter(a => a.status === 'interview').length, color: 'var(--gold)' },
+            { label: 'Offers',        value: applications.filter(a => a.status === 'offer').length,     color: 'var(--jade)' },
           ].map(stat => (
             <div key={stat.label} style={{
               flex: 1, minWidth: '120px', background: 'var(--warm-white)',
@@ -189,7 +189,7 @@ export default function DashboardPage() {
               <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>Salaries, visas, skill map & more</div>
             </div>
           </Link>
-          <Link href="/dashboard/visa-tracker" className="career-tool-card" style={{ borderLeft: '3px solid #8b5cf6' }}>
+          <Link href="/dashboard/visa-tracker" className="career-tool-card" style={{ borderLeft: '3px solid var(--gold)' }}>
             <span style={{ fontSize: '1.6rem' }}>🛂</span>
             <div>
               <div style={{ fontWeight: 600, color: 'var(--brown-dark)', fontSize: '0.92rem' }}>Visa Journey Tracker</div>
@@ -291,8 +291,8 @@ export default function DashboardPage() {
                       }}>Apply →</a>
                       <button onClick={() => unsaveJob(job.job_id)} style={{
                         padding: '0.35rem 0.8rem', borderRadius: '99px',
-                        border: '1px solid #fcc', background: '#fff0f0',
-                        fontSize: '0.8rem', cursor: 'pointer', color: '#c00',
+                        border: '1px solid rgba(232,64,64,0.3)', background: 'rgba(232,64,64,0.12)',
+                        fontSize: '0.8rem', cursor: 'pointer', color: 'var(--vermilion)',
                       }}>Remove</button>
                     </div>
                   </div>
@@ -336,7 +336,7 @@ export default function DashboardPage() {
                           await fetch(`/api/alerts?id=${alert.id}`, { method: 'DELETE' });
                           setAlerts(prev => prev.filter(a => a.id !== alert.id));
                         }}
-                        style={{ padding: '0.35rem 0.8rem', borderRadius: '99px', border: '1px solid #fcc', background: '#fff0f0', fontSize: '0.8rem', cursor: 'pointer', color: '#c00' }}>
+                        style={{ padding: '0.35rem 0.8rem', borderRadius: '99px', border: '1px solid rgba(232,64,64,0.3)', background: 'rgba(232,64,64,0.12)', fontSize: '0.8rem', cursor: 'pointer', color: 'var(--vermilion)' }}>
                         Delete
                       </button>
                     </div>
@@ -384,7 +384,7 @@ export default function DashboardPage() {
                       </select>
                       {app.status === 'interview' && (
                         <Link href={`/interview-prep/${inferPrepRole(app.title)}`}
-                          style={{ padding: '0.3rem 0.8rem', borderRadius: '99px', background: '#fef3c7', color: '#d97706', border: '1px solid #fde68a', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                          style={{ padding: '0.3rem 0.8rem', borderRadius: '99px', background: 'rgba(200,138,20,0.12)', color: 'var(--gold)', border: '1px solid var(--parchment)', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap' }}>
                           🎯 Prep for interview
                         </Link>
                       )}
