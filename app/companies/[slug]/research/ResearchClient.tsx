@@ -237,7 +237,7 @@ export function ResearchClient({ company }: { company: CompanyData }) {
             className="btn-research-generate"
             style={{
               background: loading ? 'var(--parchment)' : 'var(--vermilion)',
-              color: loading ? 'var(--text-muted)' : '#fff',
+              color: loading ? 'var(--text-muted)' : 'white',
               border: 'none',
               borderRadius: '8px',
               padding: '0.75rem 2rem',

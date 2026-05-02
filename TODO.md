@@ -211,7 +211,7 @@
 ### Known Tech Debt
 | Issue | Location | Impact |
 |-------|----------|--------|
-| `@import` Google Fonts | `app/globals.css:1` | Render-blocking — replace with `next/font` |
+| ~~`@import` Google Fonts~~ | ~~`app/globals.css:1`~~ | ~~Render-blocking — replace with `next/font`~~ ✅ 2026-05-02 |
 | ~~`--text-muted` dark mode contrast~~ | ~~`globals.css:75`~~ | ~~3.5:1 (fails WCAG) — target `#a09080`~~ ✅ 2026-05-02 |
 | No CSP `nonce` | `next.config.ts` | Static CSP — upgrade to dynamic nonce-based |
 | Accessible components (ARIA) | Multiple | Keyboard nav, focus rings, `aria-expanded` |
@@ -298,6 +298,7 @@
 - [x] Replace `WebkitBoxOrient: 'vertical' as any` with `} as React.CSSProperties` cast on the style object in `app/jobs/page.tsx:529` — removes undocumented `any` per AGENTS.md §3 [quality] ✅ 2026-05-02
 - [x] Replace `<a href="/login">` with `<Link href="/login">` in `components/Comments.tsx:290` — internal route should use `<Link>` per AGENTS.md §8 to avoid full page reloads [quality] ✅ 2026-05-02
 - [x] Fix `JobMatchWidget` in `app/resume/page.tsx` — replace hardcoded hex `#10b981`/`#f59e0b`/`#ef4444` with `var(--jade)`/`var(--gold)`/`var(--vermilion)` in `scoreColor`, keyword pills, and section labels; replace `background:'white'` with `var(--warm-white)` in textarea; type `useState<any>` as `useState<ResumeMatchResult | null>` [style] [quality] ✅ 2026-05-02
+- [x] Replace `'#fff'` with `'white'` in `app/companies/[slug]/research/ResearchClient.tsx:240` — CTA button text on vermilion background used hardcoded hex; CSS keyword matches the pattern in globals.css (`color: white` at lines 1453, 1807, 1939) [style] ✅ 2026-05-02
 
 ---
 
