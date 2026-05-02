@@ -216,6 +216,7 @@
 | No CSP `nonce` | `next.config.ts` | Static CSP — upgrade to dynamic nonce-based |
 | Accessible components (ARIA) | Multiple | Keyboard nav, focus rings, `aria-expanded` |
 | Core Web Vitals budget | `/jobs`, `/learn` | LCP and CLS not measured yet |
+| ~~Inline `onMouseEnter/Leave` for hover~~ | ~~Multiple components~~ | ~~Broken on touch, unnecessary JS~~ ✅ 2026-05-02 |
 
 ---
 

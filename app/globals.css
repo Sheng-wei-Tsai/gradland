@@ -1773,3 +1773,19 @@ h3, h4 {
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Component hover states (replaces onMouseEnter/Leave JS handlers per AGENTS.md §7.3) ── */
+.resume-external-link { text-decoration: none; }
+.resume-external-link:hover { text-decoration: underline; }
+
+.visa-news-article-card { transition: box-shadow 0.18s ease; }
+.visa-news-article-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+
+.cover-letter-history-item { background: none; }
+.cover-letter-history-item:hover { background: var(--parchment); }
+
+.github-skills-start-link { transition: opacity 0.15s ease; }
+.github-skills-start-link:hover { opacity: 0.85; }
+
+.blog-load-more-btn { border-color: var(--parchment); color: var(--brown-dark); }
+.blog-load-more-btn:hover { border-color: var(--terracotta); color: var(--terracotta); }

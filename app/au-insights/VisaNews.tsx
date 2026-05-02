@@ -102,15 +102,11 @@ export default function VisaNews() {
               href={`/visa-news/${post.slug}`}
               style={{ textDecoration: 'none', display: 'block' }}
             >
-              <article style={{
+              <article className="visa-news-article-card" style={{
                 background: 'var(--warm-white)', border: '1px solid var(--parchment)',
                 borderRadius: '10px', padding: '1rem 1.2rem',
                 borderLeft: `3px solid ${src.border}`,
-                transition: 'box-shadow 0.18s ease',
-              }}
-                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)')}
-                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.boxShadow = 'none')}
-              >
+              }}>
                 {/* Source + date row */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
                   <span style={{

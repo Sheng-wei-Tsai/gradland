@@ -152,18 +152,15 @@ export default function BlogList({ posts, tags }: { posts: Post[]; tags: string[
               ))}
             </div>
           ) : (
-            <button onClick={loadMore} style={{
+            <button onClick={loadMore} className="blog-load-more-btn" style={{
               padding: '0.6rem 1.6rem', borderRadius: '99px',
               background: 'var(--warm-white)',
-              border: '2px solid var(--parchment)',
+              borderWidth: '2px', borderStyle: 'solid',
               boxShadow: '2px 2px 0 rgba(20,10,5,0.12)',
               fontSize: '0.85rem', fontWeight: 600,
-              color: 'var(--brown-dark)', cursor: 'pointer',
-              fontFamily: 'inherit', transition: 'all 0.15s ease',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--terracotta)'; e.currentTarget.style.color = 'var(--terracotta)'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--parchment)'; e.currentTarget.style.color = 'var(--brown-dark)'; }}
-            >
+              cursor: 'pointer', fontFamily: 'inherit',
+              transition: 'all 0.15s ease',
+            }}>
               Load {Math.min(PAGE_SIZE, remaining)} more
               <span style={{ marginLeft: '0.4rem', fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 400 }}>
                 ({remaining} remaining)

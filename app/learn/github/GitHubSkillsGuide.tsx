@@ -187,15 +187,13 @@ function CourseCard({
               href={course.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
+              className="github-skills-start-link"
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
                 padding: '0.45rem 1rem', borderRadius: '99px',
                 background: '#1f883d', color: 'white',
                 fontSize: '0.82rem', fontWeight: 600, textDecoration: 'none',
-                transition: 'opacity 0.15s ease',
               }}
-              onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
-              onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
             >
               Start on GitHub →
             </a>
