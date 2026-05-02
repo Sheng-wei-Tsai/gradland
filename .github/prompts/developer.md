@@ -112,35 +112,16 @@ Types: feat | fix | security | perf | refactor | style | chore | tests
 
 ---
 
-## STEP 6 — Mark done with sentinel branch + issue
+## STEP 6 — Mark done with sentinel branch
 
 ```bash
 TODAY=$(date -u +%Y-%m-%d)
 WIN=${WINDOW:-1}
 
-# Sentinel branch — window-indexed so up to 4 runs/day are allowed
+# Sentinel branch — window-indexed so up to 4 runs/day are allowed.
+# This is the audit trail. The commit message + sentinel branch are sufficient;
+# do NOT open a GitHub issue (was creating "[Auto Done]" issue noise).
 git checkout -b "dev-done/${TODAY}-w${WIN}"
 git push origin "dev-done/${TODAY}-w${WIN}"
 git checkout main
-
-# Open a GitHub Issue for visibility (audit trail)
-gh issue create \
-  --title "[Auto Done] type(scope): summary — ${TODAY}" \
-  --body "## What was fixed
-One sentence description.
-
-## Why
-Which TODO.md item was completed.
-
-## Files changed
-- \`path/to/file\` — what changed
-
-## Quality gate
-- TypeScript: 0 errors
-- Tests: all pass
-- Build: clean
-- Audit: 0 vulnerabilities
-
----
-*TechPath Daily Developer — pushed directly to main on ${TODAY}*"
 ```

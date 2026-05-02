@@ -485,13 +485,40 @@ jobs:
           print(f"Next task: {task}")
           PYEOF
 
-      - name: Create Copilot fallback issue
+      - name: Check for recent direct-push covering same task
+        id: recent_push
         if: |
           steps.quota_guard.outputs.skip == 'false' &&
           (steps.opus.outputs.quota_exhausted == 'true' || steps.sonnet.outputs.quota_exhausted == 'true') &&
           steps.quota_sentinel.outputs.sleep_restart != 'true' &&
           steps.existing_issue.outputs.count == '0' &&
           steps.copilot_todo.outputs.task != 'NO_TASK'
+        env:
+          TASK: ${{ steps.copilot_todo.outputs.task }}
+        run: |
+          # If a Claude window already pushed a fix matching the task slug in the
+          # last 6 hours, skip Copilot fallback to avoid duplicate PR storm.
+          SLUG=$(printf '%s' "$TASK" | tr -cd '[:alnum:] ' | head -c 30)
+          if [ -z "$SLUG" ]; then
+            echo "covers=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          RECENT=$(git log --since="6 hours ago" --fixed-strings --grep "$SLUG" --oneline origin/main 2>/dev/null | wc -l | tr -d ' ')
+          if [ "$RECENT" -gt "0" ]; then
+            echo "Direct push within 6h covers '$SLUG' — skipping Copilot fallback."
+            echo "covers=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "covers=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create Copilot fallback issue
+        if: |
+          steps.quota_guard.outputs.skip == 'false' &&
+          (steps.opus.outputs.quota_exhausted == 'true' || steps.sonnet.outputs.quota_exhausted == 'true') &&
+          steps.quota_sentinel.outputs.sleep_restart != 'true' &&
+          steps.existing_issue.outputs.count == '0' &&
+          steps.copilot_todo.outputs.task != 'NO_TASK' &&
+          steps.recent_push.outputs.covers != 'true'
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
