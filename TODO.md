@@ -319,4 +319,4 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 - [ ] Accessible components (ARIA, keyboard nav)
 - [ ] Core Web Vitals green (Lighthouse ≥ 90)
 - [ ] TypeScript strict mode — no `any` without justification
-- [ ] Error boundary on every page
+- [x] Error boundary on every page ✅ 2026-05-02
