@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
 import ThemeToggle from '@/components/ThemeToggle';
+import LangToggle from '@/components/LangToggle';
 import { ReadinessScoreMini } from '@/components/ReadinessScore';
 import { useState, useRef, useEffect } from 'react';
 import EIcon, { EIconName } from '@/components/icons/EIcon';
@@ -281,6 +282,7 @@ export default function Header() {
             </div>
           </nav>
 
+          <LangToggle />
           <ThemeToggle />
         </div>
 

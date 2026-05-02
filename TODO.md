@@ -199,7 +199,7 @@
 
 ### Traditional Chinese (zh-TW) — `features/i18n-zh-tw.md`
 - [x] `next-intl` installed, ~80 strings: nav, CTAs, onboarding, AU Insights key labels ✅ 2026-05-02
-- [ ] Language toggle in Header (persists to localStorage)
+- [x] Language toggle in Header (persists to localStorage) ✅ 2026-05-02
 - **Effort:** S (2–3 days)
 
 ### Claude Lab — Interactive Terminal — `features/learn-anthropic-claude.md`
