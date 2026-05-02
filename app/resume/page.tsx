@@ -30,10 +30,18 @@ function Tag({ children }: { children: React.ReactNode }) {
   );
 }
 
+interface ResumeMatchResult {
+  score: number;
+  summary: string;
+  matched: string[];
+  missing: string[];
+  suggestions: string[];
+}
+
 // ── Job Match Widget ───────────────────────────────────────────
 function JobMatchWidget() {
   const [jd,       setJd]       = useState('');
-  const [result,   setResult]   = useState<any>(null);
+  const [result,   setResult]   = useState<ResumeMatchResult | null>(null);
   const [loading,  setLoading]  = useState(false);
 
   const analyse = async () => {
@@ -50,7 +58,7 @@ function JobMatchWidget() {
     setLoading(false);
   };
 
-  const scoreColor = (s: number) => s >= 80 ? '#10b981' : s >= 60 ? '#f59e0b' : '#ef4444';
+  const scoreColor = (s: number) => s >= 80 ? 'var(--jade)' : s >= 60 ? 'var(--gold)' : 'var(--vermilion)';
 
   return (
     <div style={{
@@ -73,7 +81,7 @@ function JobMatchWidget() {
           width: '100%', minHeight: '120px', padding: '0.8rem',
           borderRadius: '10px', border: '1px solid var(--parchment)',
           fontSize: '0.88rem', resize: 'vertical', fontFamily: 'inherit',
-          background: 'white', color: 'var(--brown-dark)', outline: 'none',
+          background: 'var(--warm-white)', color: 'var(--brown-dark)', outline: 'none',
           boxSizing: 'border-box',
         }}
       />
@@ -104,10 +112,10 @@ function JobMatchWidget() {
           {/* Matched */}
           {result.matched?.length > 0 && (
             <div>
-              <p style={{ fontSize: '0.82rem', fontWeight: 600, color: '#10b981', marginBottom: '0.4rem' }}>✅ Matched Keywords</p>
+              <p style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--jade)', marginBottom: '0.4rem' }}>✅ Matched Keywords</p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
                 {result.matched.map((k: string) => (
-                  <span key={k} style={{ padding: '0.2rem 0.6rem', background: '#ecfdf5', color: '#10b981', borderRadius: '99px', fontSize: '0.78rem', border: '1px solid #a7f3d0' }}>{k}</span>
+                  <span key={k} style={{ padding: '0.2rem 0.6rem', background: 'rgba(30,122,82,0.12)', color: 'var(--jade)', borderRadius: '99px', fontSize: '0.78rem', border: '1px solid rgba(30,122,82,0.3)' }}>{k}</span>
                 ))}
               </div>
             </div>
@@ -116,10 +124,10 @@ function JobMatchWidget() {
           {/* Missing */}
           {result.missing?.length > 0 && (
             <div>
-              <p style={{ fontSize: '0.82rem', fontWeight: 600, color: '#ef4444', marginBottom: '0.4rem' }}>❌ Missing Keywords</p>
+              <p style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--vermilion)', marginBottom: '0.4rem' }}>❌ Missing Keywords</p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
                 {result.missing.map((k: string) => (
-                  <span key={k} style={{ padding: '0.2rem 0.6rem', background: '#fef2f2', color: '#ef4444', borderRadius: '99px', fontSize: '0.78rem', border: '1px solid #fecaca' }}>{k}</span>
+                  <span key={k} style={{ padding: '0.2rem 0.6rem', background: 'rgba(192,40,28,0.12)', color: 'var(--vermilion)', borderRadius: '99px', fontSize: '0.78rem', border: '1px solid rgba(192,40,28,0.3)' }}>{k}</span>
                 ))}
               </div>
             </div>
@@ -128,7 +136,7 @@ function JobMatchWidget() {
           {/* Suggestions */}
           {result.suggestions?.length > 0 && (
             <div>
-              <p style={{ fontSize: '0.82rem', fontWeight: 600, color: '#f59e0b', marginBottom: '0.4rem' }}>💡 How to Improve</p>
+              <p style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--gold)', marginBottom: '0.4rem' }}>💡 How to Improve</p>
               <ul style={{ margin: 0, paddingLeft: '1.2rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
                 {result.suggestions.map((s: string, i: number) => (
                   <li key={i} style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{s}</li>
