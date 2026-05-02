@@ -183,7 +183,7 @@
 ### Anonymous Job Seeker Network — `features/community-network.md`
 **Why:** The feature that makes the platform defensible against AI aggregators.
 - [x] 2026-05-02 Opt-in anonymous profiles: role, visa type, skills, city
-- [ ] `/network` — map/list of active seekers (city + role, no names)
+- [x] `/network` — map/list of active seekers (city + role, no names) ✅ 2026-05-02
 - [ ] Referral matching: "3 people from your background were hired at Atlassian via referral"
 - [ ] Direct message (auth-gated, anti-spam)
 - **Effort:** XL (2–4 weeks)

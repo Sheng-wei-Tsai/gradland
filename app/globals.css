@@ -1761,3 +1761,15 @@ h3, h4 {
 :root:not([data-theme="light"]) .job-detail-modal-title {
   color: var(--text-secondary);
 }
+
+/* ── Network seeker grid ── */
+.network-seeker-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 640px) {
+  .network-seeker-grid {
+    grid-template-columns: 1fr;
+  }
+}
