@@ -32,13 +32,18 @@ const LABELS: Record<string, string> = {
 
 /* Which zone does a top-level segment belong to? */
 const ZONE: Record<string, string> = {
+  'resume':         'Prepare',
+  'cover-letter':   'Prepare',
+  'interview-prep': 'Prepare',
+  'learn':          'Prepare',
   'jobs':           'Search',
   'au-insights':    'Search',
   'githot':         'Search',
-  'digest':         'Posts',
-  'blog':           'Posts',
-  'ai-news':        'Posts',
-  'visa-news':      'Posts',
+  'digest':         'Search',
+  'posts':          'Search',
+  'blog':           'Search',
+  'ai-news':        'Search',
+  'visa-news':      'Search',
   'dashboard':      'Track',
 };
 

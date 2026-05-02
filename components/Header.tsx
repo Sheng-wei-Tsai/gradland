@@ -9,22 +9,24 @@ import { useState, useRef, useEffect } from 'react';
 import EIcon, { EIconName } from '@/components/icons/EIcon';
 
 /* ── Zone data ─────────────────────────────────────────────── */
-const contentLinks = [
-  { href: '/posts',             label: 'All Posts', desc: 'Everything in one feed',           icon: 'brush'     as EIconName },
-  { href: '/posts/blog',        label: 'Blog',      desc: 'Posts & articles',                 icon: 'brush'     as EIconName },
-  { href: '/posts/research',    label: 'Research',  desc: 'AI research digest',               icon: 'robot'     as EIconName },
-  { href: '/posts/githot',      label: 'Githot',    desc: 'GitHub trending today',            icon: 'fire'      as EIconName },
-  { href: '/posts/ai-news',     label: 'AI News',   desc: 'Anthropic · OpenAI · Google',      icon: 'newspaper' as EIconName },
-  { href: '/posts/visa-news',   label: 'Visa News', desc: 'Daily AU immigration updates',     icon: 'passport'  as EIconName },
+
+const PREPARE_ITEMS = [
+  { href: '/resume',         label: 'Resume Analyser', desc: 'AI feedback for AU IT roles',        icon: 'resume'        as EIconName },
+  { href: '/cover-letter',   label: 'Cover Letter',    desc: 'GPT-4.1, AU English structure',      icon: 'pencil-letter' as EIconName },
+  { href: '/interview-prep', label: 'Interview Prep',  desc: 'Alex mentor, company-specific Qs',  icon: 'target'        as EIconName },
+  { href: '/learn',          label: 'Learning Paths',  desc: '5 AU IT career paths + spaced rep',  icon: 'books'         as EIconName },
+  { href: '/learn/youtube',  label: 'YouTube Learning', desc: 'Gemini study guide from any video', icon: 'video'         as EIconName },
 ];
 
-const LEARN_ITEMS = [
-  { href: '/learn',             label: 'Learning Paths',    desc: '5 AU IT career paths + spaced rep',    icon: 'books'     as EIconName },
-  { href: '/learn/youtube',     label: 'YouTube Learning',  desc: 'Gemini study guide from any video',    icon: 'video'     as EIconName },
-  { href: '/learn/claude-code', label: 'Claude Code Guide', desc: '30 interactive lessons, beginner→pro', icon: 'robot'     as EIconName },
-  { href: '/learn/github',      label: 'GitHub Skills',     desc: '37 official courses — Git to Copilot', icon: 'github'    as EIconName },
+/* Left column of the Search mega-dropdown */
+const SEARCH_DIRECT = [
+  { href: '/jobs',         label: 'Job Search',   desc: 'Live AU jobs, working rights filter', icon: 'briefcase' as EIconName },
+  { href: '/posts/githot', label: 'GitHub Hot',   desc: 'Trending repos daily',               icon: 'fire'      as EIconName },
+  { href: '/digest',       label: 'Daily Digest', desc: 'Auto-generated daily summaries',     icon: 'newspaper' as EIconName },
+  { href: '/posts',        label: 'All Posts',    desc: 'Blog, AI news, visa news',           icon: 'brush'     as EIconName },
 ];
 
+/* AU Insights items — used for mobile Search drawer + active detection */
 const AU_INSIGHTS_ITEMS = [
   { href: '/au-insights',                  label: 'AU Companies',   desc: 'Company tiers, culture & interview Qs', icon: 'trophy'   as EIconName },
   { href: '/au-insights?tab=salary',       label: 'Salary Checker', desc: 'Paste your offer → AI verdict',         icon: 'coin'     as EIconName },
@@ -35,31 +37,31 @@ const AU_INSIGHTS_ITEMS = [
   { href: '/au-insights?tab=visa-news',    label: 'Visa News',      desc: 'Daily immigration & student visa updates', icon: 'newspaper' as EIconName },
 ];
 
-/* Two-column grouping for the mega-menu */
-const AU_COL_LEFT = [
-  { href: '/au-insights',                   label: 'Company Tiers',  tag: 'Rankings',     icon: 'trophy'   as EIconName },
-  { href: '/au-insights?tab=ecosystem',     label: 'IT Ecosystem',   tag: 'Overview',     icon: 'chart'    as EIconName },
-  { href: '/au-insights?tab=market',        label: 'Job Market',     tag: 'Data',         icon: 'coin'     as EIconName },
-  { href: '/au-insights?tab=gradprograms',  label: 'Grad Programs',  tag: 'Listings',     icon: 'cap'      as EIconName },
-  { href: '/au-insights?tab=compare',       label: 'Compare',        tag: 'Side-by-side', icon: 'scale'    as EIconName },
-];
-const AU_COL_RIGHT = [
-  { href: '/au-insights?tab=guide',        label: 'Career Guide',   tag: 'Strategy',    icon: 'rocket'   as EIconName },
-  { href: '/au-insights?tab=salary',       label: 'Salary Checker', tag: 'Tools',       icon: 'coin'     as EIconName },
-  { href: '/au-insights?tab=skillmap',     label: 'Skill Map',      tag: 'Interactive', icon: 'map'      as EIconName },
-  { href: '/au-insights?tab=sponsorship',  label: 'Visa Sponsors',  tag: 'Visa',        icon: 'passport' as EIconName },
-  { href: '/au-insights?tab=visa',         label: 'Visa Guide',     tag: '482 / SID',   icon: 'plane'    as EIconName },
+/* Right column — compact AU Insights items for Search mega-menu */
+const AU_MEGA_ITEMS = [
+  { href: '/au-insights',                   label: 'Company Tiers',  icon: 'trophy'   as EIconName },
+  { href: '/au-insights?tab=ecosystem',     label: 'IT Ecosystem',   icon: 'chart'    as EIconName },
+  { href: '/au-insights?tab=market',        label: 'Job Market',     icon: 'coin'     as EIconName },
+  { href: '/au-insights?tab=salary',        label: 'Salary Checker', icon: 'coin'     as EIconName },
+  { href: '/au-insights?tab=skillmap',      label: 'Skill Map',      icon: 'map'      as EIconName },
+  { href: '/au-insights?tab=gradprograms',  label: 'Grad Programs',  icon: 'cap'      as EIconName },
+  { href: '/au-insights?tab=sponsorship',   label: 'Visa Sponsors',  icon: 'passport' as EIconName },
+  { href: '/au-insights?tab=visa',          label: 'Visa Guide',     icon: 'plane'    as EIconName },
+  { href: '/au-insights?tab=guide',         label: 'Career Guide',   icon: 'rocket'   as EIconName },
+  { href: '/au-insights?tab=compare',       label: 'Compare',        icon: 'scale'    as EIconName },
 ];
 
-const INTERVIEW_ITEMS = [
-  { href: '/resume',         label: 'Resume Analyser', desc: 'AI feedback for AU IT roles',       icon: 'resume'        as EIconName },
-  { href: '/cover-letter',   label: 'Cover Letter',    desc: 'GPT-4.1, AU English structure',     icon: 'pencil-letter' as EIconName },
-  { href: '/interview-prep', label: 'Interview Prep',  desc: 'Alex mentor, company-specific Qs', icon: 'target'        as EIconName },
+const TRACK_ITEMS = [
+  { href: '/dashboard',              label: 'Dashboard',    desc: 'Applications + career pipeline',     icon: 'chart'    as EIconName },
+  { href: '/dashboard/visa-tracker', label: 'Visa Tracker', desc: '6-step 482 tracker, doc checklists', icon: 'passport' as EIconName },
 ];
 
-type Drawer = 'learn' | 'au-insights' | 'interview' | 'me' | null;
+/* Flat list for zone active detection */
+const ALL_SEARCH_ITEMS = [...SEARCH_DIRECT, ...AU_INSIGHTS_ITEMS];
 
-/* ── Posts dropdown sub-components ── */
+type Drawer = 'prepare' | 'me' | null;
+
+/* ── Shared sub-components ──────────────────────────────────── */
 function Chevron({ open }: { open: boolean }) {
   return (
     <svg width="10" height="10" viewBox="0 0 10 10" fill="none"
@@ -68,11 +70,12 @@ function Chevron({ open }: { open: boolean }) {
     </svg>
   );
 }
+
 function DropPanel({ children }: { children: React.ReactNode }) {
   return (
     <div role="menu" style={{
       position: 'absolute', top: 'calc(100% + 10px)', left: '50%', transform: 'translateX(-50%)',
-      width: 'min(240px, 90vw)', background: 'var(--warm-white)',
+      width: 'min(260px, 90vw)', background: 'var(--warm-white)',
       border: '2px solid var(--parchment)', borderRadius: '12px',
       boxShadow: 'var(--panel-shadow), 0 16px 40px var(--shadow-color)',
       padding: '0.5rem', zIndex: 60, overflow: 'hidden',
@@ -82,6 +85,7 @@ function DropPanel({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
+
 function DropItem({ href, icon, label, desc, onClick }: { href: string; icon: EIconName; label: string; desc: string; onClick: () => void }) {
   return (
     <Link href={href} onClick={onClick} className="drop-item"
@@ -97,27 +101,23 @@ function DropItem({ href, icon, label, desc, onClick }: { href: string; icon: EI
   );
 }
 
-/* Section label inside dropdown groups */
 function GroupLabel({ label }: { label: string }) {
   return (
     <div style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.09em', textTransform: 'uppercase', color: 'var(--text-muted)', padding: '0.1rem 0.55rem 0.25rem', opacity: 0.7 }}>{label}</div>
   );
 }
+
 function GroupDivider() {
   return <div style={{ height: '1px', background: 'var(--parchment)', margin: '0.35rem 0.4rem' }} />;
 }
 
-/* Compact item for the AU Insights mega-menu: emoji + label + tag badge only */
-function MegaItem({ href, icon, label, tag, onClick }: { href: string; icon: EIconName; label: string; tag: string; onClick: () => void }) {
+/* Compact link for AU Insights items inside the Search mega-menu */
+function MegaItem({ href, icon, label, onClick }: { href: string; icon: EIconName; label: string; onClick: () => void }) {
   return (
     <Link href={href} onClick={onClick} className="drop-item"
-      style={{
-        display: 'flex', alignItems: 'center', gap: '0.5rem',
-        padding: '0.38rem 0.55rem', borderRadius: '7px', textDecoration: 'none',
-        transition: 'background 0.12s ease',
-      }}>
-      <EIcon name={icon} size={14} style={{ color: 'var(--terracotta)', flexShrink: 0 }} />
-      <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--brown-dark)', whiteSpace: 'nowrap' }}>{label}</span>
+      style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.35rem 0.5rem', borderRadius: '7px', textDecoration: 'none', transition: 'background 0.12s ease' }}>
+      <EIcon name={icon} size={13} style={{ color: 'var(--terracotta)', flexShrink: 0 }} />
+      <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--brown-dark)', whiteSpace: 'nowrap' }}>{label}</span>
     </Link>
   );
 }
@@ -128,7 +128,7 @@ export default function Header() {
   const router   = useRouter();
   const { user, loading, signOut } = useAuth();
 
-  const [openMenu,     setOpenMenu]    = useState<'posts' | 'learn' | 'au-insights' | null>(null);
+  const [openMenu,     setOpenMenu]    = useState<'prepare' | 'search' | 'track' | null>(null);
   const [avatarOpen,   setAvatarOpen]  = useState(false);
   const [mobileDrawer, setMobileDrawer] = useState<Drawer>(null);
 
@@ -169,10 +169,10 @@ export default function Header() {
     return path === '/' ? pathname === '/' : pathname.startsWith(path);
   };
   const isZoneActive = (items: { href: string }[]) => items.some(i => isActive(i.href));
-  const isPostsActive = contentLinks.some(l => isActive(l.href));
-  const postsOpen      = openMenu === 'posts';
-  const learnOpen      = openMenu === 'learn';
-  const auInsightsOpen = openMenu === 'au-insights';
+
+  const prepareOpen = openMenu === 'prepare';
+  const searchOpen  = openMenu === 'search';
+  const trackOpen   = openMenu === 'track';
 
   /* Desktop nav link style */
   const navLink = (active: boolean): React.CSSProperties => ({
@@ -200,95 +200,85 @@ export default function Header() {
           }}>
             <Link href="/" style={navLink(isActive('/'))}>Home</Link>
 
-            {/* Posts — dropdown */}
+            {/* Prepare — dropdown */}
             <div style={{ position: 'relative' }}>
               <button
-                onClick={() => setOpenMenu(m => m === 'posts' ? null : 'posts')}
+                onClick={() => setOpenMenu(m => m === 'prepare' ? null : 'prepare')}
                 onKeyDown={e => { if (e.key === 'Escape') setOpenMenu(null); }}
                 aria-haspopup="true"
-                aria-expanded={postsOpen}
-                style={{ ...navLink(isPostsActive), border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3em' }}
+                aria-expanded={prepareOpen}
+                style={{ ...navLink(isZoneActive(PREPARE_ITEMS)), border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3em' }}
               >
-                Posts <Chevron open={postsOpen} />
+                Prepare <Chevron open={prepareOpen} />
               </button>
-              {postsOpen && (
+              {prepareOpen && (
                 <DropPanel>
-                  {contentLinks.map(link => (
-                    <DropItem key={link.href} {...link} onClick={() => setOpenMenu(null)} />
+                  {PREPARE_ITEMS.map(item => (
+                    <DropItem key={item.href} {...item} onClick={() => setOpenMenu(null)} />
                   ))}
                 </DropPanel>
               )}
             </div>
 
-            {/* Learn — dropdown */}
+            {/* Search — mega-dropdown */}
             <div style={{ position: 'relative' }}>
               <button
-                onClick={() => setOpenMenu(m => m === 'learn' ? null : 'learn')}
+                onClick={() => setOpenMenu(m => m === 'search' ? null : 'search')}
                 onKeyDown={e => { if (e.key === 'Escape') setOpenMenu(null); }}
                 aria-haspopup="true"
-                aria-expanded={learnOpen}
-                style={{ ...navLink(isZoneActive(LEARN_ITEMS)), border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3em' }}
+                aria-expanded={searchOpen}
+                style={{ ...navLink(isZoneActive(ALL_SEARCH_ITEMS)), border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3em' }}
               >
-                Learn <Chevron open={learnOpen} />
+                Search <Chevron open={searchOpen} />
               </button>
-              {learnOpen && (
-                <DropPanel>
-                  <DropItem href="/learn"              icon="map"    label="Career Paths"      desc="5 AU IT roadmaps with spaced repetition" onClick={() => setOpenMenu(null)} />
-                  <DropItem href="/learn/youtube"      icon="video"  label="YouTube Learning"  desc="Gemini builds your study guide + quiz"   onClick={() => setOpenMenu(null)} />
-                  <DropItem href="/learn/claude-code"  icon="robot"  label="Claude Code Guide" desc="30 interactive lessons, beginner→pro"    onClick={() => setOpenMenu(null)} />
-                  <DropItem href="/learn/github"       icon="github" label="GitHub Skills"     desc="37 official courses — Git to Copilot"    onClick={() => setOpenMenu(null)} />
-                </DropPanel>
-              )}
-            </div>
-            {/* AU Insights — mega-menu dropdown */}
-            <div style={{ position: 'relative' }}>
-              <button
-                onClick={() => setOpenMenu(m => m === 'au-insights' ? null : 'au-insights')}
-                onKeyDown={e => { if (e.key === 'Escape') setOpenMenu(null); }}
-                aria-haspopup="true"
-                aria-expanded={auInsightsOpen}
-                style={{ ...navLink(isZoneActive(AU_INSIGHTS_ITEMS)), border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3em' }}
-              >
-                AU Insights <Chevron open={auInsightsOpen} />
-              </button>
-              {auInsightsOpen && (
+              {searchOpen && (
                 <div role="menu" style={{
-                  position: 'absolute', top: 'calc(100% + 10px)', right: 0,
-                  width: 'min(270px, 90vw)', background: 'var(--warm-white)',
+                  position: 'absolute', top: 'calc(100% + 10px)', left: '50%', transform: 'translateX(-50%)',
+                  width: 'min(440px, 92vw)', background: 'var(--warm-white)',
                   border: '2px solid var(--parchment)', borderRadius: '12px',
                   boxShadow: 'var(--panel-shadow), 0 16px 40px var(--shadow-color)',
-                  padding: '0.5rem', zIndex: 60, overflow: 'hidden',
+                  padding: '0.6rem', zIndex: 60, overflow: 'hidden',
                 }}>
-                  <div style={{ height: '2px', background: 'linear-gradient(90deg, var(--vermilion) 0%, var(--gold) 50%, var(--jade) 100%)', borderRadius: '2px 2px 0 0', marginBottom: '0.4rem' }} />
-
-                  {/* Group 1 — AU IT Trends */}
-                  <GroupLabel label="AU IT Trends" />
-                  <MegaItem href="/au-insights?tab=ecosystem"    icon="chart"    label="IT Ecosystem"   tag="Overview"  onClick={() => setOpenMenu(null)} />
-                  <MegaItem href="/au-insights?tab=market"       icon="coin"     label="Job Market"     tag="Data"      onClick={() => setOpenMenu(null)} />
-                  <MegaItem href="/au-insights?tab=gradprograms" icon="cap"      label="Grad Programs"  tag="Listings"  onClick={() => setOpenMenu(null)} />
-
-                  <GroupDivider />
-
-                  {/* Group 2 — Companies */}
-                  <GroupLabel label="Companies" />
-                  <MegaItem href="/au-insights"              icon="trophy"  label="Company Tiers" tag="Rankings"     onClick={() => setOpenMenu(null)} />
-                  <MegaItem href="/au-insights?tab=compare"  icon="scale"   label="Compare"       tag="Side-by-side" onClick={() => setOpenMenu(null)} />
-
-                  <GroupDivider />
-
-                  {/* Group 3 — Visa & Career Tools */}
-                  <GroupLabel label="Visa & Career" />
-                  <MegaItem href="/au-insights?tab=sponsorship" icon="passport"  label="Visa Sponsors"  tag="Visa"        onClick={() => setOpenMenu(null)} />
-                  <MegaItem href="/au-insights?tab=visa"        icon="plane"     label="Visa Guide"     tag="482 / SID"   onClick={() => setOpenMenu(null)} />
-                  <MegaItem href="/au-insights?tab=visa-news"   icon="newspaper" label="Visa News"      tag="Live"        onClick={() => setOpenMenu(null)} />
-                  <MegaItem href="/au-insights?tab=guide"       icon="rocket"    label="Career Guide"   tag="Strategy"    onClick={() => setOpenMenu(null)} />
-                  <MegaItem href="/au-insights?tab=salary"      icon="coin"      label="Salary Checker" tag="Tools"       onClick={() => setOpenMenu(null)} />
-                  <MegaItem href="/au-insights?tab=skillmap"    icon="map"       label="Skill Map"      tag="Interactive" onClick={() => setOpenMenu(null)} />
+                  <div style={{ height: '2px', background: 'linear-gradient(90deg, var(--vermilion) 0%, var(--gold) 50%, var(--jade) 100%)', borderRadius: '2px 2px 0 0', marginBottom: '0.5rem' }} />
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.25rem 0.75rem' }}>
+                    {/* Left: direct links */}
+                    <div>
+                      <GroupLabel label="Find roles" />
+                      {SEARCH_DIRECT.map(item => (
+                        <DropItem key={item.href} {...item} onClick={() => setOpenMenu(null)} />
+                      ))}
+                    </div>
+                    {/* Right: AU Insights */}
+                    <div>
+                      <GroupLabel label="AU Insights" />
+                      {AU_MEGA_ITEMS.map(item => (
+                        <MegaItem key={item.href} {...item} onClick={() => setOpenMenu(null)} />
+                      ))}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
-            <Link href="/jobs"           style={navLink(isActive('/jobs'))}>Jobs</Link>
-            <Link href="/interview-prep" style={navLink(isZoneActive(INTERVIEW_ITEMS))}>Interview</Link>
+
+            {/* Track — dropdown */}
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={() => setOpenMenu(m => m === 'track' ? null : 'track')}
+                onKeyDown={e => { if (e.key === 'Escape') setOpenMenu(null); }}
+                aria-haspopup="true"
+                aria-expanded={trackOpen}
+                style={{ ...navLink(isZoneActive(TRACK_ITEMS)), border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3em' }}
+              >
+                Track <Chevron open={trackOpen} />
+              </button>
+              {trackOpen && (
+                <DropPanel>
+                  {TRACK_ITEMS.map(item => (
+                    <DropItem key={item.href} {...item} onClick={() => setOpenMenu(null)} />
+                  ))}
+                </DropPanel>
+              )}
+            </div>
           </nav>
 
           <ThemeToggle />
@@ -370,31 +360,12 @@ export default function Header() {
           }} />
         )}
 
-        {/* Learn drawer */}
-        {mobileDrawer === 'learn' && (
-          <MobileDrawer title="Learn" onClose={() => setMobileDrawer(null)}>
-            {LEARN_ITEMS.map(item => (
+        {/* Prepare drawer */}
+        {mobileDrawer === 'prepare' && (
+          <MobileDrawer title="Prepare" onClose={() => setMobileDrawer(null)}>
+            {PREPARE_ITEMS.map(item => (
               <MobileDrawerItem key={item.href} {...item} active={isActive(item.href)} onClick={() => setMobileDrawer(null)} />
             ))}
-          </MobileDrawer>
-        )}
-
-        {/* AU Insights drawer */}
-        {mobileDrawer === 'au-insights' && (
-          <MobileDrawer title="AU Insights" onClose={() => setMobileDrawer(null)}>
-            {AU_INSIGHTS_ITEMS.map(item => (
-              <MobileDrawerItem key={item.href} {...item} active={isActive(item.href)} onClick={() => setMobileDrawer(null)} />
-            ))}
-          </MobileDrawer>
-        )}
-
-        {/* Interview drawer */}
-        {mobileDrawer === 'interview' && (
-          <MobileDrawer title="Interview" onClose={() => setMobileDrawer(null)}>
-            {INTERVIEW_ITEMS.map(item => (
-              <MobileDrawerItem key={item.href} {...item} active={isActive(item.href)} onClick={() => setMobileDrawer(null)} />
-            ))}
-            <MobileDrawerItem href="/jobs" icon="briefcase" label="Job Search" desc="Live AU jobs, working rights filter" active={isActive('/jobs')} onClick={() => setMobileDrawer(null)} />
           </MobileDrawer>
         )}
 
@@ -443,7 +414,7 @@ export default function Header() {
           </div>
         )}
 
-        {/* Main tab bar */}
+        {/* Main tab bar — Home | Search | Prepare | Me */}
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-around',
           background: 'var(--warm-white)',
@@ -453,28 +424,16 @@ export default function Header() {
         }}>
           <MobileTab href="/" active={isActive('/')} label="Home" icon={<IconHome active={isActive('/')} />} />
 
-          <MobileDrawerTab
-            label="Learn"
-            active={isZoneActive(LEARN_ITEMS)}
-            open={mobileDrawer === 'learn'}
-            onClick={() => setMobileDrawer(d => d === 'learn' ? null : 'learn')}
-            icon={<IconLearn active={isZoneActive(LEARN_ITEMS) || mobileDrawer === 'learn'} />}
-          />
+          {/* Search → direct link to /jobs */}
+          <MobileTab href="/jobs" active={isActive('/jobs') || isZoneActive(ALL_SEARCH_ITEMS)} label="Search" icon={<IconSearch active={isActive('/jobs') || isZoneActive(ALL_SEARCH_ITEMS)} />} />
 
+          {/* Prepare → drawer */}
           <MobileDrawerTab
-            label="AU"
-            active={isZoneActive(AU_INSIGHTS_ITEMS)}
-            open={mobileDrawer === 'au-insights'}
-            onClick={() => setMobileDrawer(d => d === 'au-insights' ? null : 'au-insights')}
-            icon={<IconSearch active={isZoneActive(AU_INSIGHTS_ITEMS) || mobileDrawer === 'au-insights'} />}
-          />
-
-          <MobileDrawerTab
-            label="Interview"
-            active={isZoneActive(INTERVIEW_ITEMS) || isActive('/jobs')}
-            open={mobileDrawer === 'interview'}
-            onClick={() => setMobileDrawer(d => d === 'interview' ? null : 'interview')}
-            icon={<IconBriefcase active={isZoneActive(INTERVIEW_ITEMS) || isActive('/jobs') || mobileDrawer === 'interview'} />}
+            label="Prepare"
+            active={isZoneActive(PREPARE_ITEMS)}
+            open={mobileDrawer === 'prepare'}
+            onClick={() => setMobileDrawer(d => d === 'prepare' ? null : 'prepare')}
+            icon={<IconLearn active={isZoneActive(PREPARE_ITEMS) || mobileDrawer === 'prepare'} />}
           />
 
           {/* Me */}
@@ -605,73 +564,45 @@ function IconHome({ active }: { active: boolean }) {
   const c = active ? 'white' : 'var(--text-muted)';
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      {/* Thick roof peak */}
       <path d="M3 11.5L12 3L21 11.5" stroke={c} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-      {/* Walls + door gap */}
       <path d="M5 10V21H9.5V14.5H14.5V21H19V10" stroke={c} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-      {/* Chimney — ink brush stroke */}
       <path d="M16 6.5V4" stroke={c} strokeWidth="2.5" strokeLinecap="round"/>
-      {/* Smoke puff — ink blob dot */}
       <circle cx="17" cy="3" r="1.3" fill={c}/>
     </svg>
   );
 }
+
+/* Magnifier — Search */
 function IconSearch({ active }: { active: boolean }) {
   const c = active ? 'white' : 'var(--text-muted)';
-  // Compass — better metaphor for "AU Insights" navigation
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      {/* Compass ring */}
-      <circle cx="12" cy="12" r="9" stroke={c} strokeWidth="2.5"/>
-      {/* North needle — filled ink, points up */}
-      <path d="M12 4.5L13.8 11.5L12 10.2L10.2 11.5Z" fill={c}/>
-      {/* South needle — outline only */}
-      <path d="M12 19.5L10.2 12.5L12 13.8L13.8 12.5Z" stroke={c} strokeWidth="1.5" strokeLinejoin="round"/>
-      {/* Pivot dot */}
-      <circle cx="12" cy="12" r="1.5" fill={c}/>
+      <circle cx="10.5" cy="10.5" r="6.5" stroke={c} strokeWidth="2.5"/>
+      <path d="M15.5 15.5L20.5 20.5" stroke={c} strokeWidth="2.5" strokeLinecap="round"/>
+      <circle cx="10.5" cy="10.5" r="2.5" fill={c} opacity="0.35"/>
     </svg>
   );
 }
+
+/* Open book — Prepare */
 function IconLearn({ active }: { active: boolean }) {
   const c = active ? 'white' : 'var(--text-muted)';
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      {/* Left page */}
       <path d="M12 4.5L5 5.5V19.5L12 18.5V4.5Z" stroke={c} strokeWidth="2.5" strokeLinejoin="round"/>
-      {/* Right page */}
       <path d="M12 4.5L19 5.5V19.5L12 18.5V4.5Z" stroke={c} strokeWidth="2.5" strokeLinejoin="round"/>
-      {/* Text lines on left page */}
       <path d="M7.5 9H10.5M7.5 11.5H9.5" stroke={c} strokeWidth="1.5" strokeLinecap="round"/>
-      {/* Star accent on right page — ink burst */}
       <path d="M15.5 8.5L16 10L17.5 10L16.3 11L16.8 12.5L15.5 11.6L14.2 12.5L14.7 11L13.5 10L15 10Z" fill={c}/>
     </svg>
   );
 }
-function IconBriefcase({ active }: { active: boolean }) {
-  const c = active ? 'white' : 'var(--text-muted)';
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      {/* Handle */}
-      <path d="M9 7V5.5C9 4.7 9.4 4 10 4H14C14.6 4 15 4.7 15 5.5V7" stroke={c} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-      {/* Body */}
-      <rect x="3" y="7" width="18" height="13" rx="2" stroke={c} strokeWidth="2.5" strokeLinejoin="round"/>
-      {/* Center divider */}
-      <path d="M3 13.5H21" stroke={c} strokeWidth="1.5"/>
-      {/* Rivet ink dots at clasp — comic panel detail */}
-      <circle cx="10.5" cy="13.5" r="1.3" fill={c}/>
-      <circle cx="13.5" cy="13.5" r="1.3" fill={c}/>
-    </svg>
-  );
-}
+
 function IconAbout({ active }: { active: boolean }) {
   const c = active ? 'white' : 'var(--text-muted)';
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      {/* Head — slightly larger, manga proportions */}
       <circle cx="12" cy="8" r="4.5" stroke={c} strokeWidth="2.5"/>
-      {/* Shoulders */}
       <path d="M4.5 21C4.5 17 8 14 12 14C16 14 19.5 17 19.5 21" stroke={c} strokeWidth="2.5" strokeLinecap="round"/>
-      {/* Manga ink-dot eyes — the character detail */}
       <circle cx="10.3" cy="8" r="1" fill={c}/>
       <circle cx="13.7" cy="8" r="1" fill={c}/>
     </svg>
