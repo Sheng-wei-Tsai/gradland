@@ -18,10 +18,14 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 type NetworkProfile = {
-  role_title: string;
-  visa_type:  string;
-  skills:     string[];
-  city:       string;
+  role_title:    string;
+  visa_type:     string;
+  skills:        string[];
+  city:          string;
+  is_hired:      boolean;
+  hired_company: string | null;
+  hired_skills:  string[];
+  hired_message: string | null;
 };
 
 const VISA_OPTIONS = [
@@ -48,11 +52,17 @@ export default function ProfilePage() {
   const [networkSaving, setNetworkSaving]     = useState(false);
   const [networkError, setNetworkError]       = useState('');
 
-  // Form fields
+  // Seeker form fields
   const [nRole,   setNRole]   = useState('');
   const [nVisa,   setNVisa]   = useState('485');
   const [nSkills, setNSkills] = useState('');
   const [nCity,   setNCity]   = useState('Sydney');
+
+  // Referral board fields
+  const [nIsHired,      setNIsHired]      = useState(false);
+  const [nHiredCompany, setNHiredCompany] = useState('');
+  const [nHiredSkills,  setNHiredSkills]  = useState('');
+  const [nHiredMessage, setNHiredMessage] = useState('');
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -98,6 +108,10 @@ export default function ProfilePage() {
     setNVisa(p.visa_type);
     setNSkills(p.skills.join(', '));
     setNCity(p.city);
+    setNIsHired(p.is_hired ?? false);
+    setNHiredCompany(p.hired_company ?? '');
+    setNHiredSkills((p.hired_skills ?? []).join(', '));
+    setNHiredMessage(p.hired_message ?? '');
   }
 
   async function handleSaveNetwork(e: React.FormEvent) {
@@ -112,12 +126,27 @@ export default function ProfilePage() {
       .filter(Boolean)
       .slice(0, 20);
 
+    const hired_skills = nHiredSkills
+      .split(',')
+      .map(s => s.trim().slice(0, 50))
+      .filter(Boolean)
+      .slice(0, 20);
+
     setNetworkSaving(true);
     try {
       const res = await fetch('/api/network/profile', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ role_title, visa_type: nVisa, skills, city: nCity }),
+        body:    JSON.stringify({
+          role_title,
+          visa_type:     nVisa,
+          skills,
+          city:          nCity,
+          is_hired:      nIsHired,
+          hired_company: nIsHired ? nHiredCompany.trim().slice(0, 100) || null : null,
+          hired_skills:  nIsHired ? hired_skills : [],
+          hired_message: nIsHired ? nHiredMessage.trim().slice(0, 280) || null : null,
+        }),
       });
       if (!res.ok) throw new Error('save failed');
       const saved: NetworkProfile = await res.json();
@@ -137,6 +166,7 @@ export default function ProfilePage() {
       setNetworkProfile(null);
       setShowNetworkForm(false);
       setNRole(''); setNVisa('485'); setNSkills(''); setNCity('Sydney');
+      setNIsHired(false); setNHiredCompany(''); setNHiredSkills(''); setNHiredMessage('');
     } catch {
       // silently ignore — profile still visible until next load
     } finally {
@@ -210,9 +240,16 @@ export default function ProfilePage() {
             Community Network
           </h2>
           {!networkLoading && networkProfile && (
-            <span style={{ fontSize: '0.73rem', background: 'rgba(30,122,82,0.12)', color: 'var(--jade)', padding: '0.15rem 0.55rem', borderRadius: '20px', fontWeight: 700, letterSpacing: '0.03em' }}>
-              Active
-            </span>
+            <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+              {networkProfile.is_hired && (
+                <span style={{ fontSize: '0.73rem', background: 'rgba(200,138,20,0.12)', color: 'var(--gold)', padding: '0.15rem 0.55rem', borderRadius: '20px', fontWeight: 700, letterSpacing: '0.03em' }}>
+                  Referrer
+                </span>
+              )}
+              <span style={{ fontSize: '0.73rem', background: 'rgba(30,122,82,0.12)', color: 'var(--jade)', padding: '0.15rem 0.55rem', borderRadius: '20px', fontWeight: 700, letterSpacing: '0.03em' }}>
+                Active
+              </span>
+            </div>
           )}
         </div>
         <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '0 0 1rem' }}>
@@ -220,11 +257,9 @@ export default function ProfilePage() {
         </p>
 
         {networkLoading ? (
-          /* Skeleton shimmer */
           <div style={{ height: 36, background: 'var(--parchment)', borderRadius: 8, opacity: 0.45 }} />
 
         ) : networkProfile && !showNetworkForm ? (
-          /* Profile summary view */
           <>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.45rem 1.5rem', marginBottom: '0.9rem' }}>
               <NetworkChip label="Role"   value={networkProfile.role_title} />
@@ -239,6 +274,14 @@ export default function ProfilePage() {
                 }
               />
             </div>
+            {networkProfile.is_hired && networkProfile.hired_company && (
+              <div style={{ marginBottom: '0.9rem', padding: '0.65rem 0.85rem', background: 'rgba(200,138,20,0.06)', border: '1px solid rgba(200,138,20,0.25)', borderRadius: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                Referral board: {networkProfile.hired_company}
+                {networkProfile.hired_message && (
+                  <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}> — &ldquo;{networkProfile.hired_message.slice(0, 60)}{networkProfile.hired_message.length > 60 ? '…' : ''}&rdquo;</span>
+                )}
+              </div>
+            )}
             <div style={{ display: 'flex', gap: '0.55rem' }}>
               <button
                 onClick={() => { populateForm(networkProfile); setShowNetworkForm(true); }}
@@ -257,7 +300,6 @@ export default function ProfilePage() {
           </>
 
         ) : (showNetworkForm || !networkProfile) ? (
-          /* Join / edit form */
           <form onSubmit={handleSaveNetwork} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <div>
               <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
@@ -320,6 +362,81 @@ export default function ProfilePage() {
                 placeholder="e.g. React, TypeScript, AWS"
                 style={{ width: '100%', boxSizing: 'border-box' }}
               />
+            </div>
+
+            {/* ── Got hired section ────────────────────────────── */}
+            <div
+              style={{
+                marginTop: '0.25rem',
+                padding: '1rem',
+                background: nIsHired ? 'rgba(200,138,20,0.05)' : 'var(--cream)',
+                border: `1.5px solid ${nIsHired ? 'rgba(200,138,20,0.3)' : 'var(--parchment)'}`,
+                borderRadius: '10px',
+              }}
+            >
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer', userSelect: 'none' }}>
+                <input
+                  type="checkbox"
+                  checked={nIsHired}
+                  onChange={e => setNIsHired(e.target.checked)}
+                  style={{ width: 16, height: 16, cursor: 'pointer', accentColor: 'var(--gold)' }}
+                />
+                <span style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                  I got hired — post a referral card
+                </span>
+              </label>
+              <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: '0.4rem 0 0 1.6rem' }}>
+                Help others by appearing on the Referral Board. Your employer and message are shown; your identity stays anonymous.
+              </p>
+
+              {nIsHired && (
+                <div style={{ marginTop: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                  <div>
+                    <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      Company
+                    </label>
+                    <input
+                      className="search-input"
+                      type="text"
+                      value={nHiredCompany}
+                      onChange={e => setNHiredCompany(e.target.value)}
+                      placeholder="e.g. Atlassian"
+                      maxLength={100}
+                      style={{ width: '100%', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      Skills you look for <span style={{ textTransform: 'none', fontStyle: 'italic' }}>(comma-separated)</span>
+                    </label>
+                    <input
+                      className="search-input"
+                      type="text"
+                      value={nHiredSkills}
+                      onChange={e => setNHiredSkills(e.target.value)}
+                      placeholder="e.g. Python, SQL, dbt"
+                      style={{ width: '100%', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      Message <span style={{ textTransform: 'none', fontStyle: 'italic' }}>(max 280 chars)</span>
+                    </label>
+                    <textarea
+                      className="search-input"
+                      value={nHiredMessage}
+                      onChange={e => setNHiredMessage(e.target.value)}
+                      placeholder="e.g. Happy to refer strong candidates for DE roles. Message me if you have a solid project."
+                      maxLength={280}
+                      rows={3}
+                      style={{ width: '100%', boxSizing: 'border-box', resize: 'vertical' }}
+                    />
+                    <div style={{ fontSize: '0.73rem', color: 'var(--text-muted)', textAlign: 'right', marginTop: '0.2rem' }}>
+                      {nHiredMessage.length}/280
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {networkError && (

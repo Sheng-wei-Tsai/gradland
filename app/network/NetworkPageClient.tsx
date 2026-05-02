@@ -12,10 +12,28 @@ interface Profile {
   created_at: string;
 }
 
+interface ReferrerProfile {
+  id: string;
+  hired_company: string | null;
+  hired_skills: string[];
+  hired_message: string | null;
+  city: string;
+  visa_type: string;
+  created_at: string;
+}
+
+interface CurrentProfile {
+  skills: string[];
+  visa_type: string;
+  role_title: string;
+}
+
 interface Props {
   initialProfiles: Profile[];
+  initialReferrers: ReferrerProfile[];
   isLoggedIn: boolean;
   hasProfile: boolean;
+  currentProfile: CurrentProfile | null;
 }
 
 const VISA_LABELS: Record<string, string> = {
@@ -37,6 +55,11 @@ function lookingDuration(createdAt: string): string {
   if (days < 30) return `${Math.floor(days / 7)} week${Math.floor(days / 7) !== 1 ? 's' : ''}`;
   const months = Math.floor(days / 30);
   return `${months} month${months !== 1 ? 's' : ''}`;
+}
+
+function skillsMatch(userSkills: string[], referrerSkills: string[]): number {
+  const lower = userSkills.map(s => s.toLowerCase());
+  return referrerSkills.filter(s => lower.includes(s.toLowerCase())).length;
 }
 
 function SeekerCard({ profile }: { profile: Profile }) {
@@ -103,12 +126,132 @@ function SeekerCard({ profile }: { profile: Profile }) {
   );
 }
 
-export default function NetworkPageClient({ initialProfiles, isLoggedIn, hasProfile }: Props) {
+function ReferrerCard({ referrer, matchCount }: { referrer: ReferrerProfile; matchCount: number }) {
+  const visaLabel = VISA_LABELS[referrer.visa_type] ?? referrer.visa_type;
+
+  return (
+    <div
+      className="comic-card"
+      style={{
+        background: 'var(--warm-white)',
+        padding: '1.25rem 1.4rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.75rem',
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.4rem' }}>
+        <div>
+          <div style={{ fontFamily: "'Lora', serif", fontWeight: 700, fontSize: '1.05rem', color: 'var(--ink)' }}>
+            {referrer.hired_company ?? 'Undisclosed company'}
+          </div>
+          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
+            {referrer.city}
+          </div>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.3rem' }}>
+          <span
+            style={{
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              padding: '0.2em 0.7em',
+              borderRadius: '4px',
+              border: '1.5px solid var(--parchment)',
+              color: 'var(--text-secondary)',
+              background: 'var(--cream)',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {visaLabel}
+          </span>
+          {matchCount > 0 && (
+            <span
+              style={{
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                padding: '0.18em 0.6em',
+                borderRadius: '4px',
+                background: 'rgba(200,138,20,0.1)',
+                color: 'var(--gold)',
+                border: '1.5px solid rgba(200,138,20,0.3)',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {matchCount} skill{matchCount !== 1 ? 's' : ''} match
+            </span>
+          )}
+        </div>
+      </div>
+
+      {referrer.hired_message && (
+        <p
+          style={{
+            fontSize: '0.88rem',
+            color: 'var(--text-secondary)',
+            margin: 0,
+            fontStyle: 'italic',
+            lineHeight: 1.5,
+          }}
+        >
+          &ldquo;{referrer.hired_message}&rdquo;
+        </p>
+      )}
+
+      {referrer.hired_skills.length > 0 && (
+        <div>
+          <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '0.35rem' }}>
+            Looking for
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+            {referrer.hired_skills.slice(0, 8).map(skill => (
+              <span
+                key={skill}
+                style={{
+                  fontSize: '0.76rem',
+                  fontWeight: 600,
+                  padding: '0.18em 0.65em',
+                  borderRadius: '4px',
+                  background: 'rgba(200,138,20,0.08)',
+                  color: 'var(--gold)',
+                  border: '1.5px solid rgba(200,138,20,0.25)',
+                }}
+              >
+                {skill}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div
+        style={{
+          fontSize: '0.8rem',
+          color: 'var(--text-muted)',
+          padding: '0.6rem 0.8rem',
+          background: 'var(--cream)',
+          borderRadius: '6px',
+          border: '1px solid var(--parchment)',
+        }}
+      >
+        Direct messaging coming soon — join the network to be notified.
+      </div>
+    </div>
+  );
+}
+
+export default function NetworkPageClient({
+  initialProfiles,
+  initialReferrers,
+  isLoggedIn,
+  hasProfile,
+  currentProfile,
+}: Props) {
+  const [tab, setTab]               = useState<'seekers' | 'referrers'>('seekers');
   const [cityFilter, setCityFilter]  = useState('');
   const [visaFilter, setVisaFilter]  = useState('');
   const [roleSearch, setRoleSearch]  = useState('');
 
-  const filtered = useMemo(() => {
+  const filteredSeekers = useMemo(() => {
     return initialProfiles.filter(p => {
       if (cityFilter && p.city !== cityFilter) return false;
       if (visaFilter && p.visa_type !== visaFilter) return false;
@@ -117,13 +260,50 @@ export default function NetworkPageClient({ initialProfiles, isLoggedIn, hasProf
     });
   }, [initialProfiles, cityFilter, visaFilter, roleSearch]);
 
+  const filteredReferrers = useMemo(() => {
+    return initialReferrers.filter(r => {
+      if (cityFilter && r.city !== cityFilter) return false;
+      if (visaFilter && r.visa_type !== visaFilter) return false;
+      return true;
+    });
+  }, [initialReferrers, cityFilter, visaFilter]);
+
+  // Referrers that match the current user's skills (at least 1 overlap)
+  const matchingReferrers = useMemo(() => {
+    if (!currentProfile) return [];
+    return filteredReferrers.filter(r => skillsMatch(currentProfile.skills, r.hired_skills) > 0);
+  }, [filteredReferrers, currentProfile]);
+
+  // Group matching referrers by company for the insight banner
+  const matchByCompany = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const r of matchingReferrers) {
+      const company = r.hired_company ?? 'Undisclosed';
+      map[company] = (map[company] ?? 0) + 1;
+    }
+    return Object.entries(map).sort((a, b) => b[1] - a[1]);
+  }, [matchingReferrers]);
+
   const activeFilters = [cityFilter, visaFilter, roleSearch].filter(Boolean).length;
+
+  const tabStyle = (active: boolean) => ({
+    padding: '0.5rem 1.1rem',
+    fontSize: '0.88rem',
+    fontWeight: 600,
+    cursor: 'pointer' as const,
+    border: 'none',
+    borderBottom: active ? '2px solid var(--vermilion)' : '2px solid transparent',
+    background: 'none',
+    color: active ? 'var(--vermilion)' : 'var(--text-muted)',
+    fontFamily: 'inherit',
+    transition: 'color 0.15s',
+  });
 
   return (
     <div style={{ maxWidth: 900, margin: '0 auto', padding: '2rem 1.5rem 4rem' }}>
 
       {/* Header */}
-      <div style={{ marginBottom: '2rem' }}>
+      <div style={{ marginBottom: '1.5rem' }}>
         <h1 style={{ fontFamily: "'Lora', serif", fontWeight: 700, fontSize: 'clamp(1.6rem, 4vw, 2.2rem)', color: 'var(--ink)', marginBottom: '0.5rem' }}>
           The AU IT Job Seeker Network
         </h1>
@@ -163,18 +343,46 @@ export default function NetworkPageClient({ initialProfiles, isLoggedIn, hasProf
         )}
       </div>
 
+      {/* Tab navigation */}
+      <div style={{ display: 'flex', borderBottom: '1px solid var(--parchment)', marginBottom: '1.25rem' }}>
+        <button
+          style={tabStyle(tab === 'seekers')}
+          onClick={() => setTab('seekers')}
+          aria-selected={tab === 'seekers'}
+          role="tab"
+        >
+          Active Seekers
+          <span style={{ marginLeft: '0.4rem', fontSize: '0.78rem', opacity: 0.7 }}>
+            ({initialProfiles.length})
+          </span>
+        </button>
+        <button
+          style={tabStyle(tab === 'referrers')}
+          onClick={() => setTab('referrers')}
+          aria-selected={tab === 'referrers'}
+          role="tab"
+        >
+          Referral Board
+          <span style={{ marginLeft: '0.4rem', fontSize: '0.78rem', opacity: 0.7 }}>
+            ({initialReferrers.length})
+          </span>
+        </button>
+      </div>
+
       {/* Filter bar */}
-      <div className="search-panel" style={{ marginBottom: '1.5rem' }}>
+      <div className="search-panel" style={{ marginBottom: '1.25rem' }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.65rem', alignItems: 'center' }}>
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Search role…"
-            value={roleSearch}
-            onChange={e => setRoleSearch(e.target.value)}
-            style={{ flex: '1', minWidth: 160 }}
-            aria-label="Search by role"
-          />
+          {tab === 'seekers' && (
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Search role…"
+              value={roleSearch}
+              onChange={e => setRoleSearch(e.target.value)}
+              style={{ flex: '1', minWidth: 160 }}
+              aria-label="Search by role"
+            />
+          )}
           <select
             className="search-select search-select-lg"
             value={cityFilter}
@@ -213,45 +421,156 @@ export default function NetworkPageClient({ initialProfiles, isLoggedIn, hasProf
         </div>
       </div>
 
-      {/* Stats bar */}
-      <div style={{ marginBottom: '1.25rem', fontSize: '0.88rem', color: 'var(--text-muted)' }}>
-        {filtered.length === 0
-          ? 'No active seekers match your filters'
-          : `Showing ${filtered.length} active seeker${filtered.length !== 1 ? 's' : ''}${cityFilter ? ` in ${cityFilter}` : ''}`
-        }
-      </div>
+      {/* ── Seekers tab ─────────────────────────────────────────── */}
+      {tab === 'seekers' && (
+        <>
+          <div style={{ marginBottom: '1.25rem', fontSize: '0.88rem', color: 'var(--text-muted)' }}>
+            {filteredSeekers.length === 0
+              ? 'No active seekers match your filters'
+              : `Showing ${filteredSeekers.length} active seeker${filteredSeekers.length !== 1 ? 's' : ''}${cityFilter ? ` in ${cityFilter}` : ''}`
+            }
+          </div>
 
-      {/* Grid */}
-      {filtered.length > 0 ? (
-        <div className="network-seeker-grid">
-          {filtered.map(p => <SeekerCard key={p.id} profile={p} />)}
-        </div>
-      ) : (
-        <div
-          style={{
-            textAlign: 'center',
-            padding: '3rem 1rem',
-            color: 'var(--text-muted)',
-            border: '2px dashed var(--parchment)',
-            borderRadius: '12px',
-          }}
-        >
-          <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🔍</div>
-          <div style={{ fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>No seekers found</div>
-          <div style={{ fontSize: '0.88rem' }}>Try adjusting your filters, or be the first to join!</div>
-          {!isLoggedIn && (
-            <Link
-              href="/login"
-              style={{ display: 'inline-block', marginTop: '1rem', color: 'var(--vermilion)', fontWeight: 700, textDecoration: 'underline' }}
+          {filteredSeekers.length > 0 ? (
+            <div className="network-seeker-grid">
+              {filteredSeekers.map(p => <SeekerCard key={p.id} profile={p} />)}
+            </div>
+          ) : (
+            <div
+              style={{
+                textAlign: 'center',
+                padding: '3rem 1rem',
+                color: 'var(--text-muted)',
+                border: '2px dashed var(--parchment)',
+                borderRadius: '12px',
+              }}
             >
-              Sign in to join →
-            </Link>
+              <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🔍</div>
+              <div style={{ fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>No seekers found</div>
+              <div style={{ fontSize: '0.88rem' }}>Try adjusting your filters, or be the first to join!</div>
+              {!isLoggedIn && (
+                <Link
+                  href="/login"
+                  style={{ display: 'inline-block', marginTop: '1rem', color: 'var(--vermilion)', fontWeight: 700, textDecoration: 'underline' }}
+                >
+                  Sign in to join →
+                </Link>
+              )}
+            </div>
           )}
-        </div>
+        </>
       )}
 
-      {/* CTA footer */}
-      {!isLoggedIn && filtered.length > 0 && (
+      {/* ── Referral Board tab ──────────────────────────────────── */}
+      {tab === 'referrers' && (
+        <>
+          {/* Matching insight banner */}
+          {currentProfile && matchByCompany.length > 0 && (
+            <div
+              style={{
+                marginBottom: '1.25rem',
+                padding: '0.9rem 1.1rem',
+                background: 'rgba(200,138,20,0.07)',
+                border: '1.5px solid rgba(200,138,20,0.3)',
+                borderRadius: '10px',
+                fontSize: '0.9rem',
+                color: 'var(--text-primary)',
+                lineHeight: 1.5,
+              }}
+            >
+              <strong style={{ color: 'var(--gold)' }}>
+                {matchingReferrers.length} referrer{matchingReferrers.length !== 1 ? 's' : ''} match your background
+              </strong>
+              {matchByCompany.slice(0, 3).map(([company, count]) => (
+                <span key={company} style={{ display: 'block', fontSize: '0.84rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
+                  · {count} {count === 1 ? 'person' : 'people'} at {company} {count === 1 ? 'shares' : 'share'} your skills
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div style={{ marginBottom: '1.25rem', fontSize: '0.88rem', color: 'var(--text-muted)' }}>
+            {filteredReferrers.length === 0
+              ? 'No referrers yet — be the first to post when you get hired!'
+              : `${filteredReferrers.length} referrer${filteredReferrers.length !== 1 ? 's' : ''} available${cityFilter ? ` in ${cityFilter}` : ''}`
+            }
+          </div>
+
+          {filteredReferrers.length > 0 ? (
+            <div className="network-seeker-grid">
+              {filteredReferrers.map(r => (
+                <ReferrerCard
+                  key={r.id}
+                  referrer={r}
+                  matchCount={currentProfile ? skillsMatch(currentProfile.skills, r.hired_skills) : 0}
+                />
+              ))}
+            </div>
+          ) : (
+            <div
+              style={{
+                textAlign: 'center',
+                padding: '3rem 1rem',
+                color: 'var(--text-muted)',
+                border: '2px dashed var(--parchment)',
+                borderRadius: '12px',
+              }}
+            >
+              <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🤝</div>
+              <div style={{ fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>No referrers yet</div>
+              <div style={{ fontSize: '0.88rem' }}>
+                Got hired? Help others by posting a referral card from your{' '}
+                <Link href="/dashboard/profile" style={{ color: 'var(--vermilion)', fontWeight: 700 }}>
+                  profile settings
+                </Link>
+                .
+              </div>
+            </div>
+          )}
+
+          {/* CTA for non-logged-in users */}
+          {!isLoggedIn && filteredReferrers.length > 0 && (
+            <div
+              style={{
+                marginTop: '2rem',
+                padding: '1.5rem',
+                background: 'var(--warm-white)',
+                border: 'var(--panel-border)',
+                borderRadius: '12px',
+                boxShadow: 'var(--panel-shadow)',
+                textAlign: 'center',
+              }}
+            >
+              <div style={{ fontFamily: "'Lora', serif", fontWeight: 700, fontSize: '1.15rem', color: 'var(--ink)', marginBottom: '0.4rem' }}>
+                Want to connect with referrers?
+              </div>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1rem' }}>
+                Create a free account to see which referrers match your skills.
+              </p>
+              <Link
+                href="/login"
+                style={{
+                  display: 'inline-block',
+                  padding: '0.65rem 1.4rem',
+                  background: 'var(--vermilion)',
+                  color: 'white',
+                  fontWeight: 700,
+                  fontSize: '0.95rem',
+                  borderRadius: '8px',
+                  border: '2px solid var(--ink)',
+                  boxShadow: 'var(--panel-shadow)',
+                  textDecoration: 'none',
+                }}
+              >
+                Get started for free →
+              </Link>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* CTA footer for seekers tab */}
+      {tab === 'seekers' && !isLoggedIn && filteredSeekers.length > 0 && (
         <div
           style={{
             marginTop: '2.5rem',

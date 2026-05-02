@@ -14,7 +14,7 @@ export async function GET() {
 
   const { data } = await sb
     .from('anonymous_profiles')
-    .select('role_title, visa_type, skills, city, created_at')
+    .select('role_title, visa_type, skills, city, created_at, is_hired, hired_company, hired_skills, hired_message')
     .eq('user_id', user.id)
     .maybeSingle();
 
@@ -50,13 +50,40 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid city' }, { status: 400 });
   }
 
+  // Referral board fields (optional)
+  const is_hired      = body.is_hired === true;
+  const hired_company = is_hired && typeof body.hired_company === 'string'
+    ? body.hired_company.trim().slice(0, 100)
+    : null;
+  const hired_skills: string[] = is_hired && Array.isArray(body.hired_skills)
+    ? (body.hired_skills as unknown[])
+        .filter((s): s is string => typeof s === 'string')
+        .map(s => s.trim().slice(0, 50))
+        .filter(Boolean)
+        .slice(0, 20)
+    : [];
+  const hired_message = is_hired && typeof body.hired_message === 'string'
+    ? body.hired_message.trim().slice(0, 280)
+    : null;
+
   const { data, error } = await sb
     .from('anonymous_profiles')
     .upsert(
-      { user_id: user.id, role_title, visa_type, skills, city, updated_at: new Date().toISOString() },
+      {
+        user_id: user.id,
+        role_title,
+        visa_type,
+        skills,
+        city,
+        is_hired,
+        hired_company,
+        hired_skills,
+        hired_message,
+        updated_at: new Date().toISOString(),
+      },
       { onConflict: 'user_id' },
     )
-    .select('role_title, visa_type, skills, city')
+    .select('role_title, visa_type, skills, city, is_hired, hired_company, hired_skills, hired_message')
     .single();
 
   if (error) return NextResponse.json({ error: 'Failed to save profile' }, { status: 500 });
