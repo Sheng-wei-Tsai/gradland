@@ -88,7 +88,7 @@ function DropPanel({ children }: { children: React.ReactNode }) {
 
 function DropItem({ href, icon, label, desc, onClick }: { href: string; icon: EIconName; label: string; desc: string; onClick: () => void }) {
   return (
-    <Link href={href} onClick={onClick} className="drop-item"
+    <Link href={href} onClick={onClick} role="menuitem" className="drop-item"
       style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem', padding: '0.5rem 0.6rem', borderRadius: '7px', textDecoration: 'none', transition: 'background 0.12s ease' }}>
       <div style={{ width: '28px', height: '28px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '6px', background: 'rgba(192,40,28,0.07)', color: 'var(--terracotta)', marginTop: '1px' }}>
         <EIcon name={icon} size={15} />
@@ -114,7 +114,7 @@ function GroupDivider() {
 /* Compact link for AU Insights items inside the Search mega-menu */
 function MegaItem({ href, icon, label, onClick }: { href: string; icon: EIconName; label: string; onClick: () => void }) {
   return (
-    <Link href={href} onClick={onClick} className="drop-item"
+    <Link href={href} onClick={onClick} role="menuitem" className="drop-item"
       style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.35rem 0.5rem', borderRadius: '7px', textDecoration: 'none', transition: 'background 0.12s ease' }}>
       <EIcon name={icon} size={13} style={{ color: 'var(--terracotta)', flexShrink: 0 }} />
       <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--brown-dark)', whiteSpace: 'nowrap' }}>{label}</span>
@@ -289,7 +289,7 @@ export default function Header() {
           <div ref={avatarRef} style={{ position: 'absolute', right: '1.5rem', top: '50%', transform: 'translateY(-50%)' }}>
             {user ? (
               <ReadinessScoreMini>
-                <button onClick={() => setAvatarOpen(o => !o)} aria-label="Account menu" style={{
+                <button onClick={() => setAvatarOpen(o => !o)} aria-label="Account menu" aria-expanded={avatarOpen} aria-haspopup="true" style={{
                   width: '44px', height: '44px', borderRadius: '50%',
                   background: 'var(--terracotta)', color: 'white',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -315,7 +315,7 @@ export default function Header() {
             )}
 
             {avatarOpen && user && (
-              <div className="content-dropdown" style={{
+              <div role="menu" className="content-dropdown" style={{
                 position: 'absolute', top: 'calc(100% + 10px)', right: 0,
                 width: '200px', background: 'var(--warm-white)',
                 backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
@@ -335,7 +335,7 @@ export default function Header() {
                   <AvatarLink key={href} href={href} label={label} onClick={() => setAvatarOpen(false)} />
                 ))}
                 <div style={{ height: '1px', background: 'var(--parchment)', margin: '0.2rem 0.4rem' }} />
-                <button onClick={() => { setAvatarOpen(false); handleSignOut(); }} style={{
+                <button onClick={() => { setAvatarOpen(false); handleSignOut(); }} role="menuitem" style={{
                   width: '100%', padding: '0.45rem 0.6rem', borderRadius: '6px',
                   background: 'none', border: 'none', cursor: 'pointer',
                   fontSize: '0.85rem', fontWeight: 500, color: 'var(--text-muted)',
@@ -354,7 +354,7 @@ export default function Header() {
 
         {/* Drawer backdrop */}
         {mobileDrawer && (
-          <div onClick={() => setMobileDrawer(null)} style={{
+          <div onClick={() => setMobileDrawer(null)} aria-hidden="true" style={{
             position: 'fixed', inset: 0, zIndex: 90,
             background: 'rgba(0,0,0,0.25)', backdropFilter: 'blur(2px)',
           }} />
@@ -441,6 +441,9 @@ export default function Header() {
             user ? (
               <button
                 onClick={() => setMobileDrawer(d => d === 'me' ? null : 'me')}
+                aria-label="Account menu"
+                aria-expanded={mobileDrawer === 'me'}
+                aria-haspopup="true"
                 style={{
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem',
                   padding: '0.35rem 0.5rem', borderRadius: '4px',
@@ -481,7 +484,7 @@ export default function Header() {
 /* ── Avatar popover link ── */
 function AvatarLink({ href, label, onClick }: { href: string; label: string; onClick: () => void }) {
   return (
-    <Link href={href} onClick={onClick} className="drop-item" style={{
+    <Link href={href} onClick={onClick} role="menuitem" className="drop-item" style={{
       display: 'flex', alignItems: 'center', gap: '0.5rem',
       padding: '0.45rem 0.6rem', borderRadius: '6px',
       textDecoration: 'none', fontSize: '0.85rem', fontWeight: 500, color: 'var(--brown-dark)',
@@ -541,7 +544,7 @@ function MobileDrawerTab({ label, active, open, onClick, icon }: {
 }) {
   const highlight = active || open;
   return (
-    <button onClick={onClick} style={{
+    <button onClick={onClick} aria-label={label} aria-expanded={open} aria-haspopup="true" style={{
       display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem',
       padding: '0.35rem 0.5rem', borderRadius: '4px',
       background: highlight ? 'var(--vermilion)' : open ? 'rgba(192,40,28,0.07)' : 'transparent',

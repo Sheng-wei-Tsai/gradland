@@ -214,7 +214,7 @@
 | ~~`@import` Google Fonts~~ | ~~`app/globals.css:1`~~ | ~~Render-blocking — replace with `next/font`~~ ✅ 2026-05-02 |
 | ~~`--text-muted` dark mode contrast~~ | ~~`globals.css:75`~~ | ~~3.5:1 (fails WCAG) — target `#a09080`~~ ✅ 2026-05-02 |
 | No CSP `nonce` | `next.config.ts` | Static CSP — upgrade to dynamic nonce-based |
-| Accessible components (ARIA) | Multiple | Keyboard nav, focus rings, `aria-expanded` |
+| ~~Accessible components (ARIA)~~ | ~~Multiple~~ | ~~Keyboard nav, focus rings, `aria-expanded`~~ — Header dropdowns ✅ 2026-05-02 |
 | Core Web Vitals budget | `/jobs`, `/learn` | LCP and CLS not measured yet |
 | ~~Inline `onMouseEnter/Leave` for hover~~ | ~~Multiple components~~ | ~~Broken on touch, unnecessary JS~~ ✅ 2026-05-02 |
 | ~~Hardcoded hex in `DigitalPulseCard`~~ | ~~`au-insights/DigitalPulseCard.tsx`~~ | ~~Dark mode broken — all colors replaced with tokens~~ ✅ 2026-05-02 |
