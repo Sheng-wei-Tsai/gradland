@@ -556,6 +556,52 @@ export default function LearnPageClient({ paths }: { paths: SkillPath[] }) {
             </span>
           </motion.div>
         </Link>
+
+        {/* Claude Lab card */}
+        <Link href="/learn/claude-lab" style={{ textDecoration: 'none' }}>
+          <motion.div
+            initial="rest" whileHover="hover" whileTap={{ scale: 0.99 }}
+            style={{
+              background: 'linear-gradient(135deg, #07050f 0%, #0f0b1a 55%, #1a1430 100%)',
+              border: '1px solid #e84040', borderRadius: '14px',
+              padding: '1.4rem 1.6rem', position: 'relative', overflow: 'hidden',
+              display: 'flex', flexDirection: 'column',
+            }}
+          >
+            {/* Ambient glow */}
+            <div style={{ position: 'absolute', top: '-10px', right: '40px', width: '140px', height: '140px', borderRadius: '50%', background: 'rgba(232,64,64,0.2)', filter: 'blur(40px)', pointerEvents: 'none' }} />
+            {/* Terminal icon — slides in on hover */}
+            <motion.div
+              variants={{ rest: { x: 18, opacity: 0 }, hover: { x: 0, opacity: 0.2 } }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
+              style={{ position: 'absolute', top: '1rem', right: '1.3rem', pointerEvents: 'none' }}
+            >
+              <svg width="64" height="48" viewBox="0 0 64 48" fill="none">
+                <rect width="64" height="48" rx="8" fill="#1a1430" stroke="#e84040" strokeWidth="2"/>
+                <text x="8" y="28" fill="#e84040" fontFamily="monospace" fontSize="13" fontWeight="bold">{'>'}_</text>
+              </svg>
+            </motion.div>
+            <div style={{ position: 'relative', flex: 1 }}>
+              <p style={{ fontSize: '0.7rem', fontWeight: 700, color: '#e84040', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.3rem' }}>
+                Interactive Terminal — 15 Missions
+              </p>
+              <h3 style={{ fontFamily: "'Lora', serif", fontSize: '1.05rem', fontWeight: 700, color: '#f0e6d0', marginBottom: '0.3rem' }}>
+                Claude Lab
+              </h3>
+              <p style={{ fontSize: '0.82rem', color: '#c8b090', lineHeight: 1.55, marginBottom: '0.7rem' }}>
+                Learn Claude, Claude Code, and AI workflows by typing real commands in a browser terminal. XP, levels, and badges track your progress.
+              </p>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.2rem' }}>
+                {['⚡ Prompt Engineering', '🤖 Claude Code', '🏗️ AI Workflows'].map(tag => (
+                  <span key={tag} style={{ fontSize: '0.68rem', fontWeight: 600, color: '#e84040', background: 'rgba(232,64,64,0.12)', padding: '0.2em 0.55em', borderRadius: '5px' }}>{tag}</span>
+                ))}
+              </div>
+            </div>
+            <span style={{ alignSelf: 'flex-start', background: '#e84040', color: 'white', padding: '0.5rem 1.1rem', borderRadius: '99px', fontSize: '0.85rem', fontWeight: 600, boxShadow: '0 2px 12px rgba(232,64,64,0.4)', position: 'relative' }}>
+              Enter the lab →
+            </span>
+          </motion.div>
+        </Link>
       </motion.section>
 
     </div>
