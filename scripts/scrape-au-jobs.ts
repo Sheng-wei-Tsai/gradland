@@ -22,6 +22,12 @@ import crypto                   from 'crypto';
 import { sourceLabel, formatAttribution, type SourceRef } from '@/lib/jobs-sources';
 import type { Sponsor }         from './fetch-au-sponsors';
 import { fetchApifyWorkdayJobs, fetchApifyAshbyJobs } from './apify-jobs';
+import { scrapeWorkday }         from './sources/workday';
+import { scrapeAshby }           from './sources/ashby';
+import { scrapeSmartrecruiters } from './sources/smartrecruiters';
+import { scrapeAPSJobs }         from './sources/apsjobs';
+import { scrapeHatch }           from './sources/hatch';
+import type { RawSourceJob }     from './sources/types';
 
 if (existsSync('.env.local')) dotenv.config({ path: '.env.local' });
 else dotenv.config();
@@ -106,6 +112,24 @@ function normalizeSalary(raw: string | null | undefined) {
   return { text: lo === hi ? fmt(lo) : `${fmt(lo)} – ${fmt(hi)}`, min: lo, max: hi > lo ? hi : null };
 }
 
+function fromRaw(raw: RawSourceJob): ScrapedJob {
+  const sal = normalizeSalary(raw.salary ?? null);
+  return makeJob(raw.source, {
+    id:           hashId(raw.source, raw.externalId || raw.url, raw.title),
+    title:        raw.title,
+    company:      raw.company,
+    location:     raw.location || 'Australia',
+    url:          raw.url,
+    description:  raw.description ?? '',
+    salary:       sal.text,
+    salary_min:   raw.salary_min ?? sal.min,
+    salary_max:   raw.salary_max ?? sal.max,
+    created:      raw.created ?? new Date().toISOString(),
+    dedup_key:    dedupKey(raw.title, raw.company),
+    cluster_key:  dedupKey(raw.title, raw.company),
+  });
+}
+
 function makeJob(source: string, overrides: Partial<ScrapedJob> & Pick<ScrapedJob, 'id' | 'title' | 'company' | 'url'>): ScrapedJob {
   const src    = overrides.sources ?? [{ name: source, label: sourceLabel(source), apply_url: overrides.url }];
   const key    = dedupKey(overrides.title, overrides.company);
@@ -185,13 +209,23 @@ function applySponsorOverlay(jobs: ScrapedJob[], sponsors: Sponsor[]): ScrapedJo
 // ── Greenhouse direct API ─────────────────────────────────────────────────────
 // Free public: boards-api.greenhouse.io/v1/boards/{slug}/jobs
 
-const GREENHOUSE_AU_SLUGS = [
+const GREENHOUSE_FALLBACK_SLUGS = [
   'canva', 'cultureamp', 'octopusdeploy', 'immutable', 'eucalyptus',
   'safetyculture', 'envato', 'mable', 'buildkite', 'go1',
   'aconex', 'healthengine', 'aruma', 'ansarada', 'airwallex',
   'brighte', 'creditorwatch', 'fluentretail', 'up-education', 'whispir',
   'shippit', 'simpro', 'swoop', 'rezdy', 'employmenthero',
 ];
+
+function loadSlugList(path: string, fallback: string[]): string[] {
+  if (!existsSync(path)) return fallback;
+  try {
+    const data = JSON.parse(readFileSync(path, 'utf8'));
+    return Array.isArray(data) ? data : fallback;
+  } catch { return fallback; }
+}
+
+const GREENHOUSE_AU_SLUGS = loadSlugList('data/au-greenhouse-slugs.json', GREENHOUSE_FALLBACK_SLUGS);
 
 interface GreenhouseJob { id: number; title: string; location?: { name?: string }; absolute_url: string; updated_at: string; }
 interface GreenhouseResponse { jobs: GreenhouseJob[]; }
@@ -238,11 +272,13 @@ async function scrapeGreenhouse(): Promise<ScrapedJob[]> {
 // ── Lever direct API ──────────────────────────────────────────────────────────
 // Free public: api.lever.co/v0/postings/{slug}?mode=json
 
-const LEVER_AU_SLUGS = [
+const LEVER_FALLBACK_SLUGS = [
   'atlassian', 'realestate', 'carsales', 'afterpay', 'wisetech',
   'deputy', 'airtasker', 'linktree', 'rokt', 'liven',
   'zooplus-au', 'coviu', 'shippit', 'tyro', 'montu',
 ];
+
+const LEVER_AU_SLUGS = loadSlugList('data/au-lever-slugs.json', LEVER_FALLBACK_SLUGS);
 
 interface LeverPosting {
   id: string;
@@ -555,12 +591,31 @@ async function main() {
   const eightyKJobs = await scrape80kHours();
   console.log(`  → ${eightyKJobs.length} 80kh jobs\n`);
 
-  // Apify (Workday + Ashby — only runs if APIFY_API_KEY is set)
+  // Direct ATS APIs (free, no auth) — replaces Apify Workday/Ashby + adds 3 new free sources.
+  console.log('📋 Workday + Ashby + Smartrec + APS Jobs + Hatch (free direct)...');
+  const [wdRes, ashRes, srRes, apsRes, hatchRes] = await Promise.allSettled([
+    scrapeWorkday(),
+    scrapeAshby(),
+    scrapeSmartrecruiters(),
+    scrapeAPSJobs(),
+    scrapeHatch(),
+  ]);
+  const directRaw: RawSourceJob[] = [
+    ...(wdRes.status    === 'fulfilled' ? wdRes.value    : []),
+    ...(ashRes.status   === 'fulfilled' ? ashRes.value   : []),
+    ...(srRes.status    === 'fulfilled' ? srRes.value    : []),
+    ...(apsRes.status   === 'fulfilled' ? apsRes.value   : []),
+    ...(hatchRes.status === 'fulfilled' ? hatchRes.value : []),
+  ];
+  const directJobs: ScrapedJob[] = directRaw.map(fromRaw);
+  console.log(`  → WD ${wdRes.status === 'fulfilled' ? wdRes.value.length : 0}, Ashby ${ashRes.status === 'fulfilled' ? ashRes.value.length : 0}, Smartrec ${srRes.status === 'fulfilled' ? srRes.value.length : 0}, APS ${apsRes.status === 'fulfilled' ? apsRes.value.length : 0}, Hatch ${hatchRes.status === 'fulfilled' ? hatchRes.value.length : 0} (total ${directJobs.length})\n`);
+
+  // Apify becomes opt-in fallback only — set USE_APIFY_FALLBACK=true to re-enable.
   let apifyJobs: ScrapedJob[] = [];
-  if (process.env.APIFY_API_KEY) {
-    console.log('📋 Apify (Workday + Ashby)...');
-    const [wdJobs, ashbyJobs] = await Promise.all([fetchApifyWorkdayJobs(), fetchApifyAshbyJobs()]);
-    apifyJobs = [...wdJobs, ...ashbyJobs] as unknown as ScrapedJob[];
+  if (process.env.APIFY_API_KEY && process.env.USE_APIFY_FALLBACK === 'true') {
+    console.log('📋 Apify fallback (Workday + Ashby)...');
+    const [wdApify, ashApify] = await Promise.all([fetchApifyWorkdayJobs(), fetchApifyAshbyJobs()]);
+    apifyJobs = [...wdApify, ...ashApify] as unknown as ScrapedJob[];
     console.log(`  → ${apifyJobs.length} Apify jobs\n`);
   }
 
@@ -572,7 +627,7 @@ async function main() {
   console.log(`  → ${joraRaw.length} raw → ${joraJobs.length} IT-filtered Jora jobs\n`);
 
   // Combine, dedup, sponsor overlay
-  const allRaw  = [...ghJobs, ...lvJobs, ...apifyJobs, ...acsJobs, ...eightyKJobs, ...joraJobs];
+  const allRaw  = [...ghJobs, ...lvJobs, ...directJobs, ...apifyJobs, ...acsJobs, ...eightyKJobs, ...joraJobs];
   const allUniq = deduplicateJobs(allRaw);
   const withSponsor = applySponsorOverlay(refreshAttribution(allUniq), sponsors);
   const sponsorCount = withSponsor.filter(j => j.sponsor_signal).length;

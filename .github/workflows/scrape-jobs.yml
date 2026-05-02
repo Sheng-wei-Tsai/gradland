@@ -21,9 +21,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Scrape AU IT jobs (Greenhouse + Lever + Jora + ACS + 80kh + Apify)
+      - name: Scrape AU IT jobs (Greenhouse + Lever + Workday + Ashby + Smartrec + APS + Hatch + Jora + ACS + 80kh)
         env:
           NEXT_PUBLIC_SUPABASE_URL:  ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          APIFY_API_KEY:             ${{ secrets.APIFY_API_KEY }}
+          # APIFY is now opt-in fallback only. Free direct ATS APIs cover Workday + Ashby.
+          # To re-enable as fallback (e.g. if a Workday tenant blocks direct fetch):
+          #   APIFY_API_KEY:        ${{ secrets.APIFY_API_KEY }}
+          #   USE_APIFY_FALLBACK:   'true'
         run: npx tsx scripts/scrape-au-jobs.ts
