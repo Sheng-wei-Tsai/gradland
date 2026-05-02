@@ -117,6 +117,17 @@ export default function CompanyPage({ params }: { params: { slug: string } }) {
           >
             🔗 {company.website} ↗
           </a>
+          <Link
+            href={`/companies/${company.slug}/research`}
+            style={{
+              fontSize: '0.8rem', color: 'var(--jade)',
+              background: 'var(--warm-white)', border: '1px solid var(--parchment)',
+              padding: '0.25rem 0.7rem', borderRadius: '99px',
+              textDecoration: 'none', fontWeight: 600,
+            }}
+          >
+            🔍 AI Research Brief
+          </Link>
         </div>
       </section>
 

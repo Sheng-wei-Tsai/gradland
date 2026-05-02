@@ -1876,3 +1876,23 @@ h3, h4 {
 
 .network-message-row { transition: background 0.1s; }
 .network-message-row--unread:hover { background: rgba(192,40,28,0.07) !important; }
+
+/* ── Company Research Brief buttons ── */
+.btn-research-generate {
+  transition: opacity 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+.btn-research-generate:hover:not(:disabled) {
+  opacity: 0.88;
+  transform: translate(-1px, -1px);
+  box-shadow: 6px 6px 0 var(--ink);
+}
+.btn-research-generate:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+.btn-research-regenerate {
+  transition: border-color 0.15s, color 0.15s;
+}
+.btn-research-regenerate:hover:not(:disabled) {
+  border-color: var(--text-secondary) !important;
+  color: var(--text-primary) !important;
+}
+.btn-research-regenerate:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }

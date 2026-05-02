@@ -39,6 +39,7 @@ export const ENDPOINT_LIMITS: Record<string, number> = {
   'diagrams/generate':   10, // Generic Mermaid diagram via GPT-4o-mini — 10/day
   'gap-analysis':         5, // Job-to-gap skill extraction — 5/day
   'analytics/ai-insights': 10, // GPT-4o admin analytics — 10/day
+  'companies/research':  10, // Claude claude-sonnet-4-6 company brief — 10/day
 };
 
 // ── Subscription status ───────────────────────────────────────────────
