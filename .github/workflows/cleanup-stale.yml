@@ -1,0 +1,66 @@
+name: Cleanup stale PRs and Auto Done issues
+
+# Weekly Sunday cleanup. Closes:
+#  - Open PRs whose head commit is already an ancestor of origin/main (content
+#    landed via direct push or different commit hash).
+#  - [Auto Done] issues older than 14 days (audit trail is in dev-done/* branches).
+#
+# Manual trigger: workflow_dispatch.
+
+on:
+  schedule:
+    - cron: '0 12 * * 0'   # Sundays 12:00 UTC = Mon 23:00 AEDT
+  workflow_dispatch:
+
+permissions:
+  contents:      read
+  pull-requests: write
+  issues:        write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Close PRs whose head is already an ancestor of main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          git fetch origin main --depth=200 2>/dev/null || true
+          CLOSED=0
+          KEPT=0
+          for N in $(gh pr list --state open --limit 100 --json number --jq '.[].number'); do
+            HEAD=$(gh pr view "$N" --json headRefOid --jq .headRefOid 2>/dev/null || echo "")
+            if [ -z "$HEAD" ]; then KEPT=$((KEPT+1)); continue; fi
+            git fetch origin "pull/$N/head" --depth=1 2>/dev/null || true
+            if git cat-file -e "$HEAD" 2>/dev/null \
+              && git merge-base --is-ancestor "$HEAD" origin/main 2>/dev/null; then
+              echo "PR #$N — head already in main; closing."
+              gh pr close "$N" --comment "Cleanup: all commits on head are already in main." || true
+              CLOSED=$((CLOSED+1))
+            else
+              KEPT=$((KEPT+1))
+            fi
+          done
+          echo "PR sweep done. Closed=$CLOSED Kept=$KEPT"
+
+      - name: Close stale Auto Done issues
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          NUMS=$(gh issue list \
+            --search '"[Auto Done]" in:title' \
+            --state open --limit 200 \
+            --json number,updatedAt \
+            --jq '.[] | select((now - (.updatedAt | fromdateiso8601)) > 1209600) | .number')
+          CLOSED=0
+          for N in $NUMS; do
+            gh issue close "$N" --comment "Cleanup: [Auto Done] issue older than 14 days. Audit trail kept in dev-done/* sentinel branches." || true
+            CLOSED=$((CLOSED+1))
+          done
+          echo "Issue sweep done. Closed=$CLOSED"
