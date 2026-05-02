@@ -165,7 +165,7 @@
 
 ### Navigation Restructure — `features/navigation-redesign.md`
 - [x] Three zones: **Prepare** · **Search** · **Track** (group by user intent, not feature name) ✅ 2026-05-02
-- [ ] Mega-dropdown on desktop, mobile bottom nav (4 icons)
+- [x] 2026-05-02 Mega-dropdown on desktop, mobile bottom nav (4 icons)
 - [ ] Breadcrumbs on all nested pages
 - **Effort:** M
 
