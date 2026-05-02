@@ -328,7 +328,7 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 - [x] Analytics without third-party trackers
 - [x] pgvector (gap engine)
 - [x] Test suite (41 tests, 8 files)
-- [ ] Test coverage on all critical paths (Stripe, streaming, auth)
+- [x] Test coverage on all critical paths (Stripe, streaming, auth) — resume-analyse tests added ✅ 2026-05-02
 - [ ] Edge caching strategy (Vercel KV)
 - [ ] Accessible components (ARIA, keyboard nav)
 - [ ] Core Web Vitals green (Lighthouse ≥ 90)
