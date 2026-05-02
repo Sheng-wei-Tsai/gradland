@@ -202,14 +202,159 @@ function freshness(dateStr: string): { label: string; color: string } {
   return             { label: `${Math.floor(days / 30)}mo ago`,          color: 'var(--text-muted)' };
 }
 
+// ─── Job detail full-screen modal (mobile only) ──────────────────────────────
+
+const SOURCE_LABELS: Record<string, string> = {
+  jsearch: 'Google Jobs', google_jobs: 'Google Jobs',
+  jora: 'Jora', indeed: 'Indeed', acs: 'ACS', seek: 'Seek',
+  adzuna: 'Adzuna', linkedin: 'LinkedIn', remotive: 'Remotive', jobicy: 'Jobicy',
+};
+
+const SOURCE_CLS: Record<string, string> = {
+  jsearch: 'tag tag-jsearch', google_jobs: 'tag tag-google',
+  jora: 'tag tag-jora', indeed: 'tag tag-indeed', acs: 'tag tag-acs',
+  seek: 'tag tag-seek', adzuna: 'tag tag-adzuna', linkedin: 'tag tag-linkedin',
+  remotive: 'tag tag-remotive', jobicy: 'tag tag-jobicy',
+};
+
+function JobDetailModal({ job, isSaved, isLoggedIn, onClose, onSaveToggle, onApply }: {
+  job: AdzunaJob;
+  isSaved: boolean;
+  isLoggedIn: boolean;
+  onClose: () => void;
+  onSaveToggle: (job: AdzunaJob) => void;
+  onApply: (job: AdzunaJob) => void;
+}) {
+  const { label: ageLabel, color: ageColor } = freshness(job.created);
+  const isHtml  = hasHtmlTags(job.description);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const srcLabel = SOURCE_LABELS[job.source] ?? job.source;
+  const srcCls   = SOURCE_CLS[job.source]   ?? 'tag';
+  const publisherLabel = (job.source === 'jsearch' || job.source === 'google_jobs')
+    ? (job.publisher ?? srcLabel)
+    : srcLabel;
+
+  useEffect(() => { closeRef.current?.focus(); }, []);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [onClose]);
+
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, []);
+
+  return (
+    <div
+      className="job-detail-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${job.title} at ${job.company}`}
+    >
+      {/* Header */}
+      <div className="job-detail-modal-header">
+        <button ref={closeRef} onClick={onClose} className="job-detail-modal-back" aria-label="Close job detail">
+          ← Back
+        </button>
+        <span style={{ fontSize: '0.78rem', fontWeight: 600, color: ageColor }}>{ageLabel}</span>
+      </div>
+
+      {/* Scrollable body */}
+      <div className="job-detail-modal-body">
+        <h2 className="job-detail-modal-title">{job.title}</h2>
+        <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
+          {job.company}{job.location ? ` · ${job.location}` : ''}
+        </p>
+
+        {/* Tags */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '1rem' }}>
+          {job.contract_type && <span className="tag">{job.contract_type}</span>}
+          {job.category      && <span className="tag">{job.category}</span>}
+          {job.salary        && (
+            <span className="tag" style={{ color: 'var(--terracotta)', display: 'inline-flex', alignItems: 'center', gap: '0.25em' }}>
+              <EIcon name="coin" size={12} />{job.salary}
+            </span>
+          )}
+          <span className={srcCls}>via {publisherLabel}</span>
+        </div>
+
+        {/* Skill gap analysis */}
+        <div style={{ marginBottom: '1rem' }}>
+          <GapAnalysisPanel
+            jobId={job.id}
+            jobTitle={job.title}
+            company={job.company}
+            description={job.description}
+            isLoggedIn={isLoggedIn}
+          />
+        </div>
+
+        {/* Full description */}
+        <div style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.75, marginBottom: '1rem' }}>
+          {isHtml
+            /* Description is server-sanitized (script/iframe/on* stripped) before reaching client */
+            // eslint-disable-next-line react/no-danger
+            ? <div className="job-description-html" dangerouslySetInnerHTML={{ __html: job.description }} />
+            : <p style={{ margin: 0 }}>{job.description}</p>}
+        </div>
+      </div>
+
+      {/* Sticky action bar */}
+      <div className="job-detail-modal-actions">
+        <button
+          onClick={() => onSaveToggle(job)}
+          className="job-btn-save"
+          style={{
+            flex: 1,
+            background: isSaved ? 'rgba(232,64,64,0.08)' : undefined,
+            border:     isSaved ? '1px solid var(--terracotta)' : undefined,
+            color:      isSaved ? 'var(--terracotta)' : undefined,
+          }}
+        >
+          <EIcon name={isSaved ? 'heart-filled' : 'heart'} size={14} style={{ marginRight: '0.3em' }} />
+          {isSaved ? 'Saved' : 'Save'}
+        </button>
+        <Link
+          href={`/cover-letter?title=${encodeURIComponent(job.title)}&company=${encodeURIComponent(job.company)}&desc=${encodeURIComponent(job.description)}`}
+          className="job-btn-cover"
+          style={{ flex: 1, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3em' }}
+        >
+          <EIcon name="pencil-letter" size={14} />Cover Letter
+        </Link>
+        <a
+          href={job.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => onApply(job)}
+          className="job-apply-link"
+          style={{
+            flex: 2, textAlign: 'center',
+            background: 'var(--terracotta)', color: 'white',
+            padding: '0.6rem 1rem', borderRadius: '99px',
+            fontSize: '0.9rem', fontWeight: 700, textDecoration: 'none',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+        >
+          Apply Now →
+        </a>
+      </div>
+    </div>
+  );
+}
+
 // ─── Job card ─────────────────────────────────────────────────────────────────
 
-function JobCard({ job, savedIds, onSaveToggle, onApply, isLoggedIn }: {
+function JobCard({ job, savedIds, onSaveToggle, onApply, isLoggedIn, onOpenDetail }: {
   job: AdzunaJob;
   savedIds: Set<string>;
   onSaveToggle: (job: AdzunaJob) => void;
   onApply: (job: AdzunaJob) => void;
   isLoggedIn: boolean;
+  onOpenDetail: (job: AdzunaJob) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const isSaved = savedIds.has(job.id);
@@ -385,12 +530,22 @@ function JobCard({ job, savedIds, onSaveToggle, onApply, isLoggedIn }: {
               {isHtml ? stripHtml(job.description) : job.description}
             </p>
           )}
+          {/* Desktop: inline expand toggle */}
           <button onClick={() => setExpanded(v => !v)} className="job-read-more-btn" style={{
             background: 'none', border: 'none', color: 'var(--terracotta)',
             cursor: 'pointer', fontSize: '0.82rem', padding: '0.2rem 0',
             minHeight: '44px',
           }}>
             {expanded ? 'Show less ↑' : 'Read more ↓'}
+          </button>
+          {/* Mobile: open full-screen detail modal */}
+          <button
+            onClick={() => onOpenDetail(job)}
+            className="job-view-details-btn"
+            aria-label={`View full details for ${job.title}`}
+          >
+            <EIcon name="magnifier" size={13} />
+            View details
           </button>
         </div>
       </div>
@@ -609,13 +764,15 @@ export default function JobsPage() {
     setAlertSaved(true);
   };
 
+  const [selectedJob, setSelectedJob] = useState<AdzunaJob | null>(null);
+
   // AU tab: split flat jobs array into three sections (scraped / google / adzuna)
   const showSections   = activeTab === 'au' && filterSource === 'all' && (scrapedCount > 0 || googleCount > 0 || adzunaCount > 0);
   const sectionScraped = showSections ? jobs.slice(0, scrapedCount) : [];
   const sectionGoogle  = showSections ? jobs.slice(scrapedCount, scrapedCount + googleCount) : [];
   const sectionAdzuna  = showSections ? jobs.slice(scrapedCount + googleCount) : [];
   const visibleJobs    = filterSource === 'all' ? jobs : jobs.filter(j => j.source === filterSource);
-  const jobCardProps   = { savedIds, onSaveToggle: handleSaveToggle, onApply: handleApply, isLoggedIn: !!user };
+  const jobCardProps   = { savedIds, onSaveToggle: handleSaveToggle, onApply: handleApply, isLoggedIn: !!user, onOpenDetail: setSelectedJob };
 
   return (
     <div style={{ maxWidth: '760px', margin: '0 auto', padding: '0 1.5rem' }}>
@@ -1100,6 +1257,18 @@ export default function JobsPage() {
             </div>
           </div>
         </>
+      )}
+
+      {/* Job detail full-screen modal — mobile only (CSS display:none on desktop) */}
+      {selectedJob && (
+        <JobDetailModal
+          job={selectedJob}
+          isSaved={savedIds.has(selectedJob.id)}
+          isLoggedIn={!!user}
+          onClose={() => setSelectedJob(null)}
+          onSaveToggle={handleSaveToggle}
+          onApply={handleApply}
+        />
       )}
     </div>
   );

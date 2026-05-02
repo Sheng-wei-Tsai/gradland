@@ -173,7 +173,7 @@
 - [x] 2026-05-02 Swipe-to-save gesture on job cards
 - [x] 2026-05-02 Sticky search bar with filter bottom-drawer on mobile
 - [x] 2026-05-02 Minimum 44px touch targets on all action buttons
-- [ ] Job detail full-screen modal on mobile
+- [x] 2026-05-02 Job detail full-screen modal on mobile ✅
 - **Effort:** M
 
 ---
