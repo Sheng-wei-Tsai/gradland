@@ -1615,3 +1615,24 @@ h3, h4 {
   outline: 3px solid var(--vermilion);
   outline-offset: 2px;
 }
+
+/* ── Mobile WCAG 2.5.5: 44px minimum touch targets on job action buttons ── */
+@media (max-width: 640px) {
+  .job-tab, .job-tab-active,
+  .job-btn-save, .job-btn-cover, .job-apply-link,
+  .source-chip, .search-chip, .search-adv-toggle,
+  .job-read-more-btn, .job-util-btn, .job-pagination-btn {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* Icon-only buttons need min-width too */
+  .toast-close-btn {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

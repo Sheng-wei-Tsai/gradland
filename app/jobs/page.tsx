@@ -349,6 +349,7 @@ function JobCard({ job, savedIds, onSaveToggle, onApply, isLoggedIn }: {
           </Link>
           <a href={job.url} target="_blank" rel="noopener noreferrer"
             onClick={() => onApply(job)}
+            className="job-apply-link"
             style={{
               background: 'var(--terracotta)', color: 'white',
               padding: '0.4rem 1rem', borderRadius: '99px',
@@ -381,7 +382,7 @@ function JobCard({ job, savedIds, onSaveToggle, onApply, isLoggedIn }: {
               {isHtml ? stripHtml(job.description) : job.description}
             </p>
           )}
-          <button onClick={() => setExpanded(v => !v)} style={{
+          <button onClick={() => setExpanded(v => !v)} className="job-read-more-btn" style={{
             background: 'none', border: 'none', color: 'var(--terracotta)',
             cursor: 'pointer', fontSize: '0.82rem', padding: '0.2rem 0',
           }}>
@@ -827,6 +828,7 @@ export default function JobsPage() {
             <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
               {fromCache && (
                 <button onClick={() => { clearJobsCache(); search(1, true); }}
+                  className="job-util-btn"
                   style={{ background: 'none', border: '1px solid var(--parchment)', borderRadius: '99px', padding: '0.3rem 0.8rem', fontSize: '0.82rem', cursor: 'pointer', color: 'var(--text-secondary)' }}>
                   ↻ Refresh
                 </button>
@@ -835,7 +837,7 @@ export default function JobsPage() {
               {alertSaved
                 ? <span style={{ fontSize: '0.82rem', color: 'var(--jade)' }}>✓ Alert saved</span>
                 : (
-                  <button onClick={handleSaveSearch} style={{
+                  <button onClick={handleSaveSearch} className="job-util-btn" style={{
                     background: 'none', border: '1px solid var(--parchment)',
                     borderRadius: '99px', padding: '0.3rem 0.8rem',
                     fontSize: '0.82rem', cursor: 'pointer', color: 'var(--text-secondary)',
@@ -951,6 +953,7 @@ export default function JobsPage() {
             Track it →
           </Link>
           <button onClick={() => setApplyToast(null)}
+            className="toast-close-btn"
             style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '1rem', padding: 0 }}>
             ✕
           </button>
@@ -960,10 +963,12 @@ export default function JobsPage() {
       {(page > 1 || hasMore) && (
         <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', paddingBottom: '4rem' }}>
           <button onClick={() => search(page - 1)} disabled={page <= 1 || loading}
+            className="job-pagination-btn"
             style={{ padding: '0.5rem 1.2rem', borderRadius: '99px', border: '1px solid var(--parchment)', background: 'var(--warm-white)', cursor: page <= 1 ? 'not-allowed' : 'pointer', color: page <= 1 ? 'var(--text-muted)' : 'var(--brown-dark)', fontSize: '0.9rem' }}>
             ← Prev
           </button>
           <button onClick={() => search(page + 1)} disabled={!hasMore || loading}
+            className="job-pagination-btn"
             style={{ padding: '0.5rem 1.2rem', borderRadius: '99px', border: '1px solid var(--parchment)', background: 'var(--warm-white)', cursor: !hasMore ? 'not-allowed' : 'pointer', color: !hasMore ? 'var(--text-muted)' : 'var(--brown-dark)', fontSize: '0.9rem' }}>
             Next →
           </button>
