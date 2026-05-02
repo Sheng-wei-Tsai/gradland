@@ -44,7 +44,10 @@ export async function POST(req: NextRequest) {
     return new Response(JSON.stringify({ error: 'Invalid request body' }), { status: 400 });
   }
 
-  const { jobTitle, company, jobDescription, background } = body;
+  const jobTitle       = (body.jobTitle       ?? '').slice(0, 200);
+  const company        = (body.company        ?? '').slice(0, 100);
+  const jobDescription = (body.jobDescription ?? '').slice(0, 3000);
+  const background     = (body.background     ?? '').slice(0, 1500);
   if (!jobTitle || !company || !jobDescription || !background) {
     return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 });
   }
@@ -86,10 +89,10 @@ JOB TITLE: ${jobTitle}
 COMPANY: ${company}
 
 JOB DESCRIPTION:
-${jobDescription.slice(0, 3000)}
+${jobDescription}
 
 CANDIDATE BACKGROUND:
-${background.slice(0, 1500)}
+${background}
 
 Write the cover letter now. 3-4 paragraphs, plain text only, no headers or bullet points.`;
 

@@ -191,6 +191,25 @@ describe('POST /api/cover-letter', () => {
       expect(capturedUserContent).not.toContain('z'.repeat(1501));
     });
 
+    it('truncates jobTitle to 200 chars and company to 100 chars', async () => {
+      let capturedUserContent = '';
+      mockCreate.mockImplementationOnce(
+        async (opts: { messages: { role: string; content: string }[] }) => {
+          capturedUserContent = opts.messages.find(m => m.role === 'user')?.content ?? '';
+          return makeStreamChunks(['ok']);
+        },
+      );
+      await POST(makePost({
+        ...validBody,
+        jobTitle: 'a'.repeat(300),
+        company:  'b'.repeat(150),
+      }));
+      expect(capturedUserContent).toContain('a'.repeat(200));
+      expect(capturedUserContent).not.toContain('a'.repeat(201));
+      expect(capturedUserContent).toContain('b'.repeat(100));
+      expect(capturedUserContent).not.toContain('b'.repeat(101));
+    });
+
     it('uses company+jobTitle as the cache key', async () => {
       mockCreate.mockResolvedValueOnce(makeStreamChunks(['ok']));
       await POST(makePost(validBody));
