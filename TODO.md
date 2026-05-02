@@ -198,7 +198,7 @@
 ## 🟢 Priority 5 — Polish
 
 ### Traditional Chinese (zh-TW) — `features/i18n-zh-tw.md`
-- [ ] `next-intl` installed, ~80 strings: nav, CTAs, onboarding, AU Insights key labels
+- [x] `next-intl` installed, ~80 strings: nav, CTAs, onboarding, AU Insights key labels ✅ 2026-05-02
 - [ ] Language toggle in Header (persists to localStorage)
 - **Effort:** S (2–3 days)
 

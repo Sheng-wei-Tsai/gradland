@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import Breadcrumb from '@/components/Breadcrumb';
 import Footer from '@/components/Footer';
 import { AuthProvider } from '@/components/AuthProvider';
+import LangProvider from '@/components/LangProvider';
 import Analytics from '@/components/Analytics';
 import { Toaster } from 'sonner';
 
@@ -81,6 +82,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body suppressHydrationWarning>
         <AuthProvider>
+          <LangProvider>
           <a href="#main-content" className="skip-to-content">Skip to content</a>
           <Analytics />
           <Header />
@@ -100,6 +102,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               },
             }}
           />
+          </LangProvider>
         </AuthProvider>
       </body>
     </html>
