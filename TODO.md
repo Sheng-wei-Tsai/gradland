@@ -154,6 +154,7 @@
 - [x] `learn/diagram` route — 400 on missing fields + fence-stripping ✅ 2026-05-06
 - [x] `admin/job-listings` route — 403 without admin, invalid action, DELETE UUID validation, extend Math.max fix ✅ 2026-05-06
 - [x] `comments` + `comments/[id]` routes — GET 400 invalid slug/500 DB error, POST 401/400/201, PATCH 401/400/403/200, DELETE 401/200 (regular + admin)/403 on DB error [tests] ✅ 2026-05-06
+- [x] `interview/chat`, `interview/evaluate`, `interview/mentor` routes — 401/403/429 auth gates, 400 on missing fields, 400 on invalid stage (mentor), 502 on OpenAI failure, streaming 200 on valid input, input truncation (evaluate: answer ≤ 2000 chars) [tests] ✅ 2026-05-06
 - **Effort:** M (3–5 days)
 
 ### Phone Remote Control (GitHub mobile + Telegram)
