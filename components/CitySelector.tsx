@@ -1,7 +1,7 @@
 'use client';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import EIcon from '@/components/icons/EIcon';
+import CityIcon from '@/components/icons/CityIcon';
 
 const CITIES = [
   'Brisbane',
@@ -76,7 +76,7 @@ export default function CitySelector({ value, onChange }: CitySelectorProps) {
         aria-label={`Location: ${value}. Press to change.`}
       >
         <span className="city-trigger__icon" aria-hidden="true">
-          <EIcon name="map" size={16} />
+          <CityIcon city={value} size={18} />
         </span>
 
         <span className="city-trigger__label">
@@ -123,6 +123,9 @@ export default function CitySelector({ value, onChange }: CitySelectorProps) {
                   onClick={() => select(city)}
                   className={`city-option${isFocused ? ' city-option--focused' : ''}${isSelected ? ' city-option--selected' : ''}`}
                 >
+                  <span className="city-option__icon" aria-hidden="true">
+                    <CityIcon city={city} size={16} />
+                  </span>
                   <span className="city-option__name">{city}</span>
                   {isSelected && (
                     <svg

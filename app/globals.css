@@ -1530,8 +1530,10 @@ h3, h4 {
 .city-option--selected:hover {
   background: color-mix(in srgb, var(--vermilion) 12%, transparent);
 }
+.city-option__icon { display: inline-flex; flex-shrink: 0; color: var(--vermilion); opacity: 0.85; }
 .city-option__name { flex: 1; }
 .city-option__check { margin-left: auto; color: var(--vermilion); flex-shrink: 0; }
+.city-option--selected .city-option__icon { opacity: 1; }
 
 [data-theme="dark"] .city-option:hover,
 [data-theme="dark"] .city-option--focused {
