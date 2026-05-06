@@ -153,6 +153,7 @@
 - [x] `AuthProvider` component ✅ 2026-05-01
 - [x] `learn/diagram` route — 400 on missing fields + fence-stripping ✅ 2026-05-06
 - [x] `admin/job-listings` route — 403 without admin, invalid action, DELETE UUID validation, extend Math.max fix ✅ 2026-05-06
+- [x] `comments` + `comments/[id]` routes — GET 400 invalid slug/500 DB error, POST 401/400/201, PATCH 401/400/403/200, DELETE 401/200 (regular + admin)/403 on DB error [tests] ✅ 2026-05-06
 - **Effort:** M (3–5 days)
 
 ### Phone Remote Control (GitHub mobile + Telegram)
