@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 
+process.env.OPENAI_API_KEY = 'sk-test-dummy';
+
 // ── Auth mocks ────────────────────────────────────────────────────────────────
 const mockGetUser = vi.fn().mockResolvedValue({ data: { user: null }, error: null });
 
