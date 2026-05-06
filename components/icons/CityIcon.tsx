@@ -146,33 +146,50 @@ function paths(city: string) {
         </>
       );
 
-    /* Australia — recognisable mainland with the four geographic anchors that
-       make the silhouette unmistakable:
-         · Cape York peninsula — sharp spike, NORTH-EAST side
-         · Gulf of Carpentaria — V-notch between Arnhem Land and Cape York
-         · East-coast bulge — convex curve down to NSW/VIC
-         · Great Australian Bight — concave dip on the southern coast
-       Tasmania sits below the south-east corner as a small filled island. */
+    /* Australia — cute kangaroo silhouette, side profile facing right, in
+       upright alert pose. One big closed-path silhouette covers body + neck +
+       head + ears + back leg + foot. Tail and forearm are separate strokes
+       layered on top. Eye is a small light dot on the head.
+       Compositional logic: kangaroo's signature is the (i) two pointed ears,
+       (ii) thick curving tail behind, (iii) huge back foot extending forward.
+       All three are made unmistakable. */
     case 'Australia':
       return (
         <>
-          <path d="M 4 10
-                   C 4 7 5.5 6.3 7.5 6.5
-                   L 9 7.6
-                   L 10.2 5.4
-                   L 11.2 7
-                   L 13 8
-                   L 14.2 7.2
-                   L 16.4 3.8
-                   L 17.4 4.4
-                   L 17.2 7.8
-                   C 19.4 8.6 20.6 10.8 20.4 13.4
-                   C 20 16 17.6 17.4 15 17.6
-                   C 12.5 17.8 11 17.2 9 17.4
-                   C 7 17.6 5 17 4.2 14.6
-                   C 3.6 12.6 3.8 11 4 10 Z" />
-          <path d="M 14.6 19.8 L 15.6 19.5 L 16 21.2 L 14.8 21.5 Z"
-                fill="currentColor" stroke="none" />
+          {/* TAIL — thick curved stroke sweeping down-left to ground */}
+          <path d="M 8 17 Q 5 19 3.5 21.5" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" fill="none" />
+          {/* BODY + HEAD + EARS + BACK LEG + FOOT — one silhouette traced
+              clockwise from rear-top of body */}
+          <path
+            d="M 9 16
+               Q 7.8 12 9 8.8
+               Q 10.4 6.2 13 6.2
+               L 13.6 4.4
+               L 13.2 1.8
+               L 14.6 4.2
+               L 15 4.2
+               L 15.6 1.6
+               L 16 4.4
+               L 16.6 4.8
+               Q 18 5.6 18.2 7
+               L 18 8
+               L 16.4 8.2
+               Q 15 8.6 14.4 9.6
+               L 14.4 11
+               L 14.4 13
+               L 16.2 16
+               L 19 17.4
+               L 20 21
+               L 13 21
+               L 10.8 18
+               L 9 16 Z"
+            fill="currentColor"
+            stroke="none"
+          />
+          {/* FORELIMB — small bent arm at chest, lighter so it shows on the body fill */}
+          <path d="M 13.4 11.4 L 12.6 12.8 L 13.6 13.2" stroke="#fffef6" strokeWidth="0.9" strokeLinecap="round" fill="none" />
+          {/* EYE — small light dot, gives the cute "alert" expression */}
+          <circle cx="16.4" cy="6.5" r="0.55" fill="#fffef6" stroke="none" />
         </>
       );
 
