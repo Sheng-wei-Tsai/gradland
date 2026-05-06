@@ -21,7 +21,7 @@ export interface AdzunaJob {
   created: string;
   category: string;
   contract_type: string | null;
-  source: 'adzuna' | 'jsearch' | 'jora' | 'indeed' | 'acs' | 'seek' | 'linkedin' | 'remotive' | 'google_jobs' | 'jobicy' | 'greenhouse' | 'lever' | 'workday' | 'ashby' | 'apify' | '80kh' | 'workable' | 'recruitee' | 'breezy' | 'comeet' | 'icims' | 'successfactors' | 'taleo' | 'smartrec' | 'apsjobs' | 'hatch';
+  source: 'adzuna' | 'jsearch' | 'jora' | 'indeed' | 'acs' | 'seek' | 'linkedin' | 'remotive' | 'google_jobs' | 'jobicy' | 'greenhouse' | 'lever' | 'workday' | 'ashby' | 'apify' | '80kh' | 'workable' | 'recruitee' | 'breezy' | 'comeet' | 'icims' | 'successfactors' | 'taleo' | 'smartrec' | 'apsjobs' | 'hatch' | 'nsw-iworkfor' | 'vic-careers' | 'qld-smartjobs' | 'wa-jobs';
   publisher?: string;
   salary_min?: number;
   salary_max?: number;
