@@ -80,6 +80,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       suppressHydrationWarning
       className={`${spaceGrotesk.variable} ${lora.variable} ${caveat.variable}`}
     >
+      <head>
+        {/* Preconnect to avatar CDNs — reduces LCP for logged-in users */}
+        <link rel="preconnect" href="https://lh3.googleusercontent.com" />
+        <link rel="preconnect" href="https://avatars.githubusercontent.com" />
+      </head>
       <body suppressHydrationWarning>
         <AuthProvider>
           <LangProvider>

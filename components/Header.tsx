@@ -293,7 +293,7 @@ export default function Header() {
                     cursor: 'pointer', padding: 0, transition: 'box-shadow 0.15s ease',
                   }}>
                     {user.user_metadata?.avatar_url
-                      ? <Image src={user.user_metadata.avatar_url} alt="avatar" width={36} height={36} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ? <Image src={user.user_metadata.avatar_url} alt="avatar" width={36} height={36} priority style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       : user.email?.[0].toUpperCase()}
                   </button>
                 </ReadinessScoreMini>

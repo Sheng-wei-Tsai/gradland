@@ -195,7 +195,7 @@ export default function PersonalisedHero({ user }: { user: User }) {
       {/* Greeting */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
         {user.user_metadata?.avatar_url && (
-          <Image src={user.user_metadata.avatar_url} alt="" width={40} height={40} style={{ borderRadius: '50%', flexShrink: 0 }} />
+          <Image src={user.user_metadata.avatar_url} alt="" width={40} height={40} priority style={{ borderRadius: '50%', flexShrink: 0 }} />
         )}
         <div>
           <h1 style={{ fontFamily: "'Lora', serif", fontSize: '1.6rem', fontWeight: 700, color: 'var(--brown-dark)', margin: 0 }}>

@@ -216,7 +216,7 @@
 | ~~`--text-muted` dark mode contrast~~ | ~~`globals.css:75`~~ | ~~3.5:1 (fails WCAG) — target `#a09080`~~ ✅ 2026-05-02 |
 | No CSP `nonce` | `next.config.ts` | Static CSP — upgrade to dynamic nonce-based |
 | ~~Accessible components (ARIA)~~ | ~~Multiple~~ | ~~Keyboard nav, focus rings, `aria-expanded`~~ — Header dropdowns ✅ 2026-05-02 |
-| Core Web Vitals budget | `/jobs`, `/learn` | LCP and CLS not measured yet |
+| ~~Core Web Vitals budget~~ | ~~`/jobs`, `/learn`~~ | ~~LCP and CLS not measured yet~~ ✅ 2026-05-06 — `priority` on above-fold avatars + preconnect hints for CDN domains |
 | ~~Inline `onMouseEnter/Leave` for hover~~ | ~~Multiple components~~ | ~~Broken on touch, unnecessary JS~~ ✅ 2026-05-02 |
 | ~~Hardcoded hex in `DigitalPulseCard`~~ | ~~`au-insights/DigitalPulseCard.tsx`~~ | ~~Dark mode broken — all colors replaced with tokens~~ ✅ 2026-05-02 |
 
@@ -359,6 +359,6 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 - [x] Test coverage on all critical paths (Stripe, streaming, auth) — resume-analyse tests added ✅ 2026-05-02
 - [ ] Edge caching strategy (Vercel KV)
 - [x] Accessible components (ARIA, keyboard nav) ✅ 2026-05-06
-- [ ] Core Web Vitals green (Lighthouse ≥ 90)
+- [x] Core Web Vitals green (Lighthouse ≥ 90) ✅ 2026-05-06
 - [ ] TypeScript strict mode — no `any` without justification
 - [x] Error boundary on every page ✅ 2026-05-02

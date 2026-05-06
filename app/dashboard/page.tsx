@@ -118,7 +118,7 @@ export default function DashboardPage() {
       <div style={{ paddingTop: '3.5rem', paddingBottom: '2rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
           {user.user_metadata?.avatar_url && (
-            <Image src={user.user_metadata.avatar_url} alt="avatar" width={48} height={48} style={{ borderRadius: '50%' }} />
+            <Image src={user.user_metadata.avatar_url} alt="avatar" width={48} height={48} priority style={{ borderRadius: '50%' }} />
           )}
           <div>
             <h1 style={{ fontFamily: "'Lora', serif", fontSize: 'clamp(1.5rem, 5vw, 2rem)', fontWeight: 700, color: 'var(--brown-dark)' }}>
