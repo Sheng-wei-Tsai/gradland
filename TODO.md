@@ -181,7 +181,7 @@
 - [~] JazzHR — **dropped**, public `applytojob.com/api/jobs` returns 404 HTML (no documented public feed)
 
 **Future (deferred — separate PR if volume target unmet):**
-- [ ] **Slug expansion** — grow Workable/Recruitee/Breezy lists from 5+ verified to 30+ each via per-tenant probing
+- [x] **Slug expansion** — grow Workable/Recruitee/Breezy lists from 5+ verified to 30+ each via per-tenant probing ✅ 2026-05-06 (Workable: 20→35 slugs confirmed; Recruitee/Breezy not widely adopted by AU IT companies — no net-new valid AU slugs found after 400+ probes)
 - [ ] **Comeet** — `comeet.com/jobs` JSON
 - [ ] **iCIMS** — `careers-{slug}.icims.com` (per-tenant scrape, harder)
 - [ ] **SAP SuccessFactors / Oracle Taleo** — enterprise tier (Coles, Wesfarmers, Bunnings, Optus, Macquarie)
@@ -204,9 +204,8 @@
   - Risk: total Workday yield may drop short-term — measure before/after with `npx tsx scripts/scrape-au-jobs.ts` baseline
   - Verify: log line `WD <count>` non-zero; spot-check one row geocodes to AU
 
-- [ ] **ATS slug expansion** — grow `data/au-workable-slugs.json` (22→30+), `data/au-recruitee-slugs.json` (12→30+), `data/au-breezy-slugs.json` (5→20+) by per-tenant probing (curl `/jobs.json` → 200 + AU jobs). Companion to PR 1+2 above.
-  - Risk: noisy slugs = wasted requests; gate with smoke test before adding
-  - Verify: run scraper end-to-end, confirm new slugs each contribute ≥1 IT row
+- [x] 2026-05-06 **ATS slug expansion** — grow `data/au-workable-slugs.json` (20→35). Recruitee and Breezy not widely adopted by AU IT companies; 400+ candidate probes yielded no new valid AU slugs. Squiz added confirmed 15 live AU IT jobs.
+  - Files: `data/au-workable-slugs.json` (+15 slugs: squiz, octopus-deploy, myob, tanda, tyro, simpro, livehire, ignition, assignar, jobadder, airtasker, stile, healthengine, xplor, inaboxgroup)
 
 - [x] 2026-05-06 **RSS parser hardening (UA + Accept headers)** — `scripts/scrape-au-jobs.ts:42-48` and `scripts/sources/apsjobs.ts:14-20`: add browser-class `User-Agent` + `Accept: application/rss+xml,application/xml;q=0.9,*/*;q=0.8` to every `rss-parser` instance. Default UA was returning 403 on apsjobs feed.
   - Files: `scripts/scrape-au-jobs.ts`, `scripts/sources/apsjobs.ts`

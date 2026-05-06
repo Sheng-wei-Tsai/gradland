@@ -18,5 +18,20 @@
   {"slug":"propeller-aero","company":"Propeller Aero"},
   {"slug":"employmenthero","company":"Employment Hero"},
   {"slug":"shippit","company":"Shippit"},
-  {"slug":"ybfventures","company":"YBF Ventures"}
+  {"slug":"ybfventures","company":"YBF Ventures"},
+  {"slug":"squiz","company":"Squiz"},
+  {"slug":"octopus-deploy","company":"Octopus Deploy"},
+  {"slug":"myob","company":"MYOB"},
+  {"slug":"tanda","company":"Tanda"},
+  {"slug":"tyro","company":"Tyro Payments"},
+  {"slug":"simpro","company":"Simpro"},
+  {"slug":"livehire","company":"LiveHire"},
+  {"slug":"ignition","company":"Ignition"},
+  {"slug":"assignar","company":"Assignar"},
+  {"slug":"jobadder","company":"JobAdder"},
+  {"slug":"airtasker","company":"Airtasker"},
+  {"slug":"stile","company":"Stile Education"},
+  {"slug":"healthengine","company":"HealthEngine"},
+  {"slug":"xplor","company":"Xplor"},
+  {"slug":"inaboxgroup","company":"Inabox Group"}
 ]
