@@ -5,6 +5,7 @@ export const SOURCE_PRECEDENCE = [
   'apify',
   'adzuna', 'googlejobs', 'google_jobs', 'jsearch',
   '80kh', 'jora', 'acs',
+  'nsw-iworkfor', 'vic-careers', 'qld-smartjobs', 'wa-jobs',
   'remotive', 'jobicy',
 ] as const;
 
@@ -38,6 +39,10 @@ const SOURCE_LABELS: Record<string, string> = {
   icims:            'iCIMS',
   successfactors:   'SAP SuccessFactors',
   taleo:            'Oracle Taleo',
+  'nsw-iworkfor':   'NSW iWorkFor',
+  'vic-careers':    'VIC Careers',
+  'qld-smartjobs':  'QLD SmartJobs',
+  'wa-jobs':        'WA Government Jobs',
 };
 
 export function sourceLabel(name: string): string {

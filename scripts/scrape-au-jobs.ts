@@ -8,6 +8,7 @@
  *   - ACS TechCareers RSS    (official RSS)
  *   - 80,000 Hours           (impact-focused board, weekly; AU/remote filter)
  *   - Apify actors           (Workday + Ashby tenants that block direct API)
+ *   - State Gov boards       (NSW iWorkFor, VIC Careers, QLD SmartJobs, WA Jobs — HTML scrapers)
  *
  * Results cached in the `scraped_jobs` Supabase table (30-day TTL).
  * Run: npx tsx --env-file=.env.local scripts/scrape-au-jobs.ts
@@ -34,6 +35,7 @@ import { scrapeComeet }          from './sources/comeet';
 import { scrapeICIMS }           from './sources/icims';
 import { scrapeSuccessFactors }  from './sources/successfactors';
 import { scrapeTaleo }           from './sources/taleo';
+import { scrapeStateGovBoards }  from './sources/stategov';
 import type { RawSourceJob }     from './sources/types';
 
 if (existsSync('.env.local')) dotenv.config({ path: '.env.local' });
@@ -647,6 +649,13 @@ async function main() {
     console.log(`  → ${apifyJobs.length} Apify jobs\n`);
   }
 
+  // State Government job boards (HTML scrapers — may return 0 if WAF-blocked)
+  await sleep(SOURCE_DELAY_MS);
+  console.log('📋 State Gov boards (NSW iWorkFor, VIC Careers, QLD SmartJobs, WA Jobs)...');
+  const stateGovRaw  = await scrapeStateGovBoards();
+  const stateGovJobs = stateGovRaw.map(fromRaw);
+  console.log(`  → ${stateGovJobs.length} state gov IT jobs\n`);
+
   // Jora (last — slower HTML scraper)
   await sleep(SOURCE_DELAY_MS);
   console.log('📋 Jora (au.jora.com)...');
@@ -655,7 +664,7 @@ async function main() {
   console.log(`  → ${joraRaw.length} raw → ${joraJobs.length} IT-filtered Jora jobs\n`);
 
   // Combine, dedup, sponsor overlay
-  const allRaw  = [...ghJobs, ...lvJobs, ...directJobs, ...apifyJobs, ...acsJobs, ...eightyKJobs, ...joraJobs];
+  const allRaw  = [...ghJobs, ...lvJobs, ...directJobs, ...apifyJobs, ...acsJobs, ...eightyKJobs, ...stateGovJobs, ...joraJobs];
   const allUniq = deduplicateJobs(allRaw);
   const withSponsor = applySponsorOverlay(refreshAttribution(allUniq), sponsors);
   const sponsorCount = withSponsor.filter(j => j.sponsor_signal).length;

@@ -185,7 +185,7 @@
 - [x] **Comeet** — `comeet.com/jobs` JSON ✅ 2026-05-06
 - [x] **iCIMS** — `careers-{slug}.icims.com` (per-tenant scrape, harder) ✅ 2026-05-06
 - [x] **SAP SuccessFactors / Oracle Taleo** — enterprise tier (Coles, Wesfarmers, Bunnings, Optus, Macquarie) ✅ 2026-05-06
-- [ ] **State gov boards** — NSW iworkfor / VIC careers / QLD smartjobs / WA jobs (need HTML scrapers — RSS feeds not public)
+- [x] **State gov boards** — NSW iworkfor / VIC careers / QLD smartjobs / WA jobs (need HTML scrapers — RSS feeds not public) ✅ 2026-05-06
 
 **Effort:** M (PR 1+2 shipped same day)
 
