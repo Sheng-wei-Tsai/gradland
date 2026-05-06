@@ -146,21 +146,33 @@ function paths(city: string) {
         </>
       );
 
-    /* Australia — simplified continent outline + Tasmania dot */
+    /* Australia — recognisable mainland with the four geographic anchors that
+       make the silhouette unmistakable:
+         · Cape York peninsula — sharp spike, NORTH-EAST side
+         · Gulf of Carpentaria — V-notch between Arnhem Land and Cape York
+         · East-coast bulge — convex curve down to NSW/VIC
+         · Great Australian Bight — concave dip on the southern coast
+       Tasmania sits below the south-east corner as a small filled island. */
     case 'Australia':
       return (
         <>
-          <path d="M 4 11
-                   Q 4.5 8 7 7
-                   Q 9 6 11 6.5
-                   Q 13 6 14.5 5.5
-                   Q 17 5 19 7
-                   Q 21 9 20.5 12
-                   Q 20 15 18 17
-                   Q 14 19 10 18.5
-                   Q 6 18 4.5 15
-                   Q 3.5 13 4 11 Z" />
-          <circle cx="14.5" cy="20.5" r="0.7" fill="currentColor" stroke="none" />
+          <path d="M 4 10
+                   C 4 7 5.5 6.3 7.5 6.5
+                   L 9 7.6
+                   L 10.2 5.4
+                   L 11.2 7
+                   L 13 8
+                   L 14.2 7.2
+                   L 16.4 3.8
+                   L 17.4 4.4
+                   L 17.2 7.8
+                   C 19.4 8.6 20.6 10.8 20.4 13.4
+                   C 20 16 17.6 17.4 15 17.6
+                   C 12.5 17.8 11 17.2 9 17.4
+                   C 7 17.6 5 17 4.2 14.6
+                   C 3.6 12.6 3.8 11 4 10 Z" />
+          <path d="M 14.6 19.8 L 15.6 19.5 L 16 21.2 L 14.8 21.5 Z"
+                fill="currentColor" stroke="none" />
         </>
       );
 
