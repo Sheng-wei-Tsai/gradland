@@ -11,7 +11,13 @@ import { isITJob, type RawSourceJob } from './types';
 
 const APS_RSS_URL = 'https://www.apsjobs.gov.au/Search/SearchResultsRSS.aspx?keyword=ICT';
 
-const parser = new Parser({ timeout: 20000 });
+const parser = new Parser({
+  timeout: 20000,
+  headers: {
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
+    'Accept':     'application/rss+xml,application/xml;q=0.9,*/*;q=0.8',
+  },
+});
 
 interface ApsItem {
   title?:   string;

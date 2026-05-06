@@ -27,6 +27,9 @@ import { scrapeAshby }           from './sources/ashby';
 import { scrapeSmartrecruiters } from './sources/smartrecruiters';
 import { scrapeAPSJobs }         from './sources/apsjobs';
 import { scrapeHatch }           from './sources/hatch';
+import { scrapeWorkable }        from './sources/workable';
+import { scrapeRecruitee }       from './sources/recruitee';
+import { scrapeBreezy }          from './sources/breezy';
 import type { RawSourceJob }     from './sources/types';
 
 if (existsSync('.env.local')) dotenv.config({ path: '.env.local' });
@@ -39,7 +42,13 @@ const sb = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
 
-const rssParser = new Parser({ timeout: 20000 });
+const rssParser = new Parser({
+  timeout: 20000,
+  headers: {
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
+    'Accept':     'application/rss+xml,application/xml;q=0.9,*/*;q=0.8',
+  },
+});
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -591,14 +600,17 @@ async function main() {
   const eightyKJobs = await scrape80kHours();
   console.log(`  → ${eightyKJobs.length} 80kh jobs\n`);
 
-  // Direct ATS APIs (free, no auth) — replaces Apify Workday/Ashby + adds 3 new free sources.
-  console.log('📋 Workday + Ashby + Smartrec + APS Jobs + Hatch (free direct)...');
-  const [wdRes, ashRes, srRes, apsRes, hatchRes] = await Promise.allSettled([
+  // Direct ATS APIs (free, no auth).
+  console.log('📋 Workday + Ashby + Smartrec + APS + Hatch + Workable + Recruitee + Breezy (direct)...');
+  const [wdRes, ashRes, srRes, apsRes, hatchRes, wkRes, recRes, brzRes] = await Promise.allSettled([
     scrapeWorkday(),
     scrapeAshby(),
     scrapeSmartrecruiters(),
     scrapeAPSJobs(),
     scrapeHatch(),
+    scrapeWorkable(),
+    scrapeRecruitee(),
+    scrapeBreezy(),
   ]);
   const directRaw: RawSourceJob[] = [
     ...(wdRes.status    === 'fulfilled' ? wdRes.value    : []),
@@ -606,9 +618,13 @@ async function main() {
     ...(srRes.status    === 'fulfilled' ? srRes.value    : []),
     ...(apsRes.status   === 'fulfilled' ? apsRes.value   : []),
     ...(hatchRes.status === 'fulfilled' ? hatchRes.value : []),
+    ...(wkRes.status    === 'fulfilled' ? wkRes.value    : []),
+    ...(recRes.status   === 'fulfilled' ? recRes.value   : []),
+    ...(brzRes.status   === 'fulfilled' ? brzRes.value   : []),
   ];
   const directJobs: ScrapedJob[] = directRaw.map(fromRaw);
-  console.log(`  → WD ${wdRes.status === 'fulfilled' ? wdRes.value.length : 0}, Ashby ${ashRes.status === 'fulfilled' ? ashRes.value.length : 0}, Smartrec ${srRes.status === 'fulfilled' ? srRes.value.length : 0}, APS ${apsRes.status === 'fulfilled' ? apsRes.value.length : 0}, Hatch ${hatchRes.status === 'fulfilled' ? hatchRes.value.length : 0} (total ${directJobs.length})\n`);
+  const cnt = (r: PromiseSettledResult<RawSourceJob[]>) => r.status === 'fulfilled' ? r.value.length : 0;
+  console.log(`  → WD ${cnt(wdRes)}, Ashby ${cnt(ashRes)}, Smartrec ${cnt(srRes)}, APS ${cnt(apsRes)}, Hatch ${cnt(hatchRes)}, Workable ${cnt(wkRes)}, Recruitee ${cnt(recRes)}, Breezy ${cnt(brzRes)} (total ${directJobs.length})\n`);
 
   // Apify becomes opt-in fallback only — set USE_APIFY_FALLBACK=true to re-enable.
   let apifyJobs: ScrapedJob[] = [];
