@@ -212,6 +212,10 @@ const SOURCE_LABELS: Record<string, string> = {
   greenhouse: 'Greenhouse', lever: 'Lever', workday: 'Workday', ashby: 'Ashby',
   apify: 'Apify', '80kh': '80,000 Hours',
   smartrec: 'Smartrecruiters', apsjobs: 'APS Jobs', hatch: 'Hatch',
+  workable: 'Workable', recruitee: 'Recruitee', breezy: 'Breezy HR',
+  comeet: 'Comeet', icims: 'iCIMS', successfactors: 'SAP SuccessFactors', taleo: 'Oracle Taleo',
+  'nsw-iworkfor': 'NSW iWorkFor', 'vic-careers': 'VIC Careers',
+  'qld-smartjobs': 'QLD SmartJobs', 'wa-jobs': 'WA Government Jobs',
 };
 
 const SOURCE_CLS: Record<string, string> = {
@@ -223,6 +227,11 @@ const SOURCE_CLS: Record<string, string> = {
   workday: 'tag tag-workday', ashby: 'tag tag-ashby', apify: 'tag tag-apify',
   '80kh': 'tag tag-80kh',
   smartrec: 'tag tag-smartrec', apsjobs: 'tag tag-apsjobs', hatch: 'tag tag-hatch',
+  workable: 'tag tag-workable', recruitee: 'tag tag-recruitee', breezy: 'tag tag-breezy',
+  comeet: 'tag tag-comeet', icims: 'tag tag-icims',
+  successfactors: 'tag tag-successfactors', taleo: 'tag tag-taleo',
+  'nsw-iworkfor': 'tag tag-nsw', 'vic-careers': 'tag tag-vic',
+  'qld-smartjobs': 'tag tag-qld', 'wa-jobs': 'tag tag-wa',
 };
 
 function JobDetailModal({ job, isSaved, isLoggedIn, onClose, onSaveToggle, onApply }: {
@@ -435,8 +444,19 @@ function JobCard({ job, savedIds, onSaveToggle, onApply, isLoggedIn, onOpenDetai
     remotive:    { label: 'Remotive',      cls: 'tag tag-remotive' },
     jobicy:      { label: 'Jobicy',        cls: 'tag tag-jobicy' },
     smartrec:    { label: 'Smartrecruiters', cls: 'tag tag-smartrec' },
-    apsjobs:     { label: 'APS Jobs',      cls: 'tag tag-apsjobs' },
-    hatch:       { label: 'Hatch',         cls: 'tag tag-hatch' },
+    apsjobs:        { label: 'APS Jobs',           cls: 'tag tag-apsjobs' },
+    hatch:          { label: 'Hatch',              cls: 'tag tag-hatch' },
+    workable:       { label: 'Workable',           cls: 'tag tag-workable' },
+    recruitee:      { label: 'Recruitee',          cls: 'tag tag-recruitee' },
+    breezy:         { label: 'Breezy HR',          cls: 'tag tag-breezy' },
+    comeet:         { label: 'Comeet',             cls: 'tag tag-comeet' },
+    icims:          { label: 'iCIMS',              cls: 'tag tag-icims' },
+    successfactors: { label: 'SAP SuccessFactors', cls: 'tag tag-successfactors' },
+    taleo:          { label: 'Oracle Taleo',       cls: 'tag tag-taleo' },
+    'nsw-iworkfor': { label: 'NSW iWorkFor',       cls: 'tag tag-nsw' },
+    'vic-careers':  { label: 'VIC Careers',        cls: 'tag tag-vic' },
+    'qld-smartjobs':{ label: 'QLD SmartJobs',      cls: 'tag tag-qld' },
+    'wa-jobs':      { label: 'WA Government Jobs', cls: 'tag tag-wa' },
   };
 
   // Attribution: use pre-computed attribution string if available, else fall back to single source
