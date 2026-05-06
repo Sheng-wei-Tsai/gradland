@@ -95,7 +95,8 @@ export async function PATCH(req: NextRequest) {
     if (!listing)   return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
 
     const current    = new Date(listing.expires_at);
-    const newExpiry  = new Date(current.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    const base       = Math.max(Date.now(), current.getTime());
+    const newExpiry  = new Date(base + 30 * 24 * 60 * 60 * 1000).toISOString();
     const { error }  = await sb
       .from('job_listings')
       .update({ expires_at: newExpiry, status: 'active' })
