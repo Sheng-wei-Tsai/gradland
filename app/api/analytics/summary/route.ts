@@ -1,26 +1,8 @@
 import { NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
-import { createClient } from '@supabase/supabase-js';
-import { cookies } from 'next/headers';
-
-async function requireAdmin() {
-  const cookieStore = await cookies();
-  const authClient = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { getAll: () => cookieStore.getAll(), setAll: () => {} } },
-  );
-  const { data: { user } } = await authClient.auth.getUser();
-  if (!user) return null;
-  const { data: profile } = await authClient.from('profiles').select('role').eq('id', user.id).single();
-  return profile?.role === 'admin' ? user : null;
-}
+import { requireAdmin, createSupabaseService } from '@/lib/auth-server';
 
 // Service role to bypass RLS for aggregation queries
-const sb = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-);
+const sb = createSupabaseService();
 
 export async function GET() {
   const admin = await requireAdmin();
