@@ -7,6 +7,7 @@ import { useAuth } from '@/components/AuthProvider';
 import ThemeToggle from '@/components/ThemeToggle';
 import LangToggle from '@/components/LangToggle';
 import { ReadinessScoreMini } from '@/components/ReadinessScore';
+import LogoMark from '@/components/icons/LogoMark';
 import { useState, useRef, useEffect, useMemo } from 'react';
 import EIcon, { EIconName } from '@/components/icons/EIcon';
 import {
@@ -196,11 +197,15 @@ export default function Header() {
         }}>
 
           {/* Logo */}
-          <Link href="/" className="nav-focus" style={{
+          <Link href="/" className="nav-focus brand-lockup" style={{
+            display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
             fontFamily: "'Lora', serif", fontWeight: 700, fontSize: '1.05rem',
             color: 'var(--brown-dark)', textDecoration: 'none', whiteSpace: 'nowrap',
             marginRight: '0.5rem',
-          }}>TechPath</Link>
+          }} aria-label="TechPath AU — home">
+            <LogoMark size={28} withShadow={false} decorative />
+            TechPath
+          </Link>
 
           <nav ref={navRef} className="desktop-nav" style={{
             background: 'rgba(253,245,228,0.88)',

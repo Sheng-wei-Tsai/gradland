@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import EIcon, { EIconName } from '@/components/icons/EIcon';
+import LogoMark from '@/components/icons/LogoMark';
 
 const COL_TOOLS: { href: string; label: string; icon: EIconName }[] = [
   { href: '/jobs',                      label: 'Job Search',       icon: 'briefcase'    },
@@ -45,9 +46,15 @@ export default function Footer() {
         {/* Brand row */}
         <div style={{ marginBottom: '2rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '0.75rem' }}>
-            <div style={{ fontFamily: "'Lora', serif", fontWeight: 700, fontSize: '1.15rem', color: 'var(--brown-dark)' }}>
-              TechPath AU
-            </div>
+            <Link href="/" aria-label="TechPath AU — home" style={{
+              display: 'inline-flex', alignItems: 'center', gap: '0.6rem',
+              textDecoration: 'none',
+            }}>
+              <LogoMark size={36} withShadow={false} decorative />
+              <span style={{ fontFamily: "'Lora', serif", fontWeight: 700, fontSize: '1.15rem', color: 'var(--brown-dark)' }}>
+                TechPath AU
+              </span>
+            </Link>
             {/* Social icons */}
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <a href="https://github.com/Sheng-wei-Tsai" target="_blank" rel="noopener noreferrer"
