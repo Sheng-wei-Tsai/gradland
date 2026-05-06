@@ -4,8 +4,32 @@ import { useEffect, useRef } from 'react';
 import '@xterm/xterm/css/xterm.css';
 import type { Terminal } from '@xterm/xterm';
 import type { FitAddon } from '@xterm/addon-fit';
-import { parseCommand, initialState } from './commandParser';
+import { parseCommand, initialState, getLevel } from './commandParser';
 import type { TerminalState } from './commandParser';
+
+const SAVE_KEY = 'claude_lab_v1';
+
+function loadState(): TerminalState {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return initialState();
+    const p = JSON.parse(raw) as Partial<TerminalState>;
+    if (typeof p.xp !== 'number' || !Array.isArray(p.completedMissions)) return initialState();
+    return {
+      xp:               p.xp,
+      completedMissions: p.completedMissions,
+      currentMission:    p.currentMission ?? null,
+      currentChallenge:  p.currentChallenge ?? 0,
+      earnedBadges:      Array.isArray(p.earnedBadges) ? p.earnedBadges : [],
+    };
+  } catch {
+    return initialState();
+  }
+}
+
+function saveState(s: TerminalState): void {
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(s)); } catch { /* quota */ }
+}
 
 const PROMPT = '\x1b[36mclaud-lab\x1b[0m \x1b[90m$\x1b[0m ';
 
@@ -40,7 +64,8 @@ export default function ClaudeLabTerminal() {
     let fitAddon: FitAddon | null = null;
 
     // Mutable state held in refs — changes don't need re-renders
-    let state: TerminalState = initialState();
+    let state: TerminalState = loadState();
+    const hasProgress = state.xp > 0 || state.completedMissions.length > 0;
     let inputBuf = '';
     const history: string[] = [];
     let histIdx = -1;
@@ -79,7 +104,23 @@ export default function ClaudeLabTerminal() {
       term.open(containerRef.current);
       fitAddon.fit();
 
-      for (const line of WELCOME) writeLine(term, line);
+      if (hasProgress) {
+        const { name: levelName } = getLevel(state.xp);
+        const resumeLines = [
+          '',
+          `  \x1b[1m\x1b[33mClaude Lab\x1b[0m — Welcome back!`,
+          `  XP: \x1b[33m${state.xp}\x1b[0m  · Level: \x1b[33m${levelName}\x1b[0m · Done: ${state.completedMissions.length}/15 missions · Badges: ${state.earnedBadges.length}/8`,
+          '',
+          `  \x1b[36mstatus\x1b[0m    \x1b[2m→ see your full progress\x1b[0m`,
+          `  \x1b[36mmissions\x1b[0m  \x1b[2m→ continue where you left off\x1b[0m`,
+          `  \x1b[36mbadges\x1b[0m    \x1b[2m→ view your earned badges\x1b[0m`,
+          `  \x1b[36mreset\x1b[0m     \x1b[2m→ start fresh (clears all progress)\x1b[0m`,
+          '',
+        ];
+        for (const line of resumeLines) writeLine(term, line);
+      } else {
+        for (const line of WELCOME) writeLine(term, line);
+      }
       writePrompt(term);
       term.focus();
 
@@ -101,6 +142,7 @@ export default function ClaudeLabTerminal() {
           term.write('\r\n');
           const result = parseCommand(cmd, state);
           state = result.newState;
+          saveState(state);
 
           if (result.shouldClear) {
             term.clear();

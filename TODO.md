@@ -206,7 +206,7 @@
 ### Claude Lab — Interactive Terminal — `features/learn-anthropic-claude.md`
 - [x] `@xterm/xterm` terminal at `/learn/claude-lab` ✅ 2026-05-02
 - [x] 15 missions: Claude Code CLI, API, hooks, tool use ✅ 2026-05-06
-- [ ] XP + badge system
+- [x] XP + badge system ✅ 2026-05-06
 - **Effort:** L (1–2 weeks)
 
 ### Known Tech Debt

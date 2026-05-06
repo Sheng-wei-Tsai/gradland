@@ -5,6 +5,7 @@ export interface TerminalState {
   completedMissions: number[];
   currentMission: number | null;
   currentChallenge: number;
+  earnedBadges: string[];
 }
 
 export interface CommandOutput {
@@ -41,6 +42,84 @@ export function getLevel(xp: number): { level: number; name: string; nextThresho
     name: LEVELS[idx].name,
     nextThreshold: idx < LEVELS.length - 1 ? LEVELS[idx + 1].threshold : Infinity,
   };
+}
+
+// ── Badge system ──────────────────────────────────────────────────
+export interface Badge {
+  id: string;
+  name: string;
+  description: string;
+  condition: (state: TerminalState) => boolean;
+}
+
+export const BADGES: Badge[] = [
+  {
+    id: 'first_mission',
+    name: 'First Steps',
+    description: 'Complete your first mission',
+    condition: (s) => s.completedMissions.length >= 1,
+  },
+  {
+    id: 'prompt_master',
+    name: 'Prompt Master',
+    description: 'Complete all 5 Prompt Engineering missions',
+    condition: (s) => [1, 2, 3, 4, 5].every(id => s.completedMissions.includes(id)),
+  },
+  {
+    id: 'code_wrangler',
+    name: 'Code Wrangler',
+    description: 'Complete all 5 Claude Code missions',
+    condition: (s) => [6, 7, 8, 9, 10].every(id => s.completedMissions.includes(id)),
+  },
+  {
+    id: 'workflow_architect',
+    name: 'Workflow Architect',
+    description: 'Complete all 5 AI Workflow missions',
+    condition: (s) => [11, 12, 13, 14, 15].every(id => s.completedMissions.includes(id)),
+  },
+  {
+    id: 'completionist',
+    name: 'Completionist',
+    description: 'Complete all 15 missions',
+    condition: (s) => s.completedMissions.length >= 15,
+  },
+  {
+    id: 'builder',
+    name: 'Builder',
+    description: 'Reach 100 XP',
+    condition: (s) => s.xp >= 100,
+  },
+  {
+    id: 'practitioner',
+    name: 'Practitioner',
+    description: 'Reach 300 XP',
+    condition: (s) => s.xp >= 300,
+  },
+  {
+    id: 'claude_whisperer',
+    name: 'Claude Whisperer',
+    description: 'Reach 1500 XP — the highest level',
+    condition: (s) => s.xp >= 1500,
+  },
+];
+
+export function awardBadges(state: TerminalState): { state: TerminalState; newBadges: Badge[] } {
+  const newBadges = BADGES.filter(
+    b => !state.earnedBadges.includes(b.id) && b.condition(state),
+  );
+  if (newBadges.length === 0) return { state, newBadges: [] };
+  return {
+    state: { ...state, earnedBadges: [...state.earnedBadges, ...newBadges.map(b => b.id)] },
+    newBadges,
+  };
+}
+
+function announceBadges(badges: Badge[]): string[] {
+  return badges.flatMap(badge => [
+    '',
+    y('🏆') + b(` Badge unlocked: "${badge.name}"`),
+    d(`   ${badge.description}`),
+  ]);
 }
 
 // ── Mission catalogue ─────────────────────────────────────────────
@@ -666,7 +745,7 @@ const MISSION_CHALLENGES: Record<number, Challenge[]> = {
 
 // ── Initial state ─────────────────────────────────────────────────
 export function initialState(): TerminalState {
-  return { xp: 0, completedMissions: [], currentMission: null, currentChallenge: 0 };
+  return { xp: 0, completedMissions: [], currentMission: null, currentChallenge: 0, earnedBadges: [] };
 }
 
 // ── Main dispatcher ───────────────────────────────────────────────
@@ -680,11 +759,13 @@ export function parseCommand(raw: string, state: TerminalState): CommandOutput {
     case 'help':     return cmdHelp(state);
     case 'missions': return cmdMissions(state);
     case 'status':   return cmdStatus(state);
+    case 'badges':   return cmdBadges(state);
     case 'clear':    return { lines: [], newState: state, shouldClear: true };
     case 'start':    return cmdStart(Number(rest), state);
     case 'hint':     return cmdHint(state);
     case 'next':     return cmdNext(state);
     case 'skip':     return cmdSkip(state);
+    case 'reset':    return cmdReset();
     case 'claude':   return cmdClaude(input, state);
     case '':         return { lines: [], newState: state };
     default:
@@ -706,7 +787,9 @@ function cmdHelp(state: TerminalState): CommandOutput {
       `  ${c('hint')}               Hint for the current challenge`,
       `  ${c('next')}               Advance to next challenge (re-shows prompt)`,
       `  ${c('skip')}               Skip challenge — no XP awarded`,
-      `  ${c('status')}             Show XP, level, and completion count`,
+      `  ${c('status')}             Show XP, level, badges, and completion count`,
+      `  ${c('badges')}             Show all badges and which you have earned`,
+      `  ${c('reset')}              Reset all progress and start fresh`,
       `  ${c('clear')}              Clear terminal output`,
       `  ${c('help')}               This message`,
       '',
@@ -759,8 +842,31 @@ function cmdStatus(state: TerminalState): CommandOutput {
       `  Level:   ${level} — ${y(name)}`,
       `  To next: ${toNext === '—' ? d('Max level reached!') : `${toNext} XP`}`,
       `  Done:    ${state.completedMissions.length} / 15 missions`,
+      `  Badges:  ${state.earnedBadges.length} / ${BADGES.length} — type ${c('badges')} to view`,
     ],
     newState: state,
+  };
+}
+
+function cmdBadges(state: TerminalState): CommandOutput {
+  const lines: string[] = [b('Badges'), ''];
+  for (const badge of BADGES) {
+    const earned = state.earnedBadges.includes(badge.id);
+    const icon   = earned ? y('🏆') : d('🔒');
+    lines.push(`  ${icon} ${badge.name.padEnd(22)} ${d(badge.description)}`);
+  }
+  lines.push('');
+  lines.push(`  ${state.earnedBadges.length} / ${BADGES.length} earned`);
+  return { lines, newState: state };
+}
+
+function cmdReset(): CommandOutput {
+  return {
+    lines: [
+      g('✅ Progress reset.'),
+      `  Type ${c('start 1')} to begin fresh, or ${c('missions')} to see all 15 missions.`,
+    ],
+    newState: initialState(),
   };
 }
 
@@ -845,12 +951,15 @@ function cmdSkip(state: TerminalState): CommandOutput {
   const nextIdx = state.currentChallenge + 1;
   if (nextIdx >= challenges.length) {
     const completedMissions = [...state.completedMissions, state.currentMission];
+    const intermediate: TerminalState = { ...state, completedMissions, currentMission: null, currentChallenge: 0 };
+    const { state: newState, newBadges } = awardBadges(intermediate);
     return {
       lines: [
         `  ${d('Skipped — mission marked complete (no XP for this challenge).')}`,
+        ...announceBadges(newBadges),
         `  Type ${c('missions')} to continue.`,
       ],
-      newState: { ...state, completedMissions, currentMission: null, currentChallenge: 0 },
+      newState,
     };
   }
   return {
@@ -886,13 +995,14 @@ function cmdClaude(input: string, state: TerminalState): CommandOutput {
   if (nextIdx >= challenges.length) {
     const mission           = MISSIONS.find(m => m.id === state.currentMission)!;
     const completedMissions = [...state.completedMissions, state.currentMission];
-    const newState: TerminalState = {
+    const intermediate: TerminalState = {
       ...state,
       xp: newXp,
       completedMissions,
       currentMission: null,
       currentChallenge: 0,
     };
+    const { state: newState, newBadges } = awardBadges(intermediate);
     const { name: levelName } = getLevel(newXp);
     const nextMissionLine = mission.id < 15
       ? `  Type ${c('missions')} to see progress, or ${c(`start ${mission.id + 1}`)} for the next mission.`
@@ -904,6 +1014,7 @@ function cmdClaude(input: string, state: TerminalState): CommandOutput {
         y(`+${ch.xp} XP`) + ` — Total: ${y(String(newXp) + ' XP')} (${levelName})`,
         '',
         g(`🎉 Mission ${String(mission.id).padStart(2, '0')} complete!`) + ` ${b(mission.title)}`,
+        ...announceBadges(newBadges),
         '',
         nextMissionLine,
       ],
@@ -911,14 +1022,16 @@ function cmdClaude(input: string, state: TerminalState): CommandOutput {
     };
   }
 
+  const { state: newState, newBadges } = awardBadges({ ...state, xp: newXp, currentChallenge: nextIdx });
   return {
     lines: [
       ...ch.successLines,
       '',
       y(`+${ch.xp} XP`) + ` — Total: ${y(String(newXp) + ' XP')}`,
+      ...announceBadges(newBadges),
       '',
       ...challenges[nextIdx].prompt,
     ],
-    newState: { ...state, xp: newXp, currentChallenge: nextIdx },
+    newState,
   };
 }
