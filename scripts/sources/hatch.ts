@@ -77,7 +77,10 @@ export async function scrapeHatch(): Promise<RawSourceJob[]> {
     return await tryApi();
   } catch (e) {
     const msg = (e as Error).message;
-    if (msg.includes('401') || msg.includes('403') || msg.includes('404')) {
+    // Fall back to HTML if the API returns an error status or unexpected HTML (parse error)
+    const isHttpError = msg.includes('401') || msg.includes('403') || msg.includes('404');
+    const isParseError = msg.includes('token') || msg.includes('DOCTYPE') || msg.includes('JSON');
+    if (isHttpError || isParseError) {
       try { return await tryHtml(); }
       catch (e2) {
         console.warn(`  Hatch fallback HTML: ${(e2 as Error).message}`);

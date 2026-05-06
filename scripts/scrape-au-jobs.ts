@@ -565,25 +565,31 @@ async function upsertJobs(jobs: ScrapedJob[]): Promise<number> {
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 async function main() {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  const DRY_RUN  = process.env.DRY_RUN === 'true';
+  const SKIP_JORA = process.env.SKIP_JORA === 'true';
+
+  if (!DRY_RUN && (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY)) {
     console.error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
     process.exit(1);
   }
 
-  const { error: tableErr } = await sb.from('scraped_jobs').select('id').limit(1);
-  if (tableErr) {
-    console.error('\n❌ scraped_jobs table not found. Run supabase/017_scraped_jobs.sql first.\n');
-    process.exit(1);
+  if (!DRY_RUN) {
+    const { error: tableErr } = await sb.from('scraped_jobs').select('id').limit(1);
+    if (tableErr) {
+      console.error('\n❌ scraped_jobs table not found. Run supabase/017_scraped_jobs.sql first.\n');
+      process.exit(1);
+    }
   }
 
-  const DRY_RUN = process.env.DRY_RUN === 'true';
   const sponsors = loadSponsors();
   console.log(`🔍 Scraping Australian IT jobs (Greenhouse + Lever + Jora + ACS + 80kh + Apify)...\n`);
   console.log(`   Sponsor overlay: ${sponsors.length} known 482 sponsors\n`);
 
-  const { error: cleanErr } = await sb.from('scraped_jobs').delete().lt('expires_at', new Date().toISOString());
-  if (cleanErr) console.warn('Cleanup warning:', cleanErr.message);
-  else console.log('✓ Expired jobs cleaned\n');
+  if (!DRY_RUN) {
+    const { error: cleanErr } = await sb.from('scraped_jobs').delete().lt('expires_at', new Date().toISOString());
+    if (cleanErr) console.warn('Cleanup warning:', cleanErr.message);
+    else console.log('✓ Expired jobs cleaned\n');
+  }
 
   // Parallel fetch: Greenhouse + Lever + ACS + 80kh + Apify (all free-or-keyed sources)
   console.log('📋 Greenhouse (direct API)...');
@@ -656,12 +662,17 @@ async function main() {
   const stateGovJobs = stateGovRaw.map(fromRaw);
   console.log(`  → ${stateGovJobs.length} state gov IT jobs\n`);
 
-  // Jora (last — slower HTML scraper)
-  await sleep(SOURCE_DELAY_MS);
-  console.log('📋 Jora (au.jora.com)...');
-  const joraRaw = await scrapeJora();
-  const joraJobs = joraRaw.filter(j => isITJob(j.title));
-  console.log(`  → ${joraRaw.length} raw → ${joraJobs.length} IT-filtered Jora jobs\n`);
+  // Jora (last — slower HTML scraper; skip with SKIP_JORA=true for quick probes)
+  let joraJobs: ScrapedJob[] = [];
+  if (!SKIP_JORA) {
+    await sleep(SOURCE_DELAY_MS);
+    console.log('📋 Jora (au.jora.com)...');
+    const joraRaw = await scrapeJora();
+    joraJobs = joraRaw.filter(j => isITJob(j.title));
+    console.log(`  → ${joraRaw.length} raw → ${joraJobs.length} IT-filtered Jora jobs\n`);
+  } else {
+    console.log('📋 Jora — skipped (SKIP_JORA=true)\n');
+  }
 
   // Combine, dedup, sponsor overlay
   const allRaw  = [...ghJobs, ...lvJobs, ...directJobs, ...apifyJobs, ...acsJobs, ...eightyKJobs, ...stateGovJobs, ...joraJobs];

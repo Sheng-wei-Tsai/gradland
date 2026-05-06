@@ -63,7 +63,14 @@ export async function scrapeAPSJobs(): Promise<RawSourceJob[]> {
     }
     return out;
   } catch (e) {
-    console.warn(`  APS Jobs: ${(e as Error).message}`);
+    const msg = (e as Error).message;
+    // 401 = site migrated from ASP.NET RSS to Salesforce Experience Cloud (2025-05)
+    // New site requires JS rendering — no public REST/RSS endpoint available yet
+    if (msg.includes('401') || msg.includes('403')) {
+      console.warn('  APS Jobs: RSS endpoint returning 401 (site migrated to Salesforce — no replacement RSS yet)');
+    } else {
+      console.warn(`  APS Jobs: ${msg}`);
+    }
     return [];
   }
 }
