@@ -1,0 +1,11 @@
+[
+  {"slug": "infosys",       "company": "Infosys"},
+  {"slug": "dxc",           "company": "DXC Technology"},
+  {"slug": "capgeminigroup", "company": "Capgemini"},
+  {"slug": "wipro",         "company": "Wipro"},
+  {"slug": "unisys",        "company": "Unisys"},
+  {"slug": "nttdatainc",    "company": "NTT Data"},
+  {"slug": "tabcorp",       "company": "Tabcorp"},
+  {"slug": "iag",           "company": "IAG"},
+  {"slug": "bupa",          "company": "Bupa"}
+]
