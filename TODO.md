@@ -321,7 +321,7 @@
 - [ ] Replace hardcoded stat tile colours `'#7c3aed'` (line 52), `'#10b981'` (line 53), `'#0369a1'` (line 54) with design tokens (e.g. `var(--gold)`, `var(--jade)`, `var(--terracotta)`) in `app/au-insights/Sponsorship.tsx` — the first stat at line 51 already uses `var(--terracotta)` correctly; the next three tile values render unreadably in dark mode against `var(--warm-white)` cards [style]
 
 ### Tests
-- [ ] Add Vitest test for `/api/companies/research` — 401 without session, 403 SUBSCRIPTION_REQUIRED without active plan, 400 on slug not matching `/^[a-z0-9-]+$/`, 404 when `COMPANIES.find(c => c.slug === slug)` returns nothing [tests]
+- [x] Add Vitest test for `/api/companies/research` — 401 without session, 403 SUBSCRIPTION_REQUIRED without active plan, 400 on slug not matching `/^[a-z0-9-]+$/`, 404 when `COMPANIES.find(c => c.slug === slug)` returns nothing [tests] ✅ 2026-05-06
 - [ ] Add Vitest test for `/api/network/profile` POST — 400 on `visa_type` outside `VALID_VISA_TYPES`, 400 on `city` outside `VALID_CITIES`, skills array truncated to 20 entries each capped at 50 chars (`app/api/network/profile/route.ts:35-41`) [tests]
 - [ ] Add Vitest test for `/api/network/messages` POST — 400 when sending to self (`senderProfile.id === recipientProfileId`), 429 once `dm_messages` count for the sender in the last 24h hits `DM_DAILY_LIMIT = 20` (`app/api/network/messages/route.ts:149,171`) [tests]
 - [x] 2026-05-06 Add Vitest test for `/api/jobs/listings` GET — empty array when env vars missing, only `status='active'` rows where `expires_at > now()` are returned, response capped at 10 items (`app/api/jobs/listings/route.ts:25-31`) [tests]
