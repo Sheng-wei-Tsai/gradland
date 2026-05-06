@@ -215,7 +215,7 @@
 |-------|----------|--------|
 | ~~`@import` Google Fonts~~ | ~~`app/globals.css:1`~~ | ~~Render-blocking — replace with `next/font`~~ ✅ 2026-05-02 |
 | ~~`--text-muted` dark mode contrast~~ | ~~`globals.css:75`~~ | ~~3.5:1 (fails WCAG) — target `#a09080`~~ ✅ 2026-05-02 |
-| No CSP `nonce` | `next.config.ts` | Static CSP — upgrade to dynamic nonce-based |
+| ~~No CSP `nonce`~~ | ~~`next.config.ts`~~ | ~~Static CSP → dynamic per-request nonce via `proxy.ts`; `unsafe-eval` removed in prod~~ ✅ 2026-05-06 |
 | ~~Accessible components (ARIA)~~ | ~~Multiple~~ | ~~Keyboard nav, focus rings, `aria-expanded`~~ — Header dropdowns ✅ 2026-05-02 |
 | ~~Core Web Vitals budget~~ | ~~`/jobs`, `/learn`~~ | ~~LCP and CLS not measured yet~~ ✅ 2026-05-06 — `priority` on above-fold avatars + preconnect hints for CDN domains |
 | ~~Inline `onMouseEnter/Leave` for hover~~ | ~~Multiple components~~ | ~~Broken on touch, unnecessary JS~~ ✅ 2026-05-02 |

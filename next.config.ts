@@ -22,6 +22,8 @@ const nextConfig: NextConfig = {
   },
 
   // ── Security headers ────────────────────────────────────────────────────────
+  // CSP is handled by middleware.ts (per-request nonce generation).
+  // Only static, non-nonce headers live here.
   async headers() {
     return [
       {
@@ -35,23 +37,6 @@ const nextConfig: NextConfig = {
           { key: 'Referrer-Policy',        value: 'strict-origin-when-cross-origin' },
           // Disable unnecessary browser features
           { key: 'Permissions-Policy',     value: 'camera=(), microphone=(), geolocation=()' },
-          // Content Security Policy — restrict resource origins
-          {
-            key: 'Content-Security-Policy',
-            value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://va.vercel-scripts.com",
-              "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: blob: https://*.googleusercontent.com https://*.githubusercontent.com https://img.youtube.com https://i.ytimg.com https://cdn.simpleicons.org https://img.logo.dev https://www.google.com",
-              "font-src 'self'",
-              "connect-src 'self' https://*.supabase.co https://api.stripe.com https://api.anthropic.com https://api.openai.com https://generativelanguage.googleapis.com",
-              "frame-src https://js.stripe.com https://hooks.stripe.com https://www.youtube.com",
-              "frame-ancestors 'none'",
-              "form-action 'self'",
-              "object-src 'none'",
-              "base-uri 'self'",
-            ].join('; '),
-          },
         ],
       },
     ];
