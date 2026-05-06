@@ -302,6 +302,33 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-06
+
+> Fresh items from today's Opus scan — items already in TODO.md are not duplicated here.
+> `npm audit` = 0 vulns; `tsc --noEmit` = clean. Surfaces today: ten API routes still build their own raw `createClient(...)` instead of using `createSupabaseService()` from `lib/auth-server.ts` (AGENTS §5.2 — service-role discipline), two `.single()` calls that throw on missing rows (AGENTS §10.3), a job-listing extend bug that can land an "active" listing already in the past, and three dark-mode hex leaks still in the Sponsorship stat tiles.
+
+### Security
+- [ ] Validate `id` as UUID in `app/api/admin/job-listings/route.ts:115-117` DELETE — currently `if (!id)` only; add `/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i` check before passing to `.eq('id', id)` for defence-in-depth (matches the pattern already used in `app/api/alerts/route.ts:51` and `app/api/network/messages/route.ts:111`) [security]
+- [ ] Replace `.single()` with `.maybeSingle()` on `profiles` lookup in `app/api/comments/[id]/route.ts:37` — `.single()` throws PGRST116 when the row is missing, turning a routine 401-equivalent into a 500; AGENTS §10.3 says use `.maybeSingle()` whenever the row "might not exist" [security]
+- [ ] Replace `.single()` with `.maybeSingle()` on visa_tracker GET in `app/api/visa-tracker/route.ts:13` — first-time users have no row yet, so `.single()` raises PGRST116 and the `data ?? {…}` fallback never runs; existing test only covers POST so the regression is silent [security]
+
+### Code Quality (AGENTS §5.2 — Supabase client discipline)
+- [ ] Replace raw `createClient` from `@supabase/supabase-js` with `createSupabaseService()` from `lib/auth-server.ts` in `app/api/cover-letter/route.ts:3,57`, `app/api/resume-analyse/route.ts:4,6`, `app/api/learn/analyse/route.ts:3,75`, `app/api/learn/quiz/route.ts:3,40`, `app/api/learn/video-meta/route.ts:2,12`, `app/api/interview/questions/route.ts:3,47`, `app/api/track/route.ts:2,4` — each currently builds its own service-role client per AGENTS §5.2 violation; consolidating routes them through the shared helper which already disables session persistence [quality]
+- [ ] Fix off-by-one in admin job-listing `extend` action at `app/api/admin/job-listings/route.ts:97-98` — adds 30 days to `current.getTime()`, so an already-expired listing can be re-activated with `expires_at` still in the past; change base to `Math.max(Date.now(), current.getTime())` so extend always lands at least 30 days from today [quality]
+- [ ] Gate `console.warn('[jobs/listings] query error:', error.message)` in `app/api/jobs/listings/route.ts:34` behind `process.env.NODE_ENV !== 'production'` — matches the existing pattern at `app/api/jobs/route.ts:627,666,713` and avoids leaking Supabase error strings into production logs on every cold start [quality]
+
+### Style (dark-mode breakage)
+- [ ] Replace hardcoded stat tile colours `'#7c3aed'` (line 52), `'#10b981'` (line 53), `'#0369a1'` (line 54) with design tokens (e.g. `var(--gold)`, `var(--jade)`, `var(--terracotta)`) in `app/au-insights/Sponsorship.tsx` — the first stat at line 51 already uses `var(--terracotta)` correctly; the next three tile values render unreadably in dark mode against `var(--warm-white)` cards [style]
+
+### Tests
+- [ ] Add Vitest test for `/api/companies/research` — 401 without session, 403 SUBSCRIPTION_REQUIRED without active plan, 400 on slug not matching `/^[a-z0-9-]+$/`, 404 when `COMPANIES.find(c => c.slug === slug)` returns nothing [tests]
+- [ ] Add Vitest test for `/api/network/profile` POST — 400 on `visa_type` outside `VALID_VISA_TYPES`, 400 on `city` outside `VALID_CITIES`, skills array truncated to 20 entries each capped at 50 chars (`app/api/network/profile/route.ts:35-41`) [tests]
+- [ ] Add Vitest test for `/api/network/messages` POST — 400 when sending to self (`senderProfile.id === recipientProfileId`), 429 once `dm_messages` count for the sender in the last 24h hits `DM_DAILY_LIMIT = 20` (`app/api/network/messages/route.ts:149,171`) [tests]
+- [ ] Add Vitest test for `/api/jobs/listings` GET — empty array when env vars missing, only `status='active'` rows where `expires_at > now()` are returned, response capped at 10 items (`app/api/jobs/listings/route.ts:25-31`) [tests]
+- [ ] Add Vitest test for `/api/learn/diagram` POST — 400 when any of `skillId`/`skillName`/`pathId` is missing, OpenAI fence-stripping at `app/api/learn/diagram/route.ts:57-60` removes leading ```` ```mermaid ```` and trailing ``` ``` ``` from the response before returning [tests]
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
