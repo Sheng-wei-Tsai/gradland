@@ -31,7 +31,9 @@ export async function GET() {
     .limit(10);
 
   if (error) {
-    console.warn('[jobs/listings] query error:', error.message);
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('[jobs/listings] query error:', error.message);
+    }
     return NextResponse.json({ listings: [] });
   }
 
