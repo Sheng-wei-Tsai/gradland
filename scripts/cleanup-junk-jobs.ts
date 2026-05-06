@@ -14,7 +14,7 @@ import { createClient } from '@supabase/supabase-js';
 const IT_TITLE_RE = /\b(developer|engineer|devops|architect|analyst|scientist|dba|database|software|frontend|backend|fullstack|full.?stack|qa|tester|testing|security|cloud|aws|azure|gcp|machine.?learning|data|python|java|javascript|react|node|php|ruby|golang|kotlin|mobile|android|ios|sre|platform|infrastructure|network|systems|it.?support|helpdesk|cyber|soc|scrum|agile|product.?manager|ux|ui.?ux|devSecOps|ict|technology)\b/i;
 const NON_IT_RE   = /\b(finance|financial|investment|accounting|accountant|mortgage|insurance|trading|risk\s+analyst|equity|banking|treasury|actuar|chef|cook|nurse|driver|warehouse|forklift|electrician|plumber|carpenter|mechanic|retail|civil\s+engineer|structural\s+engineer|mechanical\s+engineer|chemical\s+engineer|electrical\s+engineer|mining\s+engineer|environmental\s+engineer|geotechnical|receptionist|leasing|barista|hairdresser|cleaner|labourer|drillers?\s+offsider|hr\s+business|sales\s+manager|office\s+manager|partnerships\s+manager)\b/i;
 
-function isJunk(title: string): boolean {
+export function isJunk(title: string): boolean {
   if (NON_IT_RE.test(title)) return true;
   if (!IT_TITLE_RE.test(title)) return true;
   return false;

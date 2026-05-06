@@ -224,7 +224,7 @@
 - [x] 2026-05-06 `npm run check` clean (audit + build) — 0 vulns, build exit 0
 - [x] 2026-05-06 `npx tsx scripts/scrape-au-jobs.ts` end-to-end source probe — WD(resmed 3)/Ashby(airtasker+rokt)/Smartrec(carsales 7)/Workable(mathspace 8)/Recruitee(litit 18)/Greenhouse(cultureamp+buildkite) all return non-zero IT jobs; APS+Hatch return 0 in CI (gov WAF + possible auth gate — code handles gracefully; will yield on prod deploy) ✅ 2026-05-06
 - [x] 2026-05-06 `/api/jobs?location=Sydney` returns ≥80 unique AU IT jobs; payload has `sources.{scraped,google,adzuna,jsearch}` all populated — verified via Vitest (`__tests__/api/jobs.test.ts`: 9 tests covering payload shape, scraped count, IT filter, dedup, XSS sanitiser, Supabase error resilience) ✅ 2026-05-06
-- [ ] `DRY_RUN=true … cleanup-junk-jobs.ts` sample list reviewed before live run
+- [x] 2026-05-06 `DRY_RUN=true … cleanup-junk-jobs.ts` sample list reviewed before live run ✅ 2026-05-06
 - [ ] No regression on /jobs UI (source pills render, dedup still works, freshness colours intact)
 
 **Effort:** M — landed in 4 atomic commits 2026-05-06 (file-boundary clean; RSS UA fix bundled with ATS sources commit since same scrape-au-jobs.ts diff).
