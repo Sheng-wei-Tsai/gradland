@@ -17,14 +17,21 @@ const daysArg = process.argv.indexOf('--days');
 const LOOKBACK_DAYS = daysArg >= 0 ? parseInt(process.argv[daysArg + 1], 10) : 1;
 const OUT_DIR = path.join(process.cwd(), 'content', 'visa-news');
 
-const RSS_FEEDS: { id: string; label: string; url: string }[] = [
+// requiresAuFilter: drop items whose title/excerpt does not mention Australia or
+// a known Australian visa subclass. Use on broad/global feeds (e.g. study-
+// international) to avoid Malaysian school content being tagged "Australia".
+const RSS_FEEDS: { id: string; label: string; url: string; requiresAuFilter?: boolean }[] = [
   { id: 'home-affairs',       label: 'Department of Home Affairs', url: 'https://immi.homeaffairs.gov.au/news-media/rss' },
   { id: 'abf',                label: 'Australian Border Force',    url: 'https://www.abf.gov.au/news-media/rss' },
   { id: 'acs',                label: 'ACS',                        url: 'https://www.acs.org.au/news/rss' },
-  { id: 'study-international', label: 'Study International',       url: 'https://studyinternational.com/feed/' },
+  { id: 'study-international', label: 'Study International',       url: 'https://studyinternational.com/feed/', requiresAuFilter: true },
   { id: 'migration-alliance', label: 'Migration Alliance',         url: 'https://www.migrationalliance.com.au/feed/' },
   { id: 'universities-au',    label: 'Universities Australia',     url: 'https://www.universitiesaustralia.edu.au/news/rss/' },
 ];
+
+// Items from feeds with requiresAuFilter must match at least one of these.
+// Word-boundary regex: prevents "AUS" inside unrelated words from matching.
+const AU_RELEVANCE = /\b(australia|australian|aussie|nsw|vic|qld|sa|wa|tas|act|nt|sydney|melbourne|brisbane|perth|adelaide|canberra|hobart|darwin|482|485|189|190|491|500|186|187|TSS|MLTSSL|STSOL|MARA|home affairs|austrade|department of education|TEQSA|university of sydney|university of melbourne|monash|UNSW|ANU)\b/i;
 
 // Visa type keywords → subclass tags
 const VISA_PATTERNS: { pattern: RegExp; types: string[] }[] = [
@@ -103,6 +110,11 @@ async function fetchFeed(feed: typeof RSS_FEEDS[0]): Promise<FeedItem[]> {
 
     return (result.items ?? [])
       .filter(item => item.isoDate && new Date(item.isoDate) >= cutoff)
+      .filter(item => {
+        if (!feed.requiresAuFilter) return true;
+        const text = `${item.title ?? ''} ${item.contentSnippet ?? item.content ?? item.summary ?? ''}`;
+        return AU_RELEVANCE.test(text);
+      })
       .map(item => {
         const title   = item.title ?? 'Untitled';
         const date    = item.isoDate ? formatDate(new Date(item.isoDate)) : formatDate(new Date());

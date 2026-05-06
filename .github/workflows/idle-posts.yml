@@ -1,0 +1,130 @@
+name: Daily Blog Post
+
+# Fires daily at 04:30 AEST (18:30 UTC) alongside daily-posts.yml so all
+# content categories land in one batch. Also accepts repository_dispatch from
+# claude-idle-trigger.sh after 60 min idle and manual workflow_dispatch.
+# Uses Claude Code Pro quota — no ANTHROPIC_API_KEY needed.
+#
+# Flow: Claude generates + commits to a post/YYYY-MM-DD-slug branch,
+# then this workflow creates a PR and enables auto-merge. The PR merges
+# automatically once "Security & Build Check" passes.
+
+on:
+  schedule:
+    - cron: '30 18 * * *'
+  repository_dispatch:
+    types: [idle-posts]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Quick guard — skip if already posted today
+        id: guard
+        run: |
+          TODAY=$(date -u +%Y-%m-%d)
+          echo "today=${TODAY}" >> $GITHUB_OUTPUT
+          if ls content/posts/${TODAY}-*.md 2>/dev/null | grep -q .; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "Post for ${TODAY} already exists — skipping."
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Set up Node.js
+        if: steps.guard.outputs.skip == 'false'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Claude Code CLI
+        if: steps.guard.outputs.skip == 'false'
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Configure git
+        if: steps.guard.outputs.skip == 'false'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "henry-blog-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+
+      - name: Generate and publish post
+        if: steps.guard.outputs.skip == 'false'
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          claude \
+            --dangerously-skip-permissions \
+            --model claude-sonnet-4-6 \
+            --allowedTools "Bash,Read,Write,Edit" \
+            -p "$(cat .github/prompts/daily-post.md)" 2>&1 | tee post.log
+          EXIT=${PIPESTATUS[0]}
+          if grep -qiE "hit your limit|quota.*exceeded|rate limit|5-hour limit|usage limit" post.log; then
+            echo "::warning::Claude quota hit — post will retry in next window"
+            exit 0
+          fi
+          exit $EXIT
+
+      - name: Create PR and enable auto-merge
+        if: steps.guard.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TODAY: ${{ steps.guard.outputs.today }}
+        run: |
+          # Find the branch Claude pushed to (post/YYYY-MM-DD-*)
+          BRANCH=$(git ls-remote --heads origin | grep "refs/heads/post/${TODAY}" | head -1 | awk '{print $2}' | sed 's|refs/heads/||')
+          if [ -z "$BRANCH" ]; then
+            echo "No post/${TODAY} branch found — Claude may have pushed directly to main or quota was hit."
+            exit 0
+          fi
+          echo "Found branch: $BRANCH"
+
+          # Skip if already merged into main
+          BRANCH_SHA=$(git ls-remote origin "refs/heads/${BRANCH}" | awk '{print $1}')
+          MAIN_SHA=$(git ls-remote origin refs/heads/main | awk '{print $1}')
+          git fetch origin main "${BRANCH}" --quiet
+          if git merge-base --is-ancestor "${BRANCH_SHA}" "${MAIN_SHA}" 2>/dev/null; then
+            echo "Already merged into main — nothing to do."
+            exit 0
+          fi
+
+          # Get commit summary for PR title (safe: read from git, not from untrusted event input)
+          COMMIT_MSG=$(git log "origin/${BRANCH}" -1 --format='%s')
+
+          # Create PR if none exists yet
+          EXISTING_NUM=$(gh pr list --head "$BRANCH" --base main --json number --jq '.[0].number' 2>/dev/null)
+          if [ -z "$EXISTING_NUM" ]; then
+            PR_URL=$(gh pr create \
+              --base main \
+              --head "$BRANCH" \
+              --title "$COMMIT_MSG" \
+              --body "Auto-generated daily post. Merges automatically once Security & Build Check passes.")
+            echo "Created PR: $PR_URL"
+            EXISTING_NUM=$(gh pr list --head "$BRANCH" --base main --json number --jq '.[0].number' 2>/dev/null)
+          else
+            echo "PR #${EXISTING_NUM} already exists."
+          fi
+
+          # Enable auto-merge (squash) — merges as soon as the check passes
+          if [ -n "$EXISTING_NUM" ]; then
+            gh pr merge "$EXISTING_NUM" --auto --squash \
+              && echo "Auto-merge enabled for PR #${EXISTING_NUM}" \
+              || echo "::warning::Auto-merge not available — owner can merge PR #${EXISTING_NUM} manually."
+          fi

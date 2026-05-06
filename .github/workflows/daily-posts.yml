@@ -3,21 +3,11 @@ name: Daily Posts
 # Daily content pipelines (digest, githot, ai-news, visa-news).
 #
 # All jobs authenticate to Claude via CLAUDE_CODE_OAUTH_TOKEN (Claude Code Pro
-# subscription), NOT the pay-as-you-go ANTHROPIC_API_KEY. Each script shells out
-# to the `claude` CLI through scripts/llm-claude.ts.
+# subscription). Scripts shell out to the `claude` CLI through scripts/llm-claude.ts.
 #
-# The blog `post` job lives in idle-posts.yml — do not reintroduce it here.
-#
-# Cron windows are spread across the day so each heavy job gets its own
-# 5-hour Claude Pro quota window (quota resets ~every 5h). Schedule:
-#   22:00 UTC (8am AEST)  → blog post           (idle-posts.yml)
-#   05:00 UTC (3pm AEST)  → githot              (this file, 10 Sonnet calls)
-#   11:00 UTC (9pm AEST)  → digest              (this file, ~7 Sonnet calls)
-#   17:00 UTC (3am AEST)  → ai-news + visa-news (this file, light enrichment)
-#
-# Each pair is ≥5h apart so no two heavy jobs share a quota window.
-# Previously all four ran 23:00–23:30 UTC sharing one window → 7 days of
-# silent failures (quota exhausted by the 3rd job).
+# All four content jobs fire together at 04:30 AEST (18:30 UTC). The blog
+# `post` job lives in idle-posts.yml on the same schedule so the entire daily
+# content batch lands in one quota window (~25 Sonnet calls total).
 #
 # Fallback: if Claude Pro quota is exhausted mid-run, scripts/llm-claude.ts
 # automatically falls back to the GitHub Models API (Copilot Pro+ rate
@@ -25,9 +15,7 @@ name: Daily Posts
 
 on:
   schedule:
-    - cron: '0 17 * * *'   # ai-news + visa-news (3am AEST — own quota window)
-    - cron: '0 5 * * *'    # githot (3pm AEST)
-    - cron: '0 11 * * *'   # digest (9pm AEST)
+    - cron: '30 18 * * *'   # 04:30 AEST — daily content batch
   workflow_dispatch:
 
 permissions:
@@ -36,7 +24,7 @@ permissions:
 
 jobs:
   ai-news:
-    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 17 * * *'
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '30 18 * * *'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -74,7 +62,7 @@ jobs:
           exit $EXIT
 
   visa-news:
-    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 17 * * *'
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '30 18 * * *'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -112,7 +100,7 @@ jobs:
           exit $EXIT
 
   githot:
-    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 5 * * *'
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '30 18 * * *'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
