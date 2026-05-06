@@ -165,6 +165,81 @@
 
 ## 🟡 Priority 3 — Growth
 
+### Job Coverage Expansion — free ATS sources (2026-05-05)
+**Why:** Compete with Seek/LinkedIn/Indeed. Each new ATS = more company boards = more unique listings, all free + legal (public APIs).
+**PR 1 — Modern startup ATS** ✅ 2026-05-05:
+- [x] `scripts/sources/workable.ts` — Workable v1 widget endpoint (mathspace +8 jobs verified)
+- [x] `scripts/sources/recruitee.ts` — Recruitee `/api/offers/` (litit +17 jobs verified)
+- [x] `data/au-{workable,recruitee}-slugs.json` — seed lists
+- [x] Wired into `scripts/scrape-au-jobs.ts` + `lib/jobs-sources.ts` + `app/api/jobs/route.ts`
+- [~] Teamtailor — **dropped**, public `jobs.json` returns 406 everywhere (deprecated; needs API token now)
+
+**PR 2 — Breezy HR** ✅ 2026-05-05:
+- [x] `scripts/sources/breezy.ts` — Breezy `/json` endpoint (3 AU customers seeded: elafent/engage-squared/swipejobs)
+- [x] `data/au-breezy-slugs.json`
+- [~] Personio — **dropped**, no AU customer base discovered (mostly EU)
+- [~] JazzHR — **dropped**, public `applytojob.com/api/jobs` returns 404 HTML (no documented public feed)
+
+**Future (deferred — separate PR if volume target unmet):**
+- [ ] **Slug expansion** — grow Workable/Recruitee/Breezy lists from 5+ verified to 30+ each via per-tenant probing
+- [ ] **Comeet** — `comeet.com/jobs` JSON
+- [ ] **iCIMS** — `careers-{slug}.icims.com` (per-tenant scrape, harder)
+- [ ] **SAP SuccessFactors / Oracle Taleo** — enterprise tier (Coles, Wesfarmers, Bunnings, Optus, Macquarie)
+- [ ] **State gov boards** — NSW iworkfor / VIC careers / QLD smartjobs / WA jobs (need HTML scrapers — RSS feeds not public)
+
+**Effort:** M (PR 1+2 shipped same day)
+
+### Jobs API Hardening Sprint — 2026-05-06
+**Why:** AU job feed is the primary tool surface but yield + freshness are uneven. Workday tenant list returns ~0 (most AU enterprises gate Workday behind login), Jora scraper still seeds non-IT junk into Supabase, RSS sources (apsjobs) intermittently 403 default UA, and JSearch re-emerged as the only legal way to surface live LinkedIn/Indeed/Glassdoor postings. Goal: lift unique listings per /jobs request from ~30 → 80+ AU IT roles without a paid scraping ToS risk.
+
+**Scope (each row = one atomic commit):**
+
+- [x] 2026-05-06 **JSearch re-integration** — `app/api/jobs/route.ts` AU branch: add `fetchJSearch` to the parallel fetch tuple; new `jsearchCount` returned in payload + `sources.jsearch` count; UI section TBD (defer to follow-up if needed). Source-type union in `AdzunaJob.source` extended with `workable | recruitee | breezy | smartrec | apsjobs | hatch`.
+  - Files: `app/api/jobs/route.ts` (lines 21, 678-735)
+  - Risk: JSearch quota — confirm RAPIDAPI_KEY plan still has headroom
+  - Verify: `curl /api/jobs?location=Sydney` returns `jsearchCount > 0`
+
+- [x] 2026-05-06 **Workday tenant pivot — drop AU-only legacy, add global SaaS** — `data/au-workday-tenants.json`: remove 19 legacy AU enterprise tenants (Atlassian/CBA/NAB/Westpac/ANZ/Woolworths/BHP/RioTinto/Big-4 etc — most return 0 because their Workday now requires auth); seed 9 global tenants (ResMed/Workday/Zendesk/Mastercard/Nasdaq/Alteryx/Alcon/BigCommerce/WEX) plus retained Telstra. `scripts/sources/workday.ts` adds `isAULocation` filter on `j.locationsText` so global tenants only emit AU-located rows.
+  - Files: `data/au-workday-tenants.json`, `scripts/sources/workday.ts:13,77-85`
+  - Risk: total Workday yield may drop short-term — measure before/after with `npx tsx scripts/scrape-au-jobs.ts` baseline
+  - Verify: log line `WD <count>` non-zero; spot-check one row geocodes to AU
+
+- [ ] **ATS slug expansion** — grow `data/au-workable-slugs.json` (22→30+), `data/au-recruitee-slugs.json` (12→30+), `data/au-breezy-slugs.json` (5→20+) by per-tenant probing (curl `/jobs.json` → 200 + AU jobs). Companion to PR 1+2 above.
+  - Risk: noisy slugs = wasted requests; gate with smoke test before adding
+  - Verify: run scraper end-to-end, confirm new slugs each contribute ≥1 IT row
+
+- [x] 2026-05-06 **RSS parser hardening (UA + Accept headers)** — `scripts/scrape-au-jobs.ts:42-48` and `scripts/sources/apsjobs.ts:14-20`: add browser-class `User-Agent` + `Accept: application/rss+xml,application/xml;q=0.9,*/*;q=0.8` to every `rss-parser` instance. Default UA was returning 403 on apsjobs feed.
+  - Files: `scripts/scrape-au-jobs.ts`, `scripts/sources/apsjobs.ts`
+  - Verify: `npx tsx scripts/sources/apsjobs.ts` returns rows; no 403 in logs
+
+- [x] 2026-05-06 **Junk-job cleanup script** — `scripts/cleanup-junk-jobs.ts`: one-shot DB sweep of `scraped_jobs` rows whose title fails `IT_TITLE_RE` allowlist or matches `NON_IT_RE` denylist (Receptionist, Driver, Accountant, Mining Engineer, etc). Batched delete (100/req), supports `DRY_RUN=true`. Old Jora scraper polluted DB — `filterIT` hides them in UI but they still cost rows.
+  - Files: `scripts/cleanup-junk-jobs.ts` (new)
+  - Risk: false-positive deletes — run `DRY_RUN=true` first, eyeball sample
+  - Verify: `select count(*) from scraped_jobs where title ~* 'receptionist|driver|accountant'` → 0 after run
+
+- [x] 2026-05-06 **Source precedence + label registry** — `lib/jobs-sources.ts`: extend `SOURCE_PRECEDENCE` with `workable, recruitee, breezy` (between direct ATS tier and aggregators); add `SOURCE_LABELS` entries (`Workable`, `Recruitee`, `Breezy HR`). Required for UI source-pill rendering + cross-source dedup ranking.
+  - Files: `lib/jobs-sources.ts:1-35`
+  - Verify: a Workable row in /jobs UI shows pill "Workable" not raw enum
+
+**Validation (PIV):**
+- [x] 2026-05-06 `npm run check` clean (audit + build) — 0 vulns, build exit 0
+- [ ] `npx tsx scripts/scrape-au-jobs.ts` end-to-end log shows non-zero counts for WD/Ashby/Smartrec/APS/Hatch/Workable/Recruitee/Breezy — run after merge
+- [ ] `/api/jobs?location=Sydney` returns ≥80 unique AU IT jobs; payload has `sources.{scraped,google,adzuna,jsearch}` all populated — verify on Vercel preview
+- [ ] `DRY_RUN=true … cleanup-junk-jobs.ts` sample list reviewed before live run
+- [ ] No regression on /jobs UI (source pills render, dedup still works, freshness colours intact)
+
+**Effort:** M — landed in 4 atomic commits 2026-05-06 (file-boundary clean; RSS UA fix bundled with ATS sources commit since same scrape-au-jobs.ts diff).
+
+**Commits landed (2026-05-06):**
+1. `34060cb feat(jobs): re-add JSearch to AU feed + extend source union`
+2. `0d7f605 feat(jobs): pivot Workday tenants to global SaaS + AU location filter`
+3. `5bd1416 feat(jobs): add Workable/Recruitee/Breezy ATS scrapers + RSS UA fix`
+4. `5717e83 chore(jobs): script to purge non-IT junk rows from scraped_jobs`
+
+**Follow-up (deferred):**
+- ATS slug expansion (Workable 22→30+, Recruitee 12→30+, Breezy 5→20+) — separate PR once initial yield measured
+- Run `cleanup-junk-jobs.ts` on prod DB after live deploy (DRY_RUN first)
+
 ### Navigation Restructure — `features/navigation-redesign.md`
 - [x] Three zones: **Prepare** · **Search** · **Track** (group by user intent, not feature name) ✅ 2026-05-02
 - [x] 2026-05-02 Mega-dropdown on desktop, mobile bottom nav (4 icons)
