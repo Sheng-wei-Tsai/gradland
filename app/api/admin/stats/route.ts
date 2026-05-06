@@ -1,27 +1,11 @@
 import { NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
-
-async function adminSupabase() {
-  const cookieStore = await cookies();
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { getAll: () => cookieStore.getAll(), setAll: () => {} } },
-  );
-}
-
-async function requireAdmin(sb: Awaited<ReturnType<typeof adminSupabase>>) {
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return null;
-  const { data: profile } = await sb.from('profiles').select('role').eq('id', user.id).single();
-  return profile?.role === 'admin' ? user : null;
-}
+import { requireAdmin, createSupabaseService } from '@/lib/auth-server';
 
 export async function GET() {
-  const sb = await adminSupabase();
-  const admin = await requireAdmin(sb);
+  const admin = await requireAdmin();
   if (!admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+  const sb = createSupabaseService();
 
   const [users, comments, applications] = await Promise.all([
     sb.from('profiles').select('id', { count: 'exact', head: true }),
