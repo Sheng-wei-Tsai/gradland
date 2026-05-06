@@ -18,20 +18,27 @@ const LOOKBACK_DAYS = daysArg >= 0 ? parseInt(process.argv[daysArg + 1], 10) : 1
 const OUT_DIR = path.join(process.cwd(), 'content', 'visa-news');
 
 // requiresAuFilter: drop items whose title/excerpt does not mention Australia or
-// a known Australian visa subclass. Use on broad/global feeds (e.g. study-
-// international) to avoid Malaysian school content being tagged "Australia".
+// a known Australian visa subclass. Required on broad/global feeds (ABC, SBS,
+// study-international) so non-AU stories don't end up tagged "Australia".
+//
+// Old AU feeds dropped 2026-05-06 — all returned 404/403 or empty:
+//   immi.homeaffairs.gov.au/news-media/rss      404
+//   abf.gov.au/news-media/rss                   404
+//   acs.org.au/news/rss                         403
+//   migrationalliance.com.au/feed               404
+//   universitiesaustralia.edu.au/feed           empty (channel only)
 const RSS_FEEDS: { id: string; label: string; url: string; requiresAuFilter?: boolean }[] = [
-  { id: 'home-affairs',       label: 'Department of Home Affairs', url: 'https://immi.homeaffairs.gov.au/news-media/rss' },
-  { id: 'abf',                label: 'Australian Border Force',    url: 'https://www.abf.gov.au/news-media/rss' },
-  { id: 'acs',                label: 'ACS',                        url: 'https://www.acs.org.au/news/rss' },
-  { id: 'study-international', label: 'Study International',       url: 'https://studyinternational.com/feed/', requiresAuFilter: true },
-  { id: 'migration-alliance', label: 'Migration Alliance',         url: 'https://www.migrationalliance.com.au/feed/' },
-  { id: 'universities-au',    label: 'Universities Australia',     url: 'https://www.universitiesaustralia.edu.au/news/rss/' },
+  { id: 'abc-news',           label: 'ABC News Australia',     url: 'https://www.abc.net.au/news/feed/51120/rss.xml',  requiresAuFilter: true },
+  { id: 'sbs-news',           label: 'SBS News',               url: 'https://www.sbs.com.au/news/feed',                requiresAuFilter: true },
+  { id: 'study-international', label: 'Study International',   url: 'https://studyinternational.com/feed/',            requiresAuFilter: true },
 ];
 
-// Items from feeds with requiresAuFilter must match at least one of these.
-// Word-boundary regex: prevents "AUS" inside unrelated words from matching.
-const AU_RELEVANCE = /\b(australia|australian|aussie|nsw|vic|qld|sa|wa|tas|act|nt|sydney|melbourne|brisbane|perth|adelaide|canberra|hobart|darwin|482|485|189|190|491|500|186|187|TSS|MLTSSL|STSOL|MARA|home affairs|austrade|department of education|TEQSA|university of sydney|university of melbourne|monash|UNSW|ANU)\b/i;
+// Items from feeds with requiresAuFilter must match BOTH:
+// 1. at least one Australia signal (country / state / city / AU institution)
+// 2. at least one visa/immigration signal (subclass / migration term / agent body)
+// This prevents a generic "Sydney traffic" ABC story from landing in /visa-news.
+const AU_SIGNAL    = /\b(australia|australian|aussie|nsw|vic|qld|sa|wa|tas|act|nt|sydney|melbourne|brisbane|perth|adelaide|canberra|hobart|darwin|austrade|TEQSA|university of sydney|university of melbourne|monash|UNSW|ANU)\b/i;
+const VISA_SIGNAL  = /\b(visa|migrant|migration|immigration|sponsor(ship|ed)?|skilled worker|skilled migration|nominat(ion|ed)|residency|permanent resident|home affairs|MARA|482|485|189|190|491|500|186|187|TSS|MLTSSL|STSOL|international student|student visa)\b/i;
 
 // Visa type keywords → subclass tags
 const VISA_PATTERNS: { pattern: RegExp; types: string[] }[] = [
@@ -113,7 +120,7 @@ async function fetchFeed(feed: typeof RSS_FEEDS[0]): Promise<FeedItem[]> {
       .filter(item => {
         if (!feed.requiresAuFilter) return true;
         const text = `${item.title ?? ''} ${item.contentSnippet ?? item.content ?? item.summary ?? ''}`;
-        return AU_RELEVANCE.test(text);
+        return AU_SIGNAL.test(text) && VISA_SIGNAL.test(text);
       })
       .map(item => {
         const title   = item.title ?? 'Untitled';
