@@ -151,6 +151,7 @@
 - [x] 2026-05-01 `cover-letter` route (streaming)
 - [x] Stripe webhook events (checkout, renewal, cancellation) ✅ 2026-05-01
 - [x] `AuthProvider` component ✅ 2026-05-01
+- [x] `learn/diagram` route — 400 on missing fields + fence-stripping ✅ 2026-05-06
 - **Effort:** M (3–5 days)
 
 ### Phone Remote Control (GitHub mobile + Telegram)
