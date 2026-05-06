@@ -132,7 +132,7 @@ export default function BlogList({ posts, tags }: { posts: Post[]; tags: string[
               key={`${post.source}-${post.slug}`}
               post={post}
               index={i}
-              basePath={post.source === 'digest' ? '/digest' : post.source === 'githot' ? '/githot' : post.source === 'ai-news' ? '/ai-news' : post.source === 'visa-news' ? '/visa-news' : '/blog'}
+              basePath={post.source === 'digest' ? '/digest' : post.source === 'githot' ? '/githot' : post.source === 'ai-news' ? '/ai-news' : post.source === 'visa-news' ? '/visa-news' : post.source === 'career-edge' ? '/career-edge' : '/blog'}
             />
           ))
         )}

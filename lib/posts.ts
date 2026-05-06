@@ -119,7 +119,7 @@ function parseTopics(content: string, source: Post['source'], max = 5): string[]
 
 /** Reject slugs that contain path traversal sequences or invalid characters. */
 function isSafeSlug(slug: string): boolean {
-  return /^[a-zA-Z0-9._-]+$/.test(slug) && !slug.includes('..');
+  return /^[a-zA-Z0-9._-]+$/.test(slug) && !slug.includes('..') && !slug.startsWith('.');
 }
 
 /** Confirm the resolved file path stays inside the expected directory. */
@@ -130,7 +130,7 @@ function isInsideDir(dir: string, filePath: string): boolean {
 
 function readDir(dir: string, source: Post['source'], defaultEmoji = '🤖'): Post[] {
   if (!fs.existsSync(dir)) return [];
-  const files = fs.readdirSync(dir).filter(f => f.endsWith('.mdx') || f.endsWith('.md'));
+  const files = fs.readdirSync(dir).filter(f => !f.startsWith('.') && (f.endsWith('.mdx') || f.endsWith('.md')));
   return files
     .map(file => {
       const slug = file.replace(/\.(mdx|md)$/, '');
