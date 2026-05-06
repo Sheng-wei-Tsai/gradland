@@ -50,6 +50,14 @@ export async function POST(req: NextRequest) {
       metadata: { supabase_user_id: user.id },
     },
     allow_promotion_codes: true,
+    consent_collection: {
+      terms_of_service: 'required',
+    },
+    custom_text: {
+      terms_of_service_acceptance: {
+        message: 'I have read and agree to the [Terms of Service](https://henrysdigitallife.com/terms) and [Privacy Policy](https://henrysdigitallife.com/privacy) of TechPath AU.',
+      },
+    },
   });
 
   return NextResponse.json({ url: session.url });

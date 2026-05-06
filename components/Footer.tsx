@@ -20,6 +20,13 @@ const COL_CONTENT: { href: string; label: string; icon: EIconName }[] = [
   { href: '/pricing',        label: 'Pricing',     icon: 'card'         },
 ];
 
+const COL_LEGAL: { href: string; label: string; icon: EIconName }[] = [
+  { href: '/contact', label: 'Contact', icon: 'pencil-letter' },
+  { href: '/privacy', label: 'Privacy', icon: 'scale'         },
+  { href: '/terms',   label: 'Terms',   icon: 'newspaper'     },
+  { href: '/cookies', label: 'Cookies', icon: 'tag'           },
+];
+
 export default function Footer() {
   return (
     <footer style={{
@@ -87,6 +94,22 @@ export default function Footer() {
             </div>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {COL_CONTENT.map(l => (
+                <li key={l.href}>
+                  <Link href={l.href} className="footer-nav-link">
+                    <EIcon name={l.icon} size={14} style={{ marginRight: '0.4em', opacity: 0.75 }} />
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: '0.8rem' }}>
+              Legal
+            </div>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {COL_LEGAL.map(l => (
                 <li key={l.href}>
                   <Link href={l.href} className="footer-nav-link">
                     <EIcon name={l.icon} size={14} style={{ marginRight: '0.4em', opacity: 0.75 }} />

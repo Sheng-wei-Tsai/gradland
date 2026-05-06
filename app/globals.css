@@ -1227,10 +1227,10 @@ h3, h4 {
 }
 .footer-cols          { display: flex; gap: 3rem; flex-wrap: wrap; }
 
-/* Footer 2-col link grid — always 2 columns, even on mobile */
+/* Footer link grid — 3 columns on desktop, 2 on mobile, gracefully wraps */
 .footer-link-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 2rem;
 }
 
