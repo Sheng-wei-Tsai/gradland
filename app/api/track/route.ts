@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createSupabaseService } from '@/lib/auth-server';
 
-const sb = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-);
+const sb = createSupabaseService();
 
 // ── In-memory IP rate limiter — max 60 events per IP per minute ──────────────
 // Resets on cold start (serverless). Good enough to block naive spam.

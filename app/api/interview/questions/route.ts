@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
-import { createClient } from '@supabase/supabase-js';
+import { createSupabaseService } from '@/lib/auth-server';
 import { getRoleById } from '@/lib/interview-roles';
 import { UNIVERSAL_QUESTIONS } from '@/lib/universal-questions';
 import { requireSubscription, recordUsage, checkEndpointRateLimit, rateLimitResponse } from '@/lib/subscription';
@@ -44,10 +44,7 @@ export async function POST(req: NextRequest) {
   const cacheKey = `interview-questions:${roleId}`;
 
   // Service client — bypasses RLS for the shared interview_questions_cache table
-  const sb = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
+  const sb = createSupabaseService();
 
   // ── 1. KV fast path ────────────────────────────────────────────────
   const kvHit = await kvGet(cacheKey);

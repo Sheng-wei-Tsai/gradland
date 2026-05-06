@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createSupabaseService } from '@/lib/auth-server';
 
 const HOST = 'youtube138.p.rapidapi.com';
 
@@ -9,10 +9,7 @@ export async function GET(req: NextRequest) {
   if (!/^[A-Za-z0-9_-]{11}$/.test(videoId)) return NextResponse.json({ error: 'Invalid videoId' }, { status: 400 });
 
   // ── Check Supabase cache first — avoids RapidAPI call on repeat visits ────
-  const sb = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
+  const sb = createSupabaseService();
   const { data: cached } = await sb
     .from('video_content')
     .select('video_title, channel_title')

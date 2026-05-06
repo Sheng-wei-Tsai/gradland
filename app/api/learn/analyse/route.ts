@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { createClient } from '@supabase/supabase-js';
 import { requireSubscription, recordUsage, checkEndpointRateLimit } from '@/lib/subscription';
-import { rateLimitResponse } from '@/lib/auth-server';
+import { rateLimitResponse, createSupabaseService } from '@/lib/auth-server';
 import { kvGet, kvSet } from '@/lib/kv';
 
 const SCHEMA_FULL = `{
@@ -72,10 +71,7 @@ export async function POST(req: NextRequest) {
   const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
   // Service client — bypasses RLS for the shared video_content cache
-  const sb = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
+  const sb = createSupabaseService();
 
   const cacheKey = `study-guide:${videoId}`;
 
