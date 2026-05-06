@@ -152,6 +152,7 @@
 - [x] Stripe webhook events (checkout, renewal, cancellation) ✅ 2026-05-01
 - [x] `AuthProvider` component ✅ 2026-05-01
 - [x] `learn/diagram` route — 400 on missing fields + fence-stripping ✅ 2026-05-06
+- [x] `admin/job-listings` route — 403 without admin, invalid action, DELETE UUID validation, extend Math.max fix ✅ 2026-05-06
 - **Effort:** M (3–5 days)
 
 ### Phone Remote Control (GitHub mobile + Telegram)
