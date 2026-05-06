@@ -340,6 +340,7 @@ class AudioEngineClass {
     if (this.ctx) return this.ctx;
     if (typeof window === 'undefined') return null;
     try {
+      // webkitAudioContext is a vendor-prefixed Safari API absent from TypeScript's Window type
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const Ctx = window.AudioContext ?? (window as any).webkitAudioContext;
       if (!Ctx) return null;
