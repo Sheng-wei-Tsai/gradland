@@ -10,7 +10,7 @@
  */
 
 import { existsSync, readFileSync } from 'fs';
-import { isITJob, sleep, type RawSourceJob } from './types';
+import { isAULocation, isITJob, sleep, type RawSourceJob } from './types';
 
 interface WorkdayTenant { tenant: string; wd: string; site: string; company: string; }
 
@@ -74,13 +74,15 @@ async function fetchTenantJobs(t: WorkdayTenant): Promise<RawSourceJob[]> {
 
     for (const j of page.jobPostings) {
       if (!isITJob(j.title)) continue;
+      const loc = j.locationsText ?? '';
+      if (!isAULocation(loc)) continue;       // global tenants — keep AU only
       const reqId = (j.bulletFields ?? [])[0] ?? j.externalPath.split('/').pop() ?? '';
       out.push({
         source:     'workday',
         externalId: reqId,
         title:      j.title,
         company:    t.company,
-        location:   j.locationsText ?? 'Australia',
+        location:   loc || 'Australia',
         url:        `https://${t.tenant}.${t.wd}.myworkdayjobs.com${j.externalPath}`,
         created:    j.postedOn ?? new Date().toISOString(),
       });
