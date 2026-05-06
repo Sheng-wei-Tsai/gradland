@@ -34,7 +34,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
 
   // Check if admin
   const { data: profile } = await sb
-    .from('profiles').select('role').eq('id', user.id).single();
+    .from('profiles').select('role').eq('id', user.id).maybeSingle();
   const isAdmin = profile?.role === 'admin';
 
   const query = sb.from('post_comments').delete().eq('id', id);
