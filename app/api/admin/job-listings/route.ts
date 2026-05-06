@@ -115,6 +115,9 @@ export async function DELETE(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const id = searchParams.get('id');
   if (!id) return NextResponse.json({ error: 'id is required' }, { status: 400 });
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+    return NextResponse.json({ error: 'id must be a valid UUID' }, { status: 400 });
+  }
 
   const sb = createSupabaseService();
   const { error } = await sb.from('job_listings').delete().eq('id', id);
