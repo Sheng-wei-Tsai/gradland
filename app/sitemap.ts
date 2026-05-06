@@ -24,6 +24,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/posts/githot`,    lastModified: now, priority: 0.7 },
     { url: `${BASE_URL}/posts/ai-news`,   lastModified: now, priority: 0.7 },
     { url: `${BASE_URL}/posts/visa-news`, lastModified: now, priority: 0.7 },
+    { url: `${BASE_URL}/posts/career-edge`, lastModified: now, priority: 0.8 },
     { url: `${BASE_URL}/jobs`,            lastModified: now, priority: 0.8 },
     { url: `${BASE_URL}/interview-prep`,  lastModified: now, priority: 0.8 },
     { url: `${BASE_URL}/cover-letter`,    lastModified: now, priority: 0.7 },
@@ -61,5 +62,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority:     0.6 as const,
   }));
 
-  return [...staticRoutes, ...postRoutes, ...digestRoutes, ...githubRoutes, ...aiNewsRoutes, ...visaNewsRoutes];
+  const careerEdgeRoutes = slugsFrom('career-edge').map(slug => ({
+    url:          `${BASE_URL}/career-edge/${slug}`,
+    lastModified: now,
+    priority:     0.7 as const,
+  }));
+
+  return [...staticRoutes, ...postRoutes, ...digestRoutes, ...githubRoutes, ...aiNewsRoutes, ...visaNewsRoutes, ...careerEdgeRoutes];
 }

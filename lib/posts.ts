@@ -3,15 +3,16 @@ import path from 'path';
 import matter from 'gray-matter';
 import readingTime from 'reading-time';
 
-const postsDir    = path.resolve(process.cwd(), 'content/posts');
-const digestsDir  = path.resolve(process.cwd(), 'content/digests');
-const githotDir   = path.resolve(process.cwd(), 'content/githot');
-const aiNewsDir   = path.resolve(process.cwd(), 'content/ai-news');
-const visaNewsDir = path.resolve(process.cwd(), 'content/visa-news');
+const postsDir       = path.resolve(process.cwd(), 'content/posts');
+const digestsDir     = path.resolve(process.cwd(), 'content/digests');
+const githotDir      = path.resolve(process.cwd(), 'content/githot');
+const aiNewsDir      = path.resolve(process.cwd(), 'content/ai-news');
+const visaNewsDir    = path.resolve(process.cwd(), 'content/visa-news');
+const careerEdgeDir  = path.resolve(process.cwd(), 'content/career-edge');
 
 export interface Post {
   slug: string;
-  source: 'blog' | 'digest' | 'githot' | 'ai-news' | 'visa-news';
+  source: 'blog' | 'digest' | 'githot' | 'ai-news' | 'visa-news' | 'career-edge';
   title: string;
   date: string;
   excerpt: string;
@@ -30,6 +31,12 @@ export interface Post {
   audience?: string[];
   /** For visa-news posts: the feed/source id (home-affairs, acs, etc.) */
   visaSource?: string;
+  /** For career-edge posts: sub-pillar tag (ai-screening, fluency-without-debt, eval-driven-projects, pr-pathway, interview-defence, tools-deep-dive) */
+  pillar?: string;
+  /** For career-edge posts: TechPath tool path the article funnels readers toward (/resume, /interview-prep, /learn, /au-insights, /jobs) */
+  crossLink?: string;
+  /** For career-edge posts: relevant visa subclass for cross-linking (e.g. "485", "482", "186") */
+  visaPathway?: string;
   /** Parsed from content: article titles (digest), repo names + stars (githot), key takeaways (ai-news), or action items (visa-news) */
   topics?: string[];
 }
@@ -143,6 +150,9 @@ function readDir(dir: string, source: Post['source'], defaultEmoji = '🤖'): Po
         visaTypes:     data.visa_types as string[] | undefined,
         audience:      data.audience as string[] | undefined,
         visaSource:    data.source as string | undefined,
+        pillar:        data.pillar as string | undefined,
+        crossLink:     data.cross_link as string | undefined,
+        visaPathway:   data.visa_pathway as string | undefined,
         readingTime:   readingTime(content).text,
         content,
         topics:        parseTopics(content, source),
@@ -196,6 +206,9 @@ export function getAINewsBySlug(slug: string): Post | null { return getBySlug(ai
 
 export function getAllVisaNews():               Post[]      { return readDir(visaNewsDir, 'visa-news', '🛂'); }
 export function getVisaNewsBySlug(slug: string): Post | null { return getBySlug(visaNewsDir, slug, 'visa-news', '🛂'); }
+
+export function getAllCareerEdge():               Post[]      { return readDir(careerEdgeDir, 'career-edge', '🎯'); }
+export function getCareerEdgeBySlug(slug: string): Post | null { return getBySlug(careerEdgeDir, slug, 'career-edge', '🎯'); }
 
 export function getAllTags(): string[] {
   const tags = new Set<string>();
