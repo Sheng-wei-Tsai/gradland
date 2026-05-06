@@ -117,9 +117,21 @@ export default function Header() {
   const [desktopMenu, setDesktopMenu] = useState<DesktopMenu>(null);
   const [avatarOpen,  setAvatarOpen]  = useState(false);
   const [mobileSheet, setMobileSheet] = useState<MobileSheet>(null);
+  const [scrolled,    setScrolled]    = useState(false);
 
   const navRef    = useRef<HTMLElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
+
+  /* Scroll-state for sticky scrim — fires only on transitions to avoid re-render storms */
+  useEffect(() => {
+    const onScroll = () => {
+      const isScrolled = window.scrollY > 6;
+      setScrolled(prev => (prev !== isScrolled ? isScrolled : prev));
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   /* Outside-click closes desktop menu */
   useEffect(() => {
@@ -177,67 +189,53 @@ export default function Header() {
   const toolsOpen     = desktopMenu === 'tools';
   const insightsOpen  = desktopMenu === 'insights';
 
-  /* Desktop nav link style */
-  const navLink = (active: boolean): React.CSSProperties => ({
-    padding: '0.3em 0.9em', borderRadius: '4px',
-    fontSize: '0.88rem', fontWeight: 600, lineHeight: 1.2, textDecoration: 'none',
-    background: active ? 'var(--vermilion)' : 'transparent',
-    color: active ? 'white' : 'var(--text-secondary)',
-    boxShadow: active ? '2px 2px 0 rgba(20,10,5,0.3)' : 'none',
-    transition: 'all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)', whiteSpace: 'nowrap',
-  });
+  const jobsActive = isActive('/jobs');
 
   return (
     <>
       {/* ─────────────────────────── DESKTOP TOP BAR ─────────────────────────── */}
-      <header style={{ position: 'sticky', top: 0, zIndex: 50, padding: '0.75rem 0', background: 'transparent' }}>
-        <div style={{
-          maxWidth: '960px', margin: '0 auto', padding: '0 1.5rem',
-          display: 'flex', alignItems: 'center', gap: '0.5rem',
-        }}>
+      <header className="tp-header-shell" data-scrolled={scrolled ? 'true' : 'false'}>
+        <div className="tp-header-inner">
 
-          {/* Logo */}
+          {/* Brand lockup */}
           <Link href="/" className="nav-focus brand-lockup" style={{
-            display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-            fontFamily: "'Lora', serif", fontWeight: 700, fontSize: '1.05rem',
+            display: 'inline-flex', alignItems: 'center', gap: '0.55rem',
+            fontFamily: "'Lora', serif", fontWeight: 700, fontSize: '1rem',
             color: 'var(--brown-dark)', textDecoration: 'none', whiteSpace: 'nowrap',
-            marginRight: '0.5rem',
+            letterSpacing: '-0.01em',
           }} aria-label="TechPath AU — home">
-            <LogoMark size={28} withShadow={false} decorative />
-            TechPath
+            <LogoMark size={32} withShadow={false} decorative />
+            <span>TechPath</span>
           </Link>
 
-          <nav ref={navRef} className="desktop-nav" style={{
-            background: 'rgba(253,245,228,0.88)',
-            backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-            border: '2.5px solid rgba(20,10,5,0.18)', borderRadius: '8px',
-            padding: '0.3rem 0.4rem',
-            boxShadow: '3px 3px 0 rgba(20,10,5,0.14)',
-            display: 'flex', gap: '0.35rem', alignItems: 'center',
-          }}>
+          <nav ref={navRef} className="tp-nav-rail" aria-label="Primary">
+            {/* Jobs — direct link, surfaced as tier-0 destination */}
+            <Link
+              href="/jobs"
+              className="tp-tab nav-focus"
+              aria-current={jobsActive ? 'page' : undefined}
+              data-state={jobsActive ? 'active' : 'idle'}
+            >
+              {t('tools_jobs')}
+            </Link>
 
             {/* Tools — mega-menu */}
             <div style={{ position: 'relative' }}>
               <button
+                type="button"
                 onClick={() => setDesktopMenu(m => m === 'tools' ? null : 'tools')}
                 onKeyDown={e => { if (e.key === 'Escape') setDesktopMenu(null); }}
-                aria-haspopup="true"
+                aria-haspopup="menu"
                 aria-expanded={toolsOpen}
-                className="nav-focus"
-                style={{ ...navLink(toolsActive), border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3em' }}
+                className="tp-tab tp-tab--menu nav-focus"
+                data-state={toolsOpen ? 'open' : toolsActive ? 'active' : 'idle'}
               >
-                {t('tools')} <Chevron open={toolsOpen} />
+                {t('tools')}<Chevron open={toolsOpen} />
               </button>
               {toolsOpen && (
-                <div role="menu" style={{
-                  position: 'absolute', top: 'calc(100% + 10px)', left: '0',
-                  width: 'min(540px, 92vw)', background: 'var(--warm-white)',
-                  border: '2px solid var(--parchment)', borderRadius: '12px',
-                  boxShadow: 'var(--panel-shadow), 0 16px 40px var(--shadow-color)',
-                  padding: '0.75rem', zIndex: 60, overflow: 'hidden',
-                }}>
-                  <div style={{ height: '2px', background: 'linear-gradient(90deg, var(--vermilion) 0%, var(--gold) 50%, var(--jade) 100%)', borderRadius: '2px', marginBottom: '0.6rem' }} />
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.3rem 1rem' }}>
+                <div role="menu" className="tp-mega-panel">
+                  <div className="tp-mega-accent" />
+                  <div className="tp-mega-grid">
                     <MegaColumn headerLabel={t(TOOLS_MENU.land.tKey)}  items={TOOLS_MENU.land.items}  t={t} onItemClick={() => setDesktopMenu(null)} />
                     <MegaColumn headerLabel={t(TOOLS_MENU.track.tKey)} items={TOOLS_MENU.track.items} t={t} onItemClick={() => setDesktopMenu(null)} />
                   </div>
@@ -248,25 +246,20 @@ export default function Header() {
             {/* Insights — mega-menu */}
             <div style={{ position: 'relative' }}>
               <button
+                type="button"
                 onClick={() => setDesktopMenu(m => m === 'insights' ? null : 'insights')}
                 onKeyDown={e => { if (e.key === 'Escape') setDesktopMenu(null); }}
-                aria-haspopup="true"
+                aria-haspopup="menu"
                 aria-expanded={insightsOpen}
-                className="nav-focus"
-                style={{ ...navLink(insightsActive), border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3em' }}
+                className="tp-tab tp-tab--menu nav-focus"
+                data-state={insightsOpen ? 'open' : insightsActive ? 'active' : 'idle'}
               >
-                {t('insights')} <Chevron open={insightsOpen} />
+                {t('insights')}<Chevron open={insightsOpen} />
               </button>
               {insightsOpen && (
-                <div role="menu" style={{
-                  position: 'absolute', top: 'calc(100% + 10px)', left: '0',
-                  width: 'min(540px, 92vw)', background: 'var(--warm-white)',
-                  border: '2px solid var(--parchment)', borderRadius: '12px',
-                  boxShadow: 'var(--panel-shadow), 0 16px 40px var(--shadow-color)',
-                  padding: '0.75rem', zIndex: 60, overflow: 'hidden',
-                }}>
-                  <div style={{ height: '2px', background: 'linear-gradient(90deg, var(--vermilion) 0%, var(--gold) 50%, var(--jade) 100%)', borderRadius: '2px', marginBottom: '0.6rem' }} />
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.3rem 1rem' }}>
+                <div role="menu" className="tp-mega-panel">
+                  <div className="tp-mega-accent" />
+                  <div className="tp-mega-grid">
                     <MegaColumn headerLabel={t(INSIGHTS_MENU.content.tKey)} items={INSIGHTS_MENU.content.items} t={t} onItemClick={() => setDesktopMenu(null)} />
                     <MegaColumn headerLabel={t(INSIGHTS_MENU.market.tKey)}  items={INSIGHTS_MENU.market.items}  t={t} onItemClick={() => setDesktopMenu(null)} />
                   </div>
@@ -274,8 +267,15 @@ export default function Header() {
               )}
             </div>
 
-            {/* Pricing — direct link */}
-            <Link href="/pricing" className="nav-focus" style={navLink(isActive('/pricing'))}>{t('pricing')}</Link>
+            {/* Pricing — direct link, secondary tone */}
+            <Link
+              href="/pricing"
+              className="tp-tab nav-focus"
+              aria-current={isActive('/pricing') ? 'page' : undefined}
+              data-state={isActive('/pricing') ? 'active' : 'idle'}
+            >
+              {t('pricing')}
+            </Link>
           </nav>
 
           <div style={{ flex: 1 }} />

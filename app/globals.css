@@ -1128,7 +1128,166 @@ h3, h4 {
   box-shadow: 6px 6px 0 rgba(232,64,64,0.5);
 }
 
-/* ── Nav pill — ink border style ── */
+/* ── Primary navbar — redesigned 2026-05-06 ──
+ * Visual story: brand mark + quiet rail of tabs + loud auth CTA.
+ * Container is transparent at scrollY=0 so it disappears into the page;
+ * gains a translucent scrim, hairline border, and soft shadow once the
+ * user has scrolled past 6px (data-scrolled="true").
+ *
+ * Tabs use underline-only active state (vermilion text + 2px underline)
+ * instead of full background fill — keeps the conversion CTA on the
+ * right as the loudest element on the bar.
+ */
+.tp-header-shell {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: 0.75rem 0;
+  background: transparent;
+  transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  border-bottom: 1px solid transparent;
+}
+.tp-header-shell[data-scrolled="true"] {
+  background: rgba(253, 245, 228, 0.78);
+  backdrop-filter: blur(14px) saturate(1.1);
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
+  border-bottom: 1px solid var(--parchment);
+  box-shadow: 0 1px 3px rgba(20, 10, 5, 0.05);
+}
+[data-theme="dark"] .tp-header-shell[data-scrolled="true"] {
+  background: rgba(15, 11, 26, 0.78);
+  border-bottom: 1px solid rgba(240, 230, 208, 0.10);
+  box-shadow: 0 1px 0 rgba(232, 64, 64, 0.10);
+}
+
+.tp-header-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.tp-nav-rail {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.2rem 0.3rem;
+  margin-left: 0.5rem;
+}
+
+/* Tab — minimal ghost, underline-active. Calmer than the old pill nav. */
+.tp-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.tp-tab::after {
+  /* Underline indicator — animates on active/hover */
+  content: '';
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 0.18rem;
+  height: 2px;
+  background: var(--vermilion);
+  border-radius: 2px;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.18s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+.tp-tab:hover {
+  background: rgba(192, 40, 28, 0.06);
+  color: var(--brown-dark);
+}
+.tp-tab:hover::after {
+  transform: scaleX(0.55);
+}
+
+.tp-tab[data-state="active"],
+.tp-tab[aria-current="page"] {
+  color: var(--vermilion);
+}
+.tp-tab[data-state="active"]::after,
+.tp-tab[aria-current="page"]::after {
+  transform: scaleX(1);
+}
+
+/* Open mega-menu — distinct from active so user knows panel is current focus */
+.tp-tab[data-state="open"] {
+  background: rgba(192, 40, 28, 0.08);
+  color: var(--brown-dark);
+}
+.tp-tab[data-state="open"]::after {
+  transform: scaleX(1);
+  background: var(--brown-dark);
+}
+
+[data-theme="dark"] .tp-tab:hover {
+  background: rgba(232, 64, 64, 0.10);
+  color: var(--text-primary);
+}
+[data-theme="dark"] .tp-tab[data-state="active"],
+[data-theme="dark"] .tp-tab[aria-current="page"] {
+  color: #ff5b4a;
+}
+
+/* Mega-menu panel — tighter to the tab (4px gap) so the chevron points at it */
+.tp-mega-panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: min(540px, 92vw);
+  background: var(--warm-white);
+  border: 2px solid var(--parchment);
+  border-radius: 12px;
+  box-shadow: var(--panel-shadow), 0 16px 40px var(--shadow-color);
+  padding: 0.75rem;
+  z-index: 60;
+  overflow: hidden;
+  animation: tpMegaIn 0.16s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+@keyframes tpMegaIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0);     }
+}
+.tp-mega-accent {
+  height: 2px;
+  background: linear-gradient(90deg, var(--vermilion) 0%, var(--gold) 50%, var(--jade) 100%);
+  border-radius: 2px;
+  margin-bottom: 0.6rem;
+}
+.tp-mega-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.3rem 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tp-tab,
+  .tp-tab::after,
+  .tp-mega-panel,
+  .tp-header-shell { transition: none !important; animation: none !important; }
+}
+
+/* Legacy class — kept so existing dark-mode rules below still target the rail */
 [data-theme="dark"] .desktop-nav {
   background: rgba(15, 11, 26, 0.92) !important;
   border-color: rgba(240, 230, 208, 0.15) !important;
@@ -1149,6 +1308,7 @@ h3, h4 {
 
 /* ── Responsive nav ── */
 .desktop-nav         { display: flex; }
+.tp-nav-rail         { display: flex; }
 .auth-btn            { display: inline-flex; }
 .mobile-only         { display: none; }
 .interview-sidebar   { display: block; }
@@ -1186,6 +1346,7 @@ h3, h4 {
 
 @media (max-width: 640px) {
   .desktop-nav        { display: none !important; }
+  .tp-nav-rail        { display: none !important; }
   .auth-btn           { display: none !important; }
   .mobile-bottom-nav  { display: block; }
   .mobile-only        { display: flex; }
