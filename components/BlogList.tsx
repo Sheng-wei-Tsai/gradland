@@ -92,7 +92,7 @@ export default function BlogList({ posts, tags }: { posts: Post[]; tags: string[
             onBlur={e =>  { e.target.style.boxShadow = '3px 3px 0 var(--ink)';      e.target.style.borderColor = ''; }}
           />
           {query && (
-            <button onClick={() => setQuery('')} style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: '1.1rem', padding: '0.1rem', lineHeight: 1, fontFamily: 'inherit' }}>×</button>
+            <button onClick={() => setQuery('')} aria-label="Clear search" style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: '1.1rem', padding: '0.1rem', lineHeight: 1, fontFamily: 'inherit' }}>×</button>
           )}
         </div>
 

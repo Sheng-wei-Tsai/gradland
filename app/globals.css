@@ -1270,8 +1270,31 @@ h3, h4 {
   background: rgba(192, 40, 28, 0.05);
 }
 
-/* ── CitySelector dropdown option hover ── */
-.city-option:hover { background: rgba(20,10,5,0.05); }
+/* ── CitySelector trigger button ── */
+.city-trigger {
+  border: 1.5px solid var(--parchment);
+  background: var(--warm-white);
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+.city-trigger:hover,
+.city-trigger:focus-visible,
+.city-trigger--open {
+  border-color: var(--city-color, var(--parchment));
+  background: color-mix(in srgb, var(--city-color, transparent) 5%, var(--warm-white));
+}
+.city-trigger .city-landmark {
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+.city-trigger:hover .city-landmark { opacity: 1; }
+
+/* ── CitySelector dropdown option hover / focus ── */
+.city-option:hover,
+.city-option:focus-visible,
+.city-option--focused { background: rgba(20,10,5,0.05); }
+[data-theme="dark"] .city-option:hover,
+[data-theme="dark"] .city-option:focus-visible,
+[data-theme="dark"] .city-option--focused { background: rgba(240,230,208,0.06); }
 
 /* ── Career tool card ── */
 .career-tool-card {

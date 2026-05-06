@@ -358,7 +358,7 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 - [x] Test suite (41 tests, 8 files)
 - [x] Test coverage on all critical paths (Stripe, streaming, auth) — resume-analyse tests added ✅ 2026-05-02
 - [ ] Edge caching strategy (Vercel KV)
-- [ ] Accessible components (ARIA, keyboard nav)
+- [x] Accessible components (ARIA, keyboard nav) ✅ 2026-05-06
 - [ ] Core Web Vitals green (Lighthouse ≥ 90)
 - [ ] TypeScript strict mode — no `any` without justification
 - [x] Error boundary on every page ✅ 2026-05-02

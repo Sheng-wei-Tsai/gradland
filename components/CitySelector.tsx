@@ -25,10 +25,11 @@ interface CitySelectorProps {
 }
 
 export default function CitySelector({ value, onChange }: CitySelectorProps) {
-  const [open,    setOpen]    = useState(false);
-  const [hovered, setHovered] = useState(false);
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const meta    = CITY_META[value] ?? CITY_META['Australia'];
+  const [open,         setOpen]         = useState(false);
+  const [focusedIndex, setFocusedIndex] = useState(-1);
+  const wrapRef  = useRef<HTMLDivElement>(null);
+  const listRef  = useRef<HTMLUListElement>(null);
+  const meta     = CITY_META[value] ?? CITY_META['Australia'];
 
   // Close on outside click
   useEffect(() => {
@@ -40,15 +41,34 @@ export default function CitySelector({ value, onChange }: CitySelectorProps) {
     return () => document.removeEventListener('mousedown', handler);
   }, [open]);
 
-  // Close on Escape
+  // When the listbox opens, focus it and pre-select the current city
   useEffect(() => {
-    if (!open) return;
-    function handler(e: KeyboardEvent) { if (e.key === 'Escape') setOpen(false); }
-    document.addEventListener('keydown', handler);
-    return () => document.removeEventListener('keydown', handler);
-  }, [open]);
+    if (open) {
+      const idx = CITIES.indexOf(value);
+      setFocusedIndex(idx >= 0 ? idx : 0);
+      listRef.current?.focus();
+    } else {
+      setFocusedIndex(-1);
+    }
+  }, [open, value]);
 
   const select = useCallback((city: string) => { onChange(city); setOpen(false); }, [onChange]);
+
+  function handleListKeyDown(e: React.KeyboardEvent<HTMLUListElement>) {
+    if (e.key === 'Escape') { setOpen(false); return; }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setFocusedIndex(i => Math.min(i + 1, CITIES.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setFocusedIndex(i => Math.max(i - 1, 0));
+    } else if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (focusedIndex >= 0) select(CITIES[focusedIndex]);
+    }
+  }
+
+  const activeDescendant = open && focusedIndex >= 0 ? `city-opt-${CITIES[focusedIndex]}` : undefined;
 
   return (
     <div ref={wrapRef} style={{ position: 'relative', display: 'inline-block' }}>
@@ -56,18 +76,16 @@ export default function CitySelector({ value, onChange }: CitySelectorProps) {
       {/* ── Trigger button ──────────────────────────────────────────────── */}
       <button
         type="button"
+        className={`city-trigger${open ? ' city-trigger--open' : ''}`}
         onClick={() => setOpen(o => !o)}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={`City: ${value}`}
         style={{
+          '--city-color': meta.color,
           display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
           padding: '0.65rem 0.85rem 0.65rem 0.75rem',
           borderRadius: '10px',
-          border: `1.5px solid ${hovered || open ? meta.color : 'var(--parchment)'}`,
-          background: hovered || open ? `${meta.color}09` : 'var(--warm-white)',
           color: 'var(--text-secondary)',
           fontSize: '0.95rem',
           fontFamily: 'inherit',
@@ -75,30 +93,28 @@ export default function CitySelector({ value, onChange }: CitySelectorProps) {
           width: `${TRIGGER_WIDTH}px`,
           flexShrink: 0,
           justifyContent: 'space-between',
-          transition: 'border-color 0.18s ease, background 0.18s ease',
-        }}
+        } as React.CSSProperties}
       >
-        {/* Icon — no animation */}
+        {/* Icon */}
         <span style={{ display: 'inline-flex', flexShrink: 0 }}>
           <CityIcon city={value} size={20} style={{ color: meta.color }} />
         </span>
 
-        {/* City name + landmark subtitle (CSS opacity fade, no motion) */}
+        {/* City name + landmark subtitle (CSS opacity fade) */}
         <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flex: 1, lineHeight: 1, overflow: 'hidden' }}>
           <span style={{ whiteSpace: 'nowrap' }}>{value}</span>
           <span
+            className="city-landmark"
             style={{
               fontSize: '0.6rem', color: meta.color, fontWeight: 600,
               letterSpacing: '0.04em', marginTop: '0.15rem', display: 'block',
-              opacity: hovered ? 1 : 0,
-              transition: 'opacity 0.18s ease',
             }}
           >
             {meta.landmark}
           </span>
         </span>
 
-        {/* Chevron — CSS rotate, no spring */}
+        {/* Chevron — CSS rotate */}
         <span
           style={{
             display: 'inline-block', fontSize: '0.6rem', opacity: 0.5, flexShrink: 0,
@@ -110,12 +126,16 @@ export default function CitySelector({ value, onChange }: CitySelectorProps) {
         </span>
       </button>
 
-      {/* ── Dropdown — simple opacity fade, no scale/spring/stagger ────── */}
+      {/* ── Dropdown listbox ─────────────────────────────────────────────── */}
       <AnimatePresence>
         {open && (
           <motion.ul
+            ref={listRef}
             role="listbox"
             aria-label="Select city"
+            aria-activedescendant={activeDescendant}
+            tabIndex={-1}
+            onKeyDown={handleListKeyDown}
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
@@ -132,18 +152,21 @@ export default function CitySelector({ value, onChange }: CitySelectorProps) {
               zIndex: 200,
               listStyle: 'none', margin: 0,
               overflow: 'hidden',
+              outline: 'none',
             }}
           >
-            {CITIES.map((city) => {
+            {CITIES.map((city, idx) => {
               const cm = CITY_META[city];
               const isSelected = city === value;
+              const isFocused  = idx === focusedIndex;
               return (
                 <li
                   key={city}
+                  id={`city-opt-${city}`}
                   role="option"
                   aria-selected={isSelected}
                   onClick={() => select(city)}
-                  className="city-option"
+                  className={`city-option${isFocused ? ' city-option--focused' : ''}`}
                   style={{
                     display: 'flex', alignItems: 'center', gap: '0.55rem',
                     padding: '0.4rem 0.6rem',
