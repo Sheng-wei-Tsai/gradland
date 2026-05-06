@@ -21,7 +21,7 @@ export interface AdzunaJob {
   created: string;
   category: string;
   contract_type: string | null;
-  source: 'adzuna' | 'jsearch' | 'jora' | 'indeed' | 'acs' | 'seek' | 'linkedin' | 'remotive' | 'google_jobs' | 'jobicy' | 'greenhouse' | 'lever' | 'workday' | 'ashby' | 'apify' | '80kh';
+  source: 'adzuna' | 'jsearch' | 'jora' | 'indeed' | 'acs' | 'seek' | 'linkedin' | 'remotive' | 'google_jobs' | 'jobicy' | 'greenhouse' | 'lever' | 'workday' | 'ashby' | 'apify' | '80kh' | 'workable' | 'recruitee' | 'breezy' | 'smartrec' | 'apsjobs' | 'hatch';
   publisher?: string;
   salary_min?: number;
   salary_max?: number;
@@ -678,16 +678,16 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  // ── AU tab: Jora/ACS (scraped) + Google Jobs (live) + Adzuna ────────────────
-  // Three parallel sources, three UI sections.
-  // JSearch removed: too noisy for AU. Apify Seek/LinkedIn/Indeed dropped: ToS.
-  // Google Jobs via ScraperAPI fills that gap legally (indexes Seek/LinkedIn/Indeed).
-  const [scrapedRes, gj1Res, gj2Res, az1Res, az2Res] = await Promise.allSettled([
+  // ── AU tab: Scraped (DB) + Google Jobs + Adzuna + JSearch ────────────────────
+  // JSearch added (May 2026): aggregates LinkedIn/Indeed/Glassdoor — fills the
+  // SEEK/LinkedIn gap that Google Jobs only partially covers.
+  const [scrapedRes, gj1Res, gj2Res, az1Res, az2Res, jsRes] = await Promise.allSettled([
     fetchScrapedJobs(location),
     fetchGoogleJobs(keywords, location, 2 * page - 1),
     fetchGoogleJobs(keywords, location, 2 * page),
     fetchAdzuna(keywords, location, sortBy, fullTime, salaryMin, salaryMax, 2 * page - 1),
     fetchAdzuna(keywords, location, sortBy, fullTime, salaryMin, salaryMax, 2 * page),
+    fetchJSearch(keywords, location),
   ]);
 
   const rawScraped = scrapedRes.status === 'fulfilled' ? scrapedRes.value : [];
@@ -699,28 +699,32 @@ export async function GET(req: NextRequest) {
     ...(az1Res.status === 'fulfilled' ? az1Res.value : []),
     ...(az2Res.status === 'fulfilled' ? az2Res.value : []),
   ];
+  const rawJSearch = jsRes.status === 'fulfilled' ? jsRes.value : [];
 
   if (scrapedRes.status === 'rejected') console.warn('[jobs] Scraped rejected:',    scrapedRes.reason);
   if (gj1Res.status     === 'rejected') console.warn('[jobs] GoogleJobs p1 rejected:', gj1Res.reason);
   if (gj2Res.status     === 'rejected') console.warn('[jobs] GoogleJobs p2 rejected:', gj2Res.reason);
   if (az1Res.status     === 'rejected') console.warn('[jobs] Adzuna p1 rejected:',  az1Res.reason);
   if (az2Res.status     === 'rejected') console.warn('[jobs] Adzuna p2 rejected:',  az2Res.reason);
+  if (jsRes.status      === 'rejected') console.warn('[jobs] JSearch rejected:',   jsRes.reason);
 
   const scrapedJobs = addUnique(filterIT(rawScraped));
   const googleFinal = addUnique(filterIT(withAttribution(rawGJobs)));
   const adzunaFinal = addUnique(filterIT(withAttribution(rawAdzuna)));
+  const jsearchFinal = addUnique(filterIT(withAttribution(rawJSearch)));
 
-  if (process.env.NODE_ENV !== 'production') console.log(`[jobs] au: scraped=${rawScraped.length}→${scrapedJobs.length} google=${rawGJobs.length}→${googleFinal.length} adzuna=${rawAdzuna.length}→${adzunaFinal.length}`);
+  if (process.env.NODE_ENV !== 'production') console.log(`[jobs] au: scraped=${rawScraped.length}→${scrapedJobs.length} google=${rawGJobs.length}→${googleFinal.length} adzuna=${rawAdzuna.length}→${adzunaFinal.length} jsearch=${rawJSearch.length}→${jsearchFinal.length}`);
 
-  // Jobs array order: scraped → google_jobs → adzuna
+  // Jobs array order: scraped → google_jobs → adzuna → jsearch (LinkedIn/Indeed)
   // scrapedCount and googleCount are boundary indices for UI section rendering.
-  const allJobs = sanitizeJobs([...scrapedJobs, ...googleFinal, ...adzunaFinal]);
+  const allJobs = sanitizeJobs([...scrapedJobs, ...googleFinal, ...adzunaFinal, ...jsearchFinal]);
 
   return NextResponse.json({
     jobs:         allJobs,
     scrapedCount: scrapedJobs.length,
     googleCount:  googleFinal.length,
     adzunaCount:  adzunaFinal.length,
+    jsearchCount: jsearchFinal.length,
     total:        allJobs.length,
     count:        allJobs.length,
     hasMore:      rawAdzuna.length >= 90,
@@ -728,6 +732,7 @@ export async function GET(req: NextRequest) {
       scraped: scrapedJobs.length,
       google:  googleFinal.length,
       adzuna:  adzunaFinal.length,
+      jsearch: jsearchFinal.length,
     },
   });
 }
