@@ -10,7 +10,7 @@ export async function GET() {
     .from('visa_tracker')
     .select('employer, occupation, started_at, steps')
     .eq('user_id', user.id)
-    .single();
+    .maybeSingle();
 
   return NextResponse.json(data ?? { employer: '', occupation: '', started_at: null, steps: {} });
 }
