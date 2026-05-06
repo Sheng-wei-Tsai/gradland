@@ -1,0 +1,11 @@
+[
+  { "org": "macquarie",    "company": "Macquarie Group" },
+  { "org": "anz",          "company": "ANZ Bank" },
+  { "org": "nab",          "company": "National Australia Bank" },
+  { "org": "suncorp",      "company": "Suncorp Group" },
+  { "org": "iag",          "company": "Insurance Australia Group" },
+  { "org": "qantas",       "company": "Qantas Airways" },
+  { "org": "auspost",      "company": "Australia Post" },
+  { "org": "ramsayhealth", "company": "Ramsay Health Care" },
+  { "org": "lendlease",    "company": "Lendlease" }
+]

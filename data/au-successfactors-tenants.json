@@ -1,0 +1,11 @@
+[
+  { "companyId": "COLES",      "host": "api.successfactors.com", "company": "Coles Group" },
+  { "companyId": "WESFARMERS", "host": "api.successfactors.com", "company": "Wesfarmers" },
+  { "companyId": "BUNNINGS",   "host": "api.successfactors.com", "company": "Bunnings Warehouse" },
+  { "companyId": "OPTUS",      "host": "api.successfactors.com", "company": "Optus" },
+  { "companyId": "TELSTRA",    "host": "api.successfactors.com", "company": "Telstra" },
+  { "companyId": "BHP",        "host": "api.successfactors.com", "company": "BHP" },
+  { "companyId": "RIOTINTO",   "host": "api.successfactors.com", "company": "Rio Tinto" },
+  { "companyId": "WOOLWORTHS", "host": "api.successfactors.com", "company": "Woolworths Group" },
+  { "companyId": "SANTOS",     "host": "api.successfactors.com", "company": "Santos" }
+]

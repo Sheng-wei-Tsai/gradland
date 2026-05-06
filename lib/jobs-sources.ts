@@ -1,6 +1,6 @@
 export const SOURCE_PRECEDENCE = [
   'greenhouse', 'lever', 'workday', 'ashby',
-  'workable', 'recruitee', 'breezy', 'comeet', 'icims',
+  'workable', 'recruitee', 'breezy', 'comeet', 'icims', 'successfactors', 'taleo',
   'smartrec', 'apsjobs', 'hatch',
   'apify',
   'adzuna', 'googlejobs', 'google_jobs', 'jsearch',
@@ -34,8 +34,10 @@ const SOURCE_LABELS: Record<string, string> = {
   workable:    'Workable',
   recruitee:   'Recruitee',
   breezy:      'Breezy HR',
-  comeet:      'Comeet',
-  icims:       'iCIMS',
+  comeet:           'Comeet',
+  icims:            'iCIMS',
+  successfactors:   'SAP SuccessFactors',
+  taleo:            'Oracle Taleo',
 };
 
 export function sourceLabel(name: string): string {

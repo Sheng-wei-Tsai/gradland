@@ -32,6 +32,8 @@ import { scrapeRecruitee }       from './sources/recruitee';
 import { scrapeBreezy }          from './sources/breezy';
 import { scrapeComeet }          from './sources/comeet';
 import { scrapeICIMS }           from './sources/icims';
+import { scrapeSuccessFactors }  from './sources/successfactors';
+import { scrapeTaleo }           from './sources/taleo';
 import type { RawSourceJob }     from './sources/types';
 
 if (existsSync('.env.local')) dotenv.config({ path: '.env.local' });
@@ -603,8 +605,8 @@ async function main() {
   console.log(`  → ${eightyKJobs.length} 80kh jobs\n`);
 
   // Direct ATS APIs (free, no auth).
-  console.log('📋 Workday + Ashby + Smartrec + APS + Hatch + Workable + Recruitee + Breezy + Comeet + iCIMS (direct)...');
-  const [wdRes, ashRes, srRes, apsRes, hatchRes, wkRes, recRes, brzRes, cmtRes, icimsRes] = await Promise.allSettled([
+  console.log('📋 Workday + Ashby + Smartrec + APS + Hatch + Workable + Recruitee + Breezy + Comeet + iCIMS + SF + Taleo (direct)...');
+  const [wdRes, ashRes, srRes, apsRes, hatchRes, wkRes, recRes, brzRes, cmtRes, icimsRes, sfRes, taleoRes] = await Promise.allSettled([
     scrapeWorkday(),
     scrapeAshby(),
     scrapeSmartrecruiters(),
@@ -615,6 +617,8 @@ async function main() {
     scrapeBreezy(),
     scrapeComeet(),
     scrapeICIMS(),
+    scrapeSuccessFactors(),
+    scrapeTaleo(),
   ]);
   const directRaw: RawSourceJob[] = [
     ...(wdRes.status    === 'fulfilled' ? wdRes.value    : []),
@@ -627,10 +631,12 @@ async function main() {
     ...(brzRes.status   === 'fulfilled' ? brzRes.value   : []),
     ...(cmtRes.status   === 'fulfilled' ? cmtRes.value   : []),
     ...(icimsRes.status === 'fulfilled' ? icimsRes.value : []),
+    ...(sfRes.status    === 'fulfilled' ? sfRes.value    : []),
+    ...(taleoRes.status === 'fulfilled' ? taleoRes.value : []),
   ];
   const directJobs: ScrapedJob[] = directRaw.map(fromRaw);
   const cnt = (r: PromiseSettledResult<RawSourceJob[]>) => r.status === 'fulfilled' ? r.value.length : 0;
-  console.log(`  → WD ${cnt(wdRes)}, Ashby ${cnt(ashRes)}, Smartrec ${cnt(srRes)}, APS ${cnt(apsRes)}, Hatch ${cnt(hatchRes)}, Workable ${cnt(wkRes)}, Recruitee ${cnt(recRes)}, Breezy ${cnt(brzRes)}, Comeet ${cnt(cmtRes)}, iCIMS ${cnt(icimsRes)} (total ${directJobs.length})\n`);
+  console.log(`  → WD ${cnt(wdRes)}, Ashby ${cnt(ashRes)}, Smartrec ${cnt(srRes)}, APS ${cnt(apsRes)}, Hatch ${cnt(hatchRes)}, Workable ${cnt(wkRes)}, Recruitee ${cnt(recRes)}, Breezy ${cnt(brzRes)}, Comeet ${cnt(cmtRes)}, iCIMS ${cnt(icimsRes)}, SF ${cnt(sfRes)}, Taleo ${cnt(taleoRes)} (total ${directJobs.length})\n`);
 
   // Apify becomes opt-in fallback only — set USE_APIFY_FALLBACK=true to re-enable.
   let apifyJobs: ScrapedJob[] = [];
