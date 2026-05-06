@@ -1,0 +1,412 @@
+name: Claude PR Loop (Opus plan + Sonnet implement)
+
+# One workflow run = one TODO task.
+#
+# Flow:
+#   1. Resolve task (caller-passed > workflow_dispatch > first unclaimed in TODO.md)
+#   2. Opus 4.7 writes a 1-page plan in .claude/plans/<task-id>.md
+#   3. Sonnet 4.6 implements; up to 3 attempts, each fed the previous attempt's
+#      `npm run check && npm test` failure log
+#   4. Risk classifier — diff against .github/prompts/risky-allowlist.txt
+#        - low-risk + green CI → auto-merge
+#        - risky               → open PR, notify, wait for human
+#        - 3-attempt failure   → draft PR with [needs human] label
+#   5. Notify Henry via Telegram + Resend (GitHub mobile push fires natively)
+#
+# Security: every untrusted string (task text, branch slug, etc.) flows through
+# env: vars and is read in shell as "$VAR" — never interpolated as ${{ ... }}
+# inside a run: block.
+
+on:
+  workflow_call:
+    inputs:
+      task_id:
+        description: 'Pre-claimed task id (12-char sha1). Empty = compute from text.'
+        type: string
+        default: ''
+      task_text:
+        description: 'Pre-claimed task text. Empty = read TODO.md head.'
+        type: string
+        default: ''
+      window:
+        description: 'Quota window 1-4'
+        type: string
+        default: '1'
+  workflow_dispatch:
+    inputs:
+      task_text:
+        description: 'Free-text task (overrides TODO.md selection)'
+        type: string
+        default: ''
+      force_review:
+        description: 'Force human review even on low-risk diff'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  actions: write
+
+jobs:
+  pr_loop:
+    name: Plan, Implement, Verify, PR
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure git + gh auth
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name  "TechPath PR Loop"
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm install -g @anthropic-ai/claude-code
+
+      - name: Prepare OAuth token (strip CRLF)
+        id: tok
+        env:
+          RAW: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: |
+          CLEAN=$(printf '%s' "$RAW" | tr -d '\r\n')
+          echo "::add-mask::$CLEAN"
+          echo "token=$CLEAN" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve task
+        id: task
+        env:
+          IN_TASK_ID:   ${{ inputs.task_id }}
+          IN_TASK_TEXT: ${{ inputs.task_text }}
+        run: |
+          if [ -n "$IN_TASK_TEXT" ]; then
+            TASK="$IN_TASK_TEXT"
+          else
+            TASK=$(grep -m1 -E '^- \[ \] .+' TODO.md | sed 's/^- \[ \] //' || true)
+          fi
+          if [ -z "$TASK" ]; then
+            echo "no_task=true" >> "$GITHUB_OUTPUT"
+            echo "::warning::No claimable task found in TODO.md"
+            exit 0
+          fi
+          echo "no_task=false" >> "$GITHUB_OUTPUT"
+          if [ -n "$IN_TASK_ID" ]; then
+            TID="$IN_TASK_ID"
+          else
+            TID=$(printf '%s' "$TASK" | sha1sum | cut -c1-12)
+          fi
+          SLUG=$(printf '%s' "$TASK" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9 -' | tr -s ' ' '-' | cut -c1-60 | sed 's/-$//')
+          BRANCH="auto/${TID}-${SLUG}"
+          {
+            echo "task_id=${TID}"
+            echo "task_text=${TASK}"
+            echo "branch=${BRANCH}"
+          } >> "$GITHUB_OUTPUT"
+          echo "Resolved → id=${TID} branch=${BRANCH}"
+
+      - name: Create working branch
+        if: steps.task.outputs.no_task == 'false'
+        env:
+          BRANCH: ${{ steps.task.outputs.branch }}
+        run: git checkout -b "$BRANCH" 2>/dev/null || git checkout "$BRANCH"
+
+      - name: Opus — write plan
+        id: plan
+        if: steps.task.outputs.no_task == 'false'
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ steps.tok.outputs.token }}
+          TASK_ID:   ${{ steps.task.outputs.task_id }}
+          TASK_TEXT: ${{ steps.task.outputs.task_text }}
+        run: |
+          mkdir -p .claude/plans
+          PLAN_FILE=".claude/plans/${TASK_ID}.md"
+          PROMPT=$(printf 'You are TechPath AU autonomous architect. Read TODO.md, AGENTS.md, and any obviously-relevant source files. Write a 1-page implementation plan to %s for this task. Plan MUST contain Context (2 lines), Approach (3-6 bullets, name files to touch), Risks (1-3 bullets), Verification (exact commands). Keep it under 60 lines. Do not implement — only plan.\n\nTASK: %s' "$PLAN_FILE" "$TASK_TEXT")
+          set +e
+          claude \
+            --dangerously-skip-permissions \
+            --model claude-opus-4-7 \
+            --allowedTools "Bash,Read,Write,Edit,Glob,Grep" \
+            -p "$PROMPT" 2>&1 | tee opus.log
+          sed -i 's/\x1b\[[0-9;]*[mGKHFJSTsu]//g' opus.log
+          if grep -qiE "credit balance|insufficient credits|quota.*exceeded|usage limit reached|rate limit|5-hour limit|try again.*(hour|later)|oauth.*expired|unauthorized|invalid.*api.*key" opus.log; then
+            echo "quota_exhausted=true" >> "$GITHUB_OUTPUT"
+            echo "::warning::Opus quota exhausted during plan."
+            exit 0
+          fi
+          [ -f "$PLAN_FILE" ] && echo "plan_file=${PLAN_FILE}" >> "$GITHUB_OUTPUT" || echo "::warning::Opus did not write plan file"
+          echo "quota_exhausted=false" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Sonnet — implement (3-attempt retry loop)
+        id: impl
+        if: |
+          steps.task.outputs.no_task == 'false' &&
+          steps.plan.outputs.quota_exhausted != 'true'
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ steps.tok.outputs.token }}
+          OPENAI_API_KEY: sk-dummy-ci-build
+          STRIPE_SECRET_KEY: sk_test_dummy_ci
+          STRIPE_PRICE_ID: price_dummy_ci
+          STRIPE_WEBHOOK_SECRET: whsec_dummy_ci
+          NEXT_PUBLIC_SUPABASE_URL: https://dummy.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy-anon-key-ci
+          SUPABASE_SERVICE_ROLE_KEY: dummy-service-role-ci
+          NEXT_PUBLIC_APP_URL: https://henrysdigitallife.com
+          CLAIMED_TASK_TEXT: ${{ steps.task.outputs.task_text }}
+          PLAN_FILE: ${{ steps.plan.outputs.plan_file }}
+        run: |
+          rm -f /tmp/last-attempt-error.log
+          MAX_ATTEMPTS=3
+          ATTEMPT=0
+          GREEN="false"
+          QUOTA="false"
+          while [ "$ATTEMPT" -lt "$MAX_ATTEMPTS" ]; do
+            ATTEMPT=$((ATTEMPT + 1))
+            echo "─── Attempt ${ATTEMPT}/${MAX_ATTEMPTS} ───"
+            BASE_PROMPT=$(cat .github/prompts/pr-loop-developer.md)
+            EXTRA=""
+            if [ -n "$PLAN_FILE" ] && [ -f "$PLAN_FILE" ]; then
+              EXTRA=$(printf '\n\n## Plan to follow\n\n%s' "$(cat "$PLAN_FILE")")
+            fi
+            FULL_PROMPT=$(printf '%s%s\n\n## Task\n\n%s' "$BASE_PROMPT" "$EXTRA" "$CLAIMED_TASK_TEXT")
+            set +e
+            claude \
+              --dangerously-skip-permissions \
+              --model claude-sonnet-4-6 \
+              --allowedTools "Bash,Read,Write,Edit,Glob,Grep" \
+              -p "$FULL_PROMPT" 2>&1 | tee "sonnet-${ATTEMPT}.log"
+            sed -i 's/\x1b\[[0-9;]*[mGKHFJSTsu]//g' "sonnet-${ATTEMPT}.log"
+            if grep -qiE "credit balance|insufficient credits|quota.*exceeded|usage limit reached|rate limit|5-hour limit|try again.*(hour|later)|oauth.*expired|unauthorized|invalid.*api.*key" "sonnet-${ATTEMPT}.log"; then
+              echo "::warning::Sonnet quota exhausted on attempt ${ATTEMPT}"
+              QUOTA="true"
+              break
+            fi
+            echo "─── Verifying attempt ${ATTEMPT} ───"
+            if npm run check 2>&1 | tee "verify-${ATTEMPT}.log" \
+               && npm test    2>&1 | tee -a "verify-${ATTEMPT}.log"; then
+              echo "✅ Verification green on attempt ${ATTEMPT}"
+              GREEN="true"
+              break
+            fi
+            echo "❌ Verification red on attempt ${ATTEMPT} — feeding error into next attempt"
+            tail -c 8000 "verify-${ATTEMPT}.log" > /tmp/last-attempt-error.log
+          done
+          {
+            echo "attempts=${ATTEMPT}"
+            echo "green=${GREEN}"
+            echo "quota_exhausted=${QUOTA}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Classify diff risk
+        id: risk
+        if: |
+          steps.task.outputs.no_task == 'false' &&
+          steps.plan.outputs.quota_exhausted != 'true' &&
+          steps.impl.outputs.quota_exhausted != 'true'
+        env:
+          FORCE_REVIEW: ${{ inputs.force_review }}
+          GREEN_FLAG:   ${{ steps.impl.outputs.green }}
+        run: |
+          git add -A
+          if git diff --staged --quiet; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          CHANGED=$(git diff --cached --name-only)
+          RISKY_HITS=""
+          while IFS= read -r pat; do
+            pat=$(echo "$pat" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+            [ -z "$pat" ] && continue
+            case "$pat" in '#'*) continue ;; esac
+            while IFS= read -r f; do
+              case "$f" in
+                $pat) RISKY_HITS="${RISKY_HITS}${f}\n" ;;
+              esac
+            done <<< "$CHANGED"
+          done < .github/prompts/risky-allowlist.txt
+          if [ "$FORCE_REVIEW" = "true" ]; then
+            LEVEL="needs-review"; AUTO="false"
+          elif [ -n "$RISKY_HITS" ]; then
+            LEVEL="risky"; AUTO="false"
+            printf "Risky files matched:\n%b" "$RISKY_HITS"
+          elif [ "$GREEN_FLAG" != "true" ]; then
+            LEVEL="needs-review"; AUTO="false"
+          else
+            LEVEL="low"; AUTO="true"
+          fi
+          STATS=$(git diff --cached --shortstat)
+          FILES=$(git diff --cached --name-only | wc -l | tr -d ' ')
+          ADDS=$(echo "$STATS" | grep -oE '[0-9]+ insertion' | grep -oE '[0-9]+' || echo 0)
+          DELS=$(echo "$STATS" | grep -oE '[0-9]+ deletion'  | grep -oE '[0-9]+' || echo 0)
+          {
+            echo "level=${LEVEL}"
+            echo "auto_merge=${AUTO}"
+            echo "files=${FILES}"
+            echo "additions=${ADDS}"
+            echo "deletions=${DELS}"
+          } >> "$GITHUB_OUTPUT"
+          echo "Risk: ${LEVEL}  Auto-merge: ${AUTO}  Files: ${FILES} (+${ADDS}/-${DELS})"
+
+      - name: Commit + push branch
+        id: commit
+        if: |
+          steps.task.outputs.no_task == 'false' &&
+          steps.risk.outputs.has_changes == 'true'
+        env:
+          BRANCH:    ${{ steps.task.outputs.branch }}
+          TASK_TEXT: ${{ steps.task.outputs.task_text }}
+          TASK_ID:   ${{ steps.task.outputs.task_id }}
+          GREEN:     ${{ steps.impl.outputs.green }}
+        run: |
+          SUBJECT=$(printf '%s' "$TASK_TEXT" | cut -c1-60)
+          if [ "$GREEN" = "true" ]; then
+            PREFIX="feat"
+          else
+            PREFIX="wip"
+          fi
+          STATUS=$([ "$GREEN" = "true" ] && echo "green" || echo "red after 3 attempts")
+          BODY=$(printf 'Autonomous PR loop — task %s.\nPlan: .claude/plans/%s.md\nVerification: %s' "$TASK_ID" "$TASK_ID" "$STATUS")
+          git commit -m "${PREFIX}: ${SUBJECT}" -m "$BODY"
+          git push -u origin "$BRANCH"
+
+      - name: Open pull request
+        id: pr
+        if: steps.commit.outcome == 'success'
+        env:
+          GH_TOKEN:  ${{ secrets.GITHUB_TOKEN }}
+          BRANCH:    ${{ steps.task.outputs.branch }}
+          TASK_ID:   ${{ steps.task.outputs.task_id }}
+          TASK_TEXT: ${{ steps.task.outputs.task_text }}
+          RISK:      ${{ steps.risk.outputs.level }}
+          GREEN:     ${{ steps.impl.outputs.green }}
+          ATTEMPTS:  ${{ steps.impl.outputs.attempts }}
+          FILES:     ${{ steps.risk.outputs.files }}
+          ADDS:      ${{ steps.risk.outputs.additions }}
+          DELS:      ${{ steps.risk.outputs.deletions }}
+        run: |
+          DRAFT_FLAG=""
+          [ "$GREEN" != "true" ] && DRAFT_FLAG="--draft"
+          PREFIX="[auto]"
+          [ "$RISK" = "risky" ]        && PREFIX="[risky]"
+          [ "$RISK" = "needs-review" ] && PREFIX="[review]"
+          VERIFY_LINE=$([ "$GREEN" = "true" ] && echo "✅ green (${ATTEMPTS} attempts)" || echo "❌ red after ${ATTEMPTS} attempts — human help needed")
+          {
+            echo "## Autonomous PR — task \`${TASK_ID}\`"
+            echo
+            echo "**Task:** ${TASK_TEXT}"
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Risk | \`${RISK}\` |"
+            echo "| Verification | ${VERIFY_LINE} |"
+            echo "| Diff | ${FILES} files (+${ADDS}/-${DELS}) |"
+            echo "| Plan | [\`.claude/plans/${TASK_ID}.md\`](../blob/${BRANCH}/.claude/plans/${TASK_ID}.md) |"
+            echo
+            echo "### Phone-friendly review"
+            echo
+            echo "1. Tap **Files changed** → swipe diff"
+            echo "2. Tap **Plan** above → confirm intent"
+            echo "3. Tap **Checks** → confirm CI green"
+            echo "4. Merge with **Squash**"
+            echo
+            echo "Reject quickly: comment \`/redo <reason>\` and the loop picks the task up again."
+          } > /tmp/pr_body.md
+          PR_URL=$(gh pr create $DRAFT_FLAG \
+            --title "${PREFIX} ${TASK_TEXT}" \
+            --body-file /tmp/pr_body.md \
+            --base main \
+            --head "$BRANCH")
+          echo "url=${PR_URL}" >> "$GITHUB_OUTPUT"
+          if [ "$RISK" = "risky" ]; then
+            gh label create "needs-review" -c "d97706" 2>/dev/null || true
+            gh label create "risky"        -c "c0281c" 2>/dev/null || true
+            gh pr edit "$PR_URL" --add-label "needs-review,risky" || true
+          elif [ "$GREEN" != "true" ]; then
+            gh label create "needs human" -c "c0281c" 2>/dev/null || true
+            gh pr edit "$PR_URL" --add-label "needs human" || true
+          else
+            gh label create "auto-merge" -c "1e7a52" 2>/dev/null || true
+            gh pr edit "$PR_URL" --add-label "auto-merge" || true
+          fi
+
+      - name: Enable auto-merge (squash)
+        if: |
+          steps.pr.outcome == 'success' &&
+          steps.risk.outputs.auto_merge == 'true' &&
+          steps.impl.outputs.green == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL:   ${{ steps.pr.outputs.url }}
+        run: |
+          gh pr merge "$PR_URL" --auto --squash --delete-branch \
+            || echo "::warning::Auto-merge enable failed (branch protection may be missing). PR: ${PR_URL}"
+
+      - name: Notify Henry (Telegram + Resend)
+        if: steps.pr.outcome == 'success'
+        env:
+          TELEGRAM_BOT_TOKEN:     ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_OWNER_CHAT_ID: ${{ secrets.TELEGRAM_OWNER_CHAT_ID }}
+          RESEND_API_KEY:         ${{ secrets.RESEND_API_KEY }}
+          NOTIFY_TITLE:           ${{ steps.task.outputs.task_text }}
+          NOTIFY_FILES:           ${{ steps.risk.outputs.files }}
+          NOTIFY_ADDITIONS:       ${{ steps.risk.outputs.additions }}
+          NOTIFY_DELETIONS:       ${{ steps.risk.outputs.deletions }}
+          NOTIFY_PLAN_URL:        https://github.com/${{ github.repository }}/blob/${{ steps.task.outputs.branch }}/.claude/plans/${{ steps.task.outputs.task_id }}.md
+          PR_URL:                 ${{ steps.pr.outputs.url }}
+          TASK_ID:                ${{ steps.task.outputs.task_id }}
+          RISK:                   ${{ steps.risk.outputs.level }}
+          AUTO_MERGE:             ${{ steps.risk.outputs.auto_merge }}
+          GREEN:                  ${{ steps.impl.outputs.green }}
+        run: |
+          CI_STATUS="green"
+          [ "$GREEN" != "true" ] && CI_STATUS="red"
+          npx tsx scripts/notify-pr-opened.ts \
+            "$PR_URL" "$TASK_ID" "$RISK" "$AUTO_MERGE" "$CI_STATUS" || true
+
+      - name: Push quota-reset sentinel
+        if: |
+          steps.plan.outputs.quota_exhausted == 'true' ||
+          steps.impl.outputs.quota_exhausted == 'true'
+        run: |
+          LOG="opus.log"
+          for n in 1 2 3; do
+            [ -f "sonnet-${n}.log" ] && LOG="sonnet-${n}.log"
+          done
+          RAW=$(grep -oiE "resets [0-9]{1,2}:[0-9]{2} ?(am|pm)" "$LOG" 2>/dev/null | head -1)
+          RESET_EPOCH=""
+          if [ -n "$RAW" ]; then
+            TPART=$(echo "$RAW" | sed 's/resets //')
+            NOW=$(date +%s)
+            CANDIDATE=$(date -u -d "today ${TPART}" +%s 2>/dev/null || echo "")
+            if [ -n "$CANDIDATE" ]; then
+              [ "$CANDIDATE" -le "$NOW" ] && CANDIDATE=$(date -u -d "tomorrow ${TPART}" +%s)
+              RESET_EPOCH="$CANDIDATE"
+            fi
+          fi
+          [ -z "$RESET_EPOCH" ] && RESET_EPOCH=$(date -u -d '+5 hours' +%s)
+          SENTINEL="quota-reset-at/${RESET_EPOCH}"
+          git checkout -b "$SENTINEL" 2>/dev/null || true
+          git push origin "$SENTINEL" 2>/dev/null || true
+          echo "::warning::Quota exhausted — sentinel pushed: ${SENTINEL}"
+
+      - name: Note when no diff produced
+        if: |
+          steps.task.outputs.no_task == 'false' &&
+          steps.plan.outputs.quota_exhausted != 'true' &&
+          steps.impl.outputs.quota_exhausted != 'true' &&
+          steps.risk.outputs.has_changes != 'true'
+        run: echo "::notice::Sonnet exited but produced no diff — task may need a clearer plan or human input."

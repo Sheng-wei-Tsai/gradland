@@ -1,0 +1,51 @@
+# Risky-file allowlist for claude-pr-loop.yml
+#
+# Lines are shell glob patterns (case-sensitive). One pattern per line.
+# Lines starting with '#' or empty lines are ignored.
+#
+# A PR touching ANY file matching ANY pattern below = "risky"
+#   → human review required, no auto-merge
+#
+# Anything not matched = "low-risk"
+#   → auto-merge once CI is green
+#
+# When in doubt, ADD a pattern. Easier to widen than narrow after a regrettable auto-merge.
+# Keep this file conservative — if you don't know whether a file is risky, treat it as risky.
+
+# Billing surface — Stripe, prices, webhooks
+app/api/stripe/**
+
+# Auth + subscription gates — security boundary
+lib/auth-server.ts
+lib/subscription.ts
+middleware.ts
+
+# Database schema — DROPs and migrations are irreversible
+supabase/**
+prisma/**
+
+# Build + runtime config
+next.config.ts
+next.config.js
+next.config.mjs
+vercel.json
+vercel.ts
+
+# Dependencies — transitive bumps can break prod silently
+package.json
+package-lock.json
+npm-shrinkwrap.json
+
+# CI/CD — workflow rewrite must be reviewed by hand
+.github/workflows/**
+
+# Project rules — instructions agents follow
+AGENTS.md
+CLAUDE.md
+.github/prompts/risky-allowlist.txt
+
+# Owner notification surface — wrong values silently break alerts
+scripts/notify-pr-opened.ts
+
+# Public env contract — NEXT_PUBLIC_* changes ship to all browsers
+.env.example
