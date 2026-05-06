@@ -329,6 +329,7 @@
 - [x] Add Vitest test for `/api/network/messages` POST — 400 when sending to self (`senderProfile.id === recipientProfileId`), 429 once `dm_messages` count for the sender in the last 24h hits `DM_DAILY_LIMIT = 20` (`app/api/network/messages/route.ts:149,171`) [tests] ✅ 2026-05-06
 - [x] Add Vitest test for `/api/jobs/listings` GET — empty array when env vars missing, only `status='active'` rows where `expires_at > now()` are returned, response capped at 10 items (`app/api/jobs/listings/route.ts:25-31`) [tests] ✅ 2026-05-06
 - [x] Add Vitest test for `/api/learn/diagram` POST — 400 when any of `skillId`/`skillName`/`pathId` is missing, OpenAI fence-stripping at `app/api/learn/diagram/route.ts:57-60` removes leading ```` ```mermaid ```` and trailing ``` ``` ``` from the response before returning [tests] ✅ 2026-05-06
+- [x] Add Vitest test for `/api/resume-match` — 401 without session, 403 SUBSCRIPTION_REQUIRED without active plan, 429 on rate limit, 503 when `OPENAI_API_KEY` missing, 400 on invalid body, 400 on missing `jobDescription`, 200 with JSON; verify `jobDescription` truncated to 3000 chars in OpenAI prompt [tests] ✅ 2026-05-06
 
 ---
 
