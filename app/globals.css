@@ -518,6 +518,15 @@ h3, h4 {
 .tag-featured    { color: var(--ink);       background: var(--gold);            border-color: var(--gold); font-weight: 700; }
 .tag-featured-source { color: var(--gold); background: rgba(200,138,20,0.08);  border-color: rgba(200,138,20,0.3); }
 
+/* ── Admin role pills — design-token colours, dark mode aware ── */
+.role-pill {
+  font-size: 0.72rem; font-weight: 600;
+  padding: 0.2rem 0.5rem; border-radius: 6px;
+}
+.role-pill-admin  { color: var(--gold);      background: rgba(200,138,20,0.12); }
+.role-pill-banned { color: var(--vermilion); background: rgba(192,40,28,0.12); }
+.role-pill-user   { color: var(--jade);      background: rgba(30,122,82,0.12); }
+
 /* Featured job card — gold border accent */
 .job-card-featured {
   border-color: var(--gold);

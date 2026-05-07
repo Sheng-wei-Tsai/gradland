@@ -85,11 +85,7 @@ function Dashboard() {
                   <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--brown-dark)' }}>{u.full_name || u.email}</div>
                   <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{fmt(u.created_at)}</div>
                 </div>
-                <span style={{
-                  fontSize: '0.72rem', fontWeight: 600, padding: '0.2rem 0.5rem', borderRadius: '6px',
-                  background: u.role === 'admin' ? '#fef9c3' : u.role === 'banned' ? '#fee2e2' : '#f0fdf4',
-                  color:      u.role === 'admin' ? '#854d0e' : u.role === 'banned' ? '#991b1b' : '#166534',
-                }}>
+                <span className={`role-pill role-pill-${u.role === 'admin' ? 'admin' : u.role === 'banned' ? 'banned' : 'user'}`}>
                   {u.role}
                 </span>
               </div>

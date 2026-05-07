@@ -81,11 +81,7 @@ function UsersTable() {
                 <td style={{ padding: '0.65rem 0.75rem', color: 'var(--brown-dark)', fontWeight: 500 }}>{u.full_name || '—'}</td>
                 <td style={{ padding: '0.65rem 0.75rem', color: 'var(--text-muted)' }}>{u.email}</td>
                 <td style={{ padding: '0.65rem 0.75rem' }}>
-                  <span style={{
-                    fontSize: '0.72rem', fontWeight: 600, padding: '0.2rem 0.5rem', borderRadius: '6px',
-                    background: u.role === 'admin' ? '#fef9c3' : u.role === 'banned' ? '#fee2e2' : '#f0fdf4',
-                    color:      u.role === 'admin' ? '#854d0e' : u.role === 'banned' ? '#991b1b' : '#166534',
-                  }}>
+                  <span className={`role-pill role-pill-${u.role === 'admin' ? 'admin' : u.role === 'banned' ? 'banned' : 'user'}`}>
                     {u.role}
                   </span>
                 </td>
