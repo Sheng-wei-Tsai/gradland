@@ -590,6 +590,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-07 (supplement 14)
+
+> Fifteenth-pass scan — `visa-news/[slug]/page.tsx` colour maps missed by the `VisaNews.tsx` supplement 8 sweep.
+
+### Style (dark-mode breakage)
+- [x] Replace hardcoded hex in `app/visa-news/[slug]/page.tsx` — `SOURCE_META` map (lines 22-28: `#0369a1`/`#0c4a6e`/`#065f46`/`#4338ca`/`#9333ea`/`#b45309` colours with rgba bg/border) and `VISA_CHIP_COLORS` map (lines 31-42: Tailwind hardcoded chip colours) are the same maps fixed in `app/au-insights/VisaNews.tsx` (supplement 8) but the slug detail page was missed; MARA disclaimer banner (lines 103-105: `rgba(239,246,255,0.8)` bg/`#93c5fd` border/`#1e40af` text/`#1d4ed8` link) also uses hardcoded blue; replace all with design-system tokens following the exact pattern established in `VisaNews.tsx:16-36,84,88` [style] ✅ 2026-05-07
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

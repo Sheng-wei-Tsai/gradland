@@ -19,26 +19,26 @@ const mdxOptions = {
 };
 
 const SOURCE_META: Record<string, { label: string; color: string; bg: string; border: string }> = {
-  'home-affairs':       { label: 'Dept. of Home Affairs',  color: '#0369a1', bg: 'rgba(3,105,161,0.08)',   border: 'rgba(3,105,161,0.25)' },
-  'abf':                { label: 'Australian Border Force', color: '#0c4a6e', bg: 'rgba(12,74,110,0.08)',   border: 'rgba(12,74,110,0.25)' },
-  'acs':                { label: 'ACS',                     color: '#065f46', bg: 'rgba(6,95,70,0.08)',     border: 'rgba(6,95,70,0.25)' },
-  'study-international':{ label: 'Study International',     color: '#4338ca', bg: 'rgba(67,56,202,0.08)',   border: 'rgba(67,56,202,0.25)' },
-  'migration-alliance': { label: 'Migration Alliance',      color: '#9333ea', bg: 'rgba(147,51,234,0.08)',  border: 'rgba(147,51,234,0.25)' },
-  'universities-au':    { label: 'Universities Australia',  color: '#b45309', bg: 'rgba(180,83,9,0.08)',    border: 'rgba(180,83,9,0.25)' },
+  'home-affairs':        { label: 'Dept. of Home Affairs',  color: 'var(--jade)',      bg: 'rgba(30,122,82,0.10)',  border: 'rgba(30,122,82,0.25)' },
+  'abf':                 { label: 'Australian Border Force', color: 'var(--jade)',      bg: 'rgba(30,122,82,0.08)',  border: 'rgba(30,122,82,0.20)' },
+  'acs':                 { label: 'ACS',                     color: 'var(--jade)',      bg: 'rgba(30,122,82,0.10)',  border: 'rgba(30,122,82,0.25)' },
+  'study-international': { label: 'Study International',     color: 'var(--gold)',      bg: 'rgba(200,138,20,0.10)', border: 'rgba(200,138,20,0.25)' },
+  'migration-alliance':  { label: 'Migration Alliance',      color: 'var(--vermilion)', bg: 'rgba(192,40,28,0.10)',  border: 'rgba(192,40,28,0.25)' },
+  'universities-au':     { label: 'Universities Australia',  color: 'var(--gold)',      bg: 'rgba(200,138,20,0.10)', border: 'rgba(200,138,20,0.25)' },
 };
 
 const VISA_CHIP_COLORS: Record<string, { bg: string; color: string }> = {
-  '482':     { bg: '#fef3c7', color: '#92400e' },
-  '189':     { bg: '#d1fae5', color: '#065f46' },
-  '190':     { bg: '#dbeafe', color: '#1e40af' },
-  '485':     { bg: '#ede9fe', color: '#4c1d95' },
-  '491':     { bg: '#fce7f3', color: '#9d174d' },
-  '500':     { bg: '#e0f2fe', color: '#0c4a6e' },
-  'PR':      { bg: '#f0fdf4', color: '#14532d' },
-  '186':     { bg: '#fff7ed', color: '#7c2d12' },
-  '187':     { bg: '#fdf2f8', color: '#701a75' },
-  'skilled': { bg: '#f1f5f9', color: '#334155' },
-  'general': { bg: '#f8fafc', color: '#475569' },
+  '482':     { bg: 'rgba(200,138,20,0.12)', color: 'var(--gold)' },
+  '189':     { bg: 'rgba(30,122,82,0.12)',  color: 'var(--jade)' },
+  '190':     { bg: 'rgba(30,122,82,0.10)',  color: 'var(--jade)' },
+  '485':     { bg: 'rgba(61,28,14,0.08)',   color: 'var(--text-secondary)' },
+  '491':     { bg: 'rgba(200,138,20,0.10)', color: 'var(--gold)' },
+  '500':     { bg: 'rgba(61,28,14,0.06)',   color: 'var(--text-muted)' },
+  'PR':      { bg: 'rgba(30,122,82,0.14)',  color: 'var(--jade)' },
+  '186':     { bg: 'rgba(200,138,20,0.12)', color: 'var(--gold)' },
+  '187':     { bg: 'rgba(200,138,20,0.10)', color: 'var(--gold)' },
+  'skilled': { bg: 'rgba(61,28,14,0.08)',   color: 'var(--text-secondary)' },
+  'general': { bg: 'rgba(61,28,14,0.06)',   color: 'var(--text-muted)' },
 };
 
 export async function generateStaticParams() {
@@ -100,14 +100,14 @@ export default async function VisaNewsPostPage({ params }: { params: Promise<{ s
 
         {/* MARA disclaimer banner */}
         <div style={{
-          background: 'rgba(239,246,255,0.8)', border: '1.5px solid #93c5fd',
+          background: 'rgba(30,122,82,0.08)', border: '1.5px solid rgba(30,122,82,0.25)',
           borderRadius: '8px', padding: '0.75rem 1rem',
-          fontSize: '0.8rem', color: '#1e40af', lineHeight: 1.5,
+          fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5,
           marginBottom: '1.5rem',
         }}>
           <strong>Not legal advice.</strong> This summary is for general information only.
           Always consult a{' '}
-          <a href="https://www.mara.gov.au/consumer-information/find-a-registered-migration-agent/" target="_blank" rel="noopener noreferrer" style={{ color: '#1d4ed8', fontWeight: 600 }}>
+          <a href="https://www.mara.gov.au/consumer-information/find-a-registered-migration-agent/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--jade)', fontWeight: 600 }}>
             MARA-registered migration agent
           </a>{' '}
           for your specific situation.
