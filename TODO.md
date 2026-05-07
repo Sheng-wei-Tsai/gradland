@@ -500,6 +500,15 @@
 
 ## 🛡 Daily Analyst Findings — 2026-05-07 (supplement 5)
 
+> Sixth-pass scan — two items missed by earlier sweeps.
+
+### Style (dark-mode breakage)
+- [x] Replace `background: '#fff7ed'` with `rgba(200,138,20,0.08)` and `color: '#c2410c'` with `var(--gold)` on the "paid" resource badge in `app/learn/[path]/PathTracker.tsx:601-602` — Tailwind amber-50/orange-700 hardcoded hex breaks dark mode on skill-path resource pills; the adjacent "free" badge already uses `var(--parchment)`/`var(--text-secondary)` correctly; replace with gold token pair matching the pattern used for the "review due" badge fix in supplement 2 [style] ✅ 2026-05-07
+
+---
+
+## 🛡 Daily Analyst Findings — 2026-05-07 (supplement 5)
+
 > Sixth-pass scan — INSERT/UPSERT and profile-SELECT `.single()` calls not covered by earlier sweeps.
 
 ### Security

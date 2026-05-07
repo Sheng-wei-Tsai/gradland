@@ -598,8 +598,8 @@ export default function PathTracker({ path }: { path: SkillPath }) {
                               style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
                               <span style={{
                                 fontSize: '0.65rem', padding: '0.1em 0.45em', borderRadius: '3px',
-                                background: r.free ? 'var(--parchment)' : '#fff7ed',
-                                color: r.free ? 'var(--text-secondary)' : '#c2410c',
+                                background: r.free ? 'var(--parchment)' : 'rgba(200,138,20,0.08)',
+                                color: r.free ? 'var(--text-secondary)' : 'var(--gold)',
                                 fontWeight: 600, flexShrink: 0, textTransform: 'uppercase',
                               }}>
                                 {r.free ? 'free' : 'paid'}
