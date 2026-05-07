@@ -70,8 +70,8 @@ const STEPS: StepDef[] = [
 
 const WHO_COLORS: Record<string, string> = {
   You:      'var(--terracotta)',
-  Employer: '#3b82f6',
-  DHA:      '#8b5cf6',
+  Employer: 'var(--jade)',
+  DHA:      'var(--gold)',
 };
 
 // ── Step state types ──────────────────────────────────────────────────────────
@@ -265,9 +265,9 @@ export default function VisaTrackerPage() {
       {/* Current focus banner */}
       {(inProgressStep ?? nextUnstarted) && completedCount < STEPS.length && (
         <div style={{
-          background: '#fef9c3', border: '1px solid #fde047', borderRadius: '10px',
+          background: 'rgba(200,138,20,0.12)', border: '1px solid rgba(200,138,20,0.35)', borderRadius: '10px',
           padding: '0.85rem 1.1rem', marginBottom: '1.5rem', fontSize: '0.85rem',
-          color: '#854d0e', display: 'flex', alignItems: 'center', gap: '0.6rem',
+          color: 'var(--gold)', display: 'flex', alignItems: 'center', gap: '0.6rem',
         }}>
           <span>📍</span>
           <span>
@@ -278,7 +278,7 @@ export default function VisaTrackerPage() {
         </div>
       )}
       {completedCount === STEPS.length && (
-        <div style={{ background: '#ecfdf5', border: '1px solid #6ee7b7', borderRadius: '10px', padding: '0.85rem 1.1rem', marginBottom: '1.5rem', fontSize: '0.88rem', color: '#065f46' }}>
+        <div style={{ background: 'rgba(30,122,82,0.08)', border: '1px solid rgba(30,122,82,0.35)', borderRadius: '10px', padding: '0.85rem 1.1rem', marginBottom: '1.5rem', fontSize: '0.88rem', color: 'var(--jade)' }}>
           🎉 <strong>Congratulations!</strong> All steps completed. Welcome to Australia! 🇦🇺
         </div>
       )}
@@ -385,19 +385,19 @@ export default function VisaTrackerPage() {
 
                   {/* Tips + watch-outs */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
-                    <div style={{ background: '#f0fdf4', borderRadius: '8px', padding: '0.75rem' }}>
-                      <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#065f46', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.4rem' }}>💡 Tips</div>
+                    <div style={{ background: 'rgba(30,122,82,0.08)', borderRadius: '8px', padding: '0.75rem' }}>
+                      <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--jade)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.4rem' }}>💡 Tips</div>
                       <ul style={{ margin: 0, paddingLeft: '1.1rem' }}>
                         {step.tips.map((t, i) => (
-                          <li key={i} style={{ fontSize: '0.8rem', color: '#166534', lineHeight: 1.5, marginBottom: '0.25rem' }}>{t}</li>
+                          <li key={i} style={{ fontSize: '0.8rem', color: 'var(--jade)', lineHeight: 1.5, marginBottom: '0.25rem' }}>{t}</li>
                         ))}
                       </ul>
                     </div>
-                    <div style={{ background: '#fff7ed', borderRadius: '8px', padding: '0.75rem' }}>
-                      <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#9a3412', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.4rem' }}>⚠️ Watch out</div>
+                    <div style={{ background: 'rgba(200,138,20,0.08)', borderRadius: '8px', padding: '0.75rem' }}>
+                      <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--gold)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.4rem' }}>⚠️ Watch out</div>
                       <ul style={{ margin: 0, paddingLeft: '1.1rem' }}>
                         {step.watchOuts.map((w, i) => (
-                          <li key={i} style={{ fontSize: '0.8rem', color: '#9a3412', lineHeight: 1.5, marginBottom: '0.25rem' }}>{w}</li>
+                          <li key={i} style={{ fontSize: '0.8rem', color: 'var(--gold)', lineHeight: 1.5, marginBottom: '0.25rem' }}>{w}</li>
                         ))}
                       </ul>
                     </div>
@@ -438,7 +438,7 @@ export default function VisaTrackerPage() {
           ].map(([item, payer, amount]) => (
             <React.Fragment key={item}>
               <span style={{ color: 'var(--text-secondary)' }}>{item}</span>
-              <span style={{ color: payer === 'You' ? 'var(--terracotta)' : '#3b82f6', fontSize: '0.72rem', fontWeight: 600, textAlign: 'right' }}>{payer}</span>
+              <span style={{ color: WHO_COLORS[payer] ?? 'var(--text-secondary)', fontSize: '0.72rem', fontWeight: 600, textAlign: 'right' }}>{payer}</span>
               <span style={{ fontWeight: 600, color: 'var(--brown-dark)', textAlign: 'right' }}>{amount}</span>
             </React.Fragment>
           ))}

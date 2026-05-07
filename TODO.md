@@ -509,6 +509,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-07 (supplement 7)
+
+> Eighth-pass scan — remaining hardcoded hex in visa-tracker not covered by earlier sweeps.
+
+### Style (dark-mode breakage)
+- [x] Replace hardcoded hex in `app/dashboard/visa-tracker/page.tsx` — `WHO_COLORS` `#3b82f6`/`#8b5cf6` (lines 73-74) → `var(--jade)`/`var(--gold)`; current-focus banner `#fef9c3`/`#fde047`/`#854d0e` (lines 268-270) → `rgba(200,138,20,0.12)`/`rgba(200,138,20,0.35)`/`var(--gold)`; completion banner `#ecfdf5`/`#6ee7b7`/`#065f46` (line 281) → `rgba(30,122,82,0.08)`/`rgba(30,122,82,0.35)`/`var(--jade)`; tips box `#f0fdf4`/`#065f46`/`#166534` (lines 388-392) → `rgba(30,122,82,0.08)`/`var(--jade)`; watch-outs box `#fff7ed`/`#9a3412` (lines 396-400) → `rgba(200,138,20,0.08)`/`var(--gold)`; cost-breakdown `#3b82f6` (line 441) → `var(--jade)` [style] ✅ 2026-05-07
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
