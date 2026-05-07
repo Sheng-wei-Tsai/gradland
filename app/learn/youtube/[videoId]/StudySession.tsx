@@ -52,10 +52,10 @@ const PALETTE: Record<string, { bg: string; text: string; accent: string; subtle
 };
 
 function scoreBand(s: number) {
-  if (s >= 90) return { label: 'Outstanding!',             color: '#10b981', emoji: '🎉' };
-  if (s >= 75) return { label: 'Strong — interview-ready', color: '#10b981', emoji: '💪' };
-  if (s >= 60) return { label: 'Good foundation',          color: '#f59e0b', emoji: '👍' };
-  return         { label: 'Keep studying',                 color: '#ef4444', emoji: '📚' };
+  if (s >= 90) return { label: 'Outstanding!',             color: 'var(--jade)',      emoji: '🎉' };
+  if (s >= 75) return { label: 'Strong — interview-ready', color: 'var(--jade)',      emoji: '💪' };
+  if (s >= 60) return { label: 'Good foundation',          color: 'var(--gold)',      emoji: '👍' };
+  return         { label: 'Keep studying',                 color: 'var(--vermilion)', emoji: '📚' };
 }
 
 /* ─── Helpers: bold markdown renderer ───────────────────────────────── */
@@ -136,7 +136,7 @@ function StudyGuideTab({ guide }: { guide: StudyGuide }) {
             <div key={i} style={{ border: '1px solid var(--parchment)', borderRadius: '10px', overflow: 'hidden' }}>
               <button onClick={() => setOpenConcept(openConcept === i ? null : i)} style={{
                 width: '100%', textAlign: 'left', padding: '0.8rem 1rem',
-                background: openConcept === i ? '#faf7f2' : 'var(--warm-white)',
+                background: openConcept === i ? 'var(--cream)' : 'var(--warm-white)',
                 border: 'none', cursor: 'pointer', fontFamily: 'inherit',
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
               }}>
@@ -147,7 +147,7 @@ function StudyGuideTab({ guide }: { guide: StudyGuide }) {
               </button>
               {openConcept === i && (
                 <div style={{ padding: '0.9rem 1rem', borderTop: '1px solid var(--parchment)',
-                  background: '#faf7f2', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                  background: 'var(--cream)', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
                   <p style={{ fontSize: '0.85rem', color: 'var(--brown-dark)', lineHeight: 1.65, margin: 0 }}>
                     {c.definition}
                   </p>
@@ -189,7 +189,7 @@ function StudyGuideTab({ guide }: { guide: StudyGuide }) {
                     {u.scenario}
                   </p>
                   <span style={{ fontSize: '0.68rem', fontWeight: 600, padding: '0.15em 0.5em',
-                    borderRadius: '4px', background: '#f0fdf4', color: '#166534', whiteSpace: 'nowrap' }}>
+                    borderRadius: '4px', background: 'rgba(30,122,82,0.1)', color: 'var(--jade)', whiteSpace: 'nowrap' }}>
                     {u.industry}
                   </span>
                 </div>
@@ -269,7 +269,7 @@ function StudyGuideTab({ guide }: { guide: StudyGuide }) {
 
       {/* Architecture note */}
       {guide.architectureNote && (
-        <div style={{ background: '#f8f4ef', border: '1px solid var(--parchment)', borderRadius: '10px', padding: '1rem' }}>
+        <div style={{ background: 'var(--cream)', border: '1px solid var(--parchment)', borderRadius: '10px', padding: '1rem' }}>
           <Label muted>Architecture Note</Label>
           <p style={{ fontSize: '0.84rem', color: 'var(--brown-dark)', lineHeight: 1.65, margin: 0 }}>
             {guide.architectureNote}
@@ -320,7 +320,7 @@ function FlashcardsTab({ concepts }: { concepts: Concept[] }) {
           display: flex; flex-direction: column; justify-content: center;
           align-items: center; padding: 1.5rem; text-align: center; }
         .fc-front { background: var(--warm-white); border: 2px solid var(--parchment); }
-        .fc-back  { background: #faf7f2; border: 2px solid #ddd1c0; transform: rotateY(180deg); }
+        .fc-back  { background: var(--cream); border: 2px solid var(--parchment); transform: rotateY(180deg); }
       `}</style>
 
       {/* Progress dots */}
@@ -329,7 +329,7 @@ function FlashcardsTab({ concepts }: { concepts: Concept[] }) {
           <button key={i} onClick={() => goTo(i)} style={{
             width: '9px', height: '9px', borderRadius: '50%', border: 'none',
             cursor: 'pointer', padding: 0, flexShrink: 0,
-            background: known.has(realIdx) ? '#10b981' : i === idx ? 'var(--terracotta)' : 'var(--parchment)',
+            background: known.has(realIdx) ? 'var(--jade)' : i === idx ? 'var(--terracotta)' : 'var(--parchment)',
           }} />
         ))}
       </div>
@@ -386,13 +386,13 @@ function FlashcardsTab({ concepts }: { concepts: Concept[] }) {
         <div style={{ display: 'flex', gap: '0.6rem' }}>
           <button onClick={() => { setKnown(p => new Set([...p, shuffled[idx]])); goTo(Math.min(total-1, idx+1)); }}
             style={{ padding: '0.5rem 1.2rem', borderRadius: '8px', border: 'none',
-              background: '#f0fdf4', color: '#166534', fontWeight: 600,
+              background: 'rgba(30,122,82,0.1)', color: 'var(--jade)', fontWeight: 600,
               fontSize: '0.84rem', cursor: 'pointer', fontFamily: 'inherit' }}>
             ✓ Got it
           </button>
           <button onClick={() => { setKnown(p => { const s=new Set(p); s.delete(shuffled[idx]); return s; }); goTo(Math.min(total-1, idx+1)); }}
             style={{ padding: '0.5rem 1.2rem', borderRadius: '8px', border: 'none',
-              background: '#fef2f2', color: '#991b1b', fontWeight: 600,
+              background: 'rgba(192,40,28,0.1)', color: 'var(--vermilion)', fontWeight: 600,
               fontSize: '0.84rem', cursor: 'pointer', fontFamily: 'inherit' }}>
             ↺ Review again
           </button>
@@ -472,8 +472,8 @@ function AudioTab({ guide, title }: { guide: StudyGuide; title: string }) {
   const approxMins = Math.ceil(script.split(' ').length / (speed * 130));
 
   if (!supported) return (
-    <div style={{ padding: '1rem', background: '#fef9c3', borderRadius: '10px' }}>
-      <p style={{ fontSize: '0.84rem', color: '#854d0e' }}>
+    <div style={{ padding: '1rem', background: 'rgba(200,138,20,0.1)', borderRadius: '10px' }}>
+      <p style={{ fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
         Audio playback requires a browser with Web Speech API support (Chrome or Safari recommended).
       </p>
     </div>
@@ -514,8 +514,8 @@ function AudioTab({ guide, title }: { guide: StudyGuide; title: string }) {
       <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', flexWrap: 'wrap' }}>
         <button onClick={toggle} style={{
           display: 'flex', alignItems: 'center', gap: '0.5rem',
-          background: playing ? '#fef2f2' : 'var(--terracotta)',
-          color: playing ? '#dc2626' : 'white', border: playing ? '1px solid #fca5a5' : 'none',
+          background: playing ? 'rgba(192,40,28,0.1)' : 'var(--terracotta)',
+          color: playing ? 'var(--vermilion)' : 'white', border: playing ? '1px solid rgba(192,40,28,0.3)' : 'none',
           borderRadius: '99px', padding: '0.65rem 1.5rem',
           fontSize: '0.9rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
         }}>
@@ -584,7 +584,7 @@ function MindMapTab({ guide, title }: { guide: StudyGuide; title: string }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      <div style={{ borderRadius: '12px', border: '1px solid var(--parchment)', overflow: 'hidden', background: '#fdfcfa' }}>
+      <div style={{ borderRadius: '12px', border: '1px solid var(--parchment)', overflow: 'hidden', background: 'var(--warm-white)' }}>
         <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', minWidth: '280px', display: 'block' }}>
           {nodes.map((node, i) => (
             <line key={i} x1={cx} y1={cy} x2={node.x} y2={node.y}
@@ -727,8 +727,8 @@ function QuizTab({ guide, videoId, videoTitle, onScoreSaved, prefetchedQuestions
         Review the Study Guide and Flashcards first, then take the quiz to lock in what you learned.
       </p>
       {quizError && (
-        <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '10px',
-          padding: '0.9rem 1.2rem', marginBottom: '1.2rem', fontSize: '0.87rem', color: '#92400e', lineHeight: 1.6 }}>
+        <div style={{ background: 'rgba(200,138,20,0.1)', border: '1px solid rgba(200,138,20,0.3)', borderRadius: '10px',
+          padding: '0.9rem 1.2rem', marginBottom: '1.2rem', fontSize: '0.87rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
           {quizError}{' '}
           {quizError.includes('Subscribe') && (
             <Link href="/pricing" style={{ color: 'var(--terracotta)', fontWeight: 600, textDecoration: 'none' }}>View pricing →</Link>
@@ -737,7 +737,7 @@ function QuizTab({ guide, videoId, videoTitle, onScoreSaved, prefetchedQuestions
       )}
       {prefetchedQuestions?.length ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-          <span style={{ fontSize: '0.72rem', color: '#10b981', fontWeight: 600 }}>✓ Questions ready</span>
+          <span style={{ fontSize: '0.72rem', color: 'var(--jade)', fontWeight: 600 }}>✓ Questions ready</span>
           <button onClick={start} style={{ background: 'var(--terracotta)', color: 'white', border: 'none',
             borderRadius: '10px', padding: '0.75rem 2rem', fontSize: '0.92rem',
             fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
@@ -799,8 +799,8 @@ function QuizTab({ guide, videoId, videoTitle, onScoreSaved, prefetchedQuestions
         {q.options.map((opt, i) => {
           let bg = 'var(--warm-white)', border = '1px solid var(--parchment)', color = 'var(--brown-dark)';
           if (selected !== null) {
-            if (i === q.answer) { bg = '#f0fdf4'; border = '1px solid #86efac'; color = '#166534'; }
-            else if (i === selected) { bg = '#fef2f2'; border = '1px solid #fca5a5'; color = '#991b1b'; }
+            if (i === q.answer) { bg = 'rgba(30,122,82,0.1)'; border = '1px solid rgba(30,122,82,0.3)'; color = 'var(--jade)'; }
+            else if (i === selected) { bg = 'rgba(192,40,28,0.1)'; border = '1px solid rgba(192,40,28,0.3)'; color = 'var(--vermilion)'; }
           }
           return (
             <button key={i} onClick={() => { if (selected === null) setSelected(i); }} style={{
@@ -967,7 +967,7 @@ function LoadingStages({ stage }: { stage: 'transcript' | 'analysing' | 'buildin
               <div style={{
                 width: '20px', height: '20px', borderRadius: '50%', flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: done ? '#10b981' : active ? 'var(--terracotta)' : 'var(--parchment)',
+                background: done ? 'var(--jade)' : active ? 'var(--terracotta)' : 'var(--parchment)',
                 transition: 'background 0.3s',
               }}>
                 {done
@@ -981,7 +981,7 @@ function LoadingStages({ stage }: { stage: 'transcript' | 'analysing' | 'buildin
               </div>
               <span style={{
                 fontSize: '0.85rem', fontWeight: active ? 600 : 400,
-                color: done ? '#10b981' : active ? 'var(--brown-dark)' : '#ccc',
+                color: done ? 'var(--jade)' : active ? 'var(--brown-dark)' : '#ccc',
                 transition: 'color 0.3s',
               }}>{s.label}</span>
             </div>
@@ -1252,7 +1252,7 @@ export default function StudySession({
           {guide && !guideLoading && (
             <div style={{ marginTop: '1rem', display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
               <span style={{ fontSize: '0.7rem', fontWeight: 600, padding: '0.2em 0.6em',
-                borderRadius: '5px', background: '#f0fdf4', color: '#166534' }}>
+                borderRadius: '5px', background: 'rgba(30,122,82,0.1)', color: 'var(--jade)' }}>
                 ✓ Study guide ready
               </span>
               <span style={{ fontSize: '0.7rem', fontWeight: 600, padding: '0.2em 0.6em',
@@ -1271,7 +1271,7 @@ export default function StudySession({
           <div style={{ display: 'flex', gap: '0', marginBottom: '0',
             border: '1px solid var(--parchment)', borderBottom: 'none',
             borderRadius: '12px 12px 0 0', overflow: 'hidden',
-            background: '#faf8f5' }}>
+            background: 'var(--cream)' }}>
             {TABS.map((tab, i) => (
               <button key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
@@ -1307,9 +1307,9 @@ export default function StudySession({
             )}
 
             {guideError && !guideLoading && (
-              <div style={{ background: '#fef2f2', border: '1px solid #fca5a5',
+              <div style={{ background: 'rgba(192,40,28,0.1)', border: '1px solid rgba(192,40,28,0.3)',
                 borderRadius: '10px', padding: '1.25rem' }}>
-                <p style={{ color: '#991b1b', fontSize: '0.88rem', lineHeight: 1.6, marginBottom: '0.75rem' }}>
+                <p style={{ color: 'var(--vermilion)', fontSize: '0.88rem', lineHeight: 1.6, marginBottom: '0.75rem' }}>
                   {guideError}
                 </p>
                 {isPermanentAnalysisError(guideError) ? (

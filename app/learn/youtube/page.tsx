@@ -247,7 +247,7 @@ export default function LearnYoutubePage() {
                         />
                         {p?.completed && (
                           <span style={{ position: 'absolute', top: '0.5rem', right: '0.5rem',
-                            background: '#10b981', color: 'white', fontSize: '0.68rem',
+                            background: 'var(--jade)', color: 'white', fontSize: '0.68rem',
                             fontWeight: 700, padding: '0.2em 0.55em', borderRadius: '5px' }}>
                             ✓ Done
                           </span>
