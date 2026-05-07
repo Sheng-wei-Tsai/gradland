@@ -224,7 +224,7 @@ function Dashboard() {
             disabled={loadingAI}
             style={{
               padding: '0.4rem 1rem', fontSize: '0.82rem', fontWeight: 600,
-              background: 'var(--terracotta)', color: '#fff', border: 'none',
+              background: 'var(--terracotta)', color: 'white', border: 'none',
               borderRadius: '8px', cursor: loadingAI ? 'default' : 'pointer',
               opacity: loadingAI ? 0.6 : 1, transition: 'opacity 0.15s',
             }}

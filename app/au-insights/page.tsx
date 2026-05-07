@@ -140,7 +140,7 @@ function AUInsightsContent() {
                 }}
               >
                 <span style={{ fontSize: '1rem', lineHeight: 1 }}>{sec.emoji}</span>
-                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: isActive ? '#f8fafc' : 'var(--brown-dark)', whiteSpace: 'nowrap' }}>{sec.label}</span>
+                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: isActive ? 'white' : 'var(--brown-dark)', whiteSpace: 'nowrap' }}>{sec.label}</span>
                 <span style={{
                   fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.03em',
                   color: isActive ? sec.accent : 'var(--text-muted)',
