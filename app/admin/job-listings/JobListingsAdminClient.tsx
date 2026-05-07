@@ -199,8 +199,8 @@ function ActionButton({ label, variant, disabled, loading, onClick }: {
   onClick:  () => void;
 }) {
   const colours = {
-    success:   { bg: 'var(--jade)',      border: 'var(--jade)',      color: '#fff' },
-    danger:    { bg: 'var(--vermilion)', border: 'var(--vermilion)', color: '#fff' },
+    success:   { bg: 'var(--jade)',      border: 'var(--jade)',      color: 'white' },
+    danger:    { bg: 'var(--vermilion)', border: 'var(--vermilion)', color: 'white' },
     secondary: { bg: 'var(--warm-white)',border: 'var(--parchment)', color: 'var(--text-secondary)' },
   }[variant];
 

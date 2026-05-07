@@ -430,6 +430,8 @@
 - [x] Replace `color: '#fff'` with `color: 'white'` (CSS keyword, matches existing pattern in `globals.css:1453`) in `app/admin/analytics/page.tsx:227` "Generate AI insights" button, and replace `'#f8fafc'` with `'white'` on the active-tab label in `app/au-insights/page.tsx:143` — both are CTA text on a saturated `var(--terracotta)`/gradient background and the hardcoded hex skips the same-ink token sweep that already covered the rest of the file [style] ✅ 2026-05-07
 - [x] Replace `color: row.rank <= 3 ? '#c8a800' : 'var(--text-muted)'` with `var(--gold)` in `app/au-insights/Sponsorship.tsx:96` — top-3 rank highlight is the only hardcoded hex left in the sponsorship table after the 2026-05-06 sweep, and `#c8a800` is darker than the design-system gold in dark mode [style] ✅ 2026-05-07
 
+- [x] Replace remaining `color: '#fff'` with `color: 'white'` (CSS keyword, same pattern as `globals.css:1453`) in `app/admin/job-listings/JobListingsAdminClient.tsx:202-203` (success/danger ActionButton), `app/au-insights/VisaGuide.tsx:168` (Track my journey CTA), and `app/dashboard/visa-tracker/page.tsx:355` (active status button); also replace `#10b981` with `var(--jade)` at `visa-tracker/page.tsx:230,327,353` — three occurrences of the jade green still hardcoded after the 2026-05-07 sweep [style] ✅ 2026-05-07
+
 ### Code Quality
 - [x] Update stale comment in `next.config.ts:26` — says "CSP is handled by middleware.ts (per-request nonce generation)" but the file is actually `proxy.ts` (Next.js 16 renamed `middleware` → `proxy`). Change the comment to reference `proxy.ts` so future contributors do not search for a non-existent file [quality] ✅ 2026-05-07
 

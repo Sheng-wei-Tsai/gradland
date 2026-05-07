@@ -227,7 +227,7 @@ export default function VisaTrackerPage() {
       {/* Overview cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', marginBottom: '2rem' }}>
         {[
-          { label: 'Steps completed', value: `${completedCount} / ${STEPS.length}`, color: '#10b981' },
+          { label: 'Steps completed', value: `${completedCount} / ${STEPS.length}`, color: 'var(--jade)' },
           { label: 'Weeks remaining (est.)', value: weeksLeft > 0 ? `~${weeksLeft}w` : 'Done!', color: 'var(--terracotta)' },
           { label: 'Est. grant', value: estGrantDate ?? '—', color: '#8b5cf6' },
         ].map(c => (
@@ -324,7 +324,7 @@ export default function VisaTrackerPage() {
                   <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
                     {step.timeRange} · {step.cost}
                     {state.status === 'completed' && state.completedAt && (
-                      <span style={{ marginLeft: '0.5rem', color: '#10b981' }}>· Completed {state.completedAt}</span>
+                      <span style={{ marginLeft: '0.5rem', color: 'var(--jade)' }}>· Completed {state.completedAt}</span>
                     )}
                   </div>
                 </div>
@@ -350,9 +350,9 @@ export default function VisaTrackerPage() {
                         padding: '0.35rem 0.85rem', borderRadius: '99px', fontSize: '0.78rem', fontWeight: 600,
                         border: state.status === s ? 'none' : '1px solid var(--parchment)',
                         background: state.status === s
-                          ? s === 'completed' ? '#10b981' : s === 'in_progress' ? 'var(--terracotta)' : 'var(--text-muted)'
+                          ? s === 'completed' ? 'var(--jade)' : s === 'in_progress' ? 'var(--terracotta)' : 'var(--text-muted)'
                           : 'var(--warm-white)',
-                        color: state.status === s ? '#fff' : 'var(--text-muted)',
+                        color: state.status === s ? 'white' : 'var(--text-muted)',
                         cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
                       }}>
                         {statusIcon(s)} {statusLabel(s)}

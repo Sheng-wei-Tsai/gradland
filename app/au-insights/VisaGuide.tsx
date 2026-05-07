@@ -165,7 +165,7 @@ export default function VisaGuide() {
           This is a public reference only — always verify with a registered migration agent.
         </span>
         <Link href="/dashboard/visa-tracker" style={{
-          background: 'var(--terracotta)', color: '#fff', padding: '0.45rem 1rem',
+          background: 'var(--terracotta)', color: 'white', padding: '0.45rem 1rem',
           borderRadius: '8px', textDecoration: 'none', fontSize: '0.82rem', fontWeight: 600,
           whiteSpace: 'nowrap', flexShrink: 0,
         }}>
