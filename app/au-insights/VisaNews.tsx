@@ -14,26 +14,26 @@ const SOURCE_LABELS: Record<string, string> = {
 };
 
 const SOURCE_COLORS: Record<string, { color: string; bg: string; border: string }> = {
-  'home-affairs':        { color: '#0369a1', bg: 'rgba(3,105,161,0.1)',   border: 'rgba(3,105,161,0.25)' },
-  'abf':                 { color: '#0c4a6e', bg: 'rgba(12,74,110,0.1)',   border: 'rgba(12,74,110,0.25)' },
-  'acs':                 { color: '#065f46', bg: 'rgba(6,95,70,0.1)',     border: 'rgba(6,95,70,0.25)' },
-  'study-international': { color: '#4338ca', bg: 'rgba(67,56,202,0.1)',   border: 'rgba(67,56,202,0.25)' },
-  'migration-alliance':  { color: '#9333ea', bg: 'rgba(147,51,234,0.1)',  border: 'rgba(147,51,234,0.25)' },
-  'universities-au':     { color: '#b45309', bg: 'rgba(180,83,9,0.1)',    border: 'rgba(180,83,9,0.25)' },
+  'home-affairs':        { color: 'var(--jade)',      bg: 'rgba(30,122,82,0.10)',  border: 'rgba(30,122,82,0.25)' },
+  'abf':                 { color: 'var(--jade)',      bg: 'rgba(30,122,82,0.08)',  border: 'rgba(30,122,82,0.20)' },
+  'acs':                 { color: 'var(--jade)',      bg: 'rgba(30,122,82,0.10)',  border: 'rgba(30,122,82,0.25)' },
+  'study-international': { color: 'var(--gold)',      bg: 'rgba(200,138,20,0.10)', border: 'rgba(200,138,20,0.25)' },
+  'migration-alliance':  { color: 'var(--vermilion)', bg: 'rgba(192,40,28,0.10)',  border: 'rgba(192,40,28,0.25)' },
+  'universities-au':     { color: 'var(--gold)',      bg: 'rgba(200,138,20,0.10)', border: 'rgba(200,138,20,0.25)' },
 };
 
 const VISA_CHIP_COLORS: Record<string, { bg: string; color: string }> = {
-  '482':     { bg: '#fef3c7', color: '#92400e' },
-  '189':     { bg: '#d1fae5', color: '#065f46' },
-  '190':     { bg: '#dbeafe', color: '#1e40af' },
-  '485':     { bg: '#ede9fe', color: '#4c1d95' },
-  '491':     { bg: '#fce7f3', color: '#9d174d' },
-  '500':     { bg: '#e0f2fe', color: '#0c4a6e' },
-  'PR':      { bg: '#f0fdf4', color: '#14532d' },
-  '186':     { bg: '#fff7ed', color: '#7c2d12' },
-  '187':     { bg: '#fdf2f8', color: '#701a75' },
-  'skilled': { bg: '#f1f5f9', color: '#334155' },
-  'general': { bg: '#f8fafc', color: '#475569' },
+  '482':     { bg: 'rgba(200,138,20,0.12)', color: 'var(--gold)' },
+  '189':     { bg: 'rgba(30,122,82,0.12)',  color: 'var(--jade)' },
+  '190':     { bg: 'rgba(30,122,82,0.10)',  color: 'var(--jade)' },
+  '485':     { bg: 'rgba(61,28,14,0.08)',   color: 'var(--text-secondary)' },
+  '491':     { bg: 'rgba(200,138,20,0.10)', color: 'var(--gold)' },
+  '500':     { bg: 'rgba(61,28,14,0.06)',   color: 'var(--text-muted)' },
+  'PR':      { bg: 'rgba(30,122,82,0.14)',  color: 'var(--jade)' },
+  '186':     { bg: 'rgba(200,138,20,0.12)', color: 'var(--gold)' },
+  '187':     { bg: 'rgba(200,138,20,0.10)', color: 'var(--gold)' },
+  'skilled': { bg: 'rgba(61,28,14,0.08)',   color: 'var(--text-secondary)' },
+  'general': { bg: 'rgba(61,28,14,0.06)',   color: 'var(--text-muted)' },
 };
 
 export default function VisaNews() {
@@ -79,13 +79,13 @@ export default function VisaNews() {
     <div style={{ paddingBottom: '4rem' }}>
       {/* Disclaimer */}
       <div style={{
-        background: 'rgba(239,246,255,0.6)', border: '1px solid #93c5fd',
+        background: 'rgba(30,122,82,0.06)', border: '1px solid rgba(30,122,82,0.25)',
         borderRadius: '8px', padding: '0.7rem 1rem',
-        fontSize: '0.78rem', color: '#1e40af', lineHeight: 1.5,
+        fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.5,
         marginBottom: '1.5rem',
       }}>
         <strong>General information only.</strong> For your specific situation, always consult a{' '}
-        <a href="https://www.mara.gov.au/consumer-information/find-a-registered-migration-agent/" target="_blank" rel="noopener noreferrer" style={{ color: '#1d4ed8', fontWeight: 600 }}>
+        <a href="https://www.mara.gov.au/consumer-information/find-a-registered-migration-agent/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--jade)', fontWeight: 600 }}>
           MARA-registered migration agent
         </a>.
       </div>

@@ -518,6 +518,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-07 (supplement 8)
+
+> Ninth-pass scan — visa-news and sponsorship colour maps missed by earlier sweeps.
+
+### Style (dark-mode breakage)
+- [x] Replace hardcoded hex in `app/au-insights/VisaNews.tsx` — `SOURCE_COLORS` map (`#0369a1`/`#0c4a6e`/`#065f46`/`#4338ca`/`#9333ea`/`#b45309` + rgba bg/border, lines 17-23) and `VISA_CHIP_COLORS` map (`#fef3c7`/`#92400e` through `#f8fafc`/`#475569`, lines 26-36) use hardcoded Tailwind hex that renders unreadably in dark mode; disclaimer box background `rgba(239,246,255,0.6)` + border `#93c5fd` + text `#1e40af` (line 82) also hardcoded blue; replace all with design-system tokens (var(--jade)/var(--gold)/var(--vermilion)/var(--text-secondary)/var(--text-muted) + rgba equivalents) following the established chip/badge pattern [style] ✅ 2026-05-07
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
