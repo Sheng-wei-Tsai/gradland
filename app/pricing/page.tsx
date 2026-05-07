@@ -126,7 +126,7 @@ export default function PricingPage() {
           <button onClick={subscribe} disabled={loading} style={{
             display: 'block', width: '100%', padding: '0.75rem',
             borderRadius: '10px', border: 'none',
-            background: loading ? '#ccc' : 'var(--terracotta)',
+            background: loading ? 'var(--parchment)' : 'var(--terracotta)',
             color: 'white', fontSize: '0.95rem', fontWeight: 700,
             cursor: loading ? 'default' : 'pointer', fontFamily: 'inherit',
           }}>

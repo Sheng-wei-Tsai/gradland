@@ -124,7 +124,7 @@ function computeScore(results: RuleResult[]): number {
 function scoreBand(score: number): { label: string; color: string } {
   if (score >= 9) return { label: '🟢 AU-Ready', color: 'var(--jade)' };
   if (score >= 7) return { label: '🟡 Minor fixes needed', color: 'var(--gold)' };
-  if (score >= 5) return { label: '🟠 Significant issues', color: '#c8682a' };
+  if (score >= 5) return { label: '🟠 Significant issues', color: 'var(--vermilion)' };
   return { label: '🔴 Not AU-ready', color: 'var(--terracotta)' };
 }
 

@@ -448,6 +448,17 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-07 (supplement)
+
+> Follow-up scan after the main 2026-05-07 sweep — items not yet covered.
+
+### Style (dark-mode breakage)
+- [x] Replace hardcoded hex in error/success feedback alerts in `app/login/page.tsx:204,213` — error box uses `#fef2f2`/`#fca5a5`/`#b91c1c` (hardcoded red) and success box uses `#f0fdf4`/`#86efac`/`#15803d` (hardcoded green); replace with `rgba(232,64,64,0.08)`/`rgba(232,64,64,0.35)`/`var(--vermilion)` and `rgba(30,122,82,0.08)`/`rgba(30,122,82,0.35)`/`var(--jade)` to match design-system feedback colours used elsewhere [style] ✅ 2026-05-07
+- [x] Replace `background: loading ? '#ccc' : 'var(--terracotta)'` with `var(--parchment)` in `app/pricing/page.tsx:129` — the `#ccc` loading-state colour is the only hardcoded value in the file after the 2026-05-07 sweep [style] ✅ 2026-05-07
+- [x] Replace `color: '#c8682a'` with `var(--vermilion)` in `app/au-insights/ResumeChecker.tsx:127` — "Significant issues" severity label uses a Tailwind amber-700 that breaks dark mode; `var(--vermilion)` is the correct design-system warning/error colour [style] ✅ 2026-05-07
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

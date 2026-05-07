@@ -201,7 +201,7 @@ function LoginPageInner() {
         {/* Feedback */}
         {error && (
           <div style={{
-            background: '#fef2f2', border: '1px solid #fca5a5', color: '#b91c1c',
+            background: 'rgba(232,64,64,0.08)', border: '1px solid rgba(232,64,64,0.35)', color: 'var(--vermilion)',
             borderRadius: '10px', padding: '0.75rem 1rem', fontSize: '0.85rem',
             marginBottom: '1rem', display: 'flex', gap: '0.5rem', alignItems: 'flex-start',
           }}>
@@ -210,7 +210,7 @@ function LoginPageInner() {
         )}
         {success && (
           <div style={{
-            background: '#f0fdf4', border: '1px solid #86efac', color: '#15803d',
+            background: 'rgba(30,122,82,0.08)', border: '1px solid rgba(30,122,82,0.35)', color: 'var(--jade)',
             borderRadius: '10px', padding: '0.75rem 1rem', fontSize: '0.85rem',
             marginBottom: '1rem', display: 'flex', gap: '0.5rem', alignItems: 'flex-start',
           }}>
