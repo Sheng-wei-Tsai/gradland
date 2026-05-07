@@ -527,6 +527,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-07 (supplement 9)
+
+> Tenth-pass scan — dashboard/learn path colour map missed by earlier sweeps.
+
+### Style (dark-mode breakage)
+- [x] Replace `PATH_COLORS` hardcoded hex (`#0ea5e9`/`#7c3aed`/`#059669`/`#d97706`/`#4338ca`, lines 27-33) with design tokens (`var(--jade)`/`var(--gold)`/`var(--vermilion)`/`var(--text-secondary)`/`var(--text-muted)`) in `app/dashboard/learn/page.tsx`; also replace `#10b981` with `var(--jade)` at line 138 (completed-path CTA button) — all five path progress-bar fills and the completion button use hardcoded hex that renders incorrectly in dark mode [style] ✅ 2026-05-07
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

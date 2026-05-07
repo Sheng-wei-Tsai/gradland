@@ -25,11 +25,11 @@ function totalTopicsForPath(pathId: string): number {
 }
 
 const PATH_COLORS: Record<string, string> = {
-  'junior-frontend':  '#0ea5e9',
-  'junior-fullstack': '#7c3aed',
-  'junior-backend':   '#059669',
-  'data-engineer':    '#d97706',
-  'devops-cloud':     '#4338ca',
+  'junior-frontend':  'var(--jade)',
+  'junior-fullstack': 'var(--gold)',
+  'junior-backend':   'var(--vermilion)',
+  'data-engineer':    'var(--text-secondary)',
+  'devops-cloud':     'var(--text-muted)',
 };
 
 export default function DashboardLearnPage() {
@@ -135,7 +135,7 @@ export default function DashboardLearnPage() {
                     </div>
                   </div>
                   <Link href={`/learn/${summary.pathId}`} style={{
-                    background: pct === 100 ? '#10b981' : 'var(--terracotta)',
+                    background: pct === 100 ? 'var(--jade)' : 'var(--terracotta)',
                     color: 'white', padding: '0.38rem 1rem',
                     borderRadius: '99px', textDecoration: 'none',
                     fontSize: '0.82rem', fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0,
