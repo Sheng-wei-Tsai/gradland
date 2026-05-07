@@ -43,7 +43,7 @@ const STEPS = [
 ];
 
 const demandColor: Record<string, string> = {
-  'Very High': '#10b981', 'High': '#f59e0b', 'Medium': '#6b7280',
+  'Very High': 'var(--jade)', 'High': 'var(--gold)', 'Medium': 'var(--text-muted)',
 };
 
 const PATH_ACCENTS: Record<string, { bg: string; border: string; accent: string }> = {

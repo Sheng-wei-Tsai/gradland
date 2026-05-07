@@ -301,7 +301,7 @@ function CoverLetterContent() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h2 style={{ fontFamily: "'Lora', serif", fontSize: '1.1rem', fontWeight: 600, color: 'var(--brown-dark)', margin: 0 }}>
                 Generated Letter
-                {saved && <span style={{ fontSize: '0.78rem', fontWeight: 400, color: '#10b981', marginLeft: '0.5rem' }}>✓ Saved</span>}
+                {saved && <span style={{ fontSize: '0.78rem', fontWeight: 400, color: 'var(--jade)', marginLeft: '0.5rem' }}>✓ Saved</span>}
               </h2>
               {output && (
                 <div style={{ display: 'flex', gap: '0.5rem' }}>

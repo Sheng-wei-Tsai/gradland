@@ -82,7 +82,7 @@ export default function PricingPage() {
           <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
             {FREE_FEATURES.map(f => (
               <li key={f} style={{ display: 'flex', gap: '0.6rem', fontSize: '0.88rem', color: 'var(--brown-dark)' }}>
-                <span style={{ color: '#10b981', flexShrink: 0 }}>✓</span>{f}
+                <span style={{ color: 'var(--jade)', flexShrink: 0 }}>✓</span>{f}
               </li>
             ))}
           </ul>

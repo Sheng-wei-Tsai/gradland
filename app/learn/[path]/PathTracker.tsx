@@ -258,7 +258,7 @@ export default function PathTracker({ path }: { path: SkillPath }) {
         <div style={{ background: 'var(--parchment)', borderRadius: '99px', height: '6px', marginBottom: '0.5rem' }}>
           <div style={{
             width: `${pct}%`, height: '100%', borderRadius: '99px',
-            background: pct === 100 ? '#10b981' : 'var(--terracotta)',
+            background: pct === 100 ? 'var(--jade)' : 'var(--terracotta)',
             transition: 'width 0.4s ease',
           }} />
         </div>

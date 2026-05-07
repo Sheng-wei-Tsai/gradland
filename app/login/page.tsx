@@ -115,7 +115,7 @@ function LoginPageInner() {
             disabled={anyOauthLoading}
             style={{
               width: '100%', background: oauthLoading === 'github' ? '#555' : '#24292e',
-              color: '#fff', border: 'none', borderRadius: '12px',
+              color: 'white', border: 'none', borderRadius: '12px',
               padding: '0.75rem 1.5rem', fontSize: '0.92rem', fontWeight: 600,
               cursor: anyOauthLoading ? 'not-allowed' : 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem',
@@ -156,7 +156,7 @@ function LoginPageInner() {
               onClick={() => handleOAuth('facebook')}
               disabled={anyOauthLoading}
               style={{
-                flex: 1, background: '#1877f2', color: '#fff', border: 'none',
+                flex: 1, background: '#1877f2', color: 'white', border: 'none',
                 borderRadius: '12px', padding: '0.7rem',
                 fontSize: '0.88rem', fontWeight: 600,
                 cursor: anyOauthLoading ? 'not-allowed' : 'pointer',
