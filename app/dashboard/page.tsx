@@ -101,7 +101,7 @@ export default function DashboardPage() {
     const { data } = await supabase.from('job_applications').insert({
       user_id: user!.id, job_id: job.job_id,
       title: job.title, company: job.company, url: job.url, status: 'applied',
-    }).select().single();
+    }).select().maybeSingle();
     if (data) setApplications(prev => [data, ...prev]);
   };
 

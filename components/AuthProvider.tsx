@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .from('profiles')
       .select('onboarding_completed')
       .eq('id', userId)
-      .single();
+      .maybeSingle();
     if (!data?.onboarding_completed) {
       onboardingShownRef.current = true;
       setShowOnboarding(true);

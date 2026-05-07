@@ -236,7 +236,7 @@ export default function InterviewSession({ role }: { role: InterviewRole }) {
   useEffect(() => {
     if (!user) return;
     supabase
-      .from('profiles').select('interview_xp').eq('id', user.id).single()
+      .from('profiles').select('interview_xp').eq('id', user.id).maybeSingle()
       .then(({ data }) => {
         if (data && typeof data.interview_xp === 'number') setTotalXp(data.interview_xp);
       });

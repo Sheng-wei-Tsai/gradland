@@ -500,6 +500,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-07 (supplement 6)
+
+> Seventh-pass scan — client-side `.single()` calls in components and pages not covered by the API-route sweeps.
+
+### Security
+- [x] Replace `.single()` with `.maybeSingle()` on client-side profile/INSERT SELECT queries in `components/AuthProvider.tsx:52`, `components/Comments.tsx:201`, `components/AdminGuard.tsx:14`, `app/cover-letter/page.tsx:107`, `app/interview-prep/[role]/InterviewSession.tsx:239`, `app/dashboard/page.tsx:104` — all six callers already handle `null` data via optional chaining or explicit `if (data)` guards, so `.maybeSingle()` is a drop-in fix that eliminates spurious PGRST116 errors on new-user profile lookups and RLS-blocked inserts per AGENTS.md §10.3 [security] ✅ 2026-05-07
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

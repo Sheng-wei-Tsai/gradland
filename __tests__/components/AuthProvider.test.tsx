@@ -45,10 +45,11 @@ const auth = () => supabase.auth as {
 
 function mockProfile(onboardingCompleted: boolean) {
   (supabase.from as MockFn).mockReturnValue({
-    select: vi.fn().mockReturnThis(),
-    eq:     vi.fn().mockReturnThis(),
-    upsert: vi.fn().mockResolvedValue({ error: null }),
-    single: vi.fn().mockResolvedValue({ data: { onboarding_completed: onboardingCompleted } }),
+    select:      vi.fn().mockReturnThis(),
+    eq:          vi.fn().mockReturnThis(),
+    upsert:      vi.fn().mockResolvedValue({ error: null }),
+    single:      vi.fn().mockResolvedValue({ data: { onboarding_completed: onboardingCompleted } }),
+    maybeSingle: vi.fn().mockResolvedValue({ data: { onboarding_completed: onboardingCompleted } }),
   });
 }
 

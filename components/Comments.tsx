@@ -198,7 +198,7 @@ export default function Comments({ slug }: { slug: string }) {
   useEffect(() => {
     if (!user) { setIsAdmin(false); return; }
     import('@/lib/supabase').then(({ supabase }) => {
-      supabase.from('profiles').select('role').eq('id', user.id).single()
+      supabase.from('profiles').select('role').eq('id', user.id).maybeSingle()
         .then(({ data }) => setIsAdmin(data?.role === 'admin'));
     });
   }, [user]);
