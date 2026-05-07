@@ -411,6 +411,36 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-07
+
+> Fresh items from today's Opus scan — items already in TODO.md are not duplicated here.
+> `npm audit` = 0 vulns; `tsc --noEmit` = clean. Surfaces today: cron auth is fail-open if `CRON_SECRET` is unset, two in-memory rate-limit Maps grow unbounded on warm Vercel instances (memory leak), `visa_tracker.steps` accepts an unvalidated JSON blob, `ai-usage` re-reads disk on every GET, plus six dark-mode hex leaks in the admin panel and one stale doc comment in `next.config.ts`.
+
+### Security
+- [ ] Fail-closed `CRON_SECRET` check in `app/api/cron/expire-job-listings/route.ts:16-22` — current `if (cronSecret) { ...check... }` lets the route run unauthenticated if the env var is missing or accidentally cleared in Vercel; change to `if (!cronSecret) return 500` (or always require the header) so a deleted env var fails the request instead of opening it [security]
+- [ ] Validate `body.steps` shape and size before upsert in `app/api/visa-tracker/route.ts:38` — currently `body.steps ?? {}` is stored verbatim as a JSON column, so a malicious client can write a multi-MB blob per user; reject if `JSON.stringify(body.steps).length > 4096` and require it to be a plain object with string keys [security]
+- [ ] Cap in-memory rate-limit Map size in `app/api/log-error/route.ts:5` (`ipLog`) and `app/api/track/route.ts:9` (`ipCounts`) — both Maps insert on every unique IP and only delete on explicit access; a long-lived Vercel instance accumulates entries forever. Add an LRU cap (e.g. `if (map.size > 5000) map.delete(map.keys().next().value)`) or sweep expired entries on each call [security] [perf]
+
+### Performance
+- [ ] Cache `ai-usage.json` instead of re-reading on every GET in `app/api/ai-usage/route.ts:7-10` — `fs.readFileSync` runs synchronously per request and the response sets `Cache-Control: no-store`. File is build-time content, so switch to `import data from '@/data/ai-usage.json'` (or `export const revalidate = 3600` + `force-static`) and drop `no-store` so the CDN can cache [perf]
+
+### Style (dark-mode breakage)
+- [ ] Replace role-pill hex colours `'#fef9c3'`/`'#fee2e2'`/`'#f0fdf4'` (background) and `'#854d0e'`/`'#991b1b'`/`'#166534'` (text) in `app/admin/page.tsx:90-91` and `app/admin/users/page.tsx:86-87` with token pairs (e.g. `var(--gold)`/`var(--vermilion)`/`var(--jade)` over `rgba(...,0.12)` background); admin role/banned/user pills currently render as bright pastels on dark mode and the `#854d0e` text fails contrast against the same hardcoded yellow [style]
+- [ ] Replace `border: '1px solid #d97706'` + `color: '#d97706'` (Promote) and `'#ef4444'` (Ban/Delete) in `app/admin/users/page.tsx:97,109` and `app/admin/comments/page.tsx:81` with `var(--gold)` and `var(--vermilion)` so the admin moderation buttons match the rest of the design system in both themes [style]
+- [ ] Replace `color: '#fff'` with `color: 'white'` (CSS keyword, matches existing pattern in `globals.css:1453`) in `app/admin/analytics/page.tsx:227` "Generate AI insights" button, and replace `'#f8fafc'` with `'white'` on the active-tab label in `app/au-insights/page.tsx:143` — both are CTA text on a saturated `var(--terracotta)`/gradient background and the hardcoded hex skips the same-ink token sweep that already covered the rest of the file [style]
+- [ ] Replace `color: row.rank <= 3 ? '#c8a800' : 'var(--text-muted)'` with `var(--gold)` in `app/au-insights/Sponsorship.tsx:96` — top-3 rank highlight is the only hardcoded hex left in the sponsorship table after the 2026-05-06 sweep, and `#c8a800` is darker than the design-system gold in dark mode [style]
+
+### Code Quality
+- [ ] Update stale comment in `next.config.ts:26` — says "CSP is handled by middleware.ts (per-request nonce generation)" but the file is actually `proxy.ts` (Next.js 16 renamed `middleware` → `proxy`). Change the comment to reference `proxy.ts` so future contributors do not search for a non-existent file [quality]
+
+### Tests
+- [ ] Add Vitest test for `/api/cron/expire-job-listings` — 401 when `Authorization` header is missing or wrong while `CRON_SECRET` is set, 200 with `{ expired, reminded }` shape, expiry email is sent for each `justExpired` row, reminder email for each `expiringSoon` row in the 4-6d window (`app/api/cron/expire-job-listings/route.ts:13-78`) [tests]
+- [ ] Add Vitest test for `/api/stripe/job-listing` POST — 400 on missing required fields, 400 when `location` is outside `VALID_LOCATIONS`, 400 when `jobType` is outside `VALID_JOB_TYPES`, 400 on malformed `contactEmail`, 200 returns `{ url }` and Stripe metadata is truncated to the per-field `.slice()` caps (`app/api/stripe/job-listing/route.ts:9-52`) [tests]
+- [ ] Add Vitest test for `/api/comments/[id]` — DELETE 401 without session, DELETE 403 when comment belongs to another user (RLS-equivalent check), PATCH 400 on content > 2000 chars, PATCH 200 sets `edited_at` (`app/api/comments/[id]/route.ts`) [tests]
+- [ ] Add Vitest test for `/api/admin/stats` GET — 403 without admin, 200 returns `{ users, comments, applications, recentUsers }` shape with non-negative counts (`app/api/admin/stats/route.ts`) [tests]
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
