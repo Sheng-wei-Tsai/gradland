@@ -19,9 +19,9 @@ const mockGte        = vi.fn();
 const mockDmCountEq  = vi.fn().mockReturnValue({ gte: mockGte });
 const mockDmCountSel = vi.fn().mockReturnValue({ eq: mockDmCountEq });
 
-// dm_messages insert: .insert({}).select('...').single()
+// dm_messages insert: .insert({}).select('...').maybeSingle()
 const mockInsertSingle = vi.fn();
-const mockInsertSelect = vi.fn().mockReturnValue({ single: mockInsertSingle });
+const mockInsertSelect = vi.fn().mockReturnValue({ maybeSingle: mockInsertSingle });
 const mockInsert       = vi.fn().mockReturnValue({ select: mockInsertSelect });
 
 const mockFrom = vi.fn().mockImplementation((table: string) => {
@@ -77,7 +77,7 @@ describe('POST /api/network/messages', () => {
       },
       error: null,
     });
-    mockInsertSelect.mockReturnValue({ single: mockInsertSingle });
+    mockInsertSelect.mockReturnValue({ maybeSingle: mockInsertSingle });
     mockInsert.mockReturnValue({ select: mockInsertSelect });
 
     mockFrom.mockImplementation((table: string) => {

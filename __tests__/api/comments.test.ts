@@ -132,7 +132,7 @@ describe('POST /api/comments', () => {
     mockFrom.mockReturnValue({
       insert: vi.fn().mockReturnValue({
         select: vi.fn().mockReturnValue({
-          single: vi.fn().mockResolvedValue({
+          maybeSingle: vi.fn().mockResolvedValue({
             data: { id: 'c1', post_slug: 'my-post', content: 'hello', parent_id: null },
             error: null,
           }),

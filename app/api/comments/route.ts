@@ -41,8 +41,8 @@ export async function POST(req: NextRequest) {
     .from('post_comments')
     .insert({ post_slug: slug, user_id: user.id, content, parent_id })
     .select(`id, post_slug, content, parent_id, edited_at, created_at, profiles ( full_name, avatar_url )`)
-    .single();
+    .maybeSingle();
 
-  if (error) return NextResponse.json({ error: 'Failed to post comment' }, { status: 500 });
+  if (error || !data) return NextResponse.json({ error: 'Failed to post comment' }, { status: 500 });
   return NextResponse.json({ comment: data }, { status: 201 });
 }

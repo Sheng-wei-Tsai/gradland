@@ -84,9 +84,9 @@ export async function POST(req: NextRequest) {
       { onConflict: 'user_id' },
     )
     .select('role_title, visa_type, skills, city, is_hired, hired_company, hired_skills, hired_message')
-    .single();
+    .maybeSingle();
 
-  if (error) return NextResponse.json({ error: 'Failed to save profile' }, { status: 500 });
+  if (error || !data) return NextResponse.json({ error: 'Failed to save profile' }, { status: 500 });
   return NextResponse.json(data);
 }
 

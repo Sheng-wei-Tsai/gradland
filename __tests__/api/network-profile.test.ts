@@ -7,7 +7,7 @@ const mockSingle = vi.fn().mockResolvedValue({
           is_hired: false, hired_company: null, hired_skills: [], hired_message: null },
   error: null,
 });
-const mockSelect = vi.fn().mockReturnValue({ single: mockSingle });
+const mockSelect = vi.fn().mockReturnValue({ maybeSingle: mockSingle });
 const mockUpsert = vi.fn().mockReturnValue({ select: mockSelect });
 const mockFrom   = vi.fn().mockReturnValue({ upsert: mockUpsert });
 
@@ -47,7 +47,7 @@ describe('POST /api/network/profile', () => {
               is_hired: false, hired_company: null, hired_skills: [], hired_message: null },
       error: null,
     });
-    mockSelect.mockReturnValue({ single: mockSingle });
+    mockSelect.mockReturnValue({ maybeSingle: mockSingle });
     mockUpsert.mockReturnValue({ select: mockSelect });
     mockFrom.mockReturnValue({ upsert: mockUpsert });
   });

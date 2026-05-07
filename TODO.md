@@ -490,6 +490,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-07 (supplement 5)
+
+> Sixth-pass scan — INSERT/UPSERT and profile-SELECT `.single()` calls not covered by earlier sweeps.
+
+### Security
+- [x] Replace `.single()` with `.maybeSingle()` on INSERT queries in `app/api/comments/route.ts:44` (POST comment), `app/api/alerts/route.ts:39` (POST alert), `app/api/network/messages/route.ts:189` (POST DM), `app/api/network/profile/route.ts:87` (UPSERT profile), and SELECT queries in `app/api/stripe/checkout/route.ts:23` and `app/api/stripe/portal/route.ts:20` (profile lookup) — `.single()` throws PGRST116 on 0 rows for INSERT/UPSERT (e.g. if RLS silently blocks the insert) and on SELECT when a new user has no profile row; `.maybeSingle()` returns `{ data: null, error: null }` on 0 rows per AGENTS.md §10.3; update INSERT error checks to `if (error || !data)` to avoid returning `null` data on silent failure; update test mocks in `__tests__/api/comments.test.ts:135`, `__tests__/api/alerts.test.ts:32`, `__tests__/api/network-messages.test.ts:24,80`, `__tests__/api/network-profile.test.ts:10,50` [security] ✅ 2026-05-07
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

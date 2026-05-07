@@ -29,7 +29,7 @@ vi.mock('@/lib/auth-server', () => ({
       }),
       insert: vi.fn().mockReturnValue({
         select: vi.fn().mockReturnValue({
-          single: vi.fn().mockResolvedValue({
+          maybeSingle: vi.fn().mockResolvedValue({
             data: { id: VALID_UUID, keywords: 'engineer', location: 'Sydney', frequency: 'weekly' },
             error: null,
           }),

@@ -186,9 +186,9 @@ export async function POST(req: NextRequest) {
       content,
     })
     .select('id, sender_profile_id, recipient_profile_id, content, created_at')
-    .single();
+    .maybeSingle();
 
-  if (error) {
+  if (error || !message) {
     return NextResponse.json({ error: 'Failed to send message' }, { status: 500 });
   }
 

@@ -36,9 +36,9 @@ export async function POST(req: NextRequest) {
     .from('job_alerts')
     .insert({ user_id: user.id, keywords, location, full_time, frequency })
     .select()
-    .single();
+    .maybeSingle();
 
-  if (error) return NextResponse.json({ error: 'Failed to create alert' }, { status: 500 });
+  if (error || !data) return NextResponse.json({ error: 'Failed to create alert' }, { status: 500 });
   return NextResponse.json({ alert: data }, { status: 201 });
 }
 
