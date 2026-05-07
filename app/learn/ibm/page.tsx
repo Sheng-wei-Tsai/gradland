@@ -45,9 +45,13 @@ function timeAgo(iso: string) {
 }
 
 function ScoreBadge({ score }: { score: number }) {
-  const color = score >= 80 ? '#10b981' : score >= 60 ? '#f59e0b' : '#ef4444';
+  const { color, bg } = score >= 80
+    ? { color: 'var(--jade)',      bg: 'rgba(30,122,82,0.12)' }
+    : score >= 60
+    ? { color: 'var(--gold)',      bg: 'rgba(200,138,20,0.12)' }
+    : { color: 'var(--vermilion)', bg: 'rgba(192,40,28,0.12)' };
   return (
-    <span style={{ fontSize: '0.7rem', fontWeight: 700, color, background: `${color}18`,
+    <span style={{ fontSize: '0.7rem', fontWeight: 700, color, background: bg,
       padding: '0.15em 0.5em', borderRadius: '5px' }}>
       {score}%
     </span>
@@ -88,9 +92,9 @@ function Quiz({ questions, onComplete }: {
 
   if (done) {
     const correct = answers.filter(Boolean).length;
-    const band = score >= 80 ? { label: 'Excellent!', color: '#10b981' }
-               : score >= 60 ? { label: 'Good work', color: '#f59e0b' }
-               : { label: 'Keep studying', color: '#ef4444' };
+    const band = score >= 80 ? { label: 'Excellent!', color: 'var(--jade)' }
+               : score >= 60 ? { label: 'Good work', color: 'var(--gold)' }
+               : { label: 'Keep studying', color: 'var(--vermilion)' };
     return (
       <div style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
         <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>
@@ -128,8 +132,8 @@ function Quiz({ questions, onComplete }: {
           let bg = 'var(--warm-white)';
           let border = '1px solid var(--parchment)';
           if (selected !== null) {
-            if (i === q.answer)  { bg = '#f0fdf4'; border = '1px solid #86efac'; }
-            if (i === selected && selected !== q.answer) { bg = '#fef2f2'; border = '1px solid #fca5a5'; }
+            if (i === q.answer)  { bg = 'rgba(30,122,82,0.08)'; border = '1px solid rgba(30,122,82,0.35)'; }
+            if (i === selected && selected !== q.answer) { bg = 'rgba(232,64,64,0.08)'; border = '1px solid rgba(232,64,64,0.35)'; }
           }
           return (
             <button key={i} onClick={() => choose(i)} style={{
@@ -183,7 +187,7 @@ function StudyGuideView({ guide }: { guide: StudyGuide }) {
                 <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{openConcept === i ? '▲' : '▼'}</span>
               </button>
               {openConcept === i && (
-                <div style={{ padding: '0.75rem 1rem', borderTop: '1px solid var(--parchment)', background: '#fafaf8' }}>
+                <div style={{ padding: '0.75rem 1rem', borderTop: '1px solid var(--parchment)', background: 'var(--cream)' }}>
                   <p style={{ fontSize: '0.85rem', color: 'var(--brown-dark)', lineHeight: 1.6, marginBottom: '0.5rem' }}>{c.definition}</p>
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>💼 {c.whyMatters}</p>
                 </div>
@@ -203,15 +207,15 @@ function StudyGuideView({ guide }: { guide: StudyGuide }) {
       </div>
 
       {guide.architectureNote && (
-        <div style={{ background: '#f8f4ef', border: '1px solid var(--parchment)', borderRadius: '10px', padding: '1rem' }}>
+        <div style={{ background: 'var(--cream)', border: '1px solid var(--parchment)', borderRadius: '10px', padding: '1rem' }}>
           <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.5rem' }}>Architecture Note</p>
           <p style={{ fontSize: '0.85rem', color: 'var(--brown-dark)', lineHeight: 1.65 }}>{guide.architectureNote}</p>
         </div>
       )}
 
-      <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px', padding: '1rem' }}>
-        <p style={{ fontSize: '0.75rem', fontWeight: 700, color: '#1d4ed8', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.4rem' }}>🇦🇺 Australian Context</p>
-        <p style={{ fontSize: '0.85rem', color: '#1e3a8a', lineHeight: 1.65 }}>{guide.australianContext}</p>
+      <div style={{ background: 'rgba(30,122,82,0.08)', border: '1px solid rgba(30,122,82,0.35)', borderRadius: '10px', padding: '1rem' }}>
+        <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--jade)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.4rem' }}>🇦🇺 Australian Context</p>
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.65 }}>{guide.australianContext}</p>
       </div>
     </div>
   );
@@ -370,7 +374,7 @@ export default function LearnIBMPage() {
                   Analysing video with Gemini…
                 </div>
               ) : guideError ? (
-                <p style={{ color: '#dc2626', fontSize: '0.88rem' }}>{guideError}</p>
+                <p style={{ color: 'var(--vermilion)', fontSize: '0.88rem' }}>{guideError}</p>
               ) : guide ? (
                 <StudyGuideView guide={guide} />
               ) : null
@@ -423,7 +427,7 @@ export default function LearnIBMPage() {
                   <div style={{ position: 'relative', aspectRatio: '16/9' }}>
                     <Image src={v.thumbnail} alt={v.title} fill style={{ objectFit: 'cover' }} sizes="(max-width: 640px) 100vw, 280px" />
                     {p?.completed && (
-                      <span style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', background: '#10b981', color: 'white',
+                      <span style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', background: 'var(--jade)', color: 'white',
                         fontSize: '0.7rem', fontWeight: 700, padding: '0.15em 0.5em', borderRadius: '5px' }}>
                         ✓ Done
                       </span>

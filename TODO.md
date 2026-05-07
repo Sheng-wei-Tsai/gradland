@@ -599,6 +599,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-07 (supplement 15)
+
+> Sixteenth-pass scan — `app/learn/ibm/page.tsx` hardcoded hex missed by all prior sweeps.
+
+### Style (dark-mode breakage)
+- [x] Replace hardcoded hex in `app/learn/ibm/page.tsx` — `ScoreBadge` uses `#10b981`/`#f59e0b`/`#ef4444` with `${color}18` alpha trick (lines 48,50); quiz-done `band.color` uses same three hex (lines 91-93); quiz option feedback uses `#f0fdf4`/`#86efac` (correct) and `#fef2f2`/`#fca5a5` (wrong) at lines 131-132; concept-expand background `#fafaf8` (line 186); architecture-note background `#f8f4ef` (line 206); Australian Context box `#eff6ff`/`#bfdbfe`/`#1d4ed8`/`#1e3a8a` (lines 212-214); error text `#dc2626` (line 373); "Done" badge `#10b981` (line 426) — replace all with design-system tokens (var(--jade)/var(--gold)/var(--vermilion)/var(--cream) + rgba pairs) following established patterns [style] ✅ 2026-05-07
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
