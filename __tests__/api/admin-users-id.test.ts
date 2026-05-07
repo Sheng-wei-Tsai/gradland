@@ -12,7 +12,8 @@ function makeChain(resolved: unknown): Record<string, unknown> {
     then: (onFulfilled: (v: unknown) => unknown, onRejected?: (e: unknown) => unknown) =>
       Promise.resolve(resolved).then(onFulfilled, onRejected),
     select: vi.fn().mockReturnValue({
-      single: vi.fn().mockResolvedValue(resolved),
+      single:      vi.fn().mockResolvedValue(resolved),
+      maybeSingle: vi.fn().mockResolvedValue(resolved),
     }),
     single: vi.fn().mockResolvedValue(resolved),
     eq:     vi.fn().mockImplementation(() => makeChain(resolved)),

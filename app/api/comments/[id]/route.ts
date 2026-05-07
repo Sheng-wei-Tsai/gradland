@@ -20,7 +20,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     .eq('id', id)
     .eq('user_id', user.id)
     .select(`id, content, edited_at`)
-    .single();
+    .maybeSingle();
 
   if (error || !data) return NextResponse.json({ error: 'Not found or forbidden' }, { status: 403 });
   return NextResponse.json({ comment: data });

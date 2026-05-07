@@ -481,6 +481,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-07 (supplement 4)
+
+> Fifth-pass scan — items not covered by earlier sweeps.
+
+### Security
+- [x] Replace `.single()` with `.maybeSingle()` on UPDATE-based queries in `app/api/comments/[id]/route.ts:23` (PATCH) and `app/api/admin/users/[id]/route.ts:22` (PATCH) — both queries use `UPDATE … WHERE id=? AND conditions` which returns 0 rows when the target doesn't exist or fails the ownership check; `.single()` raises PGRST116 on every not-found/wrong-owner PATCH, polluting Supabase error logs even though `if (error || !data)` catches it correctly; `.maybeSingle()` returns `{ data: null, error: null }` on 0 rows and avoids the spurious PGRST116; update corresponding test mocks in `__tests__/api/comments-id.test.ts:108` and `__tests__/api/admin-users-id.test.ts:14-15` [security] ✅ 2026-05-07
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

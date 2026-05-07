@@ -19,7 +19,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     .update({ role })
     .eq('id', id)
     .select('id, full_name, email, role')
-    .single();
+    .maybeSingle();
 
   if (error || !data) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   return NextResponse.json({ user: data });

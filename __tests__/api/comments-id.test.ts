@@ -105,7 +105,7 @@ describe('PATCH /api/comments/[id]', () => {
         eq: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
             select: vi.fn().mockReturnValue({
-              single: vi.fn().mockResolvedValue({
+              maybeSingle: vi.fn().mockResolvedValue({
                 data: { id: 'c1', content: 'fixed typo', edited_at: editedAt },
                 error: null,
               }),
