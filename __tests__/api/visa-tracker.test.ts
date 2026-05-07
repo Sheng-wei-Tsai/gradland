@@ -70,4 +70,38 @@ describe('POST /api/visa-tracker', () => {
     expect((upsertArg.employer as string).length).toBe(100);
     expect((upsertArg.occupation as string).length).toBe(100);
   });
+
+  it('returns 400 when steps is an array', async () => {
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'u1' } }, error: null });
+    const res = await POST(makePost({ steps: [1, 2, 3] }));
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/plain object/i);
+  });
+
+  it('returns 400 when steps payload exceeds 4096 bytes', async () => {
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'u1' } }, error: null });
+    const bigSteps = { '1': { notes: 'x'.repeat(5000) } };
+    const res = await POST(makePost({ steps: bigSteps }));
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/too large/i);
+  });
+
+  it('returns 400 when steps has non-integer keys', async () => {
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'u1' } }, error: null });
+    const res = await POST(makePost({ steps: { 'foo': { status: 'completed' }, '1': {} } }));
+    expect(res.status).toBe(400);
+    expect((await res.json()).error).toMatch(/keys/i);
+  });
+
+  it('accepts a valid steps object', async () => {
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'u1' } }, error: null });
+    const validSteps = {
+      '1': { status: 'completed', docs: [], notes: 'done', completedAt: '2025-01-15' },
+      '2': { status: 'in_progress', docs: [], notes: '' },
+    };
+    const res = await POST(makePost({ steps: validSteps }));
+    expect(res.status).toBe(200);
+  });
 });
