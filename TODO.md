@@ -562,6 +562,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-07 (supplement 12)
+
+> Thirteenth-pass scan — `SponsorshipCharts.tsx` D3 chart colours missed by all prior sweeps.
+
+### Style (dark-mode breakage)
+- [x] Replace hardcoded hex in `app/au-insights/SponsorshipCharts.tsx` — `INDUSTRIES` array colors (`#10b981`/`#f59e0b`/`#dc2626`/`#0369a1`/`#7c3aed`/`#d97706`/`#6b7280`/`#d1d5db`), `ICT_ROLES` colors (same set), `CAT_COLOR` map (`#0369a1`/`#7c3aed`/`#dc2626`/`#374151`/`#d97706`), D3 gradient stops (`#dc2626`/`#0369a1`), line strokes (`#0369a1`/`#dc2626`), COVID annotation (`#f59e0b`/`#b45309`/`#fef9c3`/`#fcd34d`), projected label `#6b7280`, ICT annotation `#dc2626`, dots/tooltips/legend all using same hex set; replace with design-system tokens (var(--jade)/var(--gold)/var(--vermilion)/var(--text-muted)/var(--text-secondary)/var(--parchment) + rgba shades) following the established pattern from `JobMarketCharts.tsx` supplement 11 sweep [style] ✅ 2026-05-07
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

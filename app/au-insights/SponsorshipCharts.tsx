@@ -24,23 +24,23 @@ const YEARLY = [
 ];
 
 const INDUSTRIES = [
-  { name: 'Health & Social',       pct: 17.9, color: '#10b981' },
-  { name: 'Accommodation & Food',  pct: 13.9, color: '#f59e0b' },
-  { name: 'ICT & Professional',    pct: 12.0, color: '#dc2626' },
-  { name: 'Construction',          pct:  9.1, color: '#0369a1' },
-  { name: 'Education',             pct:  8.3, color: '#7c3aed' },
-  { name: 'Professional Services', pct:  7.2, color: '#d97706' },
-  { name: 'Retail & Wholesale',    pct:  5.8, color: '#6b7280' },
-  { name: 'Other',                 pct: 25.8, color: '#d1d5db' },
+  { name: 'Health & Social',       pct: 17.9, color: 'var(--jade)' },
+  { name: 'Accommodation & Food',  pct: 13.9, color: 'var(--gold)' },
+  { name: 'ICT & Professional',    pct: 12.0, color: 'var(--vermilion)' },
+  { name: 'Construction',          pct:  9.1, color: 'rgba(30,122,82,0.55)' },
+  { name: 'Education',             pct:  8.3, color: 'rgba(200,138,20,0.65)' },
+  { name: 'Professional Services', pct:  7.2, color: 'rgba(192,40,28,0.55)' },
+  { name: 'Retail & Wholesale',    pct:  5.8, color: 'var(--text-muted)' },
+  { name: 'Other',                 pct: 25.8, color: 'var(--parchment)' },
 ];
 
 const ICT_ROLES = [
-  { name: 'Software Developer',    value: 38, color: '#dc2626' },
-  { name: 'ICT Business Analyst',  value: 22, color: '#d97706' },
-  { name: 'DB / Systems Admin',    value: 12, color: '#0369a1' },
-  { name: 'ICT Project Manager',   value: 10, color: '#7c3aed' },
-  { name: 'Network / Security',    value: 10, color: '#10b981' },
-  { name: 'Other ICT',             value:  8, color: '#6b7280' },
+  { name: 'Software Developer',    value: 38, color: 'var(--vermilion)' },
+  { name: 'ICT Business Analyst',  value: 22, color: 'var(--gold)' },
+  { name: 'DB / Systems Admin',    value: 12, color: 'rgba(30,122,82,0.55)' },
+  { name: 'ICT Project Manager',   value: 10, color: 'rgba(200,138,20,0.65)' },
+  { name: 'Network / Security',    value: 10, color: 'var(--jade)' },
+  { name: 'Other ICT',             value:  8, color: 'var(--text-muted)' },
 ];
 
 const SPONSORS = [
@@ -62,11 +62,11 @@ const SPONSORS = [
 ];
 
 const CAT_COLOR: Record<string, string> = {
-  'Consulting':   '#0369a1',
-  'IT Services':  '#7c3aed',
-  'Product':      '#dc2626',
-  'Enterprise':   '#374151',
-  'Finance':      '#d97706',
+  'Consulting':   'var(--jade)',
+  'IT Services':  'var(--gold)',
+  'Product':      'var(--vermilion)',
+  'Enterprise':   'var(--text-secondary)',
+  'Finance':      'rgba(200,138,20,0.6)',
 };
 
 /* ─── Shared responsive hook ─── */
@@ -121,12 +121,12 @@ function TrendChart() {
 
     g.append('defs').html(`
       <linearGradient id="grad-ict" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#dc2626" stop-opacity="0.3"/>
-        <stop offset="100%" stop-color="#dc2626" stop-opacity="0.02"/>
+        <stop offset="0%" stop-color="var(--vermilion)" stop-opacity="0.3"/>
+        <stop offset="100%" stop-color="var(--vermilion)" stop-opacity="0.02"/>
       </linearGradient>
       <linearGradient id="grad-total" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#0369a1" stop-opacity="0.15"/>
-        <stop offset="100%" stop-color="#0369a1" stop-opacity="0.02"/>
+        <stop offset="0%" stop-color="var(--jade)" stop-opacity="0.15"/>
+        <stop offset="100%" stop-color="var(--jade)" stop-opacity="0.02"/>
       </linearGradient>
     `);
 
@@ -145,27 +145,27 @@ function TrendChart() {
       .x(d => x(d.year)!).y(d => y(d.ict)).curve(d3.curveMonotoneX);
 
     g.append('path').datum(YEARLY).attr('fill', 'none')
-      .attr('stroke', '#0369a1').attr('stroke-width', 2.5).attr('d', lineTotal);
+      .attr('stroke', 'var(--jade)').attr('stroke-width', 2.5).attr('d', lineTotal);
     g.append('path').datum(YEARLY).attr('fill', 'none')
-      .attr('stroke', '#dc2626').attr('stroke-width', 2).attr('stroke-dasharray', '5,3')
+      .attr('stroke', 'var(--vermilion)').attr('stroke-width', 2).attr('stroke-dasharray', '5,3')
       .attr('d', lineICT);
 
     /* COVID annotation */
     const covidX = x('FY20–21')!;
     g.append('line')
       .attr('x1', covidX).attr('x2', covidX).attr('y1', 0).attr('y2', IH)
-      .attr('stroke', '#f59e0b').attr('stroke-width', 1.5).attr('stroke-dasharray', '4,3')
+      .attr('stroke', 'var(--gold)').attr('stroke-width', 1.5).attr('stroke-dasharray', '4,3')
       .attr('opacity', 0.8);
     g.append('text')
       .attr('x', covidX + 4).attr('y', 14)
-      .attr('fill', '#b45309').attr('font-size', '9px').attr('font-weight', 700)
+      .attr('fill', 'var(--gold)').attr('font-size', '9px').attr('font-weight', 700)
       .text('COVID');
 
     /* Projected annotation */
     const projX = x('FY24–25')!;
     g.append('text')
       .attr('x', projX - 2).attr('y', y(155000) - 8)
-      .attr('fill', '#6b7280').attr('font-size', '8.5px').attr('text-anchor', 'end')
+      .attr('fill', 'var(--text-muted)').attr('font-size', '8.5px').attr('text-anchor', 'end')
       .text('projected →');
 
     /* Axes */
@@ -184,12 +184,12 @@ function TrendChart() {
 
     dots.append('circle').attr('class', 'dot-total')
       .attr('cx', d => x(d.year)!).attr('cy', d => y(d.total)).attr('r', 4)
-      .attr('fill', '#0369a1').attr('stroke', 'white').attr('stroke-width', 1.5)
+      .attr('fill', 'var(--jade)').attr('stroke', 'white').attr('stroke-width', 1.5)
       .style('cursor', 'pointer');
 
     dots.append('circle').attr('class', 'dot-ict')
       .attr('cx', d => x(d.year)!).attr('cy', d => y(d.ict)).attr('r', 3.5)
-      .attr('fill', '#dc2626').attr('stroke', 'white').attr('stroke-width', 1.5)
+      .attr('fill', 'var(--vermilion)').attr('stroke', 'white').attr('stroke-width', 1.5)
       .style('cursor', 'pointer');
 
     /* Invisible wide hit area */
@@ -206,8 +206,8 @@ function TrendChart() {
           .style('top',  `${my + M.top - 10}px`)
           .html(`
             <div style="font-weight:700;font-size:0.82rem;margin-bottom:4px;color:var(--brown-dark)">${d.year}</div>
-            <div style="color:#0369a1;font-size:0.78rem">🔵 Total: <strong>${d.total.toLocaleString()}</strong></div>
-            <div style="color:#dc2626;font-size:0.78rem">🔴 ICT: <strong>${d.ict.toLocaleString()}</strong> (~12%)</div>
+            <div style="color:var(--jade);font-size:0.78rem">🔵 Total: <strong>${d.total.toLocaleString()}</strong></div>
+            <div style="color:var(--vermilion);font-size:0.78rem">🔴 ICT: <strong>${d.ict.toLocaleString()}</strong> (~12%)</div>
             <div style="font-size:0.72rem;color:var(--text-muted);margin-top:3px">${d.note}</div>
           `);
       })
@@ -218,16 +218,16 @@ function TrendChart() {
   return (
     <div style={{ position: 'relative' }}>
       <div style={{ marginBottom: '0.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-        <span style={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.3rem', color: '#0369a1' }}>
-          <span style={{ display: 'inline-block', width: 18, height: 2.5, background: '#0369a1', borderRadius: 2 }} />
+        <span style={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.3rem', color: 'var(--jade)' }}>
+          <span style={{ display: 'inline-block', width: 18, height: 2.5, background: 'var(--jade)', borderRadius: 2 }} />
           Total 482 grants
         </span>
-        <span style={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.3rem', color: '#dc2626' }}>
-          <span style={{ display: 'inline-block', width: 18, height: 0, borderTop: '2px dashed #dc2626' }} />
+        <span style={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.3rem', color: 'var(--vermilion)' }}>
+          <span style={{ display: 'inline-block', width: 18, height: 0, borderTop: '2px dashed var(--vermilion)' }} />
           ICT occupation grants (~12%)
         </span>
-        <span style={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.3rem', color: '#b45309' }}>
-          <span style={{ display: 'inline-block', width: 12, height: 12, background: '#fef9c3', border: '1px solid #fcd34d', borderRadius: 2 }} />
+        <span style={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.3rem', color: 'var(--gold)' }}>
+          <span style={{ display: 'inline-block', width: 12, height: 12, background: 'rgba(200,138,20,0.12)', border: '1px solid rgba(200,138,20,0.35)', borderRadius: 2 }} />
           COVID impact
         </span>
       </div>
@@ -306,7 +306,7 @@ function IndustryChart() {
     g.append('text')
       .attr('x', x(ictD.pct) + 38).attr('y', y(ictD.name)! + y.bandwidth() / 2)
       .attr('dominant-baseline', 'middle')
-      .attr('font-size', '9px').attr('fill', '#dc2626').attr('font-weight', 700)
+      .attr('font-size', '9px').attr('fill', 'var(--vermilion)').attr('font-weight', 700)
       .text('↑ ICT');
 
   }, [width, hovered]);
@@ -438,7 +438,7 @@ function SponsorBar() {
       .attr('x', 0).attr('y', d => y(d.company)!)
       .attr('width', d => x(d.volume)).attr('height', y.bandwidth())
       .attr('rx', 4)
-      .attr('fill', d => CAT_COLOR[d.category] ?? '#6b7280')
+      .attr('fill', d => CAT_COLOR[d.category] ?? 'var(--text-muted)')
       .attr('opacity', d => hovered && hovered !== d.company ? 0.3 : 0.85)
       .style('cursor', 'pointer')
       .on('mouseover', (_, d) => setHovered(d.company))
@@ -464,7 +464,7 @@ function SponsorBar() {
     g.selectAll('.cat-dot').data(SPONSORS).enter()
       .append('circle').attr('class', 'cat-dot')
       .attr('cx', -78).attr('cy', d => y(d.company)! + y.bandwidth() / 2)
-      .attr('r', 3.5).attr('fill', d => CAT_COLOR[d.category] ?? '#6b7280');
+      .attr('r', 3.5).attr('fill', d => CAT_COLOR[d.category] ?? 'var(--text-muted)');
 
   }, [width, hovered]);
 
@@ -498,11 +498,11 @@ export default function SponsorshipCharts() {
       {/* KPI row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '0.8rem' }}>
         {[
-          { label: 'Total 482 grants FY23',    value: '98,980',  delta: '',     color: '#0369a1', src: 'DoHA official' },
-          { label: 'YoY growth (2024–25 YTD)', value: '+33.2%',  delta: '↑',    color: '#10b981', src: 'DoHA confirmed' },
-          { label: 'Application surge 24–25',  value: '+53%',    delta: '↑↑',   color: '#dc2626', src: 'DoHA confirmed' },
-          { label: 'ICT share of all grants',  value: '~12%',    delta: '',     color: '#7c3aed', src: 'Estimated' },
-          { label: 'Top ICT occupation',       value: 'SWE Dev', delta: '#1',   color: '#d97706', src: 'DoHA FY23' },
+          { label: 'Total 482 grants FY23',    value: '98,980',  delta: '',     color: 'var(--jade)',      src: 'DoHA official' },
+          { label: 'YoY growth (2024–25 YTD)', value: '+33.2%',  delta: '↑',    color: 'var(--jade)',      src: 'DoHA confirmed' },
+          { label: 'Application surge 24–25',  value: '+53%',    delta: '↑↑',   color: 'var(--vermilion)', src: 'DoHA confirmed' },
+          { label: 'ICT share of all grants',  value: '~12%',    delta: '',     color: 'var(--gold)',      src: 'Estimated' },
+          { label: 'Top ICT occupation',       value: 'SWE Dev', delta: '#1',   color: 'var(--gold)',      src: 'DoHA FY23' },
         ].map(kpi => (
           <div key={kpi.label} style={{
             background: 'var(--warm-white)', border: '1px solid var(--parchment)',
