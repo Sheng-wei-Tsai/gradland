@@ -164,6 +164,7 @@
 - [x] 2026-05-07 `network/list` route — 200 returns all profiles when no filters, city filter applies `.eq('city',…)` for valid values and is ignored for invalid ones, visa filter applies `.eq('visa_type',…)` for valid values and ignored for invalid, role keyword filters in-memory (case-insensitive), returns 500 on DB error (`app/api/network/list/route.ts`) [tests] ✅ 2026-05-07
 - [x] 2026-05-07 `network/messages/[profileId]` route — GET 400 on invalid UUID, GET 401 without session, GET 403 when no network profile, GET 200 with visibility filtering (deleted_by_sender/deleted_by_recipient), GET 500 on DB error; PATCH 400 invalid UUID, PATCH 401/403 auth gates, PATCH 200 marks thread read [tests] ✅ 2026-05-07
 - [x] 2026-05-07 `diagrams/list`, `ai-usage`, `visa-news` routes — 200 with correct array/object shapes, `ai-usage` Cache-Control header present, empty-array edge case for filesystem-backed routes (`app/api/diagrams/list/route.ts`, `app/api/ai-usage/route.ts`, `app/api/visa-news/route.ts`) [tests] ✅ 2026-05-07
+- [x] 2026-05-07 `stripe/checkout` + `stripe/portal` routes — 401 without session, 404 on portal when no stripe_customer_id, 200 returns `{ url }` from Stripe, new Stripe customer created when profile has no customer_id, subscription mode for checkout, billingPortal session for portal [tests] ✅ 2026-05-07
 - **Effort:** M (3–5 days)
 
 ### Phone Remote Control (GitHub mobile + Telegram)
