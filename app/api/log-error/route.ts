@@ -13,6 +13,7 @@ export async function POST(req: NextRequest) {
     if (entry.count >= 10) return NextResponse.json({}, { status: 429 });
     entry.count++;
   } else {
+    if (!entry && ipLog.size >= 5000) ipLog.delete(ipLog.keys().next().value!);
     ipLog.set(ip, { count: 1, resetAt: now + 60_000 });
   }
 

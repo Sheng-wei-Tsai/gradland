@@ -14,6 +14,7 @@ function isRateLimited(ip: string): boolean {
 
   const entry = ipCounts.get(ip);
   if (!entry || now > entry.resetAt) {
+    if (!entry && ipCounts.size >= 5000) ipCounts.delete(ipCounts.keys().next().value!);
     ipCounts.set(ip, { count: 1, resetAt: now + window });
     return false;
   }
