@@ -432,7 +432,7 @@ export default function ResumeAnalyserPage() {
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
               {result.auMarketFit.topRolesMatch.length > 0 && (
-                <a href={`/jobs?keywords=${encodeURIComponent(result.auMarketFit.topRolesMatch[0])}`}
+                <Link href={`/jobs?keywords=${encodeURIComponent(result.auMarketFit.topRolesMatch[0])}`}
                   style={whatNowLink}>
                   <span style={whatNowEmoji}>💼</span>
                   <div>
@@ -440,7 +440,7 @@ export default function ResumeAnalyserPage() {
                     <div style={whatNowDesc}>{result.auMarketFit.topRolesMatch[0]} roles in Australia</div>
                   </div>
                   <span style={whatNowArrow}>→</span>
-                </a>
+                </Link>
               )}
               <Link href="/interview-prep" style={whatNowLink}>
                 <span style={whatNowEmoji}>🎯</span>

@@ -460,6 +460,18 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-07 (supplement 2)
+
+> Third-pass scan — items not covered by earlier sweeps.
+
+### Code Quality
+- [x] Replace `<a href={'/jobs?keywords=...'}>` with `<Link>` in `app/dashboard/resume-analyser/page.tsx:435` — internal `/jobs` route navigates with full page reload; adjacent CTAs on the same card already use `<Link>` (AGENTS.md §8) [quality] ✅ 2026-05-07
+
+### Style (dark-mode breakage)
+- [x] Replace `color: '#92400e', background: '#fef3c7'` with `var(--gold)` + `rgba(200,138,20,0.12)` on the "review due" badge in `app/learn/[path]/PathTracker.tsx:398`, and `color: '#059669'` with `var(--jade)` on the "done" label at line 403 — Tailwind amber-900/amber-100 and emerald-600 hardcoded hex; breaks dark mode on the skill tracker [style] ✅ 2026-05-07
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

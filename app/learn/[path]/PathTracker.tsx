@@ -395,12 +395,12 @@ export default function PathTracker({ path }: { path: SkillPath }) {
                           {skill.name}
                         </span>
                         {isDue && (
-                          <span style={{ fontSize: '0.72rem', color: '#92400e', background: '#fef3c7', padding: '0.1em 0.5em', borderRadius: '4px', fontWeight: 500 }}>
+                          <span style={{ fontSize: '0.72rem', color: 'var(--gold)', background: 'rgba(200,138,20,0.12)', padding: '0.1em 0.5em', borderRadius: '4px', fontWeight: 500 }}>
                             review due
                           </span>
                         )}
                         {isDone && (
-                          <span style={{ fontSize: '0.72rem', color: '#059669', fontWeight: 500 }}>done</span>
+                          <span style={{ fontSize: '0.72rem', color: 'var(--jade)', fontWeight: 500 }}>done</span>
                         )}
                       </div>
                       <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>
