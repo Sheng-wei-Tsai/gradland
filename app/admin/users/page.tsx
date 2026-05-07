@@ -90,7 +90,7 @@ function UsersTable() {
                   <div style={{ display: 'flex', gap: '0.4rem' }}>
                     {u.role !== 'admin' && (
                       <button onClick={() => setRole(u.id, 'admin')} disabled={acting === u.id}
-                        style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', borderRadius: '6px', border: '1px solid #d97706', color: '#d97706', background: 'transparent', cursor: 'pointer' }}>
+                        style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', borderRadius: '6px', border: '1px solid var(--gold)', color: 'var(--gold)', background: 'transparent', cursor: 'pointer' }}>
                         Make admin
                       </button>
                     )}
@@ -102,7 +102,7 @@ function UsersTable() {
                     )}
                     {u.role !== 'banned' && (
                       <button onClick={() => banUser(u.id)} disabled={acting === u.id}
-                        style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', borderRadius: '6px', border: '1px solid #ef4444', color: '#ef4444', background: 'transparent', cursor: 'pointer' }}>
+                        style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', borderRadius: '6px', border: '1px solid var(--vermilion)', color: 'var(--vermilion)', background: 'transparent', cursor: 'pointer' }}>
                         Ban
                       </button>
                     )}

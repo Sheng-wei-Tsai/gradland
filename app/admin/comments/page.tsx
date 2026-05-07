@@ -78,7 +78,7 @@ function CommentsTable() {
                 disabled={deleting === c.id}
                 style={{
                   flexShrink: 0, fontSize: '0.78rem', padding: '0.3rem 0.7rem',
-                  border: '1px solid #ef4444', color: '#ef4444', background: 'transparent',
+                  border: '1px solid var(--vermilion)', color: 'var(--vermilion)', background: 'transparent',
                   borderRadius: '6px', cursor: 'pointer',
                 }}
               >
