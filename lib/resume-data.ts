@@ -23,7 +23,7 @@ export const resume = {
   projects: [
     {
       name:        'Personal Career Platform & Blog',
-      url:         'https://github.com/Sheng-wei-Tsai/henrys-blog',
+      url:         'https://github.com/Sheng-wei-Tsai/gradland',
       demo:        'https://gradland.au',
       period:      '2026 – Present',
       description: 'Full-stack personal platform combining a technical blog, AI-powered weekly digest, Australian IT job search engine, AI cover letter generator, and job application tracker.',

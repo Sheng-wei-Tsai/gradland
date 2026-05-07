@@ -2,7 +2,7 @@
 # Cancels any pending idle trigger for this project.
 # Called when user submits a new prompt, indicating they are back.
 
-PID_FILE="$HOME/.claude/idle-trigger-henrys-blog.pid"
+PID_FILE="$HOME/.claude/idle-trigger-gradland.pid"
 
 if [ -f "$PID_FILE" ]; then
   PID=$(cat "$PID_FILE")

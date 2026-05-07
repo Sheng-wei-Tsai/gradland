@@ -13,8 +13,8 @@
 #   2. Loop not already ran today (analysis/<date> sentinel branch)
 #   3. Past the 14:00 UTC Pro subscription reset window (avoids firing mid-quota)
 
-REPO="Sheng-wei-Tsai/henrys-blog"
-PID_FILE="$HOME/.claude/idle-trigger-henrys-blog.pid"
+REPO="Sheng-wei-Tsai/gradland"
+PID_FILE="$HOME/.claude/idle-trigger-gradland.pid"
 LOG="$HOME/.claude/idle-trigger.log"
 IDLE_MINUTES=60
 
