@@ -157,6 +157,7 @@
 - [x] `interview/chat`, `interview/evaluate`, `interview/mentor` routes — 401/403/429 auth gates, 400 on missing fields, 400 on invalid stage (mentor), 502 on OpenAI failure, streaming 200 on valid input, input truncation (evaluate: answer ≤ 2000 chars) [tests] ✅ 2026-05-06
 - [x] 2026-05-07 `learn/quiz` route — 401/403/429 auth gates, 400 on missing fields, 503 when OPENAI_API_KEY missing, 200 from Supabase cache hit, 200 from OpenAI generation, videoTitle truncated to 200 chars [tests]
 - [x] 2026-05-07 `learn/channel-videos` route — 400 on missing channelId, 503 when YOUTUBE_API_KEY missing, 404 when channel not found, 200 with videos array + null nextPageToken, private/deleted videos filtered, YouTube API error status forwarded, nextPageToken propagated, description truncated to 200 chars [tests]
+- [x] 2026-05-07 `diagrams/generate` route — 401/403/429 auth gates, 400 on missing topic, 400 on topic < 3 chars, 500 when OPENAI_API_KEY missing, invalid type falls back to 'flowchart', topic truncated to 200 chars, markdown fence stripping, 200 returns `{ mermaid, type, topic }`, 502 on empty/throw from OpenAI [tests]
 - **Effort:** M (3–5 days)
 
 ### Phone Remote Control (GitHub mobile + Telegram)
