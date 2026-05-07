@@ -162,6 +162,7 @@
 - [x] 2026-05-07 `learn/roadmap-image` route — 401/403/429 auth gates, 400 on missing role, 500 when OPENAI_API_KEY missing, invalid role/visaStatus/jobStage fall back to defaults, markdown fence stripping, 200 returns `{ mermaidCode, cacheKey }` with correct key format, 502 on empty/throw from OpenAI [tests] ✅ 2026-05-07
 - [x] 2026-05-07 `learn/videos` route (IBM channel) — 503 when YOUTUBE_API_KEY missing, 404 when channel not found, 200 with videos array + null nextPageToken, nextPageToken propagated, pageToken query param forwarded to YouTube API, description truncated to 200 chars, 500 on fetch error [tests] ✅ 2026-05-07
 - [x] 2026-05-07 `network/list` route — 200 returns all profiles when no filters, city filter applies `.eq('city',…)` for valid values and is ignored for invalid ones, visa filter applies `.eq('visa_type',…)` for valid values and ignored for invalid, role keyword filters in-memory (case-insensitive), returns 500 on DB error (`app/api/network/list/route.ts`) [tests] ✅ 2026-05-07
+- [x] 2026-05-07 `network/messages/[profileId]` route — GET 400 on invalid UUID, GET 401 without session, GET 403 when no network profile, GET 200 with visibility filtering (deleted_by_sender/deleted_by_recipient), GET 500 on DB error; PATCH 400 invalid UUID, PATCH 401/403 auth gates, PATCH 200 marks thread read [tests] ✅ 2026-05-07
 - **Effort:** M (3–5 days)
 
 ### Phone Remote Control (GitHub mobile + Telegram)
