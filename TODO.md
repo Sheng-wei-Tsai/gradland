@@ -437,7 +437,7 @@
 - [x] Add Vitest test for `/api/cron/expire-job-listings` — 401 when `Authorization` header is missing or wrong while `CRON_SECRET` is set, 200 with `{ expired, reminded }` shape, expiry email is sent for each `justExpired` row, reminder email for each `expiringSoon` row in the 4-6d window (`app/api/cron/expire-job-listings/route.ts:13-78`) [tests] ✅ 2026-05-07
 - [x] Add Vitest test for `/api/stripe/job-listing` POST — 400 on missing required fields, 400 when `location` is outside `VALID_LOCATIONS`, 400 when `jobType` is outside `VALID_JOB_TYPES`, 400 on malformed `contactEmail`, 200 returns `{ url }` and Stripe metadata is truncated to the per-field `.slice()` caps (`app/api/stripe/job-listing/route.ts:9-52`) [tests] ✅ 2026-05-07
 - [x] Add Vitest test for `/api/comments/[id]` — DELETE 401 without session, DELETE 403 when comment belongs to another user (RLS-equivalent check), PATCH 400 on content > 2000 chars, PATCH 200 sets `edited_at` (`app/api/comments/[id]/route.ts`) [tests] ✅ 2026-05-07
-- [ ] Add Vitest test for `/api/admin/stats` GET — 403 without admin, 200 returns `{ users, comments, applications, recentUsers }` shape with non-negative counts (`app/api/admin/stats/route.ts`) [tests]
+- [x] Add Vitest test for `/api/admin/stats` GET — 403 without admin, 200 returns `{ users, comments, applications, recentUsers }` shape with non-negative counts (`app/api/admin/stats/route.ts`) [tests] ✅ 2026-05-07
 
 ---
 
