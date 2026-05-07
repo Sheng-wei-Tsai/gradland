@@ -158,6 +158,7 @@
 - [x] 2026-05-07 `learn/quiz` route — 401/403/429 auth gates, 400 on missing fields, 503 when OPENAI_API_KEY missing, 200 from Supabase cache hit, 200 from OpenAI generation, videoTitle truncated to 200 chars [tests]
 - [x] 2026-05-07 `learn/channel-videos` route — 400 on missing channelId, 503 when YOUTUBE_API_KEY missing, 404 when channel not found, 200 with videos array + null nextPageToken, private/deleted videos filtered, YouTube API error status forwarded, nextPageToken propagated, description truncated to 200 chars [tests]
 - [x] 2026-05-07 `diagrams/generate` route — 401/403/429 auth gates, 400 on missing topic, 400 on topic < 3 chars, 500 when OPENAI_API_KEY missing, invalid type falls back to 'flowchart', topic truncated to 200 chars, markdown fence stripping, 200 returns `{ mermaid, type, topic }`, 502 on empty/throw from OpenAI [tests]
+- [x] 2026-05-07 `learn/video-meta` route — 400 on missing videoId, 400 on invalid videoId format (not 11-char alphanumeric), 200 from Supabase cache hit (no RapidAPI call), 503 when RAPIDAPI_KEY missing, 404 on RapidAPI non-OK or empty id, 200 with mapped fields from RapidAPI, description truncated to 300 chars [tests] ✅ 2026-05-07
 - **Effort:** M (3–5 days)
 
 ### Phone Remote Control (GitHub mobile + Telegram)
