@@ -431,7 +431,7 @@
 - [x] Replace `color: row.rank <= 3 ? '#c8a800' : 'var(--text-muted)'` with `var(--gold)` in `app/au-insights/Sponsorship.tsx:96` — top-3 rank highlight is the only hardcoded hex left in the sponsorship table after the 2026-05-06 sweep, and `#c8a800` is darker than the design-system gold in dark mode [style] ✅ 2026-05-07
 
 ### Code Quality
-- [ ] Update stale comment in `next.config.ts:26` — says "CSP is handled by middleware.ts (per-request nonce generation)" but the file is actually `proxy.ts` (Next.js 16 renamed `middleware` → `proxy`). Change the comment to reference `proxy.ts` so future contributors do not search for a non-existent file [quality]
+- [x] Update stale comment in `next.config.ts:26` — says "CSP is handled by middleware.ts (per-request nonce generation)" but the file is actually `proxy.ts` (Next.js 16 renamed `middleware` → `proxy`). Change the comment to reference `proxy.ts` so future contributors do not search for a non-existent file [quality] ✅ 2026-05-07
 
 ### Tests
 - [x] Add Vitest test for `/api/cron/expire-job-listings` — 401 when `Authorization` header is missing or wrong while `CRON_SECRET` is set, 200 with `{ expired, reminded }` shape, expiry email is sent for each `justExpired` row, reminder email for each `expiringSoon` row in the 4-6d window (`app/api/cron/expire-job-listings/route.ts:13-78`) [tests] ✅ 2026-05-07

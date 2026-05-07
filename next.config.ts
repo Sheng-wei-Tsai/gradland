@@ -22,7 +22,7 @@ const nextConfig: NextConfig = {
   },
 
   // ── Security headers ────────────────────────────────────────────────────────
-  // CSP is handled by middleware.ts (per-request nonce generation).
+  // CSP is handled by proxy.ts (per-request nonce generation).
   // Only static, non-nonce headers live here.
   async headers() {
     return [
