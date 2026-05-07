@@ -46,13 +46,13 @@ export default function Footer() {
         {/* Brand row */}
         <div style={{ marginBottom: '2rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '0.75rem' }}>
-            <Link href="/" aria-label="TechPath AU — home" style={{
+            <Link href="/" aria-label="Gradland — home" style={{
               display: 'inline-flex', alignItems: 'center', gap: '0.6rem',
               textDecoration: 'none',
             }}>
               <LogoMark size={36} withShadow={false} decorative />
               <span style={{ fontFamily: "'Lora', serif", fontWeight: 700, fontSize: '1.15rem', color: 'var(--brown-dark)' }}>
-                TechPath AU
+                Gradland
               </span>
             </Link>
             {/* Social icons */}

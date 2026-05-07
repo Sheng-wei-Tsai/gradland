@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
     },
     custom_text: {
       terms_of_service_acceptance: {
-        message: 'I have read and agree to the [Terms of Service](https://henrysdigitallife.com/terms) and [Privacy Policy](https://henrysdigitallife.com/privacy) of TechPath AU.',
+        message: 'I have read and agree to the [Terms of Service](https://gradland.au/terms) and [Privacy Policy](https://gradland.au/privacy) of Gradland.',
       },
     },
   });

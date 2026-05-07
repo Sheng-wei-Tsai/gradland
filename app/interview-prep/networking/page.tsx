@@ -3,9 +3,9 @@ import Link from 'next/link';
 import NetworkingClient from './NetworkingClient';
 
 export const metadata: Metadata = {
-  title:       'Networking Hub — Australian IT Career Guide | TechPath AU',
+  title:       'Networking Hub — Australian IT Career Guide | Gradland',
   description: 'LinkedIn templates, GitHub portfolio checklist, AU tech meetup map, and a 30-day networking action plan for international IT graduates in Australia.',
-  alternates:  { canonical: 'https://henrysdigitallife.com/interview-prep/networking' },
+  alternates:  { canonical: 'https://gradland.au/interview-prep/networking' },
 };
 
 export default function NetworkingPage() {

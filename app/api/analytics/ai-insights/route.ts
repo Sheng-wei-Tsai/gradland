@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  const prompt = `You are a growth strategist for a personal tech blog called "Henry's Digital Life" by Henry Tsai — a full-stack developer in Brisbane, Australia targeting international new graduates looking for IT jobs in Australia.
+  const prompt = `You are a growth strategist for a personal tech blog called "Gradland" by Henry Tsai — a full-stack developer in Brisbane, Australia targeting international new graduates looking for IT jobs in Australia.
 
 Here is the last 30 days of aggregated traffic data (no personal data):
 

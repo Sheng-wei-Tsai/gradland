@@ -1221,7 +1221,7 @@ I'm very open to discussing the full package — I want to find something that w
                     ⬇ Download card
                   </a>
                   <a
-                    href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`${process.env.NEXT_PUBLIC_APP_URL ?? 'https://henrysdigitallife.com'}/interview-prep/${role.id}`)}`}
+                    href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`${process.env.NEXT_PUBLIC_APP_URL ?? 'https://gradland.au'}/interview-prep/${role.id}`)}`}
                     target="_blank" rel="noopener noreferrer"
                     style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.45rem 0.95rem', background: '#0077b5', color: 'white', borderRadius: '99px', fontSize: '0.82rem', fontWeight: 600, textDecoration: 'none' }}
                   >

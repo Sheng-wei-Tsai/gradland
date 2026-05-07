@@ -3,7 +3,7 @@ import BlogList from '@/components/BlogList';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Visa News — TechPath AU',
+  title: 'Visa News — Gradland',
   description: 'Daily Australian immigration updates — 482, student visa, PR pathways and more.',
 };
 

@@ -1,4 +1,4 @@
-# TODO — TechPath AU Feature Backlog
+# TODO — Gradland Feature Backlog
 
 **Last updated:** 2026-04-22
 **Product vision:** The definitive career platform for international IT graduates entering the Australian job market.
@@ -88,7 +88,7 @@
 **Stripe activation (after ABN):**
 - [ ] Activate live mode at dashboard.stripe.com — paste ABN, upload passport, add bank BSB
 - [ ] Wait for "Charges enabled" + "Payouts enabled" (1–2 days)
-- [ ] Create live product: `TechPath AU Pro` — `$14.99 AUD / month` → copy `price_…` ID
+- [ ] Create live product: `Gradland Pro` — `$14.99 AUD / month` → copy `price_…` ID
 - [ ] Create live webhook → 5 events (checkout.session.completed, customer.subscription.updated, customer.subscription.deleted, invoice.payment_succeeded, invoice.payment_failed)
 - [ ] Swap 4 Vercel env vars to live keys (Production scope only, keep test for Preview)
 - [ ] Smoke test: real card → verify `subscription_tier = 'pro'` in Supabase → refund yourself

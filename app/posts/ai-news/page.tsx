@@ -3,7 +3,7 @@ import BlogList from '@/components/BlogList';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'AI News — TechPath AU',
+  title: 'AI News — Gradland',
   description: 'Daily AI news from Anthropic, OpenAI, and Google — enriched with developer context.',
 };
 

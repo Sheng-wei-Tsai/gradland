@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 
-export const alt  = 'TechPath AU — Career platform for international IT graduates';
+export const alt  = 'Gradland — Career platform for international IT graduates';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -67,7 +67,7 @@ export default function OG() {
 
         <div style={{ display: 'flex', flexDirection: 'column', marginLeft: 64, maxWidth: 760 }}>
           <div style={{ fontSize: 22, fontWeight: 600, color: '#c0281c', letterSpacing: '0.08em', marginBottom: 20, display: 'flex' }}>
-            TECHPATH · AU
+            GRADLAND · AU
           </div>
           <div style={{ fontSize: 80, fontWeight: 700, color: '#140a05', lineHeight: 1.05, marginBottom: 22, display: 'flex' }}>
             Land your first IT job in Australia.

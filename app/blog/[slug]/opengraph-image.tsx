@@ -96,7 +96,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
             fontSize: 20, color: '#8a6a5a',
             display: 'flex',
           }}>
-            henrysdigitallife.com
+            gradland.au
           </div>
         </div>
       </div>

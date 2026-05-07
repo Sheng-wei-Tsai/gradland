@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
 const SUPPORT_INBOX = 'admin@henrysdigitallife.com';
-const FROM          = 'TechPath AU <noreply@henrysdigitallife.com>';
+const FROM          = 'Gradland <noreply@henrysdigitallife.com>';
 
 const VALID_TOPICS = new Set(['general', 'billing', 'privacy', 'bug', 'partnership']);
 

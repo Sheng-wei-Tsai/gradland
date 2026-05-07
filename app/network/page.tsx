@@ -3,7 +3,7 @@ import { createSupabaseServer } from '@/lib/auth-server';
 import NetworkPageClient from './NetworkPageClient';
 
 export const metadata: Metadata = {
-  title: 'Job Seeker Network — TechPath AU',
+  title: 'Job Seeker Network — Gradland',
   description:
     'Browse anonymous profiles of international IT job seekers in Australia. Connect with others in your city searching for the same roles.',
 };

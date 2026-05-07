@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title:       'Terms of Service — TechPath AU',
-  description: 'Service terms, acceptable-use policy, subscription, refund and dispute resolution rules for the TechPath AU career platform.',
+  title:       'Terms of Service — Gradland',
+  description: 'Service terms, acceptable-use policy, subscription, refund and dispute resolution rules for the Gradland career platform.',
   alternates:  { canonical: '/terms' },
 };
 
@@ -44,7 +44,7 @@ export default function TermsPage() {
       </p>
 
       <p>
-        These Terms govern your use of TechPath AU (the &quot;<strong>Service</strong>&quot;), operated by
+        These Terms govern your use of Gradland (the &quot;<strong>Service</strong>&quot;), operated by
         Henry Tsai as a sole-trader business in Australia. By creating an account, subscribing, or
         using the Service, you agree to these Terms. If you do not agree, do not use the Service.
       </p>
@@ -58,13 +58,13 @@ export default function TermsPage() {
       <h2 style={h2Style}>2. Accounts</h2>
       <p>
         You authenticate via GitHub or Google OAuth. You are responsible for the security of your
-        OAuth account and for all activity under your TechPath AU profile. Notify us immediately
+        OAuth account and for all activity under your Gradland profile. Notify us immediately
         if you suspect unauthorised access.
       </p>
 
       <h2 style={h2Style}>3. The Service</h2>
       <p>
-        TechPath AU provides career-preparation tooling for international IT graduates targeting
+        Gradland provides career-preparation tooling for international IT graduates targeting
         the Australian job market. Tools include resume analysis, cover-letter generation,
         interview preparation, gap analysis, and aggregated job-listing search.
       </p>
@@ -121,7 +121,7 @@ export default function TermsPage() {
 
       <h2 style={h2Style}>8. Intellectual property</h2>
       <p>
-        The TechPath AU brand, design, code, and aggregated content (excluding your own
+        The Gradland brand, design, code, and aggregated content (excluding your own
         submissions) are owned by Henry Tsai and protected by Australian and international IP law.
         You receive a personal, non-transferable, non-exclusive licence to use the Service for the
         duration of your account.
@@ -143,7 +143,7 @@ export default function TermsPage() {
 
       <h2 style={h2Style}>11. Disclaimers</h2>
       <p>
-        TechPath AU is an independent platform and is <strong>not affiliated with, endorsed by, or
+        Gradland is an independent platform and is <strong>not affiliated with, endorsed by, or
         sponsored by</strong> any company, recruiter, university, or government agency referenced
         on the site. Visa-related information is general guidance only and is not a substitute for
         advice from a registered Migration Agent (MARN). Always verify with the Department of Home

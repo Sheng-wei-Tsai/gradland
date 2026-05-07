@@ -3,7 +3,7 @@ import BlogList from '@/components/BlogList';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'GitHub Hot — TechPath AU',
+  title: 'GitHub Hot — Gradland',
   description: "Daily GitHub trending repos — what the dev world is building right now.",
 };
 

@@ -1,4 +1,4 @@
-You are implementing a task for TechPath AU (henry-blog), a career platform for international IT graduates in Australia. The task is provided below after "TASK:".
+You are implementing a task for Gradland (henry-blog), a career platform for international IT graduates in Australia. The task is provided below after "TASK:".
 
 Before writing any code:
 1. Read AGENTS.md fully — it contains mandatory rules for this codebase.

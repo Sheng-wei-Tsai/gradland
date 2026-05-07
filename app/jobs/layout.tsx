@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'IT Jobs in Australia — TechPath AU',
+  title: 'IT Jobs in Australia — Gradland',
   description: 'Browse thousands of Australian IT roles filtered by working rights, visa sponsorship, location and tech stack.',
 };
 

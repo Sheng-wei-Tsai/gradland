@@ -3,8 +3,8 @@ import Link from 'next/link';
 import ContactForm from './ContactForm';
 
 export const metadata: Metadata = {
-  title:       'Contact — TechPath AU',
-  description: 'Get in touch with TechPath AU about privacy requests, billing questions, partnership enquiries, or general feedback.',
+  title:       'Contact — Gradland',
+  description: 'Get in touch with Gradland about privacy requests, billing questions, partnership enquiries, or general feedback.',
   alternates:  { canonical: '/contact' },
 };
 
@@ -40,7 +40,7 @@ export default function ContactPage() {
     <div style={containerStyle}>
       <h1 style={h1Style}>Contact</h1>
       <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', marginBottom: '1.75rem' }}>
-        TechPath AU is run as a sole trader in Sydney, Australia. Email is the fastest way to reach us.
+        Gradland is run as a sole trader in Sydney, Australia. Email is the fastest way to reach us.
       </p>
 
       <h2 style={h2Style}>Email</h2>

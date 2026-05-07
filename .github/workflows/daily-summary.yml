@@ -45,9 +45,9 @@ jobs:
             --silent 2>/dev/null && echo "yes" || echo "no")
           echo "exhausted=${EXHAUSTED}" >> $GITHUB_OUTPUT
 
-          # Today's bot commits on main (by github-actions bot or TechPath bots)
+          # Today's bot commits on main (by github-actions bot or Gradland bots)
           COMMITS=$(git log --since="${TODAY}T00:00:00Z" --until="${TODAY}T23:59:59Z" \
-            --format="%s" --author="github-actions\[bot\]@\|TechPath" 2>/dev/null \
+            --format="%s" --author="github-actions\[bot\]@\|Gradland" 2>/dev/null \
             | grep -v "^$" | head -10 || echo "")
           # Save to file to handle multi-line
           echo "$COMMITS" > /tmp/commits.txt
@@ -123,7 +123,7 @@ jobs:
               '2. Check open Copilot issues if any',
               f'3. Tomorrow: automation fires again at 4:50am Brisbane',
               '',
-              f'*TechPath Daily Summary — auto-generated {today}*',
+              f'*Gradland Daily Summary — auto-generated {today}*',
           ]
 
           body = '\n'.join(lines)

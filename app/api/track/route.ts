@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
         const url     = new URL(referrer);
         const appHost = process.env.NEXT_PUBLIC_APP_URL
           ? new URL(process.env.NEXT_PUBLIC_APP_URL).host
-          : 'henrysdigitallife.com';
+          : 'gradland.au';
         cleanReferrer = url.host === appHost ? null : url.origin;
       } catch {
         cleanReferrer = null;

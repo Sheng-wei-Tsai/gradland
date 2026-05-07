@@ -4,7 +4,7 @@ import PostCard from '@/components/PostCard';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'AI Digest — TechPath AU',
+  title: 'AI Digest — Gradland',
   description: 'Weekly summaries of AI research breakthroughs, model releases, and industry trends — curated for Australian IT professionals.',
 };
 

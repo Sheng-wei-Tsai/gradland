@@ -181,8 +181,8 @@ export default function PricingPage() {
         </ul>
         <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.85rem', marginBottom: 0 }}>
           Refund requests:{' '}
-          <a href="mailto:admin@henrysdigitallife.com" style={{ color: 'var(--terracotta)', textDecoration: 'underline' }}>
-            admin@henrysdigitallife.com
+          <a href="mailto:admin@gradland.au" style={{ color: 'var(--terracotta)', textDecoration: 'underline' }}>
+            admin@gradland.au
           </a>
         </p>
       </div>

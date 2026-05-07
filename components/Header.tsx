@@ -203,9 +203,9 @@ export default function Header() {
             fontFamily: "'Lora', serif", fontWeight: 700, fontSize: '1rem',
             color: 'var(--brown-dark)', textDecoration: 'none', whiteSpace: 'nowrap',
             letterSpacing: '-0.01em',
-          }} aria-label="TechPath AU — home">
+          }} aria-label="Gradland — home">
             <LogoMark size={32} withShadow={false} decorative />
-            <span>TechPath</span>
+            <span>Gradland</span>
           </Link>
 
           <nav ref={navRef} className="tp-nav-rail" aria-label="Primary">

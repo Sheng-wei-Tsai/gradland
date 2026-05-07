@@ -2,20 +2,20 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title:       'Cookies Policy — TechPath AU',
-  description: 'What cookies and browser-storage TechPath AU sets, what each one is for, and how to manage your consent.',
+  title:       'Cookies Policy — Gradland',
+  description: 'What cookies and browser-storage Gradland sets, what each one is for, and how to manage your consent.',
   alternates:  { canonical: '/cookies' },
 };
 
 const LAST_UPDATED = '6 May 2026';
-const CONTACT_EMAIL = 'admin@henrysdigitallife.com';
+const CONTACT_EMAIL = 'admin@gradland.au';
 
 const cookies: { name: string; provider: string; category: 'Essential' | 'Analytics' | 'Preferences'; purpose: string; retention: string }[] = [
   { name: 'sb-access-token / sb-refresh-token', provider: 'Supabase Auth', category: 'Essential',   purpose: 'Maintains your signed-in session.',                     retention: 'Up to 1 year (cookie); session-only access token.' },
-  { name: 'cookies-consent',                    provider: 'TechPath AU',   category: 'Essential',   purpose: 'Records your cookie-banner choice so we don&apos;t ask again.', retention: '12 months.' },
-  { name: 'theme',                              provider: 'TechPath AU',   category: 'Preferences', purpose: 'Stores light / dark / system theme preference.',         retention: '12 months (localStorage).' },
-  { name: 'lang',                               provider: 'TechPath AU',   category: 'Preferences', purpose: 'Stores language choice (en / zh-TW).',                   retention: '12 months (localStorage).' },
-  { name: 'tp_session_id',                      provider: 'TechPath AU',   category: 'Analytics',   purpose: 'Anonymous session id for aggregated page-view counts.',  retention: 'Session only (cleared on browser close).' },
+  { name: 'cookies-consent',                    provider: 'Gradland',   category: 'Essential',   purpose: 'Records your cookie-banner choice so we don&apos;t ask again.', retention: '12 months.' },
+  { name: 'theme',                              provider: 'Gradland',   category: 'Preferences', purpose: 'Stores light / dark / system theme preference.',         retention: '12 months (localStorage).' },
+  { name: 'lang',                               provider: 'Gradland',   category: 'Preferences', purpose: 'Stores language choice (en / zh-TW).',                   retention: '12 months (localStorage).' },
+  { name: 'tp_session_id',                      provider: 'Gradland',   category: 'Analytics',   purpose: 'Anonymous session id for aggregated page-view counts.',  retention: 'Session only (cleared on browser close).' },
   { name: '__stripe_mid / __stripe_sid',        provider: 'Stripe',        category: 'Essential',   purpose: 'Set during Stripe Checkout for fraud prevention.',       retention: 'Set on Stripe domain; not on ours.' },
 ];
 
@@ -79,7 +79,7 @@ export default function CookiesPage() {
       </p>
 
       <p>
-        TechPath AU uses cookies and similar browser-storage mechanisms (localStorage) to make the
+        Gradland uses cookies and similar browser-storage mechanisms (localStorage) to make the
         site work, remember your preferences, and measure aggregate usage. This page lists every
         item we set, why we set it, and how to control it.
       </p>

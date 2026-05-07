@@ -14,7 +14,7 @@ const LogoMark: React.FC<LogoMarkProps> = ({
   withShadow = true,
   className,
   style,
-  ariaLabel = 'TechPath AU',
+  ariaLabel = 'Gradland',
   decorative = false,
 }) => {
   const a11y = decorative

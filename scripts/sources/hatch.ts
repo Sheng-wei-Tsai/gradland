@@ -51,7 +51,7 @@ async function tryApi(): Promise<RawSourceJob[]> {
 async function tryHtml(): Promise<RawSourceJob[]> {
   const res = await fetch(HTML_URL, {
     signal:  AbortSignal.timeout(15000),
-    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; TechPathAU/1.0)' },
+    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; GradlandAU/1.0)' },
   });
   if (!res.ok) return [];
   const html = await res.text();

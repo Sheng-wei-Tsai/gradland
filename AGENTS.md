@@ -1,4 +1,4 @@
-# AGENTS.md — TechPath AU / Henry's Digital Life
+# AGENTS.md — Gradland
 
 This file is the single source of truth for every AI agent and developer working on this codebase.
 Read it fully before writing a single line. Rules here are enforced by CI and pre-push hooks.
@@ -7,7 +7,7 @@ Read it fully before writing a single line. Rules here are enforced by CI and pr
 
 ## 1. What this app is
 
-**TechPath AU** is a production career platform for international IT graduates in Australia.
+**Gradland** is a production career platform for international IT graduates in Australia.
 It is NOT a personal blog with some tools bolted on. The primary product is:
 
 > Resume analyser · Interview prep · Visa tracker · Salary checker · Job search · Learning paths

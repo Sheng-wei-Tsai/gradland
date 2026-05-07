@@ -32,7 +32,7 @@ const caveat = Caveat({
   display: 'swap',
 });
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://henrysdigitallife.com';
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://gradland.au';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -47,25 +47,25 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
-  title: { default: 'TechPath AU — Career tools for international IT grads', template: '%s · TechPath AU' },
+  title: { default: 'Gradland — Career tools for international IT grads', template: '%s · Gradland' },
   description: 'Resume analyser, AI interview prep, visa tracker, salary checker, and learning paths — built for international IT graduates in Australia.',
   alternates: {
     types: {
       'application/rss+xml': [
-        { url: '/feed.xml', title: 'TechPath AU — RSS Feed' },
+        { url: '/feed.xml', title: 'Gradland — RSS Feed' },
       ],
     },
   },
   openGraph: {
-    title: 'TechPath AU — Career tools for international IT grads in Australia',
+    title: 'Gradland — Career tools for international IT grads in Australia',
     description: 'Resume analyser, AI interview prep, visa tracker, salary checker, and learning paths — built for international IT graduates in Australia.',
     type: 'website',
     url: BASE_URL,
-    images: [{ url: '/opengraph-image.png', width: 1200, height: 630, alt: 'TechPath AU' }],
+    images: [{ url: '/opengraph-image.png', width: 1200, height: 630, alt: 'Gradland' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'TechPath AU — Career tools for international IT grads in Australia',
+    title: 'Gradland — Career tools for international IT grads in Australia',
     description: 'Resume analyser, AI interview prep, visa tracker, salary checker, and learning paths.',
     images: ['/opengraph-image.png'],
   },

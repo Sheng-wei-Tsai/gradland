@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title:       'Privacy Policy — TechPath AU',
-  description: 'How TechPath AU collects, uses, stores, and shares your personal information under the Australian Privacy Act 1988 and applicable data-protection laws.',
+  title:       'Privacy Policy — Gradland',
+  description: 'How Gradland collects, uses, stores, and shares your personal information under the Australian Privacy Act 1988 and applicable data-protection laws.',
   alternates:  { canonical: '/privacy' },
 };
 
@@ -68,7 +68,7 @@ export default function PrivacyPage() {
       </p>
 
       <p>
-        TechPath AU (&quot;<strong>TechPath</strong>&quot;, &quot;<strong>we</strong>&quot;, &quot;<strong>us</strong>&quot;)
+        Gradland (&quot;<strong>Gradland</strong>&quot;, &quot;<strong>we</strong>&quot;, &quot;<strong>us</strong>&quot;)
         is operated by Henry Tsai as a sole-trader business in Australia. This Privacy Policy explains
         how we handle your personal information in accordance with the{' '}
         <em>Privacy Act 1988</em> (Cth), the Australian Privacy Principles (APPs), and — where
@@ -135,7 +135,7 @@ export default function PrivacyPage() {
 
       <h2 style={h2Style}>4. Cross-border disclosure (APP 8)</h2>
       <p>
-        Some sub-processors above operate from the United States. By using TechPath AU, you consent
+        Some sub-processors above operate from the United States. By using Gradland, you consent
         to this transfer. Where a DPA is in place, we rely on Standard Contractual Clauses (SCCs) or
         equivalent transfer mechanisms.
       </p>
@@ -184,7 +184,7 @@ export default function PrivacyPage() {
 
       <h2 style={h2Style}>9. Children</h2>
       <p>
-        TechPath AU is intended for adult users (18 +). We do not knowingly collect information from
+        Gradland is intended for adult users (18 +). We do not knowingly collect information from
         children under 16. If you believe a minor has created an account, contact us and we will
         delete it.
       </p>

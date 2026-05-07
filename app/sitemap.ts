@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import fs from 'fs';
 import path from 'path';
 
-const BASE_URL = (process.env.NEXT_PUBLIC_APP_URL ?? 'https://henrys-blog.vercel.app').replace(/\/$/, '');
+const BASE_URL = (process.env.NEXT_PUBLIC_APP_URL ?? 'https://gradland.au').replace(/\/$/, '');
 
 function slugsFrom(dir: string): string[] {
   const full = path.join(process.cwd(), 'content', dir);

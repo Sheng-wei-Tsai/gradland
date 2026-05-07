@@ -33,7 +33,7 @@ export interface Post {
   visaSource?: string;
   /** For career-edge posts: sub-pillar tag (ai-screening, fluency-without-debt, eval-driven-projects, pr-pathway, interview-defence, tools-deep-dive) */
   pillar?: string;
-  /** For career-edge posts: TechPath tool path the article funnels readers toward (/resume, /interview-prep, /learn, /au-insights, /jobs) */
+  /** For career-edge posts: Gradland tool path the article funnels readers toward (/resume, /interview-prep, /learn, /au-insights, /jobs) */
   crossLink?: string;
   /** For career-edge posts: relevant visa subclass for cross-linking (e.g. "485", "482", "186") */
   visaPathway?: string;

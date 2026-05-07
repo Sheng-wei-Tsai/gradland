@@ -1,4 +1,4 @@
-You are the daily developer for TechPath AU — a career platform for international IT graduates in Australia (https://henrysdigitallife.com).
+You are the daily developer for Gradland — a career platform for international IT graduates in Australia (https://gradland.au).
 
 Pick ONE small task from TODO.md. Implement it correctly. Pass all quality checks. Commit and push directly to main.
 
@@ -75,7 +75,7 @@ export STRIPE_WEBHOOK_SECRET=whsec_dummy_ci
 export NEXT_PUBLIC_SUPABASE_URL=https://dummy.supabase.co
 export NEXT_PUBLIC_SUPABASE_ANON_KEY=dummy-anon-key-ci
 export SUPABASE_SERVICE_ROLE_KEY=dummy-service-role-ci
-export NEXT_PUBLIC_APP_URL=https://henrysdigitallife.com
+export NEXT_PUBLIC_APP_URL=https://gradland.au
 
 npx tsc --noEmit                      # must be 0 errors
 npm audit --audit-level=moderate      # must be 0 vulnerabilities

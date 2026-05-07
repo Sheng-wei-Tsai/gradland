@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name:             'TechPath AU',
-    short_name:       'TechPath',
+    name:             'Gradland',
+    short_name:       'Gradland',
     description:      'Career platform for international IT graduates landing their first job in Australia.',
     start_url:        '/',
     display:          'standalone',

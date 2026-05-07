@@ -1,6 +1,6 @@
 import { getAllPosts, getAllDigests, getAllGithot, getAllAINews, getAllVisaNews, getAllCareerEdge, Post } from '@/lib/posts';
 
-const BASE = process.env.NEXT_PUBLIC_APP_URL ?? 'https://henrysdigitallife.com';
+const BASE = process.env.NEXT_PUBLIC_APP_URL ?? 'https://gradland.au';
 
 function escapeXml(str: string): string {
   return str
@@ -55,9 +55,9 @@ export async function GET() {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Henry Tsai — Full Stack Developer</title>
+    <title>Gradland — Career tools for international IT grads in Australia</title>
     <link>${BASE}</link>
-    <description>Writing about web development, AI, and tech careers in Australia. Daily AI digests, GitHub trending, and original posts.</description>
+    <description>Resume analyser, AI interview prep, visa tracker, salary checker, learning paths, plus daily AI digests, GitHub trending, and original posts on web development, AI, and tech careers in Australia.</description>
     <language>en-AU</language>
     <lastBuildDate>${lastBuildDate}</lastBuildDate>
     <atom:link href="${BASE}/feed.xml" rel="self" type="application/rss+xml"/>
