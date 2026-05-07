@@ -1,12 +1,8 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import data from '@/data/ai-usage.json';
 
 export async function GET() {
-  const filePath = path.join(process.cwd(), 'data', 'ai-usage.json');
-  const raw = fs.readFileSync(filePath, 'utf8');
-  const data = JSON.parse(raw);
   return NextResponse.json(data, {
-    headers: { 'Cache-Control': 'no-store' },
+    headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400' },
   });
 }

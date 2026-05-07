@@ -422,7 +422,7 @@
 - [x] Cap in-memory rate-limit Map size in `app/api/log-error/route.ts:5` (`ipLog`) and `app/api/track/route.ts:9` (`ipCounts`) — both Maps insert on every unique IP and only delete on explicit access; a long-lived Vercel instance accumulates entries forever. Add an LRU cap (e.g. `if (map.size > 5000) map.delete(map.keys().next().value)`) or sweep expired entries on each call [security] [perf] ✅ 2026-05-07
 
 ### Performance
-- [ ] Cache `ai-usage.json` instead of re-reading on every GET in `app/api/ai-usage/route.ts:7-10` — `fs.readFileSync` runs synchronously per request and the response sets `Cache-Control: no-store`. File is build-time content, so switch to `import data from '@/data/ai-usage.json'` (or `export const revalidate = 3600` + `force-static`) and drop `no-store` so the CDN can cache [perf]
+- [x] Cache `ai-usage.json` instead of re-reading on every GET in `app/api/ai-usage/route.ts:7-10` — `fs.readFileSync` runs synchronously per request and the response sets `Cache-Control: no-store`. File is build-time content, so switch to `import data from '@/data/ai-usage.json'` (or `export const revalidate = 3600` + `force-static`) and drop `no-store` so the CDN can cache [perf] ✅ 2026-05-07
 
 ### Style (dark-mode breakage)
 - [x] Replace role-pill hex colours `'#fef9c3'`/`'#fee2e2'`/`'#f0fdf4'` (background) and `'#854d0e'`/`'#991b1b'`/`'#166534'` (text) in `app/admin/page.tsx:90-91` and `app/admin/users/page.tsx:86-87` with token pairs (e.g. `var(--gold)`/`var(--vermilion)`/`var(--jade)` over `rgba(...,0.12)` background); admin role/banned/user pills currently render as bright pastels on dark mode and the `#854d0e` text fails contrast against the same hardcoded yellow [style] ✅ 2026-05-07
