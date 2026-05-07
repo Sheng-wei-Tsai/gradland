@@ -24,7 +24,7 @@ const mockSelect = vi.fn();
 const mockFrom   = vi.fn();
 
 mockSelect.mockReturnValue({ eq: mockEq });
-mockEq.mockReturnValue({ single: mockSingle });
+mockEq.mockReturnValue({ single: mockSingle, maybeSingle: mockSingle });
 mockFrom.mockReturnValue({ select: mockSelect, upsert: mockUpsert });
 
 vi.mock('@/lib/auth-server', () => ({

@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
     .from('video_content')
     .select('study_guide')
     .eq('video_id', videoId)
-    .single();
+    .maybeSingle();
 
   if (cached?.study_guide && (cached.study_guide.essay || cached.study_guide.summary)) {
     // Warm KV so next request is served from the fast path

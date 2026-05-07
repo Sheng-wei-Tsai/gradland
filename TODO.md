@@ -472,6 +472,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-07 (supplement 3)
+
+> Fourth-pass scan — items not covered by earlier sweeps.
+
+### Security
+- [x] Replace `.single()` with `.maybeSingle()` on `video_content` cache lookups in `app/api/learn/analyse/route.ts:94` and `app/api/learn/quiz/route.ts:47` — both queries hit a shared cache that may not yet have a row for a given `videoId`; `.single()` generates a PGRST116 error on cache miss that pollutes Supabase error logs even though the caller handles `null` correctly via optional chaining; `.maybeSingle()` returns `{ data: null, error: null }` on 0 rows per AGENTS.md §10.3 [security] ✅ 2026-05-07
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

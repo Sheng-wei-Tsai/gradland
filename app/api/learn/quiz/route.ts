@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     .from('video_content')
     .select('quiz_questions')
     .eq('video_id', videoId)
-    .single();
+    .maybeSingle();
 
   if (cached?.quiz_questions?.length) {
     return NextResponse.json({ questions: cached.quiz_questions });
