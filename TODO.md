@@ -580,6 +580,16 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-07 (supplement 13)
+
+> Fourteenth-pass scan — `InterviewPrepClient.tsx` and `NetworkingClient.tsx` hex missed by all prior sweeps.
+
+### Style (dark-mode breakage)
+- [x] Replace `demandColor` map (`#10b981`/`#f59e0b`/`#6b7280`) and `difficultyColor` map (`#3b82f6`/`#8b5cf6`/`#ef4444`) in `app/interview-prep/InterviewPrepClient.tsx:105-113` with tokens (`var(--jade)`/`var(--gold)`/`var(--text-muted)` and `var(--jade)`/`var(--gold)`/`var(--vermilion)`); also replace card-title `color: '#f8fafc'` → `'white'` (line 309), "Start here" badge `#0d9488`/`rgba(20,184,166,0.12)` → `var(--jade)`/`rgba(30,122,82,0.12)` (lines 511,601), and "Tip" text `#b45309` → `var(--gold)` (line 564) [style] ✅ 2026-05-07
+- [x] Replace networking-hub progress colours `#14b8a6` (pct badge text/background, progress bar fill — lines 90,99,102 in `app/interview-prep/networking/NetworkingClient.tsx`) and checked-task background `rgba(20,184,166,0.06)` (line 123) and success box `rgba(16,185,129,0.08)`/`rgba(16,185,129,0.3)`/`#047857` (lines 142-143) with `var(--jade)`/`rgba(30,122,82,…)` tokens [style] ✅ 2026-05-07
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

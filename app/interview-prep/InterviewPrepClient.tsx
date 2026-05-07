@@ -103,14 +103,14 @@ function ProgressPill({ value, label, accent }: { value: string | number; label:
 
 // ── Difficulty / demand colors ────────────────────────────────────────────────
 const demandColor: Record<string, string> = {
-  'Very High': '#10b981',
-  'High':      '#f59e0b',
-  'Medium':    '#6b7280',
+  'Very High': 'var(--jade)',
+  'High':      'var(--gold)',
+  'Medium':    'var(--text-muted)',
 };
 const difficultyColor: Record<string, string> = {
-  'Entry':  '#3b82f6',
-  'Mid':    '#8b5cf6',
-  'Senior': '#ef4444',
+  'Entry':  'var(--jade)',
+  'Mid':    'var(--gold)',
+  'Senior': 'var(--vermilion)',
 };
 
 // ── Tool cards config ─────────────────────────────────────────────────────────
@@ -306,7 +306,7 @@ export default function InterviewPrepClient() {
                   {/* Title */}
                   <h3 style={{
                     fontFamily: "'Lora', serif", fontSize: '1.15rem', fontWeight: 700,
-                    color: '#f8fafc', lineHeight: 1.2, marginBottom: '0.5rem',
+                    color: 'white', lineHeight: 1.2, marginBottom: '0.5rem',
                   }}>
                     {tool.label}
                   </h3>
@@ -508,7 +508,7 @@ export default function InterviewPrepClient() {
                               </h3>
                               <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
                                 {role.badge ? (
-                                  <span style={{ fontSize: '0.63rem', fontWeight: 700, color: '#0d9488', background: 'rgba(20,184,166,0.12)', padding: '0.13em 0.5em', borderRadius: '4px' }}>
+                                  <span style={{ fontSize: '0.63rem', fontWeight: 700, color: 'var(--jade)', background: 'rgba(30,122,82,0.12)', padding: '0.13em 0.5em', borderRadius: '4px' }}>
                                     {role.badge}
                                   </span>
                                 ) : (
@@ -561,7 +561,7 @@ export default function InterviewPrepClient() {
                               <p style={{ fontSize: '0.77rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '0.18rem' }}>
                                 <strong>Style:</strong> {intel.style}
                               </p>
-                              <p style={{ fontSize: '0.77rem', color: '#b45309', lineHeight: 1.5 }}>
+                              <p style={{ fontSize: '0.77rem', color: 'var(--gold)', lineHeight: 1.5 }}>
                                 <strong>Tip:</strong> {intel.tip}
                               </p>
                             </div>
@@ -598,7 +598,7 @@ export default function InterviewPrepClient() {
                     <div>
                       <span className="role-list-item-title">{role.title}</span>
                       {role.badge ? (
-                        <span style={{ marginLeft: '0.5rem', fontSize: '0.63rem', fontWeight: 700, color: '#0d9488' }}>● Start here</span>
+                        <span style={{ marginLeft: '0.5rem', fontSize: '0.63rem', fontWeight: 700, color: 'var(--jade)' }}>● Start here</span>
                       ) : (
                         <span style={{ marginLeft: '0.5rem', fontSize: '0.65rem', fontWeight: 700, color: demandColor[role.demand] }}>{role.demand}</span>
                       )}

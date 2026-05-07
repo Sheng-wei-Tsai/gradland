@@ -87,7 +87,7 @@ export default function NetworkingClient() {
       <summary style={{ padding: '1.1rem 1.4rem', cursor: 'pointer', listStyle: 'none', display: 'flex', alignItems: 'center', gap: '0.75rem', userSelect: 'none', fontFamily: "'Lora', serif", fontSize: '1rem', fontWeight: 700, color: 'var(--brown-dark)' }}>
         <span style={{ fontSize: '1.4rem' }}>🗓️</span>
         <span style={{ flex: 1 }}>30-Day Networking Action Plan</span>
-        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#14b8a6', background: 'rgba(20,184,166,0.1)', padding: '0.2em 0.6em', borderRadius: '4px' }}>{pct}%</span>
+        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--jade)', background: 'rgba(30,122,82,0.1)', padding: '0.2em 0.6em', borderRadius: '4px' }}>{pct}%</span>
         <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>▾</span>
       </summary>
 
@@ -96,10 +96,10 @@ export default function NetworkingClient() {
         <div style={{ marginTop: '1.1rem', marginBottom: '1.25rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
             <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{completed} / {totalTasks} tasks complete</span>
-            <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#14b8a6' }}>{pct}%</span>
+            <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--jade)' }}>{pct}%</span>
           </div>
           <div style={{ background: 'var(--parchment)', borderRadius: '99px', height: '6px', overflow: 'hidden' }}>
-            <div style={{ height: '100%', borderRadius: '99px', background: '#14b8a6', width: `${loaded ? pct : 0}%`, transition: 'width 0.6s ease' }} />
+            <div style={{ height: '100%', borderRadius: '99px', background: 'var(--jade)', width: `${loaded ? pct : 0}%`, transition: 'width 0.6s ease' }} />
           </div>
         </div>
 
@@ -120,7 +120,7 @@ export default function NetworkingClient() {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', paddingLeft: '0.5rem' }}>
                   {week.tasks.map(task => (
-                    <label key={task.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem', padding: '0.5rem 0.7rem', borderRadius: '8px', background: checked.has(task.id) ? 'rgba(20,184,166,0.06)' : 'var(--cream)', cursor: 'pointer', transition: 'background 0.15s' }}>
+                    <label key={task.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem', padding: '0.5rem 0.7rem', borderRadius: '8px', background: checked.has(task.id) ? 'rgba(30,122,82,0.06)' : 'var(--cream)', cursor: 'pointer', transition: 'background 0.15s' }}>
                       <input
                         type="checkbox"
                         checked={checked.has(task.id)}
@@ -139,8 +139,8 @@ export default function NetworkingClient() {
         </div>
 
         {completed === totalTasks && (
-          <div style={{ marginTop: '1.25rem', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '10px', padding: '0.9rem 1rem', textAlign: 'center' }}>
-            <p style={{ fontSize: '0.9rem', fontWeight: 700, color: '#047857' }}>🎉 30-day plan complete! Your network is now an asset.</p>
+          <div style={{ marginTop: '1.25rem', background: 'rgba(30,122,82,0.08)', border: '1px solid rgba(30,122,82,0.3)', borderRadius: '10px', padding: '0.9rem 1rem', textAlign: 'center' }}>
+            <p style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--jade)' }}>🎉 30-day plan complete! Your network is now an asset.</p>
           </div>
         )}
       </div>
