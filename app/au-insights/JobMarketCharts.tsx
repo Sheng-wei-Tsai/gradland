@@ -70,33 +70,33 @@ function IVILineChart() {
     // grid
     g.append('g').attr('class', 'grid')
       .call(d3.axisLeft(yScale).ticks(5).tickSize(-iW).tickFormat(() => ''))
-      .call(gx => { gx.select('.domain').remove(); gx.selectAll('line').attr('stroke', '#e5e7eb').attr('stroke-dasharray', '2,3'); });
+      .call(gx => { gx.select('.domain').remove(); gx.selectAll('line').attr('stroke', 'var(--parchment)').attr('stroke-dasharray', '2,3'); });
 
     // axes
     const every = Math.ceil(pts.length / (w < 480 ? 4 : 6));
     g.append('g').attr('transform', `translate(0,${iH})`)
       .call(d3.axisBottom(xScale).tickValues(pts.filter((_, i) => i % every === 0).map(d => d.quarter)))
-      .call(gx => { gx.select('.domain').remove(); gx.selectAll('text').style('font-size', '0.65rem').attr('fill', '#9ca3af'); gx.selectAll('line').remove(); });
+      .call(gx => { gx.select('.domain').remove(); gx.selectAll('text').style('font-size', '0.65rem').attr('fill', 'var(--text-muted)'); gx.selectAll('line').remove(); });
 
     g.append('g')
       .call(d3.axisLeft(yScale).ticks(5).tickFormat(d => String(d)))
-      .call(gx => { gx.select('.domain').remove(); gx.selectAll('text').style('font-size', '0.65rem').attr('fill', '#9ca3af'); gx.selectAll('line').remove(); });
+      .call(gx => { gx.select('.domain').remove(); gx.selectAll('text').style('font-size', '0.65rem').attr('fill', 'var(--text-muted)'); gx.selectAll('line').remove(); });
 
     // COVID annotation
     const covidQ = 'Q2 2020';
     const cx = xScale(covidQ);
     if (cx !== undefined) {
       g.append('line').attr('x1', cx).attr('x2', cx).attr('y1', 0).attr('y2', iH)
-        .attr('stroke', '#f59e0b').attr('stroke-dasharray', '3,3').attr('stroke-width', 1);
+        .attr('stroke', 'var(--gold)').attr('stroke-dasharray', '3,3').attr('stroke-width', 1);
       g.append('text').attr('x', cx + 3).attr('y', 14)
-        .style('font-size', '0.6rem').attr('fill', '#f59e0b').text('COVID');
+        .style('font-size', '0.6rem').attr('fill', 'var(--gold)').text('COVID');
     }
     // peak annotation
     const peakQ = 'Q2 2022';
     const px = xScale(peakQ);
     if (px !== undefined) {
       g.append('text').attr('x', px - 24).attr('y', yScale(191) - 5)
-        .style('font-size', '0.6rem').attr('fill', '#dc2626').text('Peak');
+        .style('font-size', '0.6rem').attr('fill', 'var(--vermilion)').text('Peak');
     }
 
     // line + area generators
@@ -106,12 +106,12 @@ function IVILineChart() {
 
     const defs = svg.append('defs');
     const grad = defs.append('linearGradient').attr('id', 'ivi-grad').attr('x1', 0).attr('y1', 0).attr('x2', 0).attr('y2', 1);
-    grad.append('stop').attr('offset', '0%').attr('stop-color', '#dc2626').attr('stop-opacity', 0.18);
-    grad.append('stop').attr('offset', '100%').attr('stop-color', '#dc2626').attr('stop-opacity', 0);
+    grad.append('stop').attr('offset', '0%').attr('stop-color', 'var(--vermilion)').attr('stop-opacity', 0.18);
+    grad.append('stop').attr('offset', '100%').attr('stop-color', 'var(--vermilion)').attr('stop-opacity', 0);
 
     g.append('path').datum(pts).attr('d', areaICT).attr('fill', 'url(#ivi-grad)');
-    g.append('path').datum(pts).attr('d', lineAll).attr('fill', 'none').attr('stroke', '#d1d5db').attr('stroke-width', 1.5);
-    g.append('path').datum(pts).attr('d', lineICT).attr('fill', 'none').attr('stroke', '#dc2626').attr('stroke-width', 2);
+    g.append('path').datum(pts).attr('d', lineAll).attr('fill', 'none').attr('stroke', 'var(--parchment)').attr('stroke-width', 1.5);
+    g.append('path').datum(pts).attr('d', lineICT).attr('fill', 'none').attr('stroke', 'var(--vermilion)').attr('stroke-width', 2);
 
     // hover overlay
     const bisect = d3.bisector((d: typeof pts[0]) => d.quarter).left;
@@ -136,21 +136,21 @@ function IVILineChart() {
       {tooltip && (
         <div style={{
           position: 'absolute', left: Math.min(tooltip.x, w - 160), top: tooltip.y,
-          background: 'white', border: '1px solid var(--parchment)', borderRadius: '8px',
+          background: 'var(--warm-white)', border: '1px solid var(--parchment)', borderRadius: '8px',
           padding: '0.5rem 0.75rem', fontSize: '0.75rem', pointerEvents: 'none',
           boxShadow: '0 2px 8px rgba(0,0,0,0.08)', zIndex: 10,
         }}>
           <div style={{ fontWeight: 700, marginBottom: '0.2rem' }}>{tooltip.d.quarter}</div>
-          <div style={{ color: '#dc2626' }}>ICT: <strong>{tooltip.d.ict}</strong></div>
-          <div style={{ color: '#9ca3af' }}>All: <strong>{tooltip.d.all}</strong></div>
-          {tooltip.d.est && <div style={{ color: '#d97706', fontSize: '0.67rem', marginTop: '0.2rem' }}>* estimated</div>}
+          <div style={{ color: 'var(--vermilion)' }}>ICT: <strong>{tooltip.d.ict}</strong></div>
+          <div style={{ color: 'var(--text-muted)' }}>All: <strong>{tooltip.d.all}</strong></div>
+          {tooltip.d.est && <div style={{ color: 'var(--gold)', fontSize: '0.67rem', marginTop: '0.2rem' }}>* estimated</div>}
         </div>
       )}
       {/* legend */}
       <div style={{ display: 'flex', gap: '1.2rem', marginTop: '0.4rem', paddingLeft: `${40}px` }}>
-        {[['ICT Professionals', '#dc2626'], ['All Occupations', '#d1d5db']].map(([label, color]) => (
+        {([['ICT Professionals', 'var(--vermilion)'], ['All Occupations', 'var(--parchment)']] as [string, string][]).map(([label, color]) => (
           <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-            <div style={{ width: 20, height: 2, background: color as string }} />
+            <div style={{ width: 20, height: 2, background: color }} />
             {label}
           </div>
         ))}
@@ -179,16 +179,16 @@ function IVIStateChart() {
 
     g.append('g').attr('transform', `translate(0,${iH})`)
       .call(d3.axisBottom(xScale).tickSize(0))
-      .call(gx => { gx.select('.domain').attr('stroke', '#e5e7eb'); gx.selectAll('text').style('font-size', '0.7rem').attr('fill', '#6b7280'); });
+      .call(gx => { gx.select('.domain').attr('stroke', 'var(--parchment)'); gx.selectAll('text').style('font-size', '0.7rem').attr('fill', 'var(--text-muted)'); });
 
     g.append('g')
       .call(d3.axisLeft(yScale).ticks(4))
-      .call(gx => { gx.select('.domain').remove(); gx.selectAll('text').style('font-size', '0.65rem').attr('fill', '#9ca3af'); gx.selectAll('line').remove(); });
+      .call(gx => { gx.select('.domain').remove(); gx.selectAll('text').style('font-size', '0.65rem').attr('fill', 'var(--text-muted)'); gx.selectAll('line').remove(); });
 
     // 100 baseline
     g.append('line').attr('x1', 0).attr('x2', iW).attr('y1', yScale(100)).attr('y2', yScale(100))
-      .attr('stroke', '#d97706').attr('stroke-dasharray', '3,3').attr('stroke-width', 1);
-    g.append('text').attr('x', iW + 3).attr('y', yScale(100) + 4).style('font-size', '0.6rem').attr('fill', '#d97706').text('Base');
+      .attr('stroke', 'var(--gold)').attr('stroke-dasharray', '3,3').attr('stroke-width', 1);
+    g.append('text').attr('x', iW + 3).attr('y', yScale(100) + 4).style('font-size', '0.6rem').attr('fill', 'var(--gold)').text('Base');
 
     g.selectAll('.bar').data(data).join('rect')
       .attr('x', d => xScale(d.state)!)
@@ -196,7 +196,7 @@ function IVIStateChart() {
       .attr('width', xScale.bandwidth())
       .attr('height', d => iH - yScale(d.index))
       .attr('rx', 3)
-      .attr('fill', d => d.index >= 120 ? '#dc2626' : d.index >= 100 ? '#d97706' : '#9ca3af');
+      .attr('fill', d => d.index >= 120 ? 'var(--vermilion)' : d.index >= 100 ? 'var(--gold)' : 'var(--text-muted)');
 
     // change labels
     g.selectAll('.lbl').data(data).join('text')
@@ -204,7 +204,7 @@ function IVIStateChart() {
       .attr('y', d => yScale(d.index) - 3)
       .attr('text-anchor', 'middle')
       .style('font-size', '0.6rem')
-      .attr('fill', d => d.change < 0 ? '#6b7280' : '#10b981')
+      .attr('fill', d => d.change < 0 ? 'var(--text-muted)' : 'var(--jade)')
       .text(d => `${d.change > 0 ? '+' : ''}${d.change}%`);
 
   }, [w]);
@@ -235,7 +235,7 @@ function SalaryChart() {
 
     const maxSal = d3.max(roles, d => d.senior)!;
     const xScale = d3.scaleLinear().domain([0, maxSal]).range([0, iW]);
-    const colors = { junior: '#93c5fd', mid: '#3b82f6', senior: '#1d4ed8' };
+    const colors = { junior: 'rgba(30,122,82,0.35)', mid: 'rgba(30,122,82,0.65)', senior: 'var(--jade)' };
     const keys = ['junior', 'mid', 'senior'] as const;
     const labels = { junior: 'Junior', mid: 'Mid', senior: 'Senior' };
 
@@ -244,7 +244,7 @@ function SalaryChart() {
       // role label
       g.append('text').attr('x', -8).attr('y', rowY + barH * 1.5)
         .attr('text-anchor', 'end').attr('dominant-baseline', 'middle')
-        .style('font-size', w < 480 ? '0.62rem' : '0.72rem').attr('fill', '#374151').text(role.role);
+        .style('font-size', w < 480 ? '0.62rem' : '0.72rem').attr('fill', 'var(--text-secondary)').text(role.role);
 
       keys.forEach((k, ki) => {
         const val = role[k];
@@ -253,7 +253,7 @@ function SalaryChart() {
           .attr('width', xScale(val)).attr('height', barH - 2).attr('rx', 3)
           .attr('fill', colors[k]).attr('opacity', 0.85);
         g.append('text').attr('x', xScale(val) + 4).attr('y', rowY + ki * barH + barH / 2)
-          .attr('dominant-baseline', 'middle').style('font-size', '0.62rem').attr('fill', '#374151')
+          .attr('dominant-baseline', 'middle').style('font-size', '0.62rem').attr('fill', 'var(--text-secondary)')
           .text(`$${val}k`);
       });
     });
@@ -261,13 +261,13 @@ function SalaryChart() {
     // x-axis
     g.append('g').attr('transform', `translate(0,${H - MT - MB})`)
       .call(d3.axisBottom(xScale).ticks(4).tickFormat(d => `$${d}k`))
-      .call(gx => { gx.select('.domain').remove(); gx.selectAll('text').style('font-size', '0.65rem').attr('fill', '#9ca3af'); gx.selectAll('line').remove(); });
+      .call(gx => { gx.select('.domain').remove(); gx.selectAll('text').style('font-size', '0.65rem').attr('fill', 'var(--text-muted)'); gx.selectAll('line').remove(); });
 
     // legend
     const lg = svg.append('g').attr('transform', `translate(${ML},6)`);
     keys.forEach((k, i) => {
       lg.append('rect').attr('x', i * 70).attr('y', 0).attr('width', 12).attr('height', 8).attr('rx', 2).attr('fill', colors[k]);
-      lg.append('text').attr('x', i * 70 + 16).attr('y', 7).style('font-size', '0.65rem').attr('fill', '#6b7280').text(labels[k]);
+      lg.append('text').attr('x', i * 70 + 16).attr('y', 7).style('font-size', '0.65rem').attr('fill', 'var(--text-muted)').text(labels[k]);
     });
 
   }, [w]);
@@ -300,17 +300,17 @@ function GradEmploymentChart() {
     const yScale = d3.scaleLinear().domain([55, 95]).range([iH, 0]);
 
     g.append('g').call(d3.axisLeft(yScale).ticks(5).tickFormat(d => `${d}%`).tickSize(-iW))
-      .call(gx => { gx.select('.domain').remove(); gx.selectAll('line').attr('stroke', '#e5e7eb').attr('stroke-dasharray', '2,3'); gx.selectAll('text').style('font-size', '0.65rem').attr('fill', '#9ca3af'); });
+      .call(gx => { gx.select('.domain').remove(); gx.selectAll('line').attr('stroke', 'var(--parchment)').attr('stroke-dasharray', '2,3'); gx.selectAll('text').style('font-size', '0.65rem').attr('fill', 'var(--text-muted)'); });
 
     g.append('g').attr('transform', `translate(0,${iH})`)
       .call(d3.axisBottom(xScale).tickFormat(d => String(d)))
-      .call(gx => { gx.select('.domain').remove(); gx.selectAll('text').style('font-size', '0.65rem').attr('fill', '#9ca3af'); gx.selectAll('line').remove(); });
+      .call(gx => { gx.select('.domain').remove(); gx.selectAll('text').style('font-size', '0.65rem').attr('fill', 'var(--text-muted)'); gx.selectAll('line').remove(); });
 
     // COVID annotation
     const covidX = xScale(2020);
     if (covidX !== undefined) {
       g.append('line').attr('x1', covidX).attr('x2', covidX).attr('y1', 0).attr('y2', iH)
-        .attr('stroke', '#f59e0b').attr('stroke-dasharray', '3,3').attr('stroke-width', 1);
+        .attr('stroke', 'var(--gold)').attr('stroke-dasharray', '3,3').attr('stroke-width', 1);
     }
 
     const lineIT = d3.line<typeof pts[0]>().x(d => xScale(d.year)!).y(d => yScale(d.it_rate)).curve(d3.curveCatmullRom);
@@ -319,17 +319,17 @@ function GradEmploymentChart() {
 
     const defs = svg.append('defs');
     const grad = defs.append('linearGradient').attr('id', 'grad-grad').attr('x1', 0).attr('y1', 0).attr('x2', 0).attr('y2', 1);
-    grad.append('stop').attr('offset', '0%').attr('stop-color', '#7c3aed').attr('stop-opacity', 0.15);
-    grad.append('stop').attr('offset', '100%').attr('stop-color', '#7c3aed').attr('stop-opacity', 0);
+    grad.append('stop').attr('offset', '0%').attr('stop-color', 'var(--jade)').attr('stop-opacity', 0.15);
+    grad.append('stop').attr('offset', '100%').attr('stop-color', 'var(--jade)').attr('stop-opacity', 0);
 
     g.append('path').datum(pts).attr('d', areaIT).attr('fill', 'url(#grad-grad)');
-    g.append('path').datum(pts).attr('d', lineAll).attr('fill', 'none').attr('stroke', '#d1d5db').attr('stroke-width', 1.5).attr('stroke-dasharray', '4,2');
-    g.append('path').datum(pts).attr('d', lineIT).attr('fill', 'none').attr('stroke', '#7c3aed').attr('stroke-width', 2);
+    g.append('path').datum(pts).attr('d', lineAll).attr('fill', 'none').attr('stroke', 'var(--parchment)').attr('stroke-width', 1.5).attr('stroke-dasharray', '4,2');
+    g.append('path').datum(pts).attr('d', lineIT).attr('fill', 'none').attr('stroke', 'var(--jade)').attr('stroke-width', 2);
 
     // dots
     g.selectAll('.dot').data(pts).join('circle')
       .attr('cx', d => xScale(d.year)!).attr('cy', d => yScale(d.it_rate))
-      .attr('r', 4).attr('fill', '#7c3aed').attr('stroke', 'white').attr('stroke-width', 1.5);
+      .attr('r', 4).attr('fill', 'var(--jade)').attr('stroke', 'white').attr('stroke-width', 1.5);
 
     const overlay = g.append('rect').attr('width', iW).attr('height', iH).attr('fill', 'none').attr('pointer-events', 'all');
     overlay.on('mousemove', (event: MouseEvent) => {
@@ -350,20 +350,20 @@ function GradEmploymentChart() {
       {tooltip && (
         <div style={{
           position: 'absolute', left: Math.min(tooltip.x, w - 180), top: tooltip.y,
-          background: 'white', border: '1px solid var(--parchment)', borderRadius: '8px',
+          background: 'var(--warm-white)', border: '1px solid var(--parchment)', borderRadius: '8px',
           padding: '0.5rem 0.75rem', fontSize: '0.75rem', pointerEvents: 'none',
           boxShadow: '0 2px 8px rgba(0,0,0,0.08)', zIndex: 10,
         }}>
           <div style={{ fontWeight: 700, marginBottom: '0.2rem' }}>{tooltip.d.year}</div>
-          <div style={{ color: '#7c3aed' }}>IT Employment: <strong>{tooltip.d.it_rate}%</strong></div>
-          <div style={{ color: '#9ca3af' }}>All fields: <strong>{tooltip.d.all_rate}%</strong></div>
-          <div style={{ color: '#374151', marginTop: '0.2rem' }}>IT Median salary: <strong>${(tooltip.d.it_salary / 1000).toFixed(0)}k</strong></div>
+          <div style={{ color: 'var(--jade)' }}>IT Employment: <strong>{tooltip.d.it_rate}%</strong></div>
+          <div style={{ color: 'var(--text-muted)' }}>All fields: <strong>{tooltip.d.all_rate}%</strong></div>
+          <div style={{ color: 'var(--text-secondary)', marginTop: '0.2rem' }}>IT Median salary: <strong>${(tooltip.d.it_salary / 1000).toFixed(0)}k</strong></div>
         </div>
       )}
       <div style={{ display: 'flex', gap: '1.2rem', marginTop: '0.4rem', paddingLeft: `${38}px` }}>
-        {[['IT / CS Graduates', '#7c3aed', false], ['All Disciplines', '#d1d5db', true]].map(([label, color, dashed]) => (
-          <div key={label as string} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-            <svg width="20" height="8"><line x1="0" y1="4" x2="20" y2="4" stroke={color as string} strokeWidth="2" strokeDasharray={dashed ? '4,2' : undefined} /></svg>
+        {([['IT / CS Graduates', 'var(--jade)', false], ['All Disciplines', 'var(--parchment)', true]] as [string, string, boolean][]).map(([label, color, dashed]) => (
+          <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+            <svg width="20" height="8"><line x1="0" y1="4" x2="20" y2="4" stroke={color} strokeWidth="2" strokeDasharray={dashed ? '4,2' : undefined} /></svg>
             {label}
           </div>
         ))}
@@ -393,13 +393,13 @@ function GradFieldChart() {
     g.append('g').attr('transform', `translate(0,${iH})`)
       .call(d3.axisBottom(xScale).tickSize(0))
       .call(gx => {
-        gx.select('.domain').attr('stroke', '#e5e7eb');
-        gx.selectAll('text').style('font-size', '0.62rem').attr('fill', '#6b7280')
+        gx.select('.domain').attr('stroke', 'var(--parchment)');
+        gx.selectAll('text').style('font-size', '0.62rem').attr('fill', 'var(--text-muted)')
           .attr('transform', 'rotate(-35)').attr('text-anchor', 'end');
       });
 
     g.append('g').call(d3.axisLeft(yScale).ticks(5).tickFormat(d => `${d}%`))
-      .call(gx => { gx.select('.domain').remove(); gx.selectAll('text').style('font-size', '0.65rem').attr('fill', '#9ca3af'); gx.selectAll('line').remove(); });
+      .call(gx => { gx.select('.domain').remove(); gx.selectAll('text').style('font-size', '0.65rem').attr('fill', 'var(--text-muted)'); gx.selectAll('line').remove(); });
 
     g.selectAll('.bar').data(data).join('rect')
       .attr('x', d => xScale(d.field)!)
@@ -411,7 +411,7 @@ function GradFieldChart() {
     g.selectAll('.lbl').data(data).join('text')
       .attr('x', d => xScale(d.field)! + xScale.bandwidth() / 2)
       .attr('y', d => yScale(d.rate) - 3)
-      .attr('text-anchor', 'middle').style('font-size', '0.6rem').attr('fill', '#374151')
+      .attr('text-anchor', 'middle').style('font-size', '0.6rem').attr('fill', 'var(--text-secondary)')
       .text(d => `${d.rate}%`);
 
   }, [w]);
@@ -427,11 +427,11 @@ function GradFieldChart() {
    6. JSA Skills Matrix — CSS grid (no D3 needed)
    ══════════════════════════════════════════════════════════════════════ */
 const STATUS_COLOR: Record<ShortageStatus, { bg: string; text: string; label: string }> = {
-  Shortage:  { bg: '#fef2f2', text: '#dc2626', label: 'Shortage' },
-  Regional:  { bg: '#fffbeb', text: '#d97706', label: 'Regional' },
-  Balanced:  { bg: '#f0fdf4', text: '#16a34a', label: 'Balanced' },
-  Surplus:   { bg: '#f9fafb', text: '#6b7280', label: 'Surplus' },
-  NA:        { bg: '#f9fafb', text: '#d1d5db', label: '—' },
+  Shortage:  { bg: 'rgba(232,64,64,0.08)',  text: 'var(--vermilion)', label: 'Shortage' },
+  Regional:  { bg: 'rgba(200,138,20,0.08)', text: 'var(--gold)',      label: 'Regional' },
+  Balanced:  { bg: 'rgba(30,122,82,0.08)',  text: 'var(--jade)',      label: 'Balanced' },
+  Surplus:   { bg: 'rgba(122,80,48,0.06)',  text: 'var(--text-muted)', label: 'Surplus' },
+  NA:        { bg: 'transparent',            text: 'var(--text-muted)', label: '—' },
 };
 
 function JSAMatrix() {
@@ -452,7 +452,7 @@ function JSAMatrix() {
         </thead>
         <tbody>
           {JSA_ICT_OCCUPATIONS.map((occ, i) => (
-            <tr key={i} style={{ borderBottom: '1px solid var(--parchment)', background: i % 2 === 0 ? 'transparent' : '#faf9f7' }}>
+            <tr key={i} style={{ borderBottom: '1px solid var(--parchment)', background: i % 2 === 0 ? 'transparent' : 'var(--cream)' }}>
               <td style={{ padding: '0.45rem 0.5rem', color: 'var(--brown-dark)', fontWeight: 500 }}>
                 {occ.role}
                 {occ.note && <span style={{ display: 'block', fontSize: '0.62rem', color: 'var(--text-muted)', fontWeight: 400 }}>{occ.note}</span>}
@@ -472,7 +472,7 @@ function JSAMatrix() {
                   </td>
                 );
               })}
-              <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: '#374151', fontWeight: 500 }}>
+              <td style={{ padding: '0.45rem 0.5rem', textAlign: 'right', color: 'var(--text-secondary)', fontWeight: 500 }}>
                 ${(occ.salary / 1000).toFixed(0)}k
               </td>
             </tr>
@@ -508,12 +508,12 @@ function JSABubble() {
 
     // grid
     g.append('g').call(d3.axisLeft(yScale).ticks(5).tickFormat(d => `$${(+d / 1000).toFixed(0)}k`).tickSize(-iW))
-      .call(gx => { gx.select('.domain').remove(); gx.selectAll('line').attr('stroke', '#f3f4f6'); gx.selectAll('text').style('font-size', '0.62rem').attr('fill', '#9ca3af'); });
+      .call(gx => { gx.select('.domain').remove(); gx.selectAll('line').attr('stroke', 'var(--parchment)'); gx.selectAll('text').style('font-size', '0.62rem').attr('fill', 'var(--text-muted)'); });
 
     // quadrant labels
     const quadrants = [
-      { x: iW * 0.75, y: 16, text: '🎯 Target', color: '#dc2626' },
-      { x: iW * 0.1,  y: iH - 6, text: 'Avoid', color: '#9ca3af' },
+      { x: iW * 0.75, y: 16, text: '🎯 Target', color: 'var(--vermilion)' },
+      { x: iW * 0.1,  y: iH - 6, text: 'Avoid', color: 'var(--text-muted)' },
     ];
     quadrants.forEach(q => g.append('text').attr('x', q.x).attr('y', q.y).style('font-size', '0.65rem').attr('fill', q.color).attr('font-weight', 600).text(q.text));
 
@@ -521,15 +521,15 @@ function JSABubble() {
     const xLabels = ['Surplus', 'Balanced', 'Regional', 'Shortage'];
     xLabels.forEach((lbl, i) => {
       g.append('text').attr('x', xScale(i)).attr('y', iH + 18)
-        .attr('text-anchor', 'middle').style('font-size', '0.62rem').attr('fill', '#6b7280').text(lbl);
+        .attr('text-anchor', 'middle').style('font-size', '0.62rem').attr('fill', 'var(--text-muted)').text(lbl);
     });
     g.append('text').attr('x', iW / 2).attr('y', iH + 36)
-      .attr('text-anchor', 'middle').style('font-size', '0.65rem').attr('fill', '#9ca3af').text('2024 Shortage Status →');
+      .attr('text-anchor', 'middle').style('font-size', '0.65rem').attr('fill', 'var(--text-muted)').text('2024 Shortage Status →');
 
     g.append('text').attr('transform', 'rotate(-90)').attr('x', -iH / 2).attr('y', -40)
-      .attr('text-anchor', 'middle').style('font-size', '0.65rem').attr('fill', '#9ca3af').text('Median Salary');
+      .attr('text-anchor', 'middle').style('font-size', '0.65rem').attr('fill', 'var(--text-muted)').text('Median Salary');
 
-    const bubbles = g.selectAll('.bubble').data(data).join('circle')
+    g.selectAll('.bubble').data(data).join('circle')
       .attr('cx', d => xScale(d.sx))
       .attr('cy', d => yScale(d.salary))
       .attr('r', d => rScale(d.demand))
@@ -550,14 +550,14 @@ function JSABubble() {
       {hovered && (
         <div style={{
           position: 'absolute', bottom: 0, right: 0,
-          background: 'white', border: '1px solid var(--parchment)', borderRadius: '8px',
+          background: 'var(--warm-white)', border: '1px solid var(--parchment)', borderRadius: '8px',
           padding: '0.5rem 0.75rem', fontSize: '0.75rem',
           boxShadow: '0 2px 8px rgba(0,0,0,0.08)', zIndex: 10, maxWidth: 180,
         }}>
           <div style={{ fontWeight: 700, marginBottom: '0.2rem', color: 'var(--brown-dark)' }}>{hovered.role}</div>
           <div style={{ color: STATUS_COLOR[hovered.status2024].text }}>{STATUS_COLOR[hovered.status2024].label}</div>
-          <div style={{ color: '#374151' }}>Salary: ${(hovered.salary / 1000).toFixed(0)}k</div>
-          <div style={{ color: '#6b7280', fontSize: '0.68rem' }}>Demand index: {hovered.demand}</div>
+          <div style={{ color: 'var(--text-secondary)' }}>Salary: ${(hovered.salary / 1000).toFixed(0)}k</div>
+          <div style={{ color: 'var(--text-muted)', fontSize: '0.68rem' }}>Demand index: {hovered.demand}</div>
         </div>
       )}
     </div>
@@ -658,8 +658,8 @@ export default function JobMarketCharts() {
           </h3>
           <span style={{
             fontSize: '0.63rem', fontWeight: 600, padding: '0.15rem 0.55rem',
-            borderRadius: '99px', background: '#f0fdf4', color: '#16a34a',
-            border: '1px solid #bbf7d0',
+            borderRadius: '99px', background: 'rgba(30,122,82,0.08)', color: 'var(--jade)',
+            border: '1px solid rgba(30,122,82,0.25)',
           }}>
             Last updated: Oct 2024
           </span>

@@ -553,6 +553,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-07 (supplement 11)
+
+> Twelfth-pass scan — `JobMarketCharts.tsx` D3 chart colours missed by all prior sweeps.
+
+### Style (dark-mode breakage)
+- [x] Replace hardcoded hex in `app/au-insights/JobMarketCharts.tsx` — D3 axis/annotation colours (`#9ca3af`/`#6b7280`/`#374151` → text-muted/secondary, `#e5e7eb`/`#f3f4f6`/`#d1d5db` → parchment, `#dc2626` → vermilion, `#f59e0b`/`#d97706` → gold, `#10b981`/`#16a34a`/`#7c3aed` → jade), inline tooltip styles, `STATUS_COLOR` map (Shortage/Regional/Balanced/Surplus badge bg+text), salary bar colours (`#93c5fd`/`#3b82f6`/`#1d4ed8` → rgba jade shades), table stripe `#faf9f7` → `var(--cream)`, "Last updated" badge `#f0fdf4`/`#16a34a`/`#bbf7d0` → rgba jade tokens [style] ✅ 2026-05-07
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
