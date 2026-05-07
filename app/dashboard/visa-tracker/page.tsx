@@ -229,7 +229,7 @@ export default function VisaTrackerPage() {
         {[
           { label: 'Steps completed', value: `${completedCount} / ${STEPS.length}`, color: 'var(--jade)' },
           { label: 'Weeks remaining (est.)', value: weeksLeft > 0 ? `~${weeksLeft}w` : 'Done!', color: 'var(--terracotta)' },
-          { label: 'Est. grant', value: estGrantDate ?? '—', color: '#8b5cf6' },
+          { label: 'Est. grant', value: estGrantDate ?? '—', color: 'var(--gold)' },
         ].map(c => (
           <div key={c.label} style={{ background: 'var(--warm-white)', border: '1px solid var(--parchment)', borderRadius: '12px', padding: '1rem', textAlign: 'center' }}>
             <div style={{ fontSize: '1.6rem', fontWeight: 700, color: c.color, lineHeight: 1 }}>{c.value}</div>

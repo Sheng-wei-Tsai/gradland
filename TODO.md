@@ -543,6 +543,16 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-07 (supplement 10)
+
+> Eleventh-pass scan — `VOLUME_COLOR`/`CATEGORY_COLOR` maps in Sponsorship.tsx and one remaining hex in visa-tracker not covered by earlier sweeps.
+
+### Style (dark-mode breakage)
+- [x] Replace `VOLUME_COLOR` and `CATEGORY_COLOR` maps in `app/au-insights/Sponsorship.tsx:9-23` — both maps use hardcoded Tailwind hex (`#dc2626`/`#d97706`/`#0369a1`/`#374151`/`#6b7280`/`#7c3aed`) that render unreadably in dark mode; the previous 2026-05-06 sweep fixed the stat tiles and rank highlight but left these chip-colour maps; convert to `{ color, bg, border }` objects using design-system rgba pairs (matching the established pattern in `VisaNews.tsx:16-23`) and update usages at lines 108–126 to use `.bg`/`.color`/`.border` properties instead of the hex-alpha-suffix template literals [style] ✅ 2026-05-07
+- [x] Replace `color: '#8b5cf6'` with `var(--gold)` at `app/dashboard/visa-tracker/page.tsx:232` — the "Est. grant" overview card is the only hardcoded hex remaining in the file after the 2026-05-07 supplement 7 sweep [style] ✅ 2026-05-07
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

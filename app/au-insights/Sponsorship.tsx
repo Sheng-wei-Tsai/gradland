@@ -6,20 +6,26 @@ import { SPONSORSHIP_RANKINGS } from './companies/data';
 
 const SponsorshipCharts = dynamic(() => import('./SponsorshipCharts'), { ssr: false });
 
-const VOLUME_COLOR: Record<string, string> = {
-  'Very High':   '#dc2626',
-  'High':        '#d97706',
-  'Medium-High': '#0369a1',
-  'Medium':      '#374151',
-  'Low-Medium':  '#6b7280',
+type ChipStyle = { color: string; bg: string; border: string };
+
+const DEFAULT_CHIP: ChipStyle = {
+  color: 'var(--text-secondary)', bg: 'rgba(61,28,14,0.08)', border: 'rgba(61,28,14,0.20)',
 };
 
-const CATEGORY_COLOR: Record<string, string> = {
-  'IT Services':   '#7c3aed',
-  'Consulting':    '#0369a1',
-  'Product':       '#dc2626',
-  'Finance':       '#d97706',
-  'Enterprise Tech': '#374151',
+const VOLUME_COLOR: Record<string, ChipStyle> = {
+  'Very High':   { color: 'var(--vermilion)', bg: 'rgba(192,40,28,0.12)', border: 'rgba(192,40,28,0.30)' },
+  'High':        { color: 'var(--gold)',      bg: 'rgba(200,138,20,0.10)', border: 'rgba(200,138,20,0.25)' },
+  'Medium-High': { color: 'var(--jade)',      bg: 'rgba(30,122,82,0.10)',  border: 'rgba(30,122,82,0.25)' },
+  'Medium':      { color: 'var(--text-secondary)', bg: 'rgba(61,28,14,0.08)', border: 'rgba(61,28,14,0.20)' },
+  'Low-Medium':  { color: 'var(--text-muted)',      bg: 'rgba(61,28,14,0.06)', border: 'rgba(61,28,14,0.15)' },
+};
+
+const CATEGORY_COLOR: Record<string, ChipStyle> = {
+  'IT Services':     { color: 'var(--jade)',           bg: 'rgba(30,122,82,0.10)',  border: 'rgba(30,122,82,0.25)' },
+  'Consulting':      { color: 'var(--gold)',            bg: 'rgba(200,138,20,0.10)', border: 'rgba(200,138,20,0.25)' },
+  'Product':         { color: 'var(--vermilion)',       bg: 'rgba(192,40,28,0.12)',  border: 'rgba(192,40,28,0.30)' },
+  'Finance':         { color: 'var(--gold)',            bg: 'rgba(200,138,20,0.10)', border: 'rgba(200,138,20,0.25)' },
+  'Enterprise Tech': { color: 'var(--text-secondary)', bg: 'rgba(61,28,14,0.08)',   border: 'rgba(61,28,14,0.20)' },
 };
 
 export default function Sponsorship() {
@@ -108,9 +114,9 @@ export default function Sponsorship() {
                 <span style={{
                   fontSize: '0.7rem', fontWeight: 600,
                   padding: '0.1rem 0.5rem', borderRadius: '99px',
-                  background: `${CATEGORY_COLOR[row.category] ?? '#374151'}15`,
-                  color: CATEGORY_COLOR[row.category] ?? '#374151',
-                  border: `1px solid ${CATEGORY_COLOR[row.category] ?? '#374151'}30`,
+                  background: (CATEGORY_COLOR[row.category] ?? DEFAULT_CHIP).bg,
+                  color: (CATEGORY_COLOR[row.category] ?? DEFAULT_CHIP).color,
+                  border: `1px solid ${(CATEGORY_COLOR[row.category] ?? DEFAULT_CHIP).border}`,
                 }}>
                   {row.category}
                 </span>
@@ -121,9 +127,9 @@ export default function Sponsorship() {
             <div style={{
               fontSize: '0.75rem', fontWeight: 700,
               padding: '0.2rem 0.6rem', borderRadius: '99px',
-              background: `${VOLUME_COLOR[row.volume] ?? '#374151'}12`,
-              color: VOLUME_COLOR[row.volume] ?? '#374151',
-              border: `1px solid ${VOLUME_COLOR[row.volume] ?? '#374151'}30`,
+              background: (VOLUME_COLOR[row.volume] ?? DEFAULT_CHIP).bg,
+              color: (VOLUME_COLOR[row.volume] ?? DEFAULT_CHIP).color,
+              border: `1px solid ${(VOLUME_COLOR[row.volume] ?? DEFAULT_CHIP).border}`,
               whiteSpace: 'nowrap',
             }}>
               {row.volume} volume
