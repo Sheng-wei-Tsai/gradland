@@ -93,7 +93,7 @@ export default function Sponsorship() {
             {/* Rank */}
             <div style={{
               minWidth: '28px', textAlign: 'center', fontWeight: 700,
-              fontSize: '0.85rem', color: row.rank <= 3 ? '#c8a800' : 'var(--text-muted)',
+              fontSize: '0.85rem', color: row.rank <= 3 ? 'var(--gold)' : 'var(--text-muted)',
             }}>
               {row.rank <= 3 ? ['🥇', '🥈', '🥉'][row.rank - 1] : `#${row.rank}`}
             </div>
