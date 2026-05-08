@@ -738,6 +738,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-08 (supplement 9)
+
+> Twenty-first-pass scan — delete/error button hex in `components/Comments.tsx` missed by all prior sweeps.
+
+### Style (dark-mode breakage)
+- [x] Replace `color: '#ef4444'` with `var(--vermilion)` on the Delete button (line 140) and confirm "Yes, delete" button (line 148) in `components/Comments.tsx`, and replace `color: '#dc2626'` with `var(--vermilion)` on the post-error paragraph (line 283) — Tailwind red-500/600 break dark mode; the design-system error/danger colour is `var(--vermilion)` used throughout the codebase [style] ✅ 2026-05-08
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

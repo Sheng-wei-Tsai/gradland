@@ -137,7 +137,7 @@ function CommentCard({
               )}
               {(canDelete || isAdmin) && !confirmDel && (
                 <button onClick={() => setConfirmDel(true)}
-                  style={{ background: 'none', border: 'none', fontSize: '0.78rem', color: '#ef4444', cursor: 'pointer', padding: 0 }}>
+                  style={{ background: 'none', border: 'none', fontSize: '0.78rem', color: 'var(--vermilion)', cursor: 'pointer', padding: 0 }}>
                   Delete
                 </button>
               )}
@@ -145,7 +145,7 @@ function CommentCard({
                 <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
                   Sure?{' '}
                   <button onClick={handleDelete} disabled={delLoading}
-                    style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontWeight: 700, fontSize: '0.78rem', padding: 0 }}>
+                    style={{ background: 'none', border: 'none', color: 'var(--vermilion)', cursor: 'pointer', fontWeight: 700, fontSize: '0.78rem', padding: 0 }}>
                     {delLoading ? 'Deleting…' : 'Yes, delete'}
                   </button>
                   {' · '}
@@ -280,7 +280,7 @@ export default function Comments({ slug }: { slug: string }) {
             rows={3}
             style={{ width: '100%', boxSizing: 'border-box', padding: '0.75rem 1rem', borderRadius: 10, border: '1.5px solid var(--parchment)', fontSize: '0.92rem', lineHeight: 1.7, resize: 'vertical', fontFamily: 'inherit', outline: 'none', background: 'var(--warm-white)', color: 'var(--brown-dark)' }}
           />
-          {postErr && <p style={{ color: '#dc2626', fontSize: '0.82rem', marginTop: '0.3rem' }}>{postErr}</p>}
+          {postErr && <p style={{ color: 'var(--vermilion)', fontSize: '0.82rem', marginTop: '0.3rem' }}>{postErr}</p>}
           <button type="submit" disabled={posting || !text.trim()}
             style={{ marginTop: '0.6rem', background: text.trim() && !posting ? 'var(--terracotta)' : 'var(--parchment)', color: text.trim() && !posting ? 'white' : 'var(--text-muted)', border: 'none', borderRadius: 99, padding: '0.5rem 1.3rem', fontSize: '0.88rem', fontWeight: 600, cursor: text.trim() && !posting ? 'pointer' : 'default' }}>
             {posting ? 'Posting…' : 'Post comment'}
