@@ -43,8 +43,8 @@ export default async function DigestPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <span style={{
                 fontSize: '0.65rem', fontWeight: 700, padding: '0.15rem 0.55rem',
-                borderRadius: '99px', background: '#eff6ff', color: '#0369a1',
-                border: '1px solid #bfdbfe', textTransform: 'uppercase', letterSpacing: '0.08em',
+                borderRadius: '99px', background: 'rgba(30,122,82,0.08)', color: 'var(--jade)',
+                border: '1px solid rgba(30,122,82,0.25)', textTransform: 'uppercase', letterSpacing: '0.08em',
               }}>
                 Information Age
               </span>
@@ -56,7 +56,7 @@ export default async function DigestPage() {
               href="https://ia.acs.org.au"
               target="_blank"
               rel="noopener noreferrer"
-              style={{ fontSize: '0.72rem', color: '#0369a1', textDecoration: 'none' }}
+              style={{ fontSize: '0.72rem', color: 'var(--jade)', textDecoration: 'none' }}
             >
               ia.acs.org.au →
             </a>
@@ -74,7 +74,7 @@ export default async function DigestPage() {
                   background: 'var(--warm-white)', border: '1px solid var(--parchment)',
                   borderRadius: '10px', padding: '0.8rem 1rem',
                   transition: 'border-color 0.15s',
-                  borderLeft: '3px solid #0369a1',
+                  borderLeft: '3px solid rgba(30,122,82,0.25)',
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
