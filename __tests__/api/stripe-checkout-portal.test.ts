@@ -175,6 +175,60 @@ describe('POST /api/stripe/checkout', () => {
     expect(call.success_url).toContain('/dashboard?subscribed=1');
     expect(call.cancel_url).toContain('/pricing?cancelled=1');
   });
+
+  it('uses a matching Origin header in success/cancel URLs', async () => {
+    mockGetServerUser.mockResolvedValue(AUTHED_USER);
+    mockFrom.mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          maybeSingle: vi.fn().mockResolvedValue({
+            data: { stripe_customer_id: 'cus_existing' },
+            error: null,
+          }),
+        }),
+      }),
+    });
+    mockCheckoutCreate.mockResolvedValue({ url: 'https://checkout.stripe.com/pay/cs_test_origin' });
+
+    // NEXT_PUBLIC_APP_URL is 'https://henrysdigitallife.com' (set in beforeEach)
+    // — that value is what populates the default allowlist when ALLOWED_ORIGINS is unset
+    const req = new NextRequest('http://localhost/api/stripe/checkout', {
+      method:  'POST',
+      headers: { Origin: 'https://henrysdigitallife.com' },
+    });
+    await checkoutPOST(req);
+
+    const call = mockCheckoutCreate.mock.calls[0][0];
+    expect(call.success_url).toContain('henrysdigitallife.com/dashboard');
+    expect(call.cancel_url).toContain('henrysdigitallife.com/pricing');
+  });
+
+  it('falls back to NEXT_PUBLIC_APP_URL when Origin header is not in the allowlist', async () => {
+    mockGetServerUser.mockResolvedValue(AUTHED_USER);
+    mockFrom.mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          maybeSingle: vi.fn().mockResolvedValue({
+            data: { stripe_customer_id: 'cus_existing' },
+            error: null,
+          }),
+        }),
+      }),
+    });
+    mockCheckoutCreate.mockResolvedValue({ url: 'https://checkout.stripe.com/pay/cs_test_blocked' });
+
+    const req = new NextRequest('http://localhost/api/stripe/checkout', {
+      method:  'POST',
+      headers: { Origin: 'https://evil.example.com' },
+    });
+    await checkoutPOST(req);
+
+    const call = mockCheckoutCreate.mock.calls[0][0];
+    // Disallowed origin must NOT appear in URLs — falls back to NEXT_PUBLIC_APP_URL
+    expect(call.success_url).not.toContain('evil.example.com');
+    expect(call.cancel_url).not.toContain('evil.example.com');
+    expect(call.success_url).toContain('henrysdigitallife.com');
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -17,7 +17,11 @@ function makeRequest(body: object, ip = '1.2.3.4') {
   return new NextRequest('http://localhost/api/track', {
     method: 'POST',
     body: JSON.stringify(body),
-    headers: { 'content-type': 'application/json', 'x-forwarded-for': ip },
+    headers: {
+      'content-type': 'application/json',
+      'x-forwarded-for': ip,
+      'cookie': 'cookies-consent=accepted',
+    },
   });
 }
 

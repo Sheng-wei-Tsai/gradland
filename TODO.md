@@ -106,7 +106,7 @@
 - [ ] Create `app/cookies/page.tsx` — categorised list (essential / analytics / preferences) + revoke instructions
 - [ ] Edit `app/pricing/page.tsx` — refund + cancellation policy block (ACL §54 disclosure)
 - [ ] Edit `components/Footer.tsx` (or create) — link to all 4 legal pages
-- [ ] Edit `app/api/stripe/checkout/route.ts` — `consent_collection.terms_of_service: 'required'` + `custom_text.terms_of_service_acceptance.message`
+- [x] Edit `app/api/stripe/checkout/route.ts` — `consent_collection.terms_of_service: 'required'` + `custom_text.terms_of_service_acceptance.message` ✅ 2026-05-08
 
 **Day 2 — Cookie consent + middleware (P0)**
 - [ ] Create `components/CookieConsent.tsx` — minimal banner, localStorage gate, granular essential/analytics/preferences toggles
@@ -119,7 +119,7 @@
 - [ ] Create `supabase/025_stripe_events.sql` — `(event_id text pk, event_type text, processed_at timestamptz default now())`; RLS deny-all (service-role only)
 - [ ] Edit `app/api/stripe/webhook/route.ts:33` — INSERT event_id with `on conflict do nothing returning *`; if 0 rows affected, ack 200 and skip handler
 - [ ] Edit `app/api/stripe/job-listing/route.ts` — gate behind session cookie OR hCaptcha; soft IP throttle (5 sessions/hour); `simple-email-regex` validation on `contactEmail`; `.slice()` truncation on all user fields
-- [ ] Edit `app/api/stripe/checkout/route.ts:40` — `origin` allowlist (`ALLOWED_ORIGINS` env)
+- [x] Edit `app/api/stripe/checkout/route.ts:40` — `origin` allowlist (`ALLOWED_ORIGINS` env) ✅ 2026-05-08
 
 **Day 4 — RLS + observability (P0)**
 - [ ] Create `supabase/026_job_listings_rls.sql` — enable RLS on `job_listings`; policies: service-role write; create view `public_job_listings` excluding `contact_email` for anon read of `status='active' and expires_at>now()`
