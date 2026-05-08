@@ -21,7 +21,7 @@ function Shimmer({ w, h, radius = 8 }: { w: string; h: number; radius?: number }
   return (
     <div style={{
       width: w, height: `${h}px`, borderRadius: `${radius}px`,
-      background: 'linear-gradient(90deg, var(--parchment) 25%, #f5ece0 50%, var(--parchment) 75%)',
+      background: 'linear-gradient(90deg, var(--parchment) 25%, var(--warm-white) 50%, var(--parchment) 75%)',
       backgroundSize: '200% 100%',
       animation: 'shimmer 1.4s infinite',
     }} />
@@ -330,7 +330,7 @@ export default function PersonalisedHero({ user }: { user: User }) {
             <div style={{
               width: '100%', height: '180px',
               borderRadius: '12px', overflow: 'hidden',
-              background: 'linear-gradient(90deg, var(--parchment) 25%, #f5ece0 50%, var(--parchment) 75%)',
+              background: 'linear-gradient(90deg, var(--parchment) 25%, var(--warm-white) 50%, var(--parchment) 75%)',
               backgroundSize: '200% 100%',
               animation: 'shimmer 1.4s infinite',
               display: 'flex', alignItems: 'center', justifyContent: 'center',

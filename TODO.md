@@ -765,6 +765,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-08 (supplement 12)
+
+> Twenty-fourth-pass scan — shimmer skeleton gradient in `HomepageHero.tsx` and `PersonalisedHero.tsx` uses `#f5ece0` as the midpoint highlight, which is a light-cream hardcoded hex. In dark mode `var(--parchment)` resolves to `#1a1430` but the midpoint stays light, causing the shimmer to flash bright in dark mode (same class of bug as `var(--bg, #faf7f2)` fixed in supplements 6+7).
+
+### Style (dark-mode breakage)
+- [x] Replace `#f5ece0` shimmer midpoint with `var(--warm-white)` in `components/HomepageHero.tsx:10` and `components/PersonalisedHero.tsx:24,333` — the gradient `linear-gradient(90deg, var(--parchment) 25%, #f5ece0 50%, var(--parchment) 75%)` uses a hardcoded light-cream hex as the highlight stop; in dark mode `--parchment` is `#1a1430` but `#f5ece0` stays light-beige, making the skeleton flash bright; `var(--warm-white)` (`#fffef6` light / `#0f0b1a` dark) keeps the shimmer subtle and adaptive in both themes [style] ✅ 2026-05-08
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
