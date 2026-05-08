@@ -50,6 +50,14 @@ export async function POST(req: NextRequest) {
       metadata: { supabase_user_id: user.id },
     },
     allow_promotion_codes: true,
+    consent_collection: {
+      terms_of_service: 'required',
+    },
+    custom_text: {
+      terms_of_service_acceptance: {
+        message: 'I have read and agree to the [Terms of Service](https://gradland.au/terms) and [Privacy Policy](https://gradland.au/privacy) of Gradland.',
+      },
+    },
   });
 
   return NextResponse.json({ url: session.url });

@@ -1,16 +1,16 @@
-# TechPath AU — Henry's Digital Life
+# Gradland
 
 > **The definitive career platform for international IT graduates entering the Australian job market.**
 
 Built with Next.js 16 App Router, Supabase, Anthropic Claude, and OpenAI. Deployed on Vercel.
 
-🌐 **Live:** [henrys-blog.vercel.app](https://henrys-blog.vercel.app)
+🌐 **Live:** [gradland.au](https://gradland.au)
 
 ---
 
 ## What it does
 
-TechPath AU is **not** a blog with tools bolted on. The primary product is a suite of AI-powered career tools designed specifically for international students and 482/485/PR visa applicants in Australian tech roles.
+Gradland is **not** a blog with tools bolted on. The primary product is a suite of AI-powered career tools designed specifically for international students and 482/485/PR visa applicants in Australian tech roles.
 
 ### Career Tools
 

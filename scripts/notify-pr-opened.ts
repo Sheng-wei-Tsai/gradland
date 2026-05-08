@@ -17,7 +17,7 @@
 import { Resend } from 'resend';
 
 const OWNER_EMAIL = 'henry88002605@gmail.com';
-const FROM_EMAIL  = 'TechPath AU <noreply@henrysdigitallife.com>';
+const FROM_EMAIL  = 'Gradland <noreply@henrysdigitallife.com>';
 
 interface NotifyArgs {
   prUrl:      string;
@@ -39,7 +39,7 @@ function buildSubject(a: NotifyArgs): string {
 
 function buildPlainBody(a: NotifyArgs): string {
   const lines = [
-    `[TechPath PR] ${a.title}`,
+    `[Gradland PR] ${a.title}`,
     '',
     `Auto-merge: ${a.autoMerge ? 'yes' : 'no'}    Risk: ${a.risk}`,
     `Files: ${a.filesCount} changed (+${a.additions}/-${a.deletions})`,

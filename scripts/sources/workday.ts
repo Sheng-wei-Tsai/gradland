@@ -44,7 +44,7 @@ async function fetchTenantPage(t: WorkdayTenant, offset: number): Promise<Workda
       headers: {
         'Accept':       'application/json',
         'Content-Type': 'application/json',
-        'User-Agent':   'Mozilla/5.0 (compatible; TechPathAU/1.0)',
+        'User-Agent':   'Mozilla/5.0 (compatible; GradlandAU/1.0)',
       },
       body: JSON.stringify({
         appliedFacets: {},

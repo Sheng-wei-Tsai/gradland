@@ -595,35 +595,8 @@ h3, h4 {
   transform: translate(-1px, -2px);
 }
 
-/* City mascot — slides in from bottom-right on hover/focus */
-.job-card-mascot {
-  position: absolute;
-  bottom: 10px;
-  right: 12px;
-  width: 80px;
-  height: 80px;
-  opacity: 0;
-  transform: translateY(10px);
-  pointer-events: none;
-  transition: opacity 220ms cubic-bezier(0.4, 0, 0.2, 1), transform 220ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-.job-card:hover .job-card-mascot,
-.job-card:focus-within .job-card-mascot {
-  opacity: 1;
-  transform: translateY(0);
-}
 @media (prefers-reduced-motion: reduce) {
-  .job-card-mascot { transition: opacity 150ms; transform: none !important; }
   .job-card:hover { transform: none; }
-}
-@keyframes mascot-bob {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-3px); }
-}
-@media (prefers-reduced-motion: no-preference) {
-  .job-card:hover .job-card-mascot {
-    animation: mascot-bob 2s ease-in-out 240ms infinite;
-  }
 }
 .job-card-title {
   font-family: 'Lora', serif;
@@ -1137,7 +1110,166 @@ h3, h4 {
   box-shadow: 6px 6px 0 rgba(232,64,64,0.5);
 }
 
-/* ── Nav pill — ink border style ── */
+/* ── Primary navbar — redesigned 2026-05-06 ──
+ * Visual story: brand mark + quiet rail of tabs + loud auth CTA.
+ * Container is transparent at scrollY=0 so it disappears into the page;
+ * gains a translucent scrim, hairline border, and soft shadow once the
+ * user has scrolled past 6px (data-scrolled="true").
+ *
+ * Tabs use underline-only active state (vermilion text + 2px underline)
+ * instead of full background fill — keeps the conversion CTA on the
+ * right as the loudest element on the bar.
+ */
+.tp-header-shell {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: 0.75rem 0;
+  background: transparent;
+  transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  border-bottom: 1px solid transparent;
+}
+.tp-header-shell[data-scrolled="true"] {
+  background: rgba(253, 245, 228, 0.78);
+  backdrop-filter: blur(14px) saturate(1.1);
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
+  border-bottom: 1px solid var(--parchment);
+  box-shadow: 0 1px 3px rgba(20, 10, 5, 0.05);
+}
+[data-theme="dark"] .tp-header-shell[data-scrolled="true"] {
+  background: rgba(15, 11, 26, 0.78);
+  border-bottom: 1px solid rgba(240, 230, 208, 0.10);
+  box-shadow: 0 1px 0 rgba(232, 64, 64, 0.10);
+}
+
+.tp-header-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.tp-nav-rail {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.2rem 0.3rem;
+  margin-left: 0.5rem;
+}
+
+/* Tab — minimal ghost, underline-active. Calmer than the old pill nav. */
+.tp-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.tp-tab::after {
+  /* Underline indicator — animates on active/hover */
+  content: '';
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 0.18rem;
+  height: 2px;
+  background: var(--vermilion);
+  border-radius: 2px;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.18s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+.tp-tab:hover {
+  background: rgba(192, 40, 28, 0.06);
+  color: var(--brown-dark);
+}
+.tp-tab:hover::after {
+  transform: scaleX(0.55);
+}
+
+.tp-tab[data-state="active"],
+.tp-tab[aria-current="page"] {
+  color: var(--vermilion);
+}
+.tp-tab[data-state="active"]::after,
+.tp-tab[aria-current="page"]::after {
+  transform: scaleX(1);
+}
+
+/* Open mega-menu — distinct from active so user knows panel is current focus */
+.tp-tab[data-state="open"] {
+  background: rgba(192, 40, 28, 0.08);
+  color: var(--brown-dark);
+}
+.tp-tab[data-state="open"]::after {
+  transform: scaleX(1);
+  background: var(--brown-dark);
+}
+
+[data-theme="dark"] .tp-tab:hover {
+  background: rgba(232, 64, 64, 0.10);
+  color: var(--text-primary);
+}
+[data-theme="dark"] .tp-tab[data-state="active"],
+[data-theme="dark"] .tp-tab[aria-current="page"] {
+  color: #ff5b4a;
+}
+
+/* Mega-menu panel — tighter to the tab (4px gap) so the chevron points at it */
+.tp-mega-panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: min(540px, 92vw);
+  background: var(--warm-white);
+  border: 2px solid var(--parchment);
+  border-radius: 12px;
+  box-shadow: var(--panel-shadow), 0 16px 40px var(--shadow-color);
+  padding: 0.75rem;
+  z-index: 60;
+  overflow: hidden;
+  animation: tpMegaIn 0.16s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+@keyframes tpMegaIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0);     }
+}
+.tp-mega-accent {
+  height: 2px;
+  background: linear-gradient(90deg, var(--vermilion) 0%, var(--gold) 50%, var(--jade) 100%);
+  border-radius: 2px;
+  margin-bottom: 0.6rem;
+}
+.tp-mega-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.3rem 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tp-tab,
+  .tp-tab::after,
+  .tp-mega-panel,
+  .tp-header-shell { transition: none !important; animation: none !important; }
+}
+
+/* Legacy class — kept so existing dark-mode rules below still target the rail */
 [data-theme="dark"] .desktop-nav {
   background: rgba(15, 11, 26, 0.92) !important;
   border-color: rgba(240, 230, 208, 0.15) !important;
@@ -1158,6 +1290,7 @@ h3, h4 {
 
 /* ── Responsive nav ── */
 .desktop-nav         { display: flex; }
+.tp-nav-rail         { display: flex; }
 .auth-btn            { display: inline-flex; }
 .mobile-only         { display: none; }
 .interview-sidebar   { display: block; }
@@ -1195,6 +1328,7 @@ h3, h4 {
 
 @media (max-width: 640px) {
   .desktop-nav        { display: none !important; }
+  .tp-nav-rail        { display: none !important; }
   .auth-btn           { display: none !important; }
   .mobile-bottom-nav  { display: block; }
   .mobile-only        { display: flex; }
@@ -1236,10 +1370,10 @@ h3, h4 {
 }
 .footer-cols          { display: flex; gap: 3rem; flex-wrap: wrap; }
 
-/* Footer 2-col link grid — always 2 columns, even on mobile */
+/* Footer link grid — 3 columns on desktop, 2 on mobile, gracefully wraps */
 .footer-link-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 2rem;
 }
 
@@ -1279,31 +1413,142 @@ h3, h4 {
   background: rgba(192, 40, 28, 0.05);
 }
 
-/* ── CitySelector trigger button ── */
+/* ── CitySelector trigger — redesigned 2026-05-06 ──
+ * Old design carried per-city tourist mascot icons (Story Bridge,
+ * Opera House, etc) + per-city accent colours. They added decorative
+ * trivia but no task value: users pick a city to filter jobs, not to
+ * admire landmarks. New design: single neutral icon, micro-label, one
+ * brand state colour. Auto-grow width replaces the fixed 164px so
+ * longer locale strings (Chinese city names) don't truncate.
+ */
 .city-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 156px;
+  padding: 0.55rem 0.85rem;
   border: 1.5px solid var(--parchment);
+  border-radius: 10px;
   background: var(--warm-white);
-  transition: border-color 0.18s ease, background 0.18s ease;
+  font-family: inherit;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
 }
 .city-trigger:hover,
-.city-trigger:focus-visible,
+.city-trigger:focus-visible {
+  border-color: var(--vermilion);
+  background: color-mix(in srgb, var(--vermilion) 5%, var(--warm-white));
+}
 .city-trigger--open {
-  border-color: var(--city-color, var(--parchment));
-  background: color-mix(in srgb, var(--city-color, transparent) 5%, var(--warm-white));
+  border-color: var(--vermilion);
+  background: color-mix(in srgb, var(--vermilion) 6%, var(--warm-white));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--vermilion) 35%, transparent);
 }
-.city-trigger .city-landmark {
-  opacity: 0;
-  transition: opacity 0.18s ease;
-}
-.city-trigger:hover .city-landmark { opacity: 1; }
 
-/* ── CitySelector dropdown option hover / focus ── */
+.city-trigger__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  flex-shrink: 0;
+  color: var(--vermilion);
+  background: color-mix(in srgb, var(--vermilion) 9%, transparent);
+}
+
+.city-trigger__label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1;
+  min-width: 0;
+  line-height: 1.05;
+}
+.city-trigger__caption {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.18rem;
+}
+.city-trigger__value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--brown-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.city-trigger__chevron {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--text-muted);
+  transition: transform 0.18s ease, color 0.18s ease;
+}
+.city-trigger__chevron[data-open="true"] {
+  transform: rotate(180deg);
+  color: var(--vermilion);
+}
+
+/* ── Dropdown ── */
+.city-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 100%;
+  list-style: none;
+  margin: 0;
+  padding: 0.3rem;
+  background: var(--warm-white);
+  border: 1.5px solid var(--parchment);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(20, 10, 5, 0.12);
+  z-index: 200;
+  outline: none;
+  overflow: hidden;
+}
+
+.city-option {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.7rem;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: transparent;
+  transition: background 0.12s ease, color 0.12s ease;
+}
 .city-option:hover,
-.city-option:focus-visible,
-.city-option--focused { background: rgba(20,10,5,0.05); }
+.city-option--focused {
+  background: color-mix(in srgb, var(--vermilion) 8%, transparent);
+  color: var(--brown-dark);
+}
+.city-option--selected {
+  font-weight: 700;
+  color: var(--vermilion);
+}
+.city-option--selected.city-option--focused,
+.city-option--selected:hover {
+  background: color-mix(in srgb, var(--vermilion) 12%, transparent);
+}
+.city-option__icon { display: inline-flex; flex-shrink: 0; color: var(--vermilion); opacity: 0.85; }
+.city-option__name { flex: 1; }
+.city-option__check { margin-left: auto; color: var(--vermilion); flex-shrink: 0; }
+.city-option--selected .city-option__icon { opacity: 1; }
+
 [data-theme="dark"] .city-option:hover,
-[data-theme="dark"] .city-option:focus-visible,
-[data-theme="dark"] .city-option--focused { background: rgba(240,230,208,0.06); }
+[data-theme="dark"] .city-option--focused {
+  background: rgba(232, 64, 64, 0.12);
+  color: var(--text-primary);
+}
 
 /* ── Career tool card ── */
 .career-tool-card {

@@ -1,5 +1,5 @@
 {
-  "ignoreCommand": "[ \"$VERCEL_GIT_COMMIT_REF\" != \"main\" ]",
+  "ignoreCommand": "[ \"$VERCEL_GIT_COMMIT_REF\" != \"main\" ] && [ \"$VERCEL_GIT_COMMIT_REF\" != \"rebrand/gradland\" ]",
   "crons": [
     {
       "path": "/api/cron/expire-job-listings",

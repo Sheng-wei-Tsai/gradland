@@ -8,7 +8,6 @@ import type { AdzunaJob } from '../api/jobs/route';
 import type { FeaturedListing } from '../api/jobs/listings/route';
 import GapAnalysisPanel from '@/components/GapAnalysisPanel';
 import EIcon from '@/components/icons/EIcon';
-import CityIcon from '@/components/icons/CityIcon';
 import CitySelector from '@/components/CitySelector';
 
 type JobTab = 'au' | 'remote' | 'freelance';
@@ -494,10 +493,6 @@ function JobCard({ job, savedIds, onSaveToggle, onApply, isLoggedIn, onOpenDetai
         onTouchEnd={handleTouchEnd}
         onTouchCancel={handleTouchCancel}
       >
-        {/* City mascot — slides in on hover/focus-within via .job-card-mascot CSS class */}
-        <div className="job-card-mascot" aria-hidden="true" role="presentation">
-          <CityIcon city={job.location ?? ''} size={80} style={{ color: 'var(--text-muted)', opacity: 0.6 }} />
-        </div>
         {/* Top row: title/meta + age badge */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem', marginBottom: '0.75rem' }}>
           <div style={{ flex: 1, minWidth: 0 }}>

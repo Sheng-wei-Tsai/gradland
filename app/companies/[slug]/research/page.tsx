@@ -14,7 +14,7 @@ export async function generateMetadata(
   const company = COMPANIES.find(c => c.slug === slug);
   if (!company) return {};
   return {
-    title: `${company.name} AI Research Brief — TechPath AU`,
+    title: `${company.name} AI Research Brief — Gradland`,
     description: `AI-generated career research brief for ${company.name}: culture, tech stack, interview style, and tips for international graduates in Australia.`,
   };
 }

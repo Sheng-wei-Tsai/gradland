@@ -36,7 +36,9 @@ const nextConfig: NextConfig = {
           // Referrer leak control
           { key: 'Referrer-Policy',        value: 'strict-origin-when-cross-origin' },
           // Disable unnecessary browser features
-          { key: 'Permissions-Policy',     value: 'camera=(), microphone=(), geolocation=()' },
+          { key: 'Permissions-Policy',     value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()' },
+          // Force HTTPS for 2 years across all subdomains; preload-list eligible
+          { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
         ],
       },
     ];

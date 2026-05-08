@@ -1,0 +1,60 @@
+import React from 'react';
+
+type LogoMarkProps = {
+  size?:    number;
+  withShadow?: boolean;
+  className?: string;
+  style?:   React.CSSProperties;
+  ariaLabel?: string;
+  decorative?: boolean;
+};
+
+const LogoMark: React.FC<LogoMarkProps> = ({
+  size = 40,
+  withShadow = true,
+  className,
+  style,
+  ariaLabel = 'Gradland',
+  decorative = false,
+}) => {
+  const a11y = decorative
+    ? { 'aria-hidden': true as const, role: 'presentation' as const }
+    : { 'aria-label': ariaLabel, role: 'img' as const };
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 100 100"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      style={style}
+      {...a11y}
+    >
+      <defs>
+        <pattern id="lm-dotgrid" width="6" height="6" patternUnits="userSpaceOnUse">
+          <circle cx="3" cy="3" r="0.55" fill="#d4c79a" opacity="0.55" />
+        </pattern>
+        <clipPath id="lm-clip">
+          <rect x="6" y="6" width="84" height="84" rx="18" ry="18" />
+        </clipPath>
+      </defs>
+
+      {withShadow && (
+        <rect x="9" y="11" width="84" height="84" rx="18" ry="18" fill="#140a05" />
+      )}
+
+      <rect x="6" y="6" width="84" height="84" rx="18" ry="18" fill="#f5edd6" />
+      <rect x="6" y="6" width="84" height="84" rx="18" ry="18" fill="url(#lm-dotgrid)" clipPath="url(#lm-clip)" />
+
+      <rect x="22" y="22" width="48" height="14" rx="3.5" ry="3.5" fill="#c0281c" />
+      <path d="M 41 36 L 56 36 L 53 78 L 44 78 Z" fill="#c0281c" />
+
+      <circle cx="76" cy="24" r="1.05" fill="#c0281c" />
+      <circle cx="78" cy="29" r="1.05" fill="#c0281c" />
+      <circle cx="76" cy="34" r="1.05" fill="#c0281c" />
+    </svg>
+  );
+};
+
+export default LogoMark;

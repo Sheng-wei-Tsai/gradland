@@ -1,4 +1,4 @@
-# Design Language: TechPath AU — Career tools for international IT grads
+# Design Language: Gradland — Career tools for international IT grads
 
 > Extracted from `http://localhost:3000` on April 25, 2026
 > 796 elements analyzed

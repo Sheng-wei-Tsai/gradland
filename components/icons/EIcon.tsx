@@ -1,5 +1,5 @@
 /**
- * Eastern-animated ink icon system — TechPath AU
+ * Eastern-animated ink icon system — Gradland
  * Design language: 2.5px brush strokes · round caps/joins · one ink-blob
  * personality detail per icon · currentColor so callers control hue.
  */

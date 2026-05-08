@@ -3,7 +3,7 @@ import BlogList from '@/components/BlogList';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Research Digest — TechPath AU',
+  title: 'Research Digest — Gradland',
   description: 'Daily AI research digest — the most important papers and announcements, summarised.',
 };
 

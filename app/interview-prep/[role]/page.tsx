@@ -5,7 +5,7 @@ import InterviewSession from './InterviewSession';
 
 type Props = { params: Promise<{ role: string }> };
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://henrysdigitallife.com';
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://gradland.au';
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { role: roleId } = await params;

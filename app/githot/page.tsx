@@ -3,7 +3,7 @@ import PostCard from '@/components/PostCard';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'GitHub Hot — TechPath AU',
+  title: 'GitHub Hot — Gradland',
   description: 'Trending GitHub repositories in software engineering, AI, and cloud — daily picks relevant to Australian IT job seekers.',
 };
 

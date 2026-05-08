@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Role Posted — TechPath AU',
+  title: 'Role Posted — Gradland',
   description: 'Your job listing has been received and will be live within 24 hours.',
 };
 
@@ -25,7 +25,7 @@ export default function PostARoleSuccessPage() {
         color: 'var(--text-secondary)', lineHeight: 1.75,
         marginBottom: '1.5rem', fontSize: '0.95rem',
       }}>
-        Payment received. Your role will be featured at the top of the TechPath AU
+        Payment received. Your role will be featured at the top of the Gradland
         Jobs page within 24 hours.
       </p>
 
@@ -59,10 +59,10 @@ export default function PostARoleSuccessPage() {
       <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '2rem' }}>
         Questions?{' '}
         <a
-          href="mailto:hello@henrysdigitallife.com"
+          href="mailto:hello@gradland.au"
           style={{ color: 'var(--vermilion)', textDecoration: 'none' }}
         >
-          hello@henrysdigitallife.com
+          hello@gradland.au
         </a>
       </p>
 

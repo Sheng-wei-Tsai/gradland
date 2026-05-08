@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     apiVersion: '2025-06-30.basil',
   });
 
-  const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://henrysdigitallife.com';
+  const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://gradland.au';
 
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',

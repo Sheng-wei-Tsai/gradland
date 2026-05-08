@@ -55,7 +55,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git config user.name "TechPath Phone Bot"
+          git config user.name "Gradland Phone Bot"
           git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
       # Normalise inputs from both trigger sources into step outputs.
@@ -133,7 +133,7 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: https://dummy.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy-anon-key-ci
           SUPABASE_SERVICE_ROLE_KEY: dummy-service-role-ci
-          NEXT_PUBLIC_APP_URL: https://henrysdigitallife.com
+          NEXT_PUBLIC_APP_URL: https://gradland.au
         run: |
           set +e
           cat .github/prompts/phone-implement.md > /tmp/full_prompt.txt
@@ -205,7 +205,7 @@ jobs:
             echo "Claude made no file changes."
           else
             git commit -m "feat: $(printf '%s' "${TASK}" | cut -c1-60)" \
-              --author="TechPath Phone Bot <github-actions[bot]@users.noreply.github.com>"
+              --author="Gradland Phone Bot <github-actions[bot]@users.noreply.github.com>"
             git push origin "${BRANCH}"
             echo "has_changes=true" >> "$GITHUB_OUTPUT"
           fi
@@ -422,7 +422,7 @@ jobs:
               'export NEXT_PUBLIC_SUPABASE_URL=https://dummy.supabase.co',
               'export NEXT_PUBLIC_SUPABASE_ANON_KEY=dummy-anon-key-ci',
               'export SUPABASE_SERVICE_ROLE_KEY=dummy-service-role-ci',
-              'export NEXT_PUBLIC_APP_URL=https://henrysdigitallife.com',
+              'export NEXT_PUBLIC_APP_URL=https://gradland.au',
               'npm run check',
               f'{b3}', '',
               'Open PR titled `[Copilot] feat(scope): description`. Do NOT merge — owner reviews.',

@@ -40,7 +40,7 @@ export async function generateStaticParams() {
   return getAllCareerEdge().map(p => ({ slug: p.slug }));
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://henrysdigitallife.com';
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://gradland.au';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -143,7 +143,7 @@ export default async function CareerEdgePostPage({ params }: { params: Promise<{
           boxShadow: 'var(--panel-shadow)',
         }}>
           <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-            Apply this on TechPath
+            Apply this on Gradland
           </div>
           <Link href={post.crossLink} style={{
             color: 'var(--vermilion)', textDecoration: 'none', fontWeight: 600, fontSize: '1.05rem',

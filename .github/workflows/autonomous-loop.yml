@@ -121,7 +121,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git config user.name "TechPath Autonomous Agent"
+          git config user.name "Gradland Autonomous Agent"
           git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
       - uses: actions/setup-node@v4
@@ -316,7 +316,7 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: https://dummy.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy-anon-key-ci
           SUPABASE_SERVICE_ROLE_KEY: dummy-service-role-ci
-          NEXT_PUBLIC_APP_URL: https://henrysdigitallife.com
+          NEXT_PUBLIC_APP_URL: https://gradland.au
           WINDOW: ${{ inputs.window || '1' }}
           CLAIMED_TASK_ID: ${{ steps.task_claim.outputs.task_id }}
           CLAIMED_TASK_TEXT: ${{ steps.task_claim.outputs.task_text }}

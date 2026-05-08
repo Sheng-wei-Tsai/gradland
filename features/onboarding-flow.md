@@ -71,7 +71,7 @@ Maps to: `onboarding_job_stage` → determines dashboard priority order.
 ```
 ┌──────────────────────────────────────────────────────────┐
 │                                                          │
-│   👋  Welcome to Henry's Digital Life                    │
+│   👋  Welcome to Gradland                    │
 │   Let's personalise your experience.                     │
 │   3 quick questions · takes 90 seconds                   │
 │                                                          │

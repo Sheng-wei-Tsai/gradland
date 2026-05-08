@@ -4,7 +4,7 @@ import StudySession from './StudySession';
 
 type Props = { params: Promise<{ videoId: string }> };
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://henrysdigitallife.com';
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://gradland.au';
 
 // ── SEO metadata — uses Supabase cache so popular videos get real titles ──────
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const title       = data?.video_title ?? 'YouTube Study Guide';
   const channel     = data?.channel_title ? ` · ${data.channel_title}` : '';
-  const pageTitle   = `${title} — Study Guide | TechPath AU`;
+  const pageTitle   = `${title} — Study Guide | Gradland`;
   const description = `AI study guide for "${title}"${channel}. Key concepts, flashcards, quiz, and audio summary for Australian IT professionals.`;
   const url         = `${BASE_URL}/learn/youtube/${videoId}`;
 

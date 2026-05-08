@@ -4,7 +4,7 @@ import { createSupabaseServer } from '@/lib/auth-server';
 import MessagesClient from './MessagesClient';
 
 export const metadata: Metadata = {
-  title: 'Messages — TechPath AU Network',
+  title: 'Messages — Gradland Network',
   description: 'Direct messages with other anonymous network members.',
 };
 

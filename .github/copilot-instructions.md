@@ -1,4 +1,4 @@
-# Copilot Instructions — TechPath AU / Henry's Blog
+# Copilot Instructions — Gradland / Henry's Blog
 
 > **Read `AGENTS.md` first.** This file is a condensed summary for GitHub Copilot's PR
 > suggestions and code review. `AGENTS.md` is the full source of truth — when there is any
@@ -6,7 +6,7 @@
 
 ## Product context
 
-This is **TechPath AU** — a career platform for international IT graduates in Australia
+This is **Gradland** — a career platform for international IT graduates in Australia
 (resume analyser, interview prep, visa tracker, salary checker, job search, learning paths).
 The blog/digest/githot/AI news/visa news content drives SEO, but the career tools are the
 product. Audience: international students and 482/485/PR applicants in Australian tech roles.

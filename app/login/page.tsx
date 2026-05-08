@@ -2,6 +2,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useAuth } from '@/components/AuthProvider';
 import { useRouter, useSearchParams } from 'next/navigation';
+import LogoMark from '@/components/icons/LogoMark';
 
 type Tab = 'signin' | 'register';
 
@@ -77,14 +78,8 @@ function LoginPageInner() {
 
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-        <div style={{
-          width: '56px', height: '56px', borderRadius: '14px',
-          background: 'var(--terracotta)', margin: '0 auto 1rem',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 4px 16px rgba(180,60,40,0.25)',
-          fontSize: '1.6rem',
-        }}>
-          🌿
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.25rem' }}>
+          <LogoMark size={64} />
         </div>
         <h1 style={{
           fontFamily: "'Lora', serif", fontSize: '1.9rem', fontWeight: 700,

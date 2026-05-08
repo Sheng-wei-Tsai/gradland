@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 
-const BASE_URL = (process.env.NEXT_PUBLIC_APP_URL ?? 'https://henrys-blog.vercel.app').replace(/\/$/, '');
+const BASE_URL = (process.env.NEXT_PUBLIC_APP_URL ?? 'https://gradland.au').replace(/\/$/, '');
 
 export default function robots(): MetadataRoute.Robots {
   return {
