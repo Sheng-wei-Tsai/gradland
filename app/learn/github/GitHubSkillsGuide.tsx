@@ -92,10 +92,10 @@ function CourseCard({
         <div style={{
           width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          background: isDone ? '#d1fae5' : isOpen ? levelColor : 'var(--parchment)',
-          color: isDone ? '#10b981' : isOpen ? 'white' : 'var(--text-muted)',
+          background: isDone ? 'rgba(30,122,82,0.12)' : isOpen ? levelColor : 'var(--parchment)',
+          color: isDone ? 'var(--jade)' : isOpen ? 'white' : 'var(--text-muted)',
           fontSize: isDone ? '0.9rem' : '0.78rem', fontWeight: 700,
-          border: isDone ? '1.5px solid #10b981' : 'none',
+          border: isDone ? '1.5px solid var(--jade)' : 'none',
           transition: 'all 0.2s ease',
         }}>
           {isDone ? '✓' : idx + 1}
@@ -106,7 +106,7 @@ function CourseCard({
             <span style={{ fontSize: '1rem' }}>{course.emoji}</span>
             <span style={{
               fontWeight: 700, fontSize: '0.92rem',
-              color: isDone ? '#10b981' : 'var(--brown-dark)',
+              color: isDone ? 'var(--jade)' : 'var(--brown-dark)',
               textDecoration: isDone ? 'line-through' : 'none',
             }}>
               {course.title}
@@ -206,8 +206,8 @@ function CourseCard({
               style={{
                 padding: '0.45rem 1.1rem', borderRadius: '99px', fontSize: '0.82rem',
                 fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
-                background: isDone ? '#d1fae5' : levelColor,
-                color: isDone ? '#059669' : 'white',
+                background: isDone ? 'rgba(30,122,82,0.12)' : levelColor,
+                color: isDone ? 'var(--jade)' : 'white',
                 transition: 'all 0.2s ease',
               }}
             >
