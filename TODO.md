@@ -124,7 +124,7 @@
 **Day 4 — RLS + observability (P0)**
 - [ ] Create `supabase/026_job_listings_rls.sql` — enable RLS on `job_listings`; policies: service-role write; create view `public_job_listings` excluding `contact_email` for anon read of `status='active' and expires_at>now()`
 - [ ] Edit `app/api/jobs/listings/route.ts` — query `public_job_listings` view, not raw table
-- [ ] Edit `app/api/admin/job-listings/route.ts` — keep service-role on raw table for admin
+- [x] Edit `app/api/admin/job-listings/route.ts` — keep service-role on raw table for admin ✅ 2026-05-08 (already correct: all three handlers use `createSupabaseService()` on `job_listings`; verified no changes needed)
 - [ ] `npm i @sentry/nextjs && npx @sentry/wizard@latest -i nextjs` — generates `instrumentation.ts` + `sentry.{client,server,edge}.config.ts`
 - [ ] Edit `app/api/log-error/route.ts:30` — also `Sentry.captureException(err)`
 - [ ] Verify `error_logs` table exists in prod; if missing → `supabase/027_error_logs.sql`
