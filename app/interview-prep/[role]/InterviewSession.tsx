@@ -45,9 +45,9 @@ const STAGE_LABELS: Record<Stage, string> = {
 };
 
 const TYPE_BADGE: Record<QuestionType, { label: string; color: string; bg: string }> = {
-  mcq:  { label: 'Multiple Choice', color: '#1D6FA4', bg: '#1D6FA415' },
-  code: { label: 'Coding',          color: '#2D6A4F', bg: '#2D6A4F15' },
-  text: { label: 'Open-ended',      color: '#C8922A', bg: '#C8922A15' },
+  mcq:  { label: 'Multiple Choice', color: 'var(--jade)', bg: 'rgba(30,122,82,0.08)' },
+  code: { label: 'Coding',          color: 'var(--jade)', bg: 'rgba(30,122,82,0.08)' },
+  text: { label: 'Open-ended',      color: 'var(--gold)', bg: 'rgba(200,138,20,0.08)' },
 };
 
 const MCQ_XP_CORRECT = 30;
@@ -591,10 +591,10 @@ export default function InterviewSession({ role }: { role: InterviewRole }) {
 
       {/* Resume-session banner */}
       {sessionRestored && currentIndex > 0 && stage !== 'scene' && (
-        <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px', padding: '0.65rem 1rem', marginTop: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', fontSize: '0.85rem', color: '#2563eb' }}>
+        <div style={{ background: 'rgba(30,122,82,0.06)', border: '1px solid rgba(30,122,82,0.25)', borderRadius: '10px', padding: '0.65rem 1rem', marginTop: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', fontSize: '0.85rem', color: 'var(--jade)' }}>
           <span>↩ Session restored — you were on Q{currentIndex + 1}, {STAGE_LABELS[stage]} stage.</span>
           <button onClick={() => { try { localStorage.removeItem(sessionKey); } catch { /**/ } setCurrentIndex(0); setStage('scene'); setCompletedStages(new Set()); }}
-            style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', fontSize: '0.82rem', textDecoration: 'underline', whiteSpace: 'nowrap' }}>
+            style={{ background: 'none', border: 'none', color: 'var(--jade)', cursor: 'pointer', fontSize: '0.82rem', textDecoration: 'underline', whiteSpace: 'nowrap' }}>
             Start over
           </button>
         </div>
@@ -650,7 +650,7 @@ export default function InterviewSession({ role }: { role: InterviewRole }) {
             const qt        = (q.questionType ?? 'text') as QuestionType;
             return (
               <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', padding: '0.45rem 0.5rem', borderRadius: '8px', marginBottom: '0.15rem', background: isCurrent ? 'rgba(192,40,28,0.07)' : 'transparent' }}>
-                <div style={{ width: '8px', height: '8px', borderRadius: '50%', flexShrink: 0, marginTop: '3px', background: status === 'complete' ? '#2D6A4F' : status === 'in-progress' ? 'var(--terracotta)' : 'var(--parchment)', border: status === 'not-started' ? '1.5px solid rgba(0,0,0,0.15)' : 'none' }} />
+                <div style={{ width: '8px', height: '8px', borderRadius: '50%', flexShrink: 0, marginTop: '3px', background: status === 'complete' ? 'var(--jade)' : status === 'in-progress' ? 'var(--terracotta)' : 'var(--parchment)', border: status === 'not-started' ? '1.5px solid rgba(0,0,0,0.15)' : 'none' }} />
                 <div style={{ overflow: 'hidden' }}>
                   <div style={{ fontSize: '0.72rem', fontWeight: isCurrent ? 700 : 400, color: isCurrent ? 'var(--brown-dark)' : 'var(--text-secondary)', lineHeight: 1.2 }}>Q{i + 1}</div>
                   <div style={{ fontSize: '0.6rem', color: TYPE_BADGE[qt].color, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -704,7 +704,7 @@ export default function InterviewSession({ role }: { role: InterviewRole }) {
                     <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--brown-dark)', lineHeight: 1.2 }}>Alex Chen</div>
                     <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>ex-Atlassian · Senior Dev · 8 yrs</div>
                   </div>
-                  <div style={{ marginLeft: 'auto', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: stage === 'scene' ? '#1D6FA4' : stage === 'why' ? '#C8922A' : '#2D6A4F', background: stage === 'scene' ? '#1D6FA410' : stage === 'why' ? '#C8922A10' : '#2D6A4F10', padding: '0.2em 0.6em', borderRadius: '4px' }}>
+                  <div style={{ marginLeft: 'auto', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: stage === 'scene' ? 'var(--jade)' : stage === 'why' ? 'var(--gold)' : 'var(--jade)', background: stage === 'scene' ? 'rgba(30,122,82,0.06)' : stage === 'why' ? 'rgba(200,138,20,0.06)' : 'rgba(30,122,82,0.06)', padding: '0.2em 0.6em', borderRadius: '4px' }}>
                     {stage === 'scene' ? 'Setting the scene' : stage === 'why' ? 'The why' : 'The approach'}
                   </div>
                 </div>
@@ -741,8 +741,8 @@ export default function InterviewSession({ role }: { role: InterviewRole }) {
                     let border = '1.5px solid transparent';
                     let color = 'var(--brown-dark)';
                     if (mcqSubmitted) {
-                      if (isCorrect)       { bg = '#2D6A4F18'; border = '1.5px solid #2D6A4F'; color = '#2D6A4F'; }
-                      else if (isSelected) { bg = '#C0281C12'; border = '1.5px solid var(--terracotta)'; color = 'var(--terracotta)'; }
+                      if (isCorrect)       { bg = 'rgba(30,122,82,0.09)'; border = '1.5px solid var(--jade)'; color = 'var(--jade)'; }
+                      else if (isSelected) { bg = 'rgba(192,40,28,0.07)'; border = '1.5px solid var(--terracotta)'; color = 'var(--terracotta)'; }
                     } else if (isSelected) {
                       bg = 'rgba(192,40,28,0.08)'; border = '1.5px solid var(--terracotta)'; color = 'var(--brown-dark)';
                     }
@@ -846,10 +846,10 @@ export default function InterviewSession({ role }: { role: InterviewRole }) {
               <div>
                 {/* Result header */}
                 {mcqSelected !== null && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem', padding: '0.9rem 1.1rem', borderRadius: '10px', background: mcqSelected === currentQ.correctIndex ? '#2D6A4F15' : '#C0281C10', border: `1.5px solid ${mcqSelected === currentQ.correctIndex ? '#2D6A4F' : 'var(--terracotta)'}` }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem', padding: '0.9rem 1.1rem', borderRadius: '10px', background: mcqSelected === currentQ.correctIndex ? 'rgba(30,122,82,0.08)' : 'rgba(192,40,28,0.06)', border: `1.5px solid ${mcqSelected === currentQ.correctIndex ? 'var(--jade)' : 'var(--terracotta)'}` }}>
                     <span style={{ fontSize: '1.4rem' }}>{mcqSelected === currentQ.correctIndex ? '✅' : '❌'}</span>
                     <div>
-                      <div style={{ fontSize: '0.9rem', fontWeight: 700, color: mcqSelected === currentQ.correctIndex ? '#2D6A4F' : 'var(--terracotta)' }}>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 700, color: mcqSelected === currentQ.correctIndex ? 'var(--jade)' : 'var(--terracotta)' }}>
                         {mcqSelected === currentQ.correctIndex ? `Correct! +${MCQ_XP_CORRECT} XP` : `Incorrect — +${MCQ_XP_WRONG} XP for trying`}
                       </div>
                       {mcqSelected !== currentQ.correctIndex && (
@@ -896,12 +896,12 @@ export default function InterviewSession({ role }: { role: InterviewRole }) {
                   <>
                     {score !== null && (() => {
                       const band = score >= 90
-                        ? { label: 'Exceptional',                  color: '#059669', bg: '#10b98120', icon: '🏆' }
+                        ? { label: 'Exceptional',                  color: 'var(--jade)',      bg: 'rgba(30,122,82,0.12)',  icon: '🏆' }
                         : score >= 75
-                        ? { label: 'Strong candidate',             color: '#2563eb', bg: '#3b82f620', icon: '✓' }
+                        ? { label: 'Strong candidate',             color: 'var(--jade)',      bg: 'rgba(30,122,82,0.08)',  icon: '✓' }
                         : score >= 60
-                        ? { label: 'Interview-ready with some gaps', color: '#d97706', bg: '#f59e0b20', icon: '~' }
-                        : { label: 'More preparation needed',      color: '#dc2626', bg: '#ef444420', icon: '↻' };
+                        ? { label: 'Interview-ready with some gaps', color: 'var(--gold)',   bg: 'rgba(200,138,20,0.12)', icon: '~' }
+                        : { label: 'More preparation needed',      color: 'var(--vermilion)', bg: 'rgba(192,40,28,0.12)', icon: '↻' };
                       return (
                         <div style={{ marginBottom: '1rem' }}>
                           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: band.bg, color: band.color, borderRadius: '99px', padding: '0.3rem 0.9rem', fontSize: '0.9rem', fontWeight: 700 }}>
@@ -929,10 +929,10 @@ export default function InterviewSession({ role }: { role: InterviewRole }) {
 
                 {/* Follow-up question from Alex */}
                 {user && (followUpText || followUpStreaming) && (
-                  <div style={{ marginTop: '1.25rem', background: 'rgba(20,184,166,0.06)', border: '1px solid rgba(20,184,166,0.3)', borderRadius: '10px', padding: '1rem 1.1rem' }}>
+                  <div style={{ marginTop: '1.25rem', background: 'rgba(30,122,82,0.06)', border: '1px solid rgba(30,122,82,0.25)', borderRadius: '10px', padding: '1rem 1.1rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                      <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#14b8a6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700, fontSize: '0.65rem', flexShrink: 0 }}>A</div>
-                      <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#14b8a6', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Alex would follow up</span>
+                      <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: 'var(--jade)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700, fontSize: '0.65rem', flexShrink: 0 }}>A</div>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--jade)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Alex would follow up</span>
                     </div>
                     {followUpStreaming && !followUpText ? (
                       <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Alex is thinking…</p>
@@ -1171,7 +1171,7 @@ I'm very open to discussing the full package — I want to find something that w
               {avgScore !== null && (
                 <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
                   <div style={{ flex: 1, minWidth: '120px', background: 'var(--cream)', borderRadius: '10px', padding: '0.9rem', textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.6rem', fontWeight: 700, color: avgScore >= 75 ? '#2D6A4F' : avgScore >= 60 ? '#C8922A' : 'var(--terracotta)' }}>{avgScore}</div>
+                    <div style={{ fontSize: '1.6rem', fontWeight: 700, color: avgScore >= 75 ? 'var(--jade)' : avgScore >= 60 ? 'var(--gold)' : 'var(--vermilion)' }}>{avgScore}</div>
                     <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Avg score /100</div>
                   </div>
                   <div style={{ flex: 1, minWidth: '120px', background: 'var(--cream)', borderRadius: '10px', padding: '0.9rem', textAlign: 'center' }}>
@@ -1189,7 +1189,7 @@ I'm very open to discussing the full package — I want to find something that w
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.25rem' }}>
                   {questionScores.map((q, i) => {
                     const s = q.score;
-                    const color = s === null ? 'var(--text-muted)' : s >= 75 ? '#2D6A4F' : s >= 60 ? '#C8922A' : 'var(--terracotta)';
+                    const color = s === null ? 'var(--text-muted)' : s >= 75 ? 'var(--jade)' : s >= 60 ? 'var(--gold)' : 'var(--vermilion)';
                     return (
                       <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.55rem 0.75rem', background: 'var(--cream)', borderRadius: '8px' }}>
                         <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', flexShrink: 0, width: '20px' }}>Q{i + 1}</span>
@@ -1202,10 +1202,10 @@ I'm very open to discussing the full package — I want to find something that w
               )}
 
               {weakQuestions.length > 0 && (
-                <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '10px', padding: '0.9rem 1rem' }}>
-                  <p style={{ fontSize: '0.78rem', fontWeight: 700, color: '#c2410c', marginBottom: '0.5rem' }}>Revisit these questions</p>
+                <div style={{ background: 'rgba(200,138,20,0.08)', border: '1px solid rgba(200,138,20,0.3)', borderRadius: '10px', padding: '0.9rem 1rem' }}>
+                  <p style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--gold)', marginBottom: '0.5rem' }}>Revisit these questions</p>
                   {weakQuestions.map((q, i) => (
-                    <p key={i} style={{ fontSize: '0.82rem', color: '#9a3412', lineHeight: 1.5 }}>• {q.text}</p>
+                    <p key={i} style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>• {q.text}</p>
                   ))}
                 </div>
               )}
@@ -1243,12 +1243,12 @@ I'm very open to discussing the full package — I want to find something that w
                   {followUpEmailTemplate}
                 </pre>
                 <button onClick={() => copyToClipboard(followUpEmailTemplate, 'email')}
-                  style={{ position: 'absolute', top: '0.6rem', right: '0.6rem', background: copied === 'email' ? '#2D6A4F' : 'var(--warm-white)', color: copied === 'email' ? 'white' : 'var(--text-muted)', border: '1px solid var(--parchment)', borderRadius: '6px', padding: '0.3rem 0.7rem', fontSize: '0.72rem', cursor: 'pointer', fontFamily: 'inherit' }}>
+                  style={{ position: 'absolute', top: '0.6rem', right: '0.6rem', background: copied === 'email' ? 'var(--jade)' : 'var(--warm-white)', color: copied === 'email' ? 'white' : 'var(--text-muted)', border: '1px solid var(--parchment)', borderRadius: '6px', padding: '0.3rem 0.7rem', fontSize: '0.72rem', cursor: 'pointer', fontFamily: 'inherit' }}>
                   {copied === 'email' ? '✓ Copied' : 'Copy'}
                 </button>
               </div>
-              <div style={{ background: 'rgba(20,184,166,0.07)', border: '1px solid rgba(20,184,166,0.25)', borderRadius: '8px', padding: '0.75rem 1rem' }}>
-                <p style={{ fontSize: '0.78rem', fontWeight: 700, color: '#0f766e', marginBottom: '0.4rem' }}>AU etiquette tips</p>
+              <div style={{ background: 'rgba(30,122,82,0.06)', border: '1px solid rgba(30,122,82,0.25)', borderRadius: '8px', padding: '0.75rem 1rem' }}>
+                <p style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--jade)', marginBottom: '0.4rem' }}>AU etiquette tips</p>
                 <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
                   • Send within 24h — next day is fine, same evening is eager but acceptable<br/>
                   • Connect on LinkedIn with a personalised note referencing the interview<br/>
@@ -1262,8 +1262,8 @@ I'm very open to discussing the full package — I want to find something that w
           {/* ── Rejection handling tab ── */}
           {tab === 'rejection' && (
             <div>
-              <div style={{ background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '10px', padding: '0.9rem 1rem', marginBottom: '1.25rem' }}>
-                <p style={{ fontSize: '0.85rem', fontWeight: 600, color: '#4338ca', marginBottom: '0.3rem' }}>The numbers are normal</p>
+              <div style={{ background: 'rgba(30,122,82,0.06)', border: '1px solid rgba(30,122,82,0.2)', borderRadius: '10px', padding: '0.9rem 1rem', marginBottom: '1.25rem' }}>
+                <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--jade)', marginBottom: '0.3rem' }}>The numbers are normal</p>
                 <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
                   Australian IT grads typically apply to <strong>40–60 roles</strong> before landing their first offer. International graduates often need <strong>20–30% more applications</strong> due to visa considerations. Every rejection is data, not a verdict.
                 </p>
@@ -1275,7 +1275,7 @@ I'm very open to discussing the full package — I want to find something that w
                   {feedbackRequestTemplate}
                 </pre>
                 <button onClick={() => copyToClipboard(feedbackRequestTemplate, 'rejection')}
-                  style={{ position: 'absolute', top: '0.6rem', right: '0.6rem', background: copied === 'rejection' ? '#2D6A4F' : 'var(--warm-white)', color: copied === 'rejection' ? 'white' : 'var(--text-muted)', border: '1px solid var(--parchment)', borderRadius: '6px', padding: '0.3rem 0.7rem', fontSize: '0.72rem', cursor: 'pointer', fontFamily: 'inherit' }}>
+                  style={{ position: 'absolute', top: '0.6rem', right: '0.6rem', background: copied === 'rejection' ? 'var(--jade)' : 'var(--warm-white)', color: copied === 'rejection' ? 'white' : 'var(--text-muted)', border: '1px solid var(--parchment)', borderRadius: '6px', padding: '0.3rem 0.7rem', fontSize: '0.72rem', cursor: 'pointer', fontFamily: 'inherit' }}>
                   {copied === 'rejection' ? '✓ Copied' : 'Copy'}
                 </button>
               </div>
@@ -1301,7 +1301,7 @@ I'm very open to discussing the full package — I want to find something that w
             <div>
               <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.25rem', padding: '0.9rem 1rem', background: 'rgba(200,138,20,0.07)', border: '1px solid rgba(200,138,20,0.25)', borderRadius: '10px' }}>
                 <div>
-                  <p style={{ fontSize: '0.8rem', fontWeight: 700, color: '#b45309', marginBottom: '0.3rem' }}>AU salary benchmark for {role.title}</p>
+                  <p style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--gold)', marginBottom: '0.3rem' }}>AU salary benchmark for {role.title}</p>
                   <p style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--brown-dark)', marginBottom: '0.2rem' }}>{role.salaryRange} base</p>
                   <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>+ 11.5% superannuation on top · quoted exclusive of super</p>
                 </div>
@@ -1320,7 +1320,7 @@ I'm very open to discussing the full package — I want to find something that w
                   { item: 'Title / seniority', yes: true },
                 ].map(n => (
                   <div key={n.item} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.45rem 0.65rem', background: 'var(--cream)', borderRadius: '7px' }}>
-                    <span style={{ fontSize: '0.8rem', color: n.yes ? '#2D6A4F' : 'var(--terracotta)' }}>{n.yes ? '✓' : '✗'}</span>
+                    <span style={{ fontSize: '0.8rem', color: n.yes ? 'var(--jade)' : 'var(--terracotta)' }}>{n.yes ? '✓' : '✗'}</span>
                     <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{n.item}</span>
                   </div>
                 ))}
@@ -1332,7 +1332,7 @@ I'm very open to discussing the full package — I want to find something that w
                   {negotiationScript}
                 </pre>
                 <button onClick={() => copyToClipboard(negotiationScript, 'negotiation')}
-                  style={{ position: 'absolute', top: '0.6rem', right: '0.6rem', background: copied === 'negotiation' ? '#2D6A4F' : 'var(--warm-white)', color: copied === 'negotiation' ? 'white' : 'var(--text-muted)', border: '1px solid var(--parchment)', borderRadius: '6px', padding: '0.3rem 0.7rem', fontSize: '0.72rem', cursor: 'pointer', fontFamily: 'inherit' }}>
+                  style={{ position: 'absolute', top: '0.6rem', right: '0.6rem', background: copied === 'negotiation' ? 'var(--jade)' : 'var(--warm-white)', color: copied === 'negotiation' ? 'white' : 'var(--text-muted)', border: '1px solid var(--parchment)', borderRadius: '6px', padding: '0.3rem 0.7rem', fontSize: '0.72rem', cursor: 'pointer', fontFamily: 'inherit' }}>
                   {copied === 'negotiation' ? '✓ Copied' : 'Copy'}
                 </button>
               </div>

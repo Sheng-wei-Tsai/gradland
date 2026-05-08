@@ -637,6 +637,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-08 (supplement 2)
+
+> Seventeenth-pass scan — `app/interview-prep/[role]/InterviewSession.tsx` hardcoded hex missed by all prior sweeps (supplement 13 fixed `InterviewPrepClient.tsx` and `NetworkingClient.tsx` but not the session screen itself).
+
+### Style (dark-mode breakage)
+- [x] Replace hardcoded hex in `app/interview-prep/[role]/InterviewSession.tsx` — `TYPE_BADGE` map `#1D6FA4`/`#2D6A4F`/`#C8922A` (lines 48-50) → `var(--jade)`/`var(--jade)`/`var(--gold)`; resume-session banner `#eff6ff`/`#bfdbfe`/`#2563eb` (lines 594,597) → jade rgba tokens; sidebar status dot `#2D6A4F` (line 653) → `var(--jade)`; stage-context badge (line 707) → jade/gold tokens; MCQ correct feedback `#2D6A4F18`/`#2D6A4F` (line 744) → jade; MCQ debrief result `#2D6A4F15`/`#2D6A4F` (lines 849,852) → jade; assessment band colors `#059669`/`#10b981`/`#2563eb`/`#3b82f6`/`#d97706`/`#f59e0b`/`#dc2626`/`#ef4444` (lines 899-904) → jade/jade/gold/vermilion; Alex follow-up box `rgba(20,184,166,0.06)`/`rgba(20,184,166,0.3)`/`#14b8a6` (lines 932-935) → jade rgba; avg score `#2D6A4F`/`#C8922A` (lines 1174,1192) → jade/gold; revisit-questions box `#fff7ed`/`#fed7aa`/`#c2410c`/`#9a3412` (lines 1205-1208) → gold rgba; copy buttons `#2D6A4F` (lines 1246,1278,1335) → `var(--jade)`; negotiation yes/no `#2D6A4F` (line 1323) → `var(--jade)`; AU etiquette box `rgba(20,184,166,0.07)`/`rgba(20,184,166,0.25)`/`#0f766e` (lines 1250-1251) → jade rgba [style] ✅ 2026-05-08
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
