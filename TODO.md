@@ -116,7 +116,7 @@
 - [x] Edit `next.config.ts` — remove stale "CSP via middleware" comment now that middleware actually exists ✅ 2026-05-08
 
 **Day 3 — Stripe idempotency + abuse guard (P0)**
-- [ ] Create `supabase/025_stripe_events.sql` — `(event_id text pk, event_type text, processed_at timestamptz default now())`; RLS deny-all (service-role only)
+- [x] Create `supabase/027_stripe_events.sql` — `(event_id text pk, event_type text, processed_at timestamptz default now())`; RLS deny-all (service-role only) ✅ 2026-05-08 (027 used — 025/026 already taken by network_messages/direct_messages)
 - [x] Edit `app/api/stripe/webhook/route.ts:33` — INSERT event_id with `on conflict do nothing returning *`; if 0 rows affected, ack 200 and skip handler ✅ 2026-05-08
 - [x] Edit `app/api/stripe/job-listing/route.ts` — gate behind session cookie OR hCaptcha; soft IP throttle (5 sessions/hour); `simple-email-regex` validation on `contactEmail`; `.slice()` truncation on all user fields ✅ 2026-05-08
 - [x] Edit `app/api/stripe/checkout/route.ts:40` — `origin` allowlist (`ALLOWED_ORIGINS` env) ✅ 2026-05-08
