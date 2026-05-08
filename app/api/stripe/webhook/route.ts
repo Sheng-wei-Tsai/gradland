@@ -51,6 +51,16 @@ export async function POST(req: NextRequest) {
 
   const sb = createSupabaseService();
 
+  // Idempotency guard — prevents duplicate processing of Stripe event replays.
+  // Requires supabase/025_stripe_events.sql; degrades gracefully if table absent.
+  const { data: dedupRows, error: dedupError } = await sb
+    .from('stripe_events')
+    .upsert({ event_id: event.id, event_type: event.type }, { onConflict: 'event_id', ignoreDuplicates: true })
+    .select('event_id');
+  if (!dedupError && Array.isArray(dedupRows) && dedupRows.length === 0) {
+    return NextResponse.json({ received: true });
+  }
+
   switch (event.type) {
 
     // ── Payment succeeded → activate Pro or create job listing ────

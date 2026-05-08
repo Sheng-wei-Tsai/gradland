@@ -8,12 +8,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
 // ── Hoist mock fns so vi.mock factories can reference them ────────────────────
-const { mockConstructEvent, mockRetrieve, mockUpdate, mockEq } = vi.hoisted(() => {
+const { mockConstructEvent, mockRetrieve, mockUpdate, mockEq, mockUpsert, mockUpsertSelect } = vi.hoisted(() => {
   const mockEq             = vi.fn();
   const mockUpdate         = vi.fn(() => ({ eq: mockEq }));
   const mockConstructEvent = vi.fn();
   const mockRetrieve       = vi.fn();
-  return { mockConstructEvent, mockRetrieve, mockUpdate, mockEq };
+  const mockUpsertSelect   = vi.fn().mockResolvedValue({ data: [{ event_id: 'evt_test' }], error: null });
+  const mockUpsert         = vi.fn(() => ({ select: mockUpsertSelect }));
+  return { mockConstructEvent, mockRetrieve, mockUpdate, mockEq, mockUpsert, mockUpsertSelect };
 });
 
 vi.mock('stripe', () => ({
@@ -25,7 +27,7 @@ vi.mock('stripe', () => ({
 
 vi.mock('@/lib/auth-server', () => ({
   createSupabaseService: () => ({
-    from: vi.fn(() => ({ update: mockUpdate })),
+    from: vi.fn(() => ({ update: mockUpdate, upsert: mockUpsert })),
   }),
 }));
 
@@ -42,8 +44,8 @@ function makeRequest(body: string, signature = 'valid-sig') {
   });
 }
 
-function makeEvent(type: string, data: object) {
-  return { type, data: { object: data } };
+function makeEvent(type: string, data: object, id = 'evt_test') {
+  return { id, type, data: { object: data } };
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -53,6 +55,8 @@ describe('POST /api/stripe/webhook', () => {
     vi.clearAllMocks();
     mockEq.mockResolvedValue({ error: null });
     mockUpdate.mockReturnValue({ eq: mockEq });
+    mockUpsertSelect.mockResolvedValue({ data: [{ event_id: 'evt_test' }], error: null });
+    mockUpsert.mockReturnValue({ select: mockUpsertSelect });
   });
 
   // ── Signature validation ────────────────────────────────────────────────────
@@ -227,5 +231,30 @@ describe('POST /api/stripe/webhook', () => {
     expect(mockUpdate).toHaveBeenCalledWith(
       expect.objectContaining({ subscription_expires_at: expect.any(String) }),
     );
+  });
+
+  // ── Idempotency guard ───────────────────────────────────────────────────────
+
+  it('skips processing of a duplicate event (0 rows inserted = already seen)', async () => {
+    mockConstructEvent.mockReturnValue(makeEvent('customer.subscription.deleted', {
+      metadata: { supabase_user_id: 'user-dup' },
+    }, 'evt_duplicate'));
+    mockUpsertSelect.mockResolvedValue({ data: [], error: null });
+
+    const res = await POST(makeRequest('{}'));
+    expect(res.status).toBe(200);
+    expect((await res.json()).received).toBe(true);
+    expect(mockUpdate).not.toHaveBeenCalled();
+  });
+
+  it('processes event when stripe_events table is absent (graceful degradation)', async () => {
+    mockConstructEvent.mockReturnValue(makeEvent('customer.subscription.deleted', {
+      metadata: { supabase_user_id: 'user-nograce' },
+    }, 'evt_nodtable'));
+    mockUpsertSelect.mockResolvedValue({ data: null, error: { message: 'relation "stripe_events" does not exist', code: '42P01' } });
+
+    const res = await POST(makeRequest('{}'));
+    expect(res.status).toBe(200);
+    expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({ subscription_tier: 'free' }));
   });
 });
