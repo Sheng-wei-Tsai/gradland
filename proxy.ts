@@ -4,14 +4,17 @@ import { NextRequest, NextResponse } from 'next/server';
 // Fail-closed: empty string means isOwner never matches if env var is unset.
 const OWNER_EMAIL = process.env.OWNER_EMAIL?.toLowerCase() ?? '';
 
-function buildCsp(nonce: string): string {
+function buildCsp(): string {
   const isDev = process.env.NODE_ENV === 'development';
   return [
     "default-src 'self'",
-    // nonce tags each request's scripts uniquely. unsafe-inline retained for
-    // compatibility with statically generated pages (no strict-dynamic yet).
+    // Static prerender + ISR caching means inline scripts in cached HTML can't
+    // carry a per-request nonce. With nonce present, modern browsers (CSP2+)
+    // ignore 'unsafe-inline' and block all unnonced inline scripts, breaking
+    // React hydration. Until pages are dynamic OR nonce is plumbed through
+    // <Script> at render time, fall back to 'unsafe-inline' only.
     // unsafe-eval is dev-only: React uses it for error-stack reconstruction.
-    `script-src 'self' 'nonce-${nonce}' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://js.stripe.com https://va.vercel-scripts.com`,
+    `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://js.stripe.com https://va.vercel-scripts.com`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https://*.googleusercontent.com https://*.githubusercontent.com https://img.youtube.com https://i.ytimg.com https://cdn.simpleicons.org https://img.logo.dev https://www.google.com",
     "font-src 'self'",
@@ -27,13 +30,9 @@ function buildCsp(nonce: string): string {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Per-request nonce — unique, unpredictable, base64-encoded UUID.
-  const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
-  const csp = buildCsp(nonce);
+  const csp = buildCsp();
 
-  // Forward nonce to server components via request header (x-nonce).
   const requestHeaders = new Headers(request.headers);
-  requestHeaders.set('x-nonce', nonce);
   requestHeaders.set('content-security-policy', csp);
 
   // Protected routes need a Supabase auth check.
