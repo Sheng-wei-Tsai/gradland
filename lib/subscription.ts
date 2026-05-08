@@ -54,7 +54,7 @@ export async function getSubscriptionStatus(userId: string): Promise<SubStatus> 
     .from('profiles')
     .select('subscription_tier, subscription_expires_at')
     .eq('id', userId)
-    .single();
+    .maybeSingle();
 
   if (!data) return { active: false, tier: 'free' };
 

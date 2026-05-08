@@ -756,6 +756,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-08 (supplement 11)
+
+> Twenty-third-pass scan — `lib/subscription.ts` `.single()` call missed by all prior API-route and component sweeps.
+
+### Security
+- [x] Replace `.single()` with `.maybeSingle()` on profiles lookup in `lib/subscription.ts:57` (`getSubscriptionStatus`) — every paid AI route calls `requireSubscription()` → `getSubscriptionStatus()` which uses `.single()` on the profiles table; a user with no profile row (e.g. auth trigger failed or new signup edge case) raises PGRST116 even though `if (!data)` catches the result correctly; `.maybeSingle()` returns `{ data: null, error: null }` on 0 rows per AGENTS.md §10.3, eliminating spurious error log noise [security] ✅ 2026-05-08
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
