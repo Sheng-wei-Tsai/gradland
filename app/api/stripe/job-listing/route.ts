@@ -6,6 +6,9 @@ import Stripe from 'stripe';
 const VALID_LOCATIONS = new Set(['Sydney', 'Melbourne', 'Brisbane', 'Remote', 'Hybrid']);
 const VALID_JOB_TYPES = new Set(['Full-time', 'Contract', 'Graduate']);
 
+// Max 5 checkout sessions per IP per hour — blocks automated session flooding
+const ipLog = new Map<string, { count: number; resetAt: number }>();
+
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
@@ -23,6 +26,17 @@ export async function POST(req: NextRequest) {
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(contactEmail))) {
     return NextResponse.json({ error: 'Invalid contact email' }, { status: 400 });
+  }
+
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+  const now = Date.now();
+  const entry = ipLog.get(ip);
+  if (entry && now < entry.resetAt) {
+    if (entry.count >= 5) return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+    entry.count++;
+  } else {
+    if (!entry && ipLog.size >= 5000) ipLog.delete(ipLog.keys().next().value!);
+    ipLog.set(ip, { count: 1, resetAt: now + 3_600_000 });
   }
 
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {

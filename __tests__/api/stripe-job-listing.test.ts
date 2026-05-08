@@ -29,11 +29,13 @@ const VALID_BODY = {
   contactEmail: 'hiring@atlassian.com',
 };
 
-function makePost(body: object) {
+// Each call gets a fresh IP by default so tests don't interfere with the rate-limit map
+let ipSeq = 10;
+function makePost(body: object, ip?: string) {
   return new NextRequest('http://localhost/api/stripe/job-listing', {
     method:  'POST',
     body:    JSON.stringify(body),
-    headers: { 'content-type': 'application/json' },
+    headers: { 'content-type': 'application/json', 'x-forwarded-for': ip ?? `10.1.${Math.floor(ipSeq / 256)}.${ipSeq++ % 256}` },
   });
 }
 
@@ -196,5 +198,18 @@ describe('POST /api/stripe/job-listing', () => {
 
     const call = mockSessionsCreate.mock.calls[0][0];
     expect(call.mode).toBe('payment');
+  });
+
+  // ── IP rate limit ─────────────────────────────────────────────────────────────
+
+  it('returns 429 on the 6th valid request from the same IP within one hour', async () => {
+    const ip = '10.99.0.1';
+    for (let i = 0; i < 5; i++) {
+      mockSessionsCreate.mockResolvedValueOnce({ url: 'https://checkout.stripe.com/pay/cs_test' });
+      const res = await POST(makePost(VALID_BODY, ip));
+      expect(res.status).toBe(200);
+    }
+    const res = await POST(makePost(VALID_BODY, ip));
+    expect(res.status).toBe(429);
   });
 });
