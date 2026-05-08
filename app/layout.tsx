@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Space_Grotesk, Lora, Caveat } from 'next/font/google';
+import { cookies } from 'next/headers';
 import './globals.css';
 import Header from '@/components/Header';
 import Breadcrumb from '@/components/Breadcrumb';
@@ -73,7 +74,10 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const cookieStore = await cookies();
+  const analyticsConsented = cookieStore.get('cookies-consent')?.value === 'accepted';
+
   return (
     <html
       lang="en"
@@ -90,7 +94,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
           <LangProvider>
           <a href="#main-content" className="skip-to-content">Skip to content</a>
-          <Analytics />
+          <Analytics initialConsent={analyticsConsented} />
           <CookieConsent />
           <Header />
           <Breadcrumb />

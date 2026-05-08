@@ -29,11 +29,13 @@ function hasAnalyticsConsent(): boolean {
   return match ? decodeURIComponent(match[1]) === 'accepted' : false;
 }
 
-export default function Analytics() {
+// initialConsent is read server-side from the cookie so the component starts
+// with the correct state — avoids the brief consent=false flash on returning visitors.
+export default function Analytics({ initialConsent = false }: { initialConsent?: boolean }) {
   const pathname = usePathname();
-  const [consent, setConsent] = useState(false);
+  const [consent, setConsent] = useState(initialConsent);
 
-  // Track consent state — re-render on user choice without page reload
+  // Verify client-side cookie on mount (handles DNT) and re-check on user choice.
   useEffect(() => {
     setConsent(hasAnalyticsConsent());
     const onChange = () => setConsent(hasAnalyticsConsent());

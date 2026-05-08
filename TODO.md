@@ -100,20 +100,20 @@
 **Why:** Audit (3 Explore agents + Vercel/GDPR 2026 references) found 8 P0 launch blockers: legal pages, cookie consent, CSP/HSTS middleware, Stripe webhook idempotency, unauth `job-listing` route, missing RLS on `job_listings`, zero observability, no refund policy. Code/design quality solid otherwise — AGENTS §15 tech-debt list mostly resolved.
 
 **Day 1 — Compliance copy (P0)**
-- [ ] Create `app/privacy/page.tsx` — AU Privacy Act APP 1+5 disclosure; sub-processors (Stripe, Supabase, Anthropic, OpenAI, Logo.dev, Resend, Vercel)
-- [ ] Create `app/terms/page.tsx` — service terms, AUP, dispute resolution, AU consumer law disclaimer
-- [ ] Create `app/contact/page.tsx` — owner contact details + Resend-backed form
-- [ ] Create `app/cookies/page.tsx` — categorised list (essential / analytics / preferences) + revoke instructions
-- [ ] Edit `app/pricing/page.tsx` — refund + cancellation policy block (ACL §54 disclosure)
-- [ ] Edit `components/Footer.tsx` (or create) — link to all 4 legal pages
+- [x] Create `app/privacy/page.tsx` — AU Privacy Act APP 1+5 disclosure; sub-processors (Stripe, Supabase, Anthropic, OpenAI, Logo.dev, Resend, Vercel) ✅ 2026-05-08
+- [x] Create `app/terms/page.tsx` — service terms, AUP, dispute resolution, AU consumer law disclaimer ✅ 2026-05-08
+- [x] Create `app/contact/page.tsx` — owner contact details + Resend-backed form ✅ 2026-05-08
+- [x] Create `app/cookies/page.tsx` — categorised list (essential / analytics / preferences) + revoke instructions ✅ 2026-05-08
+- [x] Edit `app/pricing/page.tsx` — refund + cancellation policy block (ACL §54 disclosure) ✅ 2026-05-08
+- [x] Edit `components/Footer.tsx` (or create) — link to all 4 legal pages ✅ 2026-05-08
 - [x] Edit `app/api/stripe/checkout/route.ts` — `consent_collection.terms_of_service: 'required'` + `custom_text.terms_of_service_acceptance.message` ✅ 2026-05-08
 
 **Day 2 — Cookie consent + middleware (P0)**
-- [ ] Create `components/CookieConsent.tsx` — minimal banner, localStorage gate, granular essential/analytics/preferences toggles
-- [ ] Edit `app/layout.tsx:92` — gate `Analytics` mount behind consent state
-- [ ] Edit `app/api/track/route.ts` — short-circuit no-op when `cookies-consent` cookie not set to `analytics-true`
-- [ ] Create `middleware.ts` — Node.js runtime via Fluid Compute; per-request CSP nonce, HSTS (`max-age=63072000; includeSubDomains; preload`), `frame-ancestors 'none'`, `form-action 'self'`, `Permissions-Policy: interest-cohort=()`
-- [ ] Edit `next.config.ts` — remove stale "CSP via middleware" comment now that middleware actually exists
+- [x] Create `components/CookieConsent.tsx` — minimal banner, localStorage gate, granular essential/analytics/preferences toggles ✅ 2026-05-08
+- [x] Edit `app/layout.tsx:92` — gate `Analytics` mount behind consent state ✅ 2026-05-08
+- [x] Edit `app/api/track/route.ts` — short-circuit no-op when `cookies-consent` cookie not set to `analytics-true` ✅ 2026-05-08
+- [x] Create `middleware.ts` — Node.js runtime via Fluid Compute; per-request CSP nonce, HSTS (`max-age=63072000; includeSubDomains; preload`), `frame-ancestors 'none'`, `form-action 'self'`, `Permissions-Policy: interest-cohort=()` ✅ 2026-05-08 (implemented as `proxy.ts` — Next.js 16 renamed middleware → proxy)
+- [x] Edit `next.config.ts` — remove stale "CSP via middleware" comment now that middleware actually exists ✅ 2026-05-08
 
 **Day 3 — Stripe idempotency + abuse guard (P0)**
 - [ ] Create `supabase/025_stripe_events.sql` — `(event_id text pk, event_type text, processed_at timestamptz default now())`; RLS deny-all (service-role only)
