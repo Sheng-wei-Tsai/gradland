@@ -204,12 +204,12 @@ function StudyGuideTab({ guide }: { guide: StudyGuide }) {
 
       {/* AU Context */}
       {guide.australianContext && (
-        <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px', padding: '1rem' }}>
-          <p style={{ fontSize: '0.68rem', fontWeight: 700, color: '#1d4ed8',
+        <div style={{ background: 'rgba(30,122,82,0.08)', border: '1px solid rgba(30,122,82,0.25)', borderRadius: '10px', padding: '1rem' }}>
+          <p style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--jade)',
             textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.4rem' }}>
             🇦🇺 Australian Market
           </p>
-          <p style={{ fontSize: '0.84rem', color: '#1e3a8a', lineHeight: 1.65, margin: 0 }}>
+          <p style={{ fontSize: '0.84rem', color: 'var(--jade)', lineHeight: 1.65, margin: 0 }}>
             {guide.australianContext}
           </p>
         </div>
@@ -819,8 +819,8 @@ function QuizTab({ guide, videoId, videoTitle, onScoreSaved, prefetchedQuestions
         </div>
       )}
       <button onClick={next} disabled={selected === null} style={{
-        background: selected !== null ? 'var(--terracotta)' : '#e5e7eb',
-        color: selected !== null ? 'white' : '#9ca3af', border: 'none',
+        background: selected !== null ? 'var(--terracotta)' : 'var(--parchment)',
+        color: selected !== null ? 'white' : 'var(--text-muted)', border: 'none',
         borderRadius: '10px', padding: '0.6rem 1.5rem',
         fontSize: '0.9rem', fontWeight: 600,
         cursor: selected !== null ? 'pointer' : 'default', fontFamily: 'inherit',
@@ -1204,8 +1204,8 @@ export default function StudySession({
         <button onClick={saveToNLM} style={{
           display: 'flex', alignItems: 'center', gap: '0.4rem',
           padding: '0.38rem 0.85rem', borderRadius: '99px',
-          border: '1px solid #bfdbfe', background: '#eff6ff',
-          color: '#1d4ed8', fontSize: '0.76rem', fontWeight: 600,
+          border: '1px solid rgba(30,122,82,0.25)', background: 'rgba(30,122,82,0.08)',
+          color: 'var(--jade)', fontSize: '0.76rem', fontWeight: 600,
           cursor: 'pointer', fontFamily: 'inherit',
         }} title="Copies the YouTube URL and opens NotebookLM — paste as a source for audio overviews and deep questions">
           📓 Save to NotebookLM
@@ -1314,7 +1314,7 @@ export default function StudySession({
                 </p>
                 {isPermanentAnalysisError(guideError) ? (
                   <button onClick={saveToNLM} style={{
-                    background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe',
+                    background: 'rgba(30,122,82,0.08)', color: 'var(--jade)', border: '1px solid rgba(30,122,82,0.25)',
                     borderRadius: '8px', padding: '0.5rem 1rem', fontSize: '0.84rem',
                     fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
                   }}>📓 Open in NotebookLM →</button>
