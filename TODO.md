@@ -571,6 +571,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-08 (supplement 6)
+
+> Nineteenth-pass scan — two dark-mode breakage spots in `GitHubSkillsGuide.tsx` missed by the 2026-05-08 supplement sweep.
+
+### Style (dark-mode breakage)
+- [x] Replace amber hex in "What you'll build" box at `app/learn/github/GitHubSkillsGuide.tsx:155-159` (`rgba(245,158,11,0.07)` bg / `rgba(245,158,11,0.25)` border / `#d97706` label text) with `rgba(200,138,20,0.07)` / `rgba(200,138,20,0.25)` / `var(--gold)` — Tailwind amber breaks dark mode; also fix level-tab fade overlay at line 301 (`var(--bg, #faf7f2)` fallback → `var(--cream)`) so the scroll fade adapts to dark mode [style] ✅ 2026-05-08
+
+---
+
 ## 🛡 Daily Analyst Findings — 2026-05-07 (supplement 12)
 
 > Thirteenth-pass scan — `SponsorshipCharts.tsx` D3 chart colours missed by all prior sweeps.

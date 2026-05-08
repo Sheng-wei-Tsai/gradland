@@ -152,11 +152,11 @@ function CourseCard({
 
           {/* What you'll build */}
           <div style={{
-            background: 'rgba(245,158,11,0.07)',
-            border: '1px solid rgba(245,158,11,0.25)',
+            background: 'rgba(200,138,20,0.07)',
+            border: '1px solid rgba(200,138,20,0.25)',
             borderRadius: '8px', padding: '0.75rem 1rem', marginBottom: '0.85rem',
           }}>
-            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#d97706', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.3rem' }}>
+            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--gold)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.3rem' }}>
               🔨 What you&apos;ll build
             </div>
             <p style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', lineHeight: 1.6, margin: 0 }}>
@@ -298,7 +298,7 @@ export default function GitHubSkillsGuide() {
 
       {/* ── Level tabs ── */}
       <div style={{ position: 'relative', marginBottom: '1.5rem', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', right: 0, top: 0, bottom: '2px', width: '3rem', background: 'linear-gradient(to right, transparent, var(--bg, #faf7f2))', pointerEvents: 'none', zIndex: 1 }} />
+        <div style={{ position: 'absolute', right: 0, top: 0, bottom: '2px', width: '3rem', background: 'linear-gradient(to right, transparent, var(--cream))', pointerEvents: 'none', zIndex: 1 }} />
         <div ref={levelRowRef} style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: '2px', paddingRight: '2rem' }}>
           {GITHUB_LEVELS.map((lv, i) => {
             const lvDone = mounted ? lv.courses.filter(c => done.has(c.id)).length : 0;
