@@ -23,7 +23,7 @@ export async function GET() {
 
   const sb = createClient(supabaseUrl, anonKey);
   const { data, error } = await sb
-    .from('job_listings')
+    .from('public_job_listings')
     .select('id, company, logo_url, title, location, job_type, description, apply_url, salary, posted_at')
     .eq('status', 'active')
     .gt('expires_at', new Date().toISOString())

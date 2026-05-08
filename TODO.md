@@ -122,8 +122,8 @@
 - [x] Edit `app/api/stripe/checkout/route.ts:40` — `origin` allowlist (`ALLOWED_ORIGINS` env) ✅ 2026-05-08
 
 **Day 4 — RLS + observability (P0)**
-- [ ] Create `supabase/026_job_listings_rls.sql` — enable RLS on `job_listings`; policies: service-role write; create view `public_job_listings` excluding `contact_email` for anon read of `status='active' and expires_at>now()`
-- [ ] Edit `app/api/jobs/listings/route.ts` — query `public_job_listings` view, not raw table
+- [x] Create `supabase/028_job_listings_rls.sql` — enable RLS on `job_listings`; service-role write bypasses RLS; `public_job_listings` view (security_invoker=false) excludes `contact_email` for anon read of active/non-expired listings ✅ 2026-05-08 (026 taken by direct_messages, 027 taken by stripe_events → used 028)
+- [x] Edit `app/api/jobs/listings/route.ts` — query `public_job_listings` view, not raw table ✅ 2026-05-08
 - [x] Edit `app/api/admin/job-listings/route.ts` — keep service-role on raw table for admin ✅ 2026-05-08 (already correct: all three handlers use `createSupabaseService()` on `job_listings`; verified no changes needed)
 - [ ] `npm i @sentry/nextjs && npx @sentry/wizard@latest -i nextjs` — generates `instrumentation.ts` + `sentry.{client,server,edge}.config.ts`
 - [ ] Edit `app/api/log-error/route.ts:30` — also `Sentry.captureException(err)`
