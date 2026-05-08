@@ -7,6 +7,7 @@ import Footer from '@/components/Footer';
 import { AuthProvider } from '@/components/AuthProvider';
 import LangProvider from '@/components/LangProvider';
 import Analytics from '@/components/Analytics';
+import CookieConsent from '@/components/CookieConsent';
 import { Toaster } from 'sonner';
 
 // ── Fonts loaded via next/font — zero render-blocking, auto-subsetted ──────────
@@ -90,6 +91,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <LangProvider>
           <a href="#main-content" className="skip-to-content">Skip to content</a>
           <Analytics />
+          <CookieConsent />
           <Header />
           <Breadcrumb />
           <main id="main-content" style={{ minHeight: '70vh' }}>

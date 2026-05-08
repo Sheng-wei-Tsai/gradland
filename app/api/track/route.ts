@@ -27,6 +27,13 @@ const SESSION_RE = /^[a-f0-9-]{32,64}$/i;
 
 export async function POST(req: NextRequest) {
   try {
+    // Server-side consent gate — defence in depth alongside the client check.
+    // Required by AU Privacy Act + GDPR: no analytics processing without opt-in.
+    if (req.cookies.get('cookies-consent')?.value !== 'accepted') {
+      // 204 No Content — body MUST be empty per RFC 9110 §15.3.5
+      return new NextResponse(null, { status: 204 });
+    }
+
     // IP from Vercel edge header; fall back to a placeholder in local dev
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? '127.0.0.1';
 
