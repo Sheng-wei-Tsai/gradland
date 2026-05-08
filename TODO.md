@@ -580,6 +580,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-08 (supplement 7)
+
+> Twentieth-pass scan — same `var(--bg, #faf7f2)` undefined-variable fade overlay found in two files not covered by supplement 6.
+
+### Style (dark-mode breakage)
+- [x] Replace `var(--bg, #faf7f2)` with `var(--cream)` in the level-tab fade overlay at `app/learn/claude-code/ClaudeCodeGuide.tsx:2212` and the section-pill fade overlay at `app/au-insights/page.tsx:123` — `--bg` is not defined in `globals.css` so the fallback `#faf7f2` (Tailwind warm-50, equivalent to light-mode `--cream`) is always used; in dark mode this renders as a light-cream gradient against a dark background, matching the bug fixed in `GitHubSkillsGuide.tsx:301` (supplement 6, commit a08936a); replace with `var(--cream)` which resolves to `#fdf5e4` in light mode and `#07050f` in dark mode [style] ✅ 2026-05-08
+
+---
+
 ## 🛡 Daily Analyst Findings — 2026-05-07 (supplement 12)
 
 > Thirteenth-pass scan — `SponsorshipCharts.tsx` D3 chart colours missed by all prior sweeps.

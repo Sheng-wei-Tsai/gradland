@@ -120,7 +120,7 @@ function AUInsightsContent() {
 
       {/* Section pill row */}
       <div style={{ position: 'relative', marginBottom: '2.5rem', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', right: 0, top: 0, bottom: '2px', width: '3rem', background: 'linear-gradient(to right, transparent, var(--bg, #faf7f2))', pointerEvents: 'none', zIndex: 1 }} />
+        <div style={{ position: 'absolute', right: 0, top: 0, bottom: '2px', width: '3rem', background: 'linear-gradient(to right, transparent, var(--cream))', pointerEvents: 'none', zIndex: 1 }} />
         <div ref={pillRowRef} style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: '2px', paddingRight: '2rem' }}>
           {SECTIONS.map(sec => {
             const isActive = sec.id === activeTab;
