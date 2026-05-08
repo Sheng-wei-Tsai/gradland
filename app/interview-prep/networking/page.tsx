@@ -64,7 +64,7 @@ export default function NetworkingPage() {
                   'Profile photo — 400x400px, plain background, approachable expression',
                 ].map((item, i) => (
                   <div key={i} style={{ display: 'flex', gap: '0.6rem', marginBottom: '0.4rem', alignItems: 'flex-start' }}>
-                    <span style={{ color: '#14b8a6', fontSize: '0.85rem', marginTop: '0.1rem', flexShrink: 0 }}>☐</span>
+                    <span style={{ color: 'var(--jade)', fontSize: '0.85rem', marginTop: '0.1rem', flexShrink: 0 }}>☐</span>
                     <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>{item}</span>
                   </div>
                 ))}
@@ -111,7 +111,7 @@ export default function NetworkingPage() {
                   'Clear display name and location set to your AU city',
                 ].map((item, i) => (
                   <div key={i} style={{ display: 'flex', gap: '0.6rem', marginBottom: '0.4rem' }}>
-                    <span style={{ color: '#14b8a6', fontSize: '0.85rem', flexShrink: 0 }}>☐</span>
+                    <span style={{ color: 'var(--jade)', fontSize: '0.85rem', flexShrink: 0 }}>☐</span>
                     <span style={{ fontSize: '0.83rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>{item}</span>
                   </div>
                 ))}
@@ -126,15 +126,15 @@ export default function NetworkingPage() {
                   'Live demo link if deployed (Vercel, Render, fly.io)',
                 ].map((item, i) => (
                   <div key={i} style={{ display: 'flex', gap: '0.6rem', marginBottom: '0.4rem' }}>
-                    <span style={{ color: '#14b8a6', fontSize: '0.85rem', flexShrink: 0 }}>☐</span>
+                    <span style={{ color: 'var(--jade)', fontSize: '0.85rem', flexShrink: 0 }}>☐</span>
                     <span style={{ fontSize: '0.83rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>{item}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div style={{ background: 'rgba(20,184,166,0.07)', border: '1px solid rgba(20,184,166,0.25)', borderRadius: '8px', padding: '0.75rem 1rem', marginTop: '1rem' }}>
-              <p style={{ fontSize: '0.82rem', color: '#0f766e', lineHeight: 1.6 }}>
+            <div style={{ background: 'rgba(30,122,82,0.07)', border: '1px solid rgba(30,122,82,0.25)', borderRadius: '8px', padding: '0.75rem 1rem', marginTop: '1rem' }}>
+              <p style={{ fontSize: '0.82rem', color: 'var(--jade)', lineHeight: 1.6 }}>
                 <strong>What AU hiring managers actually check:</strong> They scan the README first. If it's missing or just auto-generated, they close the tab. A deployed live link instantly doubles your chances of getting a callback.
               </p>
             </div>
@@ -197,7 +197,7 @@ export default function NetworkingPage() {
                       style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0.75rem', background: 'var(--cream)', borderRadius: '8px', textDecoration: 'none' }}>
                       <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--brown-dark)', flex: 1 }}>{m.name}</span>
                       <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{m.focus}</span>
-                      <span style={{ fontSize: '0.75rem', color: '#14b8a6' }}>→</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--jade)' }}>→</span>
                     </a>
                   ))}
                 </div>
@@ -205,7 +205,7 @@ export default function NetworkingPage() {
             ))}
 
             <div style={{ background: 'rgba(200,138,20,0.07)', border: '1px solid rgba(200,138,20,0.2)', borderRadius: '8px', padding: '0.75rem 1rem' }}>
-              <p style={{ fontSize: '0.82rem', color: '#b45309', lineHeight: 1.6 }}>
+              <p style={{ fontSize: '0.82rem', color: 'var(--gold)', lineHeight: 1.6 }}>
                 <strong>Meetup strategy:</strong> Don't pitch yourself. Ask questions, listen, and follow up on LinkedIn the same night while they remember you. One genuine connection beats 10 business cards.
               </p>
             </div>
@@ -241,7 +241,7 @@ export default function NetworkingPage() {
               { n: 15, title: 'Mentors are everywhere and generally happy to help', body: 'Australian tech professionals are unusually generous with their time. A genuine, specific ask for a career conversation has a high acceptance rate — don\'t underestimate this.' },
             ].map(item => (
               <div key={item.n} style={{ display: 'flex', gap: '1rem', marginBottom: '0.85rem', alignItems: 'flex-start' }}>
-                <span style={{ width: '26px', height: '26px', borderRadius: '50%', background: 'rgba(20,184,166,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.72rem', fontWeight: 700, color: '#0d9488', flexShrink: 0 }}>{item.n}</span>
+                <span style={{ width: '26px', height: '26px', borderRadius: '50%', background: 'rgba(30,122,82,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.72rem', fontWeight: 700, color: 'var(--jade)', flexShrink: 0 }}>{item.n}</span>
                 <div>
                   <p style={{ fontSize: '0.87rem', fontWeight: 700, color: 'var(--brown-dark)', marginBottom: '0.2rem' }}>{item.title}</p>
                   <p style={{ fontSize: '0.83rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>{item.body}</p>
