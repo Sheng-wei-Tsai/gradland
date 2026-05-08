@@ -48,6 +48,9 @@ export async function PATCH(req: NextRequest) {
   if (!body?.id || !body.action) {
     return NextResponse.json({ error: 'id and action are required' }, { status: 400 });
   }
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(body.id)) {
+    return NextResponse.json({ error: 'id must be a valid UUID' }, { status: 400 });
+  }
   if (!['approve', 'reject', 'extend'].includes(body.action)) {
     return NextResponse.json({ error: 'action must be approve | reject | extend' }, { status: 400 });
   }
