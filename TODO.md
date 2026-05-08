@@ -664,6 +664,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-08 (supplement 5)
+
+> Twentieth-pass scan — Mind Map SVG in `StudySession.tsx` uses dark brown text and light-gray strokes that break dark mode.
+
+### Style (dark-mode breakage)
+- [x] Replace `#3b1f0e` inactive-node text fill and `#e5e7eb` connector/border strokes in the Mind Map component at `app/learn/youtube/[videoId]/StudySession.tsx:591,614,618` — `#3b1f0e` dark brown is invisible on dark `var(--warm-white)` (`#0f0b1a`) background; `#e5e7eb` light-gray on dark `#0f0b1a` is too prominent and inconsistent with the design system; replace with `var(--ink)` for text fill and `var(--text-muted)` for strokes so both adapt to light/dark themes [style] ✅ 2026-05-08
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

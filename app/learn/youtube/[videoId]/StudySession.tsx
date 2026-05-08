@@ -588,7 +588,7 @@ function MindMapTab({ guide, title }: { guide: StudyGuide; title: string }) {
         <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', minWidth: '280px', display: 'block' }}>
           {nodes.map((node, i) => (
             <line key={i} x1={cx} y1={cy} x2={node.x} y2={node.y}
-              stroke={active === i ? node.color : '#e5e7eb'}
+              stroke={active === i ? node.color : 'var(--text-muted)'}
               strokeWidth={active === i ? 2.5 : 1.5}
               style={{ transition: 'stroke 0.2s, stroke-width 0.2s' }} />
           ))}
@@ -611,11 +611,11 @@ function MindMapTab({ guide, title }: { guide: StudyGuide; title: string }) {
                 onClick={() => setSelected(selected === i ? null : i)}>
                 <rect x={node.x - 56} y={node.y - 24} width={112} height={48} rx={10}
                   fill={isActive ? node.color : 'var(--warm-white)'}
-                  stroke={isActive ? node.color : '#e5e7eb'} strokeWidth={1.5}
+                  stroke={isActive ? node.color : 'var(--text-muted)'} strokeWidth={1.5}
                   style={{ transition: 'fill 0.2s, stroke 0.2s' }} />
                 {lines.map((line, li) => (
                   <text key={li} x={node.x} y={node.y - 5 + li * 14}
-                    textAnchor="middle" fill={isActive ? 'white' : '#3b1f0e'}
+                    textAnchor="middle" fill={isActive ? 'white' : 'var(--ink)'}
                     fontSize="10.5" fontWeight="600" style={{ transition: 'fill 0.2s', pointerEvents: 'none' }}>
                     {line}
                   </text>
