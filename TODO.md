@@ -608,6 +608,26 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-08
+
+> Today's Opus scan — `npm audit` = 0 vulns; `tsc --noEmit` = clean. Five YouTube/digest/admin/github surfaces still leak Tailwind hex, plus a defence-in-depth UUID gap on the admin job-listings PATCH route. The earlier 16 supplement passes covered most components but missed `app/learn/youtube/[videoId]/StudySession.tsx` (3 spots), `app/learn/youtube/page.tsx`, `app/learn/github/GitHubSkillsGuide.tsx`, `app/digest/page.tsx`, `app/admin/analytics/page.tsx`, and `app/career-edge/[slug]/page.tsx`.
+
+### Security
+- [ ] Validate `body.id` as UUID in `app/api/admin/job-listings/route.ts:48` PATCH handler before passing to `.eq('id', body.id)` at lines 58, 67, 75, 92, 103 — DELETE handler already validates with `/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)` at line 119 but PATCH only checks `!body?.id`; admin gate makes this defence-in-depth, but an admin typo or compromised admin session could send malformed ids that hit Postgres with a vague type error rather than a clean 400 [security]
+
+### Style (dark-mode breakage)
+- [ ] Replace `ScoreBadge` hex in `app/learn/youtube/page.tsx:50` (`#10b981`/`#f59e0b`/`#ef4444`) with `var(--jade)`/`var(--gold)`/`var(--vermilion)`; replace URL-form error border `#fca5a5` at line 165 with `var(--vermilion)` and error text `#dc2626` at line 179 with `var(--vermilion)` — Tailwind hex breaks dark mode on the YouTube learning landing [style]
+- [ ] Replace Australian Context box hex in `app/learn/youtube/[videoId]/StudySession.tsx:207-212` (`#eff6ff` bg / `#bfdbfe` border / `#1d4ed8` label / `#1e3a8a` body) and "Save to NotebookLM" button hex at lines 1207-1208 + 1317 (`#bfdbfe` border / `#eff6ff` bg / `#1d4ed8` text) with `rgba(30,122,82,0.08)` / `rgba(30,122,82,0.25)` / `var(--jade)` (or `var(--gold)` rgba pair) — same fix pattern as supplement 15 IBM Australian Context box; also replace disabled-button greys `#e5e7eb`/`#9ca3af` at lines 822-823 with `var(--parchment)` and `var(--text-muted)` [style]
+- [ ] Replace done-state hex in `app/learn/github/GitHubSkillsGuide.tsx:95-98, 109, 209-210` (`#d1fae5` bg / `#10b981` text+border / `#059669` text on isDone level pill) with `rgba(30,122,82,0.12)` and `var(--jade)`; keep `#1f883d` GitHub brand green at lines 38, 194, 264, 289 (vendor brand, intentional) and `#d97706` at line 159 unchanged or replace with `var(--gold)` if matching the design system rather than the GitHub palette [style]
+- [ ] Replace Information Age live feed badge hex in `app/digest/page.tsx:46-47, 59, 77` (`#eff6ff` bg / `#0369a1` text / `#bfdbfe` border + 3px left border) with `rgba(30,122,82,0.08)` / `var(--jade)` / `rgba(30,122,82,0.25)` — Tailwind sky-50/700/300 break dark mode on the ACS Information Age section header and 3px-left-border list cards [style]
+- [ ] Replace `color="#a78bfa"` with `var(--gold)` or `var(--terracotta)` on the Countries `BarRow` in `app/admin/analytics/page.tsx:194` — adjacent referrer + device BarRows already use `var(--jade)` (line 182) and `var(--gold)` (line 208) tokens; the Tailwind violet-400 on Countries breaks the design-system palette in both modes [style]
+- [ ] Replace literal-hex design-token values with `var()` in `app/career-edge/[slug]/page.tsx:22-25` PILLAR_META map (`#c0281c`→`var(--vermilion)`, `#1e7a52`→`var(--jade)`, `#c88a14`→`var(--gold)`, `#7a5030`→`var(--text-muted)`); replace off-token `#7a3030` at line 26 with `var(--vermilion)` and `#3d5a80` at line 27 with `var(--text-secondary)` — current literal hex are hardcoded LIGHT-mode token values that don't adapt to dark mode [style]
+
+### Tests
+- [ ] Add Vitest test for `/api/admin/job-listings` PATCH — 400 on malformed `body.id` (e.g., `"not-a-uuid"` or empty string) once the UUID validation lands; existing DELETE test at `__tests__/api/admin-job-listings.test.ts` already covers the same pattern for the DELETE branch [tests]
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
