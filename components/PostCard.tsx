@@ -6,10 +6,10 @@ import { format } from 'date-fns';
 /* Accent colours per source */
 const SOURCE_STRIPE: Record<string, string> = {
   blog:        'linear-gradient(180deg, var(--vermilion) 0%, var(--gold) 100%)',
-  digest:      'linear-gradient(180deg, #6366f1 0%, #a78bfa 100%)',
-  githot:      'linear-gradient(180deg, #f97316 0%, #fbbf24 100%)',
-  'ai-news':   'linear-gradient(180deg, #4285f4 0%, #34a853 100%)',
-  'visa-news': 'linear-gradient(180deg, #0369a1 0%, #0ea5e9 100%)',
+  digest:      'linear-gradient(180deg, var(--gold) 0%, var(--jade) 100%)',
+  githot:      'linear-gradient(180deg, var(--vermilion) 0%, var(--vermilion) 100%)',
+  'ai-news':   'linear-gradient(180deg, var(--jade) 0%, var(--gold) 100%)',
+  'visa-news': 'linear-gradient(180deg, var(--jade) 0%, var(--jade) 100%)',
 };
 
 const COMPANY_BADGE: Record<string, { color: string; bg: string; border: string; label: string }> = {
@@ -83,30 +83,30 @@ export default function PostCard({
             {isDigest && (
               <span style={{
                 marginLeft: 'auto', fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.05em',
-                color: '#6366f1', background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)',
+                color: 'var(--gold)', background: 'rgba(200,138,20,0.08)', border: '1px solid rgba(200,138,20,0.2)',
                 padding: '0.1em 0.55em', borderRadius: '4px', textTransform: 'uppercase',
               }}>Research Digest</span>
             )}
             {isGithot && (
               <span style={{
                 marginLeft: 'auto', fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.05em',
-                color: '#f97316', background: 'rgba(249,115,22,0.08)', border: '1px solid rgba(249,115,22,0.2)',
+                color: 'var(--vermilion)', background: 'rgba(192,40,28,0.08)', border: '1px solid rgba(192,40,28,0.2)',
                 padding: '0.1em 0.55em', borderRadius: '4px', textTransform: 'uppercase',
               }}>GitHub Hot</span>
             )}
             {isAINews && (
               <span style={{
                 marginLeft: 'auto', fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.05em',
-                color: companyBadge?.color ?? '#4285f4',
-                background: companyBadge?.bg ?? 'rgba(66,133,244,0.08)',
-                border: `1px solid ${companyBadge?.border ?? 'rgba(66,133,244,0.2)'}`,
+                color: companyBadge?.color ?? 'var(--jade)',
+                background: companyBadge?.bg ?? 'rgba(30,122,82,0.08)',
+                border: `1px solid ${companyBadge?.border ?? 'rgba(30,122,82,0.2)'}`,
                 padding: '0.1em 0.55em', borderRadius: '4px', textTransform: 'uppercase',
               }}>{companyBadge?.label ?? 'AI News'}</span>
             )}
             {isVisaNews && (
               <span style={{
                 marginLeft: 'auto', fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.05em',
-                color: '#0369a1', background: 'rgba(3,105,161,0.08)', border: '1px solid rgba(3,105,161,0.2)',
+                color: 'var(--jade)', background: 'rgba(30,122,82,0.08)', border: '1px solid rgba(30,122,82,0.2)',
                 padding: '0.1em 0.55em', borderRadius: '4px', textTransform: 'uppercase',
               }}>Visa News</span>
             )}
@@ -131,7 +131,7 @@ export default function PostCard({
                 <li key={i} style={{ display: 'flex', alignItems: 'baseline', gap: '0.4rem', fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
                   <span style={{
                     fontSize: '0.58rem', fontWeight: 700, flexShrink: 0, marginTop: '1px',
-                    color: isGithot ? '#f97316' : isAINews ? (companyBadge?.color ?? '#4285f4') : isVisaNews ? '#0369a1' : '#6366f1',
+                    color: isGithot ? 'var(--vermilion)' : isAINews ? (companyBadge?.color ?? 'var(--jade)') : isVisaNews ? 'var(--jade)' : 'var(--gold)',
                     opacity: 0.7,
                   }}>{i + 1}</span>
                   <span style={{

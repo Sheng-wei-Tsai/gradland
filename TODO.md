@@ -747,6 +747,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-08 (supplement 10)
+
+> Twenty-second-pass scan — source badge and topic-bullet hardcoded hex in `components/PostCard.tsx` missed by all prior sweeps (VisaNews.tsx and visa-news/[slug]/page.tsx fixed the same colours already).
+
+### Style (dark-mode breakage)
+- [x] Replace hardcoded hex in `components/PostCard.tsx` — `SOURCE_STRIPE` map uses `#6366f1`/`#a78bfa` (digest), `#f97316`/`#fbbf24` (githot), `#4285f4`/`#34a853` (ai-news), `#0369a1`/`#0ea5e9` (visa-news) in accent stripe gradients; source badge text/bg/border uses the same hex at lines 86, 93, 109; topic-bullet number dots repeat the same colours at line 134; replace all with design-system token pairs (`var(--gold)`, `var(--vermilion)`, `var(--jade)` + rgba equivalents) following the established pattern from `VisaNews.tsx:16-23` and `visa-news/[slug]/page.tsx:22-36`; keep `COMPANY_BADGE` vendor-brand hex (Anthropic/OpenAI/Google) as intentional external-brand colours [style] ✅ 2026-05-08
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
