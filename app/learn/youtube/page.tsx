@@ -47,9 +47,13 @@ function timeAgo(publishedAt: string): string {
 }
 
 function ScoreBadge({ score }: { score: number }) {
-  const color = score >= 75 ? '#10b981' : score >= 60 ? '#f59e0b' : '#ef4444';
+  const { color, bg } = score >= 75
+    ? { color: 'var(--jade)',      bg: 'rgba(30,122,82,0.12)' }
+    : score >= 60
+    ? { color: 'var(--gold)',      bg: 'rgba(200,138,20,0.12)' }
+    : { color: 'var(--vermilion)', bg: 'rgba(192,40,28,0.12)' };
   return (
-    <span style={{ fontSize: '0.7rem', fontWeight: 700, color, background: `${color}18`,
+    <span style={{ fontSize: '0.7rem', fontWeight: 700, color, background: bg,
       padding: '0.15em 0.5em', borderRadius: '5px' }}>
       {score}%
     </span>
@@ -162,7 +166,7 @@ export default function LearnYoutubePage() {
               placeholder="Paste a YouTube URL…"
               style={{
                 flex: 1, padding: '0.7rem 1rem',
-                border: `1px solid ${urlError ? '#fca5a5' : 'var(--parchment)'}`,
+                border: `1px solid ${urlError ? 'var(--vermilion)' : 'var(--parchment)'}`,
                 borderRadius: '10px', background: 'var(--warm-white)',
                 color: 'var(--brown-dark)', fontSize: '0.92rem',
                 fontFamily: 'inherit', outline: 'none',
@@ -176,7 +180,7 @@ export default function LearnYoutubePage() {
               Study →
             </button>
           </div>
-          {urlError && <p style={{ color: '#dc2626', fontSize: '0.8rem', marginTop: '0.4rem' }}>{urlError}</p>}
+          {urlError && <p style={{ color: 'var(--vermilion)', fontSize: '0.8rem', marginTop: '0.4rem' }}>{urlError}</p>}
         </form>
       </section>
 
