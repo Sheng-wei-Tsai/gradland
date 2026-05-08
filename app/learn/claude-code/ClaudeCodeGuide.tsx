@@ -2070,7 +2070,7 @@ function CopyButton({ text }: { text: string }) {
       padding: '0.25rem 0.65rem', borderRadius: '5px', fontSize: '0.72rem',
       fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
       background: copied ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.1)',
-      color: copied ? '#10b981' : 'rgba(255,255,255,0.7)',
+      color: copied ? 'var(--jade)' : 'rgba(255,255,255,0.7)',
       transition: 'all 0.2s ease',
     }}>
       {copied ? '✓ Copied' : 'Copy'}
@@ -2279,10 +2279,10 @@ export default function ClaudeCodeGuide() {
                 <div style={{
                   width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: isDone ? '#d1fae5' : isOpen ? level.color : 'var(--parchment)',
-                  color: isDone ? '#10b981' : isOpen ? 'white' : 'var(--text-muted)',
+                  background: isDone ? 'rgba(30,122,82,0.12)' : isOpen ? level.color : 'var(--parchment)',
+                  color: isDone ? 'var(--jade)' : isOpen ? 'white' : 'var(--text-muted)',
                   fontSize: isDone ? '0.9rem' : '0.78rem', fontWeight: 700,
-                  border: isDone ? '1.5px solid #10b981' : 'none',
+                  border: isDone ? '1.5px solid var(--jade)' : 'none',
                   transition: 'all 0.2s ease',
                 }}>
                   {isDone ? '✓' : idx + 1}
@@ -2291,7 +2291,7 @@ export default function ClaudeCodeGuide() {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <span style={{ fontSize: '1rem' }}>{lesson.emoji}</span>
-                    <span style={{ fontWeight: 700, fontSize: '0.92rem', color: isDone ? '#10b981' : 'var(--brown-dark)', textDecoration: isDone ? 'line-through' : 'none' }}>
+                    <span style={{ fontWeight: 700, fontSize: '0.92rem', color: isDone ? 'var(--jade)' : 'var(--brown-dark)', textDecoration: isDone ? 'line-through' : 'none' }}>
                       {lesson.title}
                     </span>
                   </div>
@@ -2351,7 +2351,7 @@ export default function ClaudeCodeGuide() {
 
                   {/* Tip */}
                   <div style={{ background: 'rgba(245,158,11,0.07)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: '8px', padding: '0.75rem 1rem', marginBottom: '1rem' }}>
-                    <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#d97706', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.35rem' }}>
+                    <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--gold)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.35rem' }}>
                       💡 Pro tip
                     </div>
                     <p style={{ fontSize: '0.83rem', color: 'var(--text-secondary)', lineHeight: 1.65, margin: 0 }}>{renderInline(lesson.tip)}</p>
@@ -2374,8 +2374,8 @@ export default function ClaudeCodeGuide() {
                       }} style={{
                         padding: '0.45rem 1.1rem', borderRadius: '99px', fontSize: '0.82rem', fontWeight: 600,
                         border: 'none', cursor: 'pointer', fontFamily: 'inherit',
-                        background: isDone ? '#d1fae5' : level.color,
-                        color: isDone ? '#059669' : 'white',
+                        background: isDone ? 'rgba(30,122,82,0.12)' : level.color,
+                        color: isDone ? 'var(--jade)' : 'white',
                         transition: 'all 0.2s ease',
                       }}>
                         {isDone ? '✓ Completed' : 'Mark complete →'}

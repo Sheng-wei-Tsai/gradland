@@ -646,6 +646,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-08 (supplement 3)
+
+> Eighteenth-pass scan — `app/learn/claude-code/ClaudeCodeGuide.tsx` done-state and tip-label hex missed by all prior sweeps.
+
+### Style (dark-mode breakage)
+- [x] Replace done-state hex in `app/learn/claude-code/ClaudeCodeGuide.tsx` — lesson number circle `#d1fae5` bg / `#10b981` color+border (lines 2282-2285), lesson title `#10b981` on isDone (line 2294), Pro tip label `#d97706` (line 2354), mark-complete button `#d1fae5` bg / `#059669` text on isDone (lines 2377-2378), CopyButton copied-state `#10b981` (line 2073) — all Tailwind hex that break dark mode; replace with `rgba(30,122,82,0.12)`/`var(--jade)` for jade done-state and `var(--gold)` for tip label; keep `#0f1117`/`#e2e8f0` (terminal code block — intentionally dark) and `level.color` in LEVELS data (used for dynamic alpha computation) [style] ✅ 2026-05-08
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
