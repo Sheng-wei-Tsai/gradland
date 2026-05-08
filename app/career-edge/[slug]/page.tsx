@@ -19,12 +19,12 @@ const mdxOptions = {
 };
 
 const PILLAR_META: Record<string, { label: string; color: string; bg: string; border: string }> = {
-  'ai-screening':         { label: 'AI Screening Defence',  color: '#c0281c', bg: 'rgba(192,40,28,0.08)',   border: 'rgba(192,40,28,0.25)' },
-  'fluency-without-debt': { label: 'AI Fluency',            color: '#1e7a52', bg: 'rgba(30,122,82,0.08)',   border: 'rgba(30,122,82,0.25)' },
-  'eval-driven-projects': { label: 'Eval-Driven Projects',  color: '#c88a14', bg: 'rgba(200,138,20,0.08)',  border: 'rgba(200,138,20,0.25)' },
-  'pr-pathway':           { label: 'PR Pathway',            color: '#7a5030', bg: 'rgba(122,80,48,0.08)',   border: 'rgba(122,80,48,0.25)' },
-  'interview-defence':    { label: 'Interview Defence',     color: '#7a3030', bg: 'rgba(122,48,48,0.08)',   border: 'rgba(122,48,48,0.25)' },
-  'tools-deep-dive':      { label: 'Tools Deep-Dive',       color: '#3d5a80', bg: 'rgba(61,90,128,0.08)',   border: 'rgba(61,90,128,0.25)' },
+  'ai-screening':         { label: 'AI Screening Defence',  color: 'var(--vermilion)',     bg: 'rgba(192,40,28,0.08)',  border: 'rgba(192,40,28,0.25)' },
+  'fluency-without-debt': { label: 'AI Fluency',            color: 'var(--jade)',          bg: 'rgba(30,122,82,0.08)',  border: 'rgba(30,122,82,0.25)' },
+  'eval-driven-projects': { label: 'Eval-Driven Projects',  color: 'var(--gold)',          bg: 'rgba(200,138,20,0.08)', border: 'rgba(200,138,20,0.25)' },
+  'pr-pathway':           { label: 'PR Pathway',            color: 'var(--text-muted)',    bg: 'rgba(122,80,48,0.08)',  border: 'rgba(122,80,48,0.25)' },
+  'interview-defence':    { label: 'Interview Defence',     color: 'var(--vermilion)',     bg: 'rgba(192,40,28,0.08)',  border: 'rgba(192,40,28,0.25)' },
+  'tools-deep-dive':      { label: 'Tools Deep-Dive',       color: 'var(--text-secondary)', bg: 'rgba(61,28,14,0.08)', border: 'rgba(61,28,14,0.25)' },
 };
 
 const TOOL_LABELS: Record<string, string> = {

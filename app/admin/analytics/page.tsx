@@ -191,7 +191,7 @@ function Dashboard() {
             Countries
           </h2>
           {countries.slice(0, 10).map(c => (
-            <BarRow key={c.country} label={`${flag(c.country)} ${c.country}`} count={c.count} total={totalViews} color="#a78bfa" />
+            <BarRow key={c.country} label={`${flag(c.country)} ${c.country}`} count={c.count} total={totalViews} color="var(--terracotta)" />
           ))}
         </div>
 
