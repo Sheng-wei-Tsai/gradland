@@ -624,7 +624,7 @@
 - [ ] Replace literal-hex design-token values with `var()` in `app/career-edge/[slug]/page.tsx:22-25` PILLAR_META map (`#c0281c`→`var(--vermilion)`, `#1e7a52`→`var(--jade)`, `#c88a14`→`var(--gold)`, `#7a5030`→`var(--text-muted)`); replace off-token `#7a3030` at line 26 with `var(--vermilion)` and `#3d5a80` at line 27 with `var(--text-secondary)` — current literal hex are hardcoded LIGHT-mode token values that don't adapt to dark mode [style]
 
 ### Tests
-- [ ] Add Vitest test for `/api/admin/job-listings` PATCH — 400 on malformed `body.id` (e.g., `"not-a-uuid"` or empty string) once the UUID validation lands; existing DELETE test at `__tests__/api/admin-job-listings.test.ts` already covers the same pattern for the DELETE branch [tests]
+- [x] Add Vitest test for `/api/admin/job-listings` PATCH — 400 on malformed `body.id` (e.g., `"not-a-uuid"` or empty string) once the UUID validation lands; existing DELETE test at `__tests__/api/admin-job-listings.test.ts` already covers the same pattern for the DELETE branch [tests] ✅ 2026-05-08
 
 ---
 

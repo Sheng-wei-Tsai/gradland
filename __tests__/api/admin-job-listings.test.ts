@@ -89,6 +89,22 @@ describe('PATCH /api/admin/job-listings', () => {
     expect(body.error).toMatch(/approve.*reject.*extend/);
   });
 
+  it('returns 400 when body.id is not a valid UUID', async () => {
+    mockRequireAdmin.mockResolvedValue(ADMIN_USER);
+    const res  = await PATCH(makePatch({ id: 'not-a-uuid', action: 'approve' }));
+    const body = await res.json();
+    expect(res.status).toBe(400);
+    expect(body.error).toBe('id must be a valid UUID');
+  });
+
+  it('returns 400 when body.id is an empty string', async () => {
+    mockRequireAdmin.mockResolvedValue(ADMIN_USER);
+    const res  = await PATCH(makePatch({ id: '', action: 'approve' }));
+    const body = await res.json();
+    expect(res.status).toBe(400);
+    expect(body.error).toMatch(/required/);
+  });
+
   it('reject action deletes the listing and returns 200', async () => {
     mockRequireAdmin.mockResolvedValue(ADMIN_USER);
     mockFrom.mockReturnValue({
