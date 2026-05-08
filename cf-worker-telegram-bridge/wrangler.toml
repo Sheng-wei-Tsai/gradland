@@ -4,7 +4,7 @@ compatibility_date = "2025-01-01"
 workers_dev       = true
 
 [vars]
-GITHUB_REPO     = "Sheng-wei-Tsai/henrys-blog"
+GITHUB_REPO     = "Sheng-wei-Tsai/gradland"
 ALLOWED_CHAT_ID = "6191405894"
 
 # Secrets — set these with `wrangler secret put <NAME>`:

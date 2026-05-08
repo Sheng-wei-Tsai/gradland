@@ -10,7 +10,7 @@ const BENEFITS = [
   {
     icon: '🛂',
     title: 'Visa-aware candidates',
-    body: 'Every candidate on TechPath AU understands working rights. Many hold 485 graduate visas or 482 sponsorship-eligible profiles — reducing your screening workload.',
+    body: 'Every candidate on Gradland understands working rights. Many hold 485 graduate visas or 482 sponsorship-eligible profiles — reducing your screening workload.',
   },
   {
     icon: '💻',
@@ -20,7 +20,7 @@ const BENEFITS = [
   {
     icon: '📍',
     title: 'Australia-focused, always',
-    body: 'No global spray-and-pray. TechPath AU is exclusively for IT roles based in Australia. Your listing reaches people who live here and want to build their career here.',
+    body: 'No global spray-and-pray. Gradland is exclusively for IT roles based in Australia. Your listing reaches people who live here and want to build their career here.',
   },
 ];
 
@@ -31,11 +31,11 @@ const STEPS = [
 ];
 
 const FAQS = [
-  ['Who sees my listing?', 'All TechPath AU visitors — including logged-out users. The Jobs page is public and indexed by search engines. International IT grads and visa holders make up the majority of our returning audience.'],
+  ['Who sees my listing?', 'All Gradland visitors — including logged-out users. The Jobs page is public and indexed by search engines. International IT grads and visa holders make up the majority of our returning audience.'],
   ['How long does a listing stay live?', 'Each listing is active for 30 days from the date it goes live. You can renew at the same rate if the role is still open.'],
   ['Can I post multiple roles?', 'Yes — each role is priced separately at $99 AUD per 30 days. Volume pricing is available for 5+ concurrent listings; email us to discuss.'],
   ['What roles are a good fit?', 'Software engineering, data & analytics, cloud/DevOps, cybersecurity, product, and IT consulting. Roles that require Australian working rights or offer 482 sponsorship perform best.'],
-  ['How do I get started?', 'Fill out the form on this page and pay via Stripe checkout — your listing will be live within 24 hours. Questions? Email hello@henrysdigitallife.com.'],
+  ['How do I get started?', 'Fill out the form on this page and pay via Stripe checkout — your listing will be live within 24 hours. Questions? Email hello@gradland.au.'],
 ];
 
 export default function PostARolePage() {
@@ -61,7 +61,7 @@ export default function PostARolePage() {
           fontSize: '1.05rem', color: 'var(--text-secondary)',
           lineHeight: 1.7, maxWidth: '560px', margin: '0 auto 2rem',
         }}>
-          TechPath AU is where international IT graduates and visa holders come
+          Gradland is where international IT graduates and visa holders come
           to find jobs, prep for interviews, and build their Australian career.
           Put your role in front of the people who are ready to work.
         </p>
@@ -127,7 +127,7 @@ export default function PostARolePage() {
           fontFamily: "'Lora', serif", fontSize: '1.5rem', fontWeight: 700,
           color: 'var(--brown-dark)', marginBottom: '1.75rem', textAlign: 'center',
         }}>
-          Why TechPath AU?
+          Why Gradland?
         </h2>
         <div style={{
           display: 'grid',

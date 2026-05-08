@@ -142,9 +142,9 @@ export default function PricingPage() {
           Common questions
         </h2>
         {[
-          ['Can I cancel anytime?', 'Yes. Cancel from your dashboard and you keep access until the end of the billing period. No questions asked.'],
+          ['Can I cancel anytime?', 'Yes. Cancel from your dashboard or the Stripe customer portal and you keep access until the end of the billing period. We do not pro-rate unused days mid-cycle.'],
           ['What payment methods are accepted?', 'All major credit/debit cards via Stripe. Your payment info is handled entirely by Stripe — we never see your card details.'],
-          ['Is my data private?', 'Your generated content (cover letters, study guides) is tied to your account only. We never share or sell user data.'],
+          ['Is my data private?', 'Your generated content (cover letters, study guides) is tied to your account only. We never share, sell, or use it to train AI models.'],
           ['What happens if I exceed 100 calls/day?', 'You get a friendly message and your limit resets on a rolling 24-hour window. This limit is generous — most users use fewer than 20 calls/day.'],
         ].map(([q, a]) => (
           <div key={q} style={{ borderBottom: '1px solid var(--parchment)', padding: '1rem 0' }}>
@@ -152,6 +152,39 @@ export default function PricingPage() {
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.65, margin: 0 }}>{a}</p>
           </div>
         ))}
+      </div>
+
+      {/* Refund + cancellation policy — AU consumer law disclosure */}
+      <div style={{
+        maxWidth: '580px',
+        margin: '3rem auto 0',
+        padding: '1.5rem 1.75rem',
+        background: 'var(--warm-white)',
+        border: '1px solid var(--parchment)',
+        borderRadius: '14px',
+      }}>
+        <h2 style={{ fontFamily: "'Lora', serif", fontSize: '1.05rem', fontWeight: 700,
+          color: 'var(--brown-dark)', marginTop: 0, marginBottom: '0.75rem' }}>
+          Refunds &amp; cancellation
+        </h2>
+        <ul style={{ margin: 0, paddingLeft: '1.1rem', fontSize: '0.85rem',
+          color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+          <li><strong>Cancel anytime</strong> from your dashboard or via Stripe&apos;s customer portal — you keep access until the end of the current billing period.</li>
+          <li><strong>7-day refund:</strong> if you contact us within 7 days of your first paid charge and have used fewer than 25 AI calls, we&apos;ll refund that charge in full, no questions asked.</li>
+          <li>Mid-cycle cancellations are not pro-rated.</li>
+          <li>
+            Our goods and services come with consumer guarantees that cannot be excluded under the
+            Australian Consumer Law. You are entitled to a refund or remedy for a major failure
+            and to compensation for any reasonably foreseeable loss or damage. Full terms:{' '}
+            <Link href="/terms" style={{ color: 'var(--terracotta)', textDecoration: 'underline' }}>/terms</Link>.
+          </li>
+        </ul>
+        <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.85rem', marginBottom: 0 }}>
+          Refund requests:{' '}
+          <a href="mailto:admin@gradland.au" style={{ color: 'var(--terracotta)', textDecoration: 'underline' }}>
+            admin@gradland.au
+          </a>
+        </p>
       </div>
     </div>
   );

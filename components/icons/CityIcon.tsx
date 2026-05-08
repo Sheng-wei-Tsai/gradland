@@ -1,241 +1,223 @@
-/**
- * City mascot illustrations for job card hover.
- * Each city gets an ink-brush silhouette that animates in from the bottom-right.
- * Design rule: one-stroke silhouette, rice-paper woodblock style, not caricature.
- */
 import React from 'react';
 
-type CityKey = 'sydney' | 'melbourne' | 'brisbane' | 'perth' | 'adelaide' | 'canberra' | 'remote' | 'australia';
-
-const CITY_MAP: Record<string, CityKey> = {
-  sydney:     'sydney',
-  melbourne:  'melbourne',
-  brisbane:   'brisbane',
-  perth:      'perth',
-  adelaide:   'adelaide',
-  canberra:   'canberra',
-  remote:     'remote',
-  australia:  'australia',
-};
-
-function normalise(city: string): CityKey {
-  return CITY_MAP[city.toLowerCase().trim()] ?? 'australia';
-}
-
-/* Each SVG is 80×80 viewBox */
-function Sydney() {
-  return (
-    <svg viewBox="0 0 80 80" fill="none" aria-hidden="true" role="presentation">
-      {/* Harbour wave */}
-      <path d="M5 65C15 60 25 68 35 63C45 58 55 66 75 62" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.4"/>
-      {/* Opera House — three shell sails */}
-      <path d="M20 62C20 62 18 50 28 42C28 42 22 55 35 55" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M28 62C28 62 26 46 38 36C38 36 30 52 44 52" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M38 62C38 62 36 50 46 44C46 44 40 56 52 56" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      {/* Base platform */}
-      <path d="M14 62H58" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
-      {/* Sun ink dot above sails */}
-      <circle cx="55" cy="22" r="3" fill="currentColor" opacity="0.7"/>
-      <path d="M55 16V13M55 31V28M49 22H46M64 22H61M51 18L49 16M59 18L61 16M51 26L49 28M59 26L61 28" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-    </svg>
-  );
-}
-
-function Melbourne() {
-  return (
-    <svg viewBox="0 0 80 80" fill="none" aria-hidden="true" role="presentation">
-      {/* Cobblestone ground line */}
-      <path d="M5 68H75" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.3"/>
-      {/* Tram body */}
-      <rect x="12" y="46" width="48" height="20" rx="3" stroke="currentColor" strokeWidth="2.5"/>
-      {/* Windows */}
-      <rect x="18" y="51" width="10" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
-      <rect x="33" y="51" width="10" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
-      <rect x="48" y="51" width="6" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
-      {/* Roof stripe */}
-      <path d="M12 50H60" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-      {/* Wheels */}
-      <circle cx="24" cy="68" r="4" stroke="currentColor" strokeWidth="2"/>
-      <circle cx="52" cy="68" r="4" stroke="currentColor" strokeWidth="2"/>
-      {/* Overhead wire post */}
-      <path d="M36 46V28" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-      <path d="M10 28H70" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-      {/* Pantograph arm */}
-      <path d="M36 46L30 36L36 28" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-      {/* Spark dot */}
-      <circle cx="36" cy="28" r="2" fill="currentColor"/>
-    </svg>
-  );
-}
-
-function Brisbane() {
-  return (
-    <svg viewBox="0 0 80 80" fill="none" aria-hidden="true" role="presentation">
-      {/* River */}
-      <path d="M5 70C20 65 30 72 45 67C55 64 65 70 75 68" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" opacity="0.35"/>
-      {/* Story Bridge — two towers */}
-      <path d="M20 68V35" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
-      <path d="M60 68V35" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
-      {/* Arch cable array */}
-      <path d="M20 35C25 18 55 18 60 35" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
-      {/* Cable stays from peak */}
-      <path d="M40 18L20 35M40 18L25 50M40 18L60 35M40 18L55 50" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" opacity="0.6"/>
-      {/* Road deck */}
-      <path d="M12 58H68" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
-      {/* Light dots at tower tops */}
-      <circle cx="20" cy="33" r="2" fill="currentColor"/>
-      <circle cx="60" cy="33" r="2" fill="currentColor"/>
-      {/* Peak dot */}
-      <circle cx="40" cy="17" r="2.5" fill="currentColor"/>
-    </svg>
-  );
-}
-
-function Perth() {
-  return (
-    <svg viewBox="0 0 80 80" fill="none" aria-hidden="true" role="presentation">
-      {/* Water ripple */}
-      <path d="M5 68C20 64 35 70 50 66C60 63 70 68 75 66" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.3"/>
-      <path d="M10 72C22 69 38 74 55 70C62 68 70 72 75 70" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.2"/>
-      {/* Swan body — filled silhouette */}
-      <path d="M15 58C15 58 12 48 20 44C26 41 32 44 34 50C36 56 30 62 22 64C18 65 15 62 15 58Z" fill="currentColor" opacity="0.85"/>
-      {/* Long elegant neck */}
-      <path d="M30 48C30 48 38 42 48 36C54 32 60 28 58 22C56 18 50 18 46 22C42 26 40 34 40 40" stroke="currentColor" strokeWidth="3" strokeLinecap="round" fill="none"/>
-      {/* Head */}
-      <circle cx="58" cy="20" r="5" fill="currentColor"/>
-      {/* Beak */}
-      <path d="M63 20L70 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-      {/* Wing curve detail */}
-      <path d="M16 54C20 50 26 52 28 56" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.5"/>
-      {/* Eye dot */}
-      <circle cx="60" cy="18" r="1.2" fill="white"/>
-    </svg>
-  );
-}
-
-function Adelaide() {
-  return (
-    <svg viewBox="0 0 80 80" fill="none" aria-hidden="true" role="presentation">
-      {/* Festival tent — three peaks */}
-      <path d="M10 62L25 30L40 62" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M28 62L40 28L52 62" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M44 62L57 32L70 62" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-      {/* Base ground */}
-      <path d="M5 62H75" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-      {/* String of lights between peaks */}
-      <path d="M25 30C30 32 35 28 40 28C45 28 50 32 57 32" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeDasharray="3 3"/>
-      {/* Light dots */}
-      <circle cx="25" cy="30" r="2.5" fill="currentColor"/>
-      <circle cx="40" cy="28" r="2.5" fill="currentColor"/>
-      <circle cx="57" cy="32" r="2.5" fill="currentColor"/>
-      {/* Wine glass */}
-      <path d="M60 18V28" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-      <path d="M56 20C56 20 55 14 60 14C65 14 64 20 64 20H56Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" fill="none"/>
-      <path d="M57 27H63" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-      {/* Bubble dot */}
-      <circle cx="63" cy="16" r="1.2" fill="currentColor" opacity="0.6"/>
-    </svg>
-  );
-}
-
-function Canberra() {
-  return (
-    <svg viewBox="0 0 80 80" fill="none" aria-hidden="true" role="presentation">
-      {/* Mountain silhouette */}
-      <path d="M5 68L25 42L40 55L55 35L75 68" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.3"/>
-      {/* Parliament building — stepped base */}
-      <rect x="15" y="55" width="50" height="10" rx="1" stroke="currentColor" strokeWidth="2"/>
-      <rect x="22" y="48" width="36" height="8" rx="1" stroke="currentColor" strokeWidth="2"/>
-      <rect x="30" y="42" width="20" height="7" rx="1" stroke="currentColor" strokeWidth="2"/>
-      {/* Flagpole */}
-      <path d="M40 42V18" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
-      {/* Flag */}
-      <path d="M40 18L56 22L40 26V18Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" fill="none"/>
-      {/* Flag dot */}
-      <circle cx="40" cy="16" r="2" fill="currentColor"/>
-      {/* Columns detail */}
-      <path d="M23 55V50M30 55V50M37 55V50M43 55V50M50 55V50M57 55V50" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" opacity="0.5"/>
-    </svg>
-  );
-}
-
-function Remote() {
-  return (
-    <svg viewBox="0 0 80 80" fill="none" aria-hidden="true" role="presentation">
-      {/* Paper plane */}
-      <path d="M70 12L10 34L30 42L38 66L70 12Z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-      {/* Fold line */}
-      <path d="M30 42L70 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-      {/* Dashed flight trail */}
-      <path d="M10 34L5 40" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeDasharray="3 3"/>
-      <path d="M5 40L2 48" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="2 3" opacity="0.5"/>
-      {/* Trailing ink dots */}
-      <circle cx="7" cy="38" r="1.5" fill="currentColor" opacity="0.7"/>
-      <circle cx="4" cy="44" r="1.2" fill="currentColor" opacity="0.5"/>
-      <circle cx="3" cy="50" r="1" fill="currentColor" opacity="0.3"/>
-      {/* Wifi arcs above plane */}
-      <path d="M52 8C56 5 64 5 68 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.5"/>
-      <path d="M55 13C57 11 63 11 65 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.6"/>
-      {/* Signal dot */}
-      <circle cx="60" cy="16" r="1.5" fill="currentColor" opacity="0.7"/>
-    </svg>
-  );
-}
-
-function Australia() {
-  return (
-    <svg viewBox="0 0 80 80" fill="none" aria-hidden="true" role="presentation">
-      {/* Kangaroo silhouette mid-hop */}
-      {/* Hind legs / feet — ground contact */}
-      <path d="M28 68C26 62 24 60 20 60C16 60 14 64 14 64" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
-      {/* Tail — sweeping brush stroke */}
-      <path d="M28 68C32 62 36 55 30 48C26 44 20 46 18 50" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
-      {/* Body */}
-      <path d="M30 48C36 40 44 36 48 40C52 44 48 54 44 58C40 62 32 64 28 68" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-      {/* Front arm reaching forward (mid-hop) */}
-      <path d="M48 40C52 36 58 34 60 38" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
-      {/* Neck */}
-      <path d="M48 40C50 34 54 28 56 26" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
-      {/* Head */}
-      <path d="M56 26C60 22 66 20 66 24C66 28 62 30 58 30C54 30 52 28 56 26" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-      {/* Ear */}
-      <path d="M62 22C63 18 67 16 68 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-      {/* Eye ink dot */}
-      <circle cx="63" cy="25" r="1.8" fill="currentColor"/>
-      {/* Dust puff dots at feet */}
-      <circle cx="18" cy="66" r="1.2" fill="currentColor" opacity="0.4"/>
-      <circle cx="14" cy="70" r="1" fill="currentColor" opacity="0.3"/>
-    </svg>
-  );
-}
-
-const CITY_ICONS: Record<CityKey, React.FC> = {
-  sydney:    Sydney,
-  melbourne: Melbourne,
-  brisbane:  Brisbane,
-  perth:     Perth,
-  adelaide:  Adelaide,
-  canberra:  Canberra,
-  remote:    Remote,
-  australia: Australia,
-};
+export type CityName =
+  | 'Brisbane' | 'Sydney' | 'Melbourne' | 'Perth' | 'Adelaide'
+  | 'Canberra' | 'Hobart' | 'Darwin'
+  | 'Remote'   | 'Australia';
 
 interface CityIconProps {
-  city: string;
-  size?: number;
+  city:    string;
+  size?:   number;
   className?: string;
-  style?: React.CSSProperties;
+  style?:  React.CSSProperties;
+  title?:  string;
 }
 
-export default function CityIcon({ city, size = 80, className, style }: CityIconProps) {
-  const key = normalise(city);
-  const Icon = CITY_ICONS[key];
-  return (
-    <div
-      className={className}
-      style={{ width: size, height: size, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', ...style }}
-    >
-      <Icon />
-    </div>
-  );
+/**
+ * Monoline geometric city marks. 24×24 viewBox, currentColor stroke so the icon
+ * inherits the parent's color (CitySelector tints the icon container vermilion;
+ * other surfaces can recolour without touching the SVG). Stroke 1.6, round caps.
+ *
+ * Designed to read as architectural primitives at 16px and still hold shape at
+ * 64px+. No fill except for two-or-three accent dots that anchor the silhouette.
+ */
+const COMMON: React.SVGProps<SVGSVGElement> = {
+  fill:           'none',
+  stroke:         'currentColor',
+  strokeWidth:    1.6,
+  strokeLinecap:  'round',
+  strokeLinejoin: 'round',
+  xmlns:          'http://www.w3.org/2000/svg',
+};
+
+function paths(city: string) {
+  switch (city) {
+    /* Sydney — three nested Opera House sails over harbour line */
+    case 'Sydney':
+      return (
+        <>
+          <path d="M 3 19 L 21 19" />
+          <path d="M 5 19 Q 6.5 12 9 19" />
+          <path d="M 8 19 Q 11 9 14.5 19" />
+          <path d="M 13 19 Q 16 11 19 19" />
+        </>
+      );
+
+    /* Melbourne — W-class tram: rounded body, pole, two wheels */
+    case 'Melbourne':
+      return (
+        <>
+          <path d="M 4 16 V 10 Q 4 8 6 8 H 18 Q 20 8 20 10 V 16" />
+          <path d="M 3.5 16 H 20.5" />
+          <path d="M 6.5 11 H 10.5 V 13 H 6.5 Z" />
+          <path d="M 13.5 11 H 17.5 V 13 H 13.5 Z" />
+          <path d="M 12 8 V 5 H 8" />
+          <circle cx="7.5" cy="18.5" r="1.1" />
+          <circle cx="16.5" cy="18.5" r="1.1" />
+        </>
+      );
+
+    /* Brisbane — Story Bridge: twin towers + cantilever cross-bracing */
+    case 'Brisbane':
+      return (
+        <>
+          <path d="M 3 19 L 21 19" />
+          <path d="M 5.5 6 V 19" />
+          <path d="M 18.5 6 V 19" />
+          <path d="M 5.5 6 L 18.5 6" />
+          <path d="M 5.5 14 L 18.5 14" />
+          <path d="M 5.5 6 L 18.5 14" />
+          <path d="M 18.5 6 L 5.5 14" />
+        </>
+      );
+
+    /* Perth — Black swan silhouette: body ellipse + S-neck + beak + ripple */
+    case 'Perth':
+      return (
+        <>
+          <path d="M 4 16 Q 8 19 14 17 Q 18 16 18 13 Q 18 11 16 11" />
+          <path d="M 16 11 Q 14 9 15 6 Q 16 4 18 4" />
+          <path d="M 18 4 L 20 5" />
+          <circle cx="16.6" cy="5.6" r="0.4" fill="currentColor" stroke="none" />
+          <path d="M 4 19 Q 7 18.4 10 19 Q 13 18.4 16 19" />
+        </>
+      );
+
+    /* Adelaide — Festival Centre: three triangular roof peaks */
+    case 'Adelaide':
+      return (
+        <>
+          <path d="M 2.5 19 H 21.5" />
+          <path d="M 3 19 L 7.5 9 L 12 19" />
+          <path d="M 8 19 L 12.5 7 L 17 19" />
+          <path d="M 13 19 L 16.5 11 L 21 19" />
+        </>
+      );
+
+    /* Canberra — Parliament Hill mound + flagpole + flag */
+    case 'Canberra':
+      return (
+        <>
+          <path d="M 3 19 H 21" />
+          <path d="M 3 19 Q 12 11 21 19" />
+          <path d="M 12 12 V 4" />
+          <path d="M 12 4 L 17 4 L 15.8 6 L 17 8 L 12 8" />
+        </>
+      );
+
+    /* Hobart — Mt Wellington: jagged peaks with snow caps */
+    case 'Hobart':
+      return (
+        <>
+          <path d="M 2 19 H 22" />
+          <path d="M 2 19 L 7 11 L 11 14 L 15 7 L 19 13 L 22 19" />
+          <path d="M 6 13 L 7 11 L 8.2 12.2" />
+          <path d="M 13.8 9 L 15 7 L 16.2 8.6" />
+        </>
+      );
+
+    /* Darwin — Palm tree: curved trunk + 5 radiating fronds + coconut dots */
+    case 'Darwin':
+      return (
+        <>
+          <path d="M 8 19 H 16" />
+          <path d="M 12.5 19 Q 11.5 15 12 11" />
+          <path d="M 12 11 Q 9 10 5.5 11.5" />
+          <path d="M 12 11 Q 9.5 7 7 5" />
+          <path d="M 12 11 Q 12.5 6 13.5 3.5" />
+          <path d="M 12 11 Q 15.5 8 18 7.5" />
+          <path d="M 12 11 Q 15.5 11.5 18.5 13.5" />
+          <circle cx="11.5" cy="11.5" r="0.55" fill="currentColor" stroke="none" />
+          <circle cx="13"   cy="11.7" r="0.55" fill="currentColor" stroke="none" />
+        </>
+      );
+
+    /* Remote — Globe + signal arcs */
+    case 'Remote':
+      return (
+        <>
+          <circle cx="11" cy="14" r="5" />
+          <path d="M 6 14 H 16" />
+          <path d="M 11 9 Q 7.5 14 11 19" />
+          <path d="M 11 9 Q 14.5 14 11 19" />
+          <path d="M 16.5 4.5 Q 19 5.5 19.5 8" />
+          <path d="M 15 6.5 Q 16.5 7.5 17 9" />
+          <circle cx="14" cy="8" r="0.6" fill="currentColor" stroke="none" />
+        </>
+      );
+
+    /* Australia — cute kangaroo silhouette, side profile facing right, in
+       upright alert pose. One big closed-path silhouette covers body + neck +
+       head + ears + back leg + foot. Tail and forearm are separate strokes
+       layered on top. Eye is a small light dot on the head.
+       Compositional logic: kangaroo's signature is the (i) two pointed ears,
+       (ii) thick curving tail behind, (iii) huge back foot extending forward.
+       All three are made unmistakable. */
+    case 'Australia':
+      return (
+        <>
+          {/* TAIL — thick curved stroke sweeping down-left to ground */}
+          <path d="M 8 17 Q 5 19 3.5 21.5" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" fill="none" />
+          {/* BODY + HEAD + EARS + BACK LEG + FOOT — one silhouette traced
+              clockwise from rear-top of body */}
+          <path
+            d="M 9 16
+               Q 7.8 12 9 8.8
+               Q 10.4 6.2 13 6.2
+               L 13.6 4.4
+               L 13.2 1.8
+               L 14.6 4.2
+               L 15 4.2
+               L 15.6 1.6
+               L 16 4.4
+               L 16.6 4.8
+               Q 18 5.6 18.2 7
+               L 18 8
+               L 16.4 8.2
+               Q 15 8.6 14.4 9.6
+               L 14.4 11
+               L 14.4 13
+               L 16.2 16
+               L 19 17.4
+               L 20 21
+               L 13 21
+               L 10.8 18
+               L 9 16 Z"
+            fill="currentColor"
+            stroke="none"
+          />
+          {/* FORELIMB — small bent arm at chest, lighter so it shows on the body fill */}
+          <path d="M 13.4 11.4 L 12.6 12.8 L 13.6 13.2" stroke="#fffef6" strokeWidth="0.9" strokeLinecap="round" fill="none" />
+          {/* EYE — small light dot, gives the cute "alert" expression */}
+          <circle cx="16.4" cy="6.5" r="0.55" fill="#fffef6" stroke="none" />
+        </>
+      );
+
+    /* Default — generic pin */
+    default:
+      return (
+        <>
+          <path d="M 12 4 Q 17 4 17 9.5 Q 17 13.5 12 20 Q 7 13.5 7 9.5 Q 7 4 12 4 Z" />
+          <circle cx="12" cy="9.5" r="1.6" />
+        </>
+      );
+  }
 }
+
+const CityIcon: React.FC<CityIconProps> = ({ city, size = 20, className, style, title }) => (
+  <svg
+    {...COMMON}
+    viewBox="0 0 24 24"
+    width={size}
+    height={size}
+    className={className}
+    style={style}
+    role={title ? 'img' : 'presentation'}
+    aria-hidden={title ? undefined : true}
+  >
+    {title && <title>{title}</title>}
+    {paths(city)}
+  </svg>
+);
+
+export default CityIcon;

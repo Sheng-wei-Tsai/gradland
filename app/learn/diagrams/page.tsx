@@ -4,7 +4,7 @@ import { STARTER_DIAGRAMS } from '@/data/starter-diagrams';
 import DiagramsPageClient from './DiagramsPageClient';
 
 export const metadata: Metadata = {
-  title: 'Visual System Design — Learn with Diagrams | TechPath AU',
+  title: 'Visual System Design — Learn with Diagrams | Gradland',
   description: 'Daily diagrams explaining software engineering concepts — CDN, OAuth, databases, microservices and more. ByteByteGo-style visual learning.',
 };
 

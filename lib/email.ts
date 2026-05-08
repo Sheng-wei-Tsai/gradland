@@ -5,8 +5,8 @@
  */
 import { Resend } from 'resend';
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://henrysdigitallife.com';
-const FROM    = 'TechPath AU <noreply@henrysdigitallife.com>';
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://gradland.au';
+const FROM    = 'Gradland <noreply@henrysdigitallife.com>';
 
 function getClient(): Resend | null {
   const key = process.env.RESEND_API_KEY;
@@ -35,7 +35,7 @@ export async function sendJobListingConfirmation(opts: {
     html: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
         <h2 style="color: #140a05;">Listing received</h2>
-        <p>Thanks for posting <strong>${opts.title}</strong> at <strong>${opts.company}</strong> on TechPath AU.</p>
+        <p>Thanks for posting <strong>${opts.title}</strong> at <strong>${opts.company}</strong> on Gradland.</p>
         <p>Your listing is currently under review. We typically approve listings within 24 hours.
            You'll receive another email once it goes live.</p>
         <p>Your listing will remain active for <strong>30 days</strong> after approval.</p>
@@ -69,7 +69,7 @@ export async function sendJobListingApproved(opts: {
     html: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
         <h2 style="color: #140a05;">Your listing is live!</h2>
-        <p><strong>${opts.title}</strong> at <strong>${opts.company}</strong> is now visible to candidates on TechPath AU.</p>
+        <p><strong>${opts.title}</strong> at <strong>${opts.company}</strong> is now visible to candidates on Gradland.</p>
         <p>
           <a href="${APP_URL}/jobs" style="display:inline-block; background:#c0281c; color:#fff; padding:10px 20px; border-radius:6px; text-decoration:none; font-weight:600;">
             View on jobs page →

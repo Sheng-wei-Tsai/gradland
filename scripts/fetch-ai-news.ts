@@ -53,7 +53,7 @@ async function fetchArticleContent(url: string): Promise<string> {
   try {
     const res = await fetch(url, {
       signal: AbortSignal.timeout(12000),
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; TechPathBot/1.0; +https://henrysdigitallife.com)' },
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; GradlandBot/1.0; +https://gradland.au)' },
     });
     if (!res.ok) return '';
     const html = await res.text();
@@ -110,7 +110,7 @@ async function scrapeAnthropic(cutoff: Date): Promise<FeedItem[]> {
     console.log('  Fetching anthropic (scrape)...');
     const res = await fetch('https://www.anthropic.com/news', {
       signal: AbortSignal.timeout(12000),
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; TechPathBot/1.0)' },
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; GradlandBot/1.0)' },
     });
     if (!res.ok) { console.warn('  WARNING: anthropic scrape returned', res.status); return []; }
     const html = await res.text();
@@ -134,7 +134,7 @@ async function scrapeAnthropic(cutoff: Date): Promise<FeedItem[]> {
         const articleUrl = `https://www.anthropic.com${articlePath}`;
         const aRes = await fetch(articleUrl, {
           signal: AbortSignal.timeout(10000),
-          headers: { 'User-Agent': 'Mozilla/5.0 (compatible; TechPathBot/1.0)' },
+          headers: { 'User-Agent': 'Mozilla/5.0 (compatible; GradlandBot/1.0)' },
         });
         if (!aRes.ok) continue;
         const aHtml = await aRes.text();

@@ -3,7 +3,7 @@ import BlogList from '@/components/BlogList';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Blog — TechPath AU',
+  title: 'Blog — Gradland',
   description: 'Posts and articles about web development, AI tools, and tech careers in Australia.',
 };
 

@@ -28,7 +28,7 @@ export async function generateStaticParams() {
   return getAllAINews().map(p => ({ slug: p.slug }));
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://henrysdigitallife.com';
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://gradland.au';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -67,7 +67,7 @@ export default async function AINewsPostPage({ params }: { params: Promise<{ slu
     datePublished: post.date,
     dateModified: post.date,
     author: { '@type': 'Person', name: 'Henry Tsai', url: `${BASE_URL}/about` },
-    publisher: { '@type': 'Organization', name: 'TechPath AU', url: BASE_URL },
+    publisher: { '@type': 'Organization', name: 'Gradland', url: BASE_URL },
     url: `${BASE_URL}/ai-news/${post.slug}`,
   });
 

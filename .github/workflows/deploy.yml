@@ -47,7 +47,7 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: https://dummy.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy-anon-key-ci
           SUPABASE_SERVICE_ROLE_KEY: dummy-service-role-ci
-          NEXT_PUBLIC_APP_URL: https://henrysdigitallife.com
+          NEXT_PUBLIC_APP_URL: https://gradland.au
         run: npm test
 
       - name: TypeScript & build check
@@ -59,7 +59,7 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: https://dummy.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy-anon-key-ci
           SUPABASE_SERVICE_ROLE_KEY: dummy-service-role-ci
-          NEXT_PUBLIC_APP_URL: https://henrysdigitallife.com
+          NEXT_PUBLIC_APP_URL: https://gradland.au
           NEXT_PUBLIC_LOGO_DEV_TOKEN: ${{ secrets.NEXT_PUBLIC_LOGO_DEV_TOKEN }}
         run: npm run build
 

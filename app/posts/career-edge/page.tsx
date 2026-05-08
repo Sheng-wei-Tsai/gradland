@@ -3,7 +3,7 @@ import BlogList from '@/components/BlogList';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Career Edge — TechPath AU',
+  title: 'Career Edge — Gradland',
   description: 'Daily deep-dives on AI in IT careers — what AU employers actually want, how to close the gap, and the 485→PR pathway for international graduates.',
 };
 

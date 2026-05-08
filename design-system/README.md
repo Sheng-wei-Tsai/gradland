@@ -1,4 +1,4 @@
-# Design System — TechPath AU
+# Design System — Gradland
 
 Extracted from the live site via [designlang](https://github.com/Manavarya09/design-extract) on 2026-04-25.
 Design score: **82/100 (B)** — 5 known issues documented below.

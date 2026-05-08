@@ -3,7 +3,7 @@ import Link from 'next/link';
 import ClaudeLabShell from './ClaudeLabShell';
 
 export const metadata: Metadata = {
-  title: 'Claude Lab — Interactive AI Terminal | TechPath AU',
+  title: 'Claude Lab — Interactive AI Terminal | Gradland',
   description:
     'Learn Claude, Claude Code, and AI workflows through 15 interactive missions in a browser-based terminal. No setup required.',
 };

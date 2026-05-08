@@ -1,4 +1,4 @@
-# TODO — TechPath AU Feature Backlog
+# TODO — Gradland Feature Backlog
 
 **Last updated:** 2026-04-22
 **Product vision:** The definitive career platform for international IT graduates entering the Australian job market.
@@ -88,12 +88,59 @@
 **Stripe activation (after ABN):**
 - [ ] Activate live mode at dashboard.stripe.com — paste ABN, upload passport, add bank BSB
 - [ ] Wait for "Charges enabled" + "Payouts enabled" (1–2 days)
-- [ ] Create live product: `TechPath AU Pro` — `$14.99 AUD / month` → copy `price_…` ID
+- [ ] Create live product: `Gradland Pro` — `$14.99 AUD / month` → copy `price_…` ID
 - [ ] Create live webhook → 5 events (checkout.session.completed, customer.subscription.updated, customer.subscription.deleted, invoice.payment_succeeded, invoice.payment_failed)
 - [ ] Swap 4 Vercel env vars to live keys (Production scope only, keep test for Preview)
 - [ ] Smoke test: real card → verify `subscription_tier = 'pro'` in Supabase → refund yourself
 
 **Files already done:** `app/api/stripe/webhook/route.ts`, `lib/subscription.ts`, `app/pricing/page.tsx`
+
+### Production-Readiness Sprint 0 — 2026-05-06
+**Blocking Stripe live activation. Audit + roadmap: `~/.claude/plans/can-you-scan-through-iridescent-sunrise.md`.**
+**Why:** Audit (3 Explore agents + Vercel/GDPR 2026 references) found 8 P0 launch blockers: legal pages, cookie consent, CSP/HSTS middleware, Stripe webhook idempotency, unauth `job-listing` route, missing RLS on `job_listings`, zero observability, no refund policy. Code/design quality solid otherwise — AGENTS §15 tech-debt list mostly resolved.
+
+**Day 1 — Compliance copy (P0)**
+- [ ] Create `app/privacy/page.tsx` — AU Privacy Act APP 1+5 disclosure; sub-processors (Stripe, Supabase, Anthropic, OpenAI, Logo.dev, Resend, Vercel)
+- [ ] Create `app/terms/page.tsx` — service terms, AUP, dispute resolution, AU consumer law disclaimer
+- [ ] Create `app/contact/page.tsx` — owner contact details + Resend-backed form
+- [ ] Create `app/cookies/page.tsx` — categorised list (essential / analytics / preferences) + revoke instructions
+- [ ] Edit `app/pricing/page.tsx` — refund + cancellation policy block (ACL §54 disclosure)
+- [ ] Edit `components/Footer.tsx` (or create) — link to all 4 legal pages
+- [ ] Edit `app/api/stripe/checkout/route.ts` — `consent_collection.terms_of_service: 'required'` + `custom_text.terms_of_service_acceptance.message`
+
+**Day 2 — Cookie consent + middleware (P0)**
+- [ ] Create `components/CookieConsent.tsx` — minimal banner, localStorage gate, granular essential/analytics/preferences toggles
+- [ ] Edit `app/layout.tsx:92` — gate `Analytics` mount behind consent state
+- [ ] Edit `app/api/track/route.ts` — short-circuit no-op when `cookies-consent` cookie not set to `analytics-true`
+- [ ] Create `middleware.ts` — Node.js runtime via Fluid Compute; per-request CSP nonce, HSTS (`max-age=63072000; includeSubDomains; preload`), `frame-ancestors 'none'`, `form-action 'self'`, `Permissions-Policy: interest-cohort=()`
+- [ ] Edit `next.config.ts` — remove stale "CSP via middleware" comment now that middleware actually exists
+
+**Day 3 — Stripe idempotency + abuse guard (P0)**
+- [ ] Create `supabase/025_stripe_events.sql` — `(event_id text pk, event_type text, processed_at timestamptz default now())`; RLS deny-all (service-role only)
+- [ ] Edit `app/api/stripe/webhook/route.ts:33` — INSERT event_id with `on conflict do nothing returning *`; if 0 rows affected, ack 200 and skip handler
+- [ ] Edit `app/api/stripe/job-listing/route.ts` — gate behind session cookie OR hCaptcha; soft IP throttle (5 sessions/hour); `simple-email-regex` validation on `contactEmail`; `.slice()` truncation on all user fields
+- [ ] Edit `app/api/stripe/checkout/route.ts:40` — `origin` allowlist (`ALLOWED_ORIGINS` env)
+
+**Day 4 — RLS + observability (P0)**
+- [ ] Create `supabase/026_job_listings_rls.sql` — enable RLS on `job_listings`; policies: service-role write; create view `public_job_listings` excluding `contact_email` for anon read of `status='active' and expires_at>now()`
+- [ ] Edit `app/api/jobs/listings/route.ts` — query `public_job_listings` view, not raw table
+- [ ] Edit `app/api/admin/job-listings/route.ts` — keep service-role on raw table for admin
+- [ ] `npm i @sentry/nextjs && npx @sentry/wizard@latest -i nextjs` — generates `instrumentation.ts` + `sentry.{client,server,edge}.config.ts`
+- [ ] Edit `app/api/log-error/route.ts:30` — also `Sentry.captureException(err)`
+- [ ] Verify `error_logs` table exists in prod; if missing → `supabase/027_error_logs.sql`
+
+**Day 5 — Smoke + go-live**
+- [ ] `npm run check` clean
+- [ ] Deploy to Vercel preview; verify headers via `curl -I` (CSP, HSTS, frame-ancestors, form-action, Referrer-Policy, Permissions-Policy)
+- [ ] Verify cookie banner blocks `/api/track` until consent
+- [ ] Verify `/privacy`, `/terms`, `/contact`, `/cookies` return 200 + linked from footer + Stripe Checkout
+- [ ] Stripe webhook replay test (`stripe events resend evt_…`) → confirm no duplicate `job_listings` row
+- [ ] Anon-key SELECT on `job_listings` → fails RLS; SELECT on `public_job_listings` → returns rows minus `contact_email`
+- [ ] Smoke-test Sentry: `throw new Error('smoke')` in a route → event in Sentry within 60s
+- [ ] Lighthouse 4-page sweep (`/`, `/jobs`, `/pricing`, `/au-insights`): Performance ≥85, A11y ≥95, Best Practices ≥95, SEO ≥95
+- [ ] Then: ABN + Stripe live activation per checklist above
+
+**Effort:** L (5 working days). Day 1 (compliance copy) eats biggest chunk; Sentry wizard semi-automated; Day 3+4 are small-diff but require migrations + careful testing.
 
 ### Remaining Security Items
 - [x] 2026-04-29 Add `.limit()` to unbounded queries in `app/api/comments/route.ts` + `app/api/alerts/route.ts`
@@ -171,7 +218,7 @@
 **Why:** Owner needs to dispatch tasks, trigger pipelines, and review status from their phone even when the Mac is off.
 - **Files created:** `.github/workflows/phone-task.yml` — free-text task → Claude → PR (implement) or GitHub Issue (investigate); dispatched from GitHub mobile app Actions tab ✅ *2026-04-24*
 - **Telegram:** existing plugin (`~/.claude/channels/telegram/`) verified live for interactive control when Mac is on ✅ *2026-04-24*
-- **Bookmark targets (phone):** GitHub iOS → henrys-blog → Actions → "Phone Task (Claude on demand)", "Claude Daily Developer", "Daily Posts", "Scrape AU IT Jobs"
+- **Bookmark targets (phone):** GitHub iOS → gradland → Actions → "Phone Task (Claude on demand)", "Claude Daily Developer", "Daily Posts", "Scrape AU IT Jobs"
 
 ---
 

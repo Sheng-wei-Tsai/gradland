@@ -172,7 +172,7 @@ function BattleCard({ company, research }: { company: CompanyData; research: Com
       </div>
 
       <div className="bc-footer">
-        <span>TechPath AU · henrysdigitallife.com</span>
+        <span>Gradland · gradland.au</span>
         <span>AI-generated · verify with recent sources</span>
         <span>{printDate}</span>
       </div>

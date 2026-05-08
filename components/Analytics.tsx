@@ -1,5 +1,5 @@
 'use client';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 
 function getOrCreateSessionId(): string {
@@ -19,11 +19,30 @@ function getDevice(): 'mobile' | 'tablet' | 'desktop' {
   return 'desktop';
 }
 
+function hasAnalyticsConsent(): boolean {
+  if (typeof document === 'undefined') return false;
+  // Honour Do Not Track regardless of stored consent
+  const dnt = (navigator as Navigator & { doNotTrack?: string; msDoNotTrack?: string }).doNotTrack
+    ?? (window as Window & { doNotTrack?: string }).doNotTrack;
+  if (dnt === '1' || dnt === 'yes') return false;
+  const match = document.cookie.match(/(?:^|;\s*)cookies-consent=([^;]+)/);
+  return match ? decodeURIComponent(match[1]) === 'accepted' : false;
+}
+
 export default function Analytics() {
   const pathname = usePathname();
+  const [consent, setConsent] = useState(false);
+
+  // Track consent state — re-render on user choice without page reload
+  useEffect(() => {
+    setConsent(hasAnalyticsConsent());
+    const onChange = () => setConsent(hasAnalyticsConsent());
+    window.addEventListener('cookies-consent-changed', onChange);
+    return () => window.removeEventListener('cookies-consent-changed', onChange);
+  }, []);
 
   useEffect(() => {
-    // Skip admin pages — no need to track admin activity
+    if (!consent) return;
     if (pathname.startsWith('/admin')) return;
 
     const sessionId = getOrCreateSessionId();
@@ -34,11 +53,9 @@ export default function Analytics() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ path: pathname, referrer, device, sessionId }),
-      // fire-and-forget — don't block rendering
       keepalive: true,
     }).catch(() => {});
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+  }, [pathname, consent]);
 
   return null;
 }

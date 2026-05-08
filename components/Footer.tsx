@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import EIcon, { EIconName } from '@/components/icons/EIcon';
+import LogoMark from '@/components/icons/LogoMark';
 
 const COL_TOOLS: { href: string; label: string; icon: EIconName }[] = [
   { href: '/jobs',                      label: 'Job Search',       icon: 'briefcase'    },
@@ -18,6 +19,13 @@ const COL_CONTENT: { href: string; label: string; icon: EIconName }[] = [
   { href: '/visa-news',      label: 'Visa News',   icon: 'passport'     },
   { href: '/about',          label: 'About',       icon: 'wave'         },
   { href: '/pricing',        label: 'Pricing',     icon: 'card'         },
+];
+
+const COL_LEGAL: { href: string; label: string; icon: EIconName }[] = [
+  { href: '/contact', label: 'Contact', icon: 'pencil-letter' },
+  { href: '/privacy', label: 'Privacy', icon: 'scale'         },
+  { href: '/terms',   label: 'Terms',   icon: 'newspaper'     },
+  { href: '/cookies', label: 'Cookies', icon: 'tag'           },
 ];
 
 export default function Footer() {
@@ -38,9 +46,15 @@ export default function Footer() {
         {/* Brand row */}
         <div style={{ marginBottom: '2rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '0.75rem' }}>
-            <div style={{ fontFamily: "'Lora', serif", fontWeight: 700, fontSize: '1.15rem', color: 'var(--brown-dark)' }}>
-              TechPath AU
-            </div>
+            <Link href="/" aria-label="Gradland — home" style={{
+              display: 'inline-flex', alignItems: 'center', gap: '0.6rem',
+              textDecoration: 'none',
+            }}>
+              <LogoMark size={36} withShadow={false} decorative />
+              <span style={{ fontFamily: "'Lora', serif", fontWeight: 700, fontSize: '1.15rem', color: 'var(--brown-dark)' }}>
+                Gradland
+              </span>
+            </Link>
             {/* Social icons */}
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <a href="https://github.com/Sheng-wei-Tsai" target="_blank" rel="noopener noreferrer"
@@ -87,6 +101,22 @@ export default function Footer() {
             </div>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {COL_CONTENT.map(l => (
+                <li key={l.href}>
+                  <Link href={l.href} className="footer-nav-link">
+                    <EIcon name={l.icon} size={14} style={{ marginRight: '0.4em', opacity: 0.75 }} />
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: '0.8rem' }}>
+              Legal
+            </div>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {COL_LEGAL.map(l => (
                 <li key={l.href}>
                   <Link href={l.href} className="footer-nav-link">
                     <EIcon name={l.icon} size={14} style={{ marginRight: '0.4em', opacity: 0.75 }} />

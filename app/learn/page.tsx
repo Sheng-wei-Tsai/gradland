@@ -3,7 +3,7 @@ import { SKILL_PATHS } from '@/lib/skill-paths';
 import LearnPageClient from './LearnPageClient';
 
 export const metadata: Metadata = {
-  title: 'IT Learning Paths — TechPath AU',
+  title: 'IT Learning Paths — Gradland',
   description: 'Structured learning paths for Frontend, Backend, Data Engineer and DevOps roles in Australia. Spaced repetition keeps your skills sharp.',
 };
 

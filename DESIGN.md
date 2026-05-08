@@ -1,4 +1,4 @@
-# DESIGN.md — TechPath AU Design System
+# DESIGN.md — Gradland Design System
 
 > **Eastern Ink × Comic Panel**
 > A career platform for international IT graduates in Australia, expressed through the visual language of Chinese ink brush art fused with Western comic book panels.
@@ -9,7 +9,7 @@
 
 ### 1.1 Brand Concept
 
-TechPath AU lives at the intersection of two visual traditions:
+Gradland lives at the intersection of two visual traditions:
 
 | Tradition | Contribution |
 |-----------|-------------|
@@ -20,7 +20,7 @@ The result is a platform that feels **personal and trustworthy** (not corporate 
 
 ### 1.2 Core UX Principles
 
-1. **Answer "what is this?" in 5 seconds** — Hero copy must be immediately legible to a new visitor who has never heard of TechPath.
+1. **Answer "what is this?" in 5 seconds** — Hero copy must be immediately legible to a new visitor who has never heard of Gradland.
 2. **One primary action per screen** — Never compete for attention. Each page has one CTA that earns the most visual weight.
 3. **Progress is the product** — Users return because they can see themselves advancing. Score rings, progress bars, completion dots, and XP are not decorations — they are the retention mechanism.
 4. **International grad empathy** — Every micro-copy decision should acknowledge the user's context: studying in a new country, navigating visa complexity, building confidence in English. Avoid jargon. Never punish with errors.
@@ -208,7 +208,7 @@ Every page uses the `<Header>` + `<Footer>` shell from `app/layout.tsx`. Content
 
 ### 5.1 The Comic Panel Card
 
-The signature visual element of TechPath AU. Used for all primary content cards.
+The signature visual element of Gradland. Used for all primary content cards.
 
 ```tsx
 <div style={{

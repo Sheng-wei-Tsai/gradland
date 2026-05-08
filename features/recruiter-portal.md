@@ -103,7 +103,7 @@ Day 30: listing auto-expires, removed from /jobs
 │  │  [Post for $99 AUD →]                                │  │
 │  └──────────────────────────────────────────────────────┘  │
 │                                                            │
-│  Questions? hello@henrysdigitallife.com                    │
+│  Questions? hello@gradland.au                    │
 └────────────────────────────────────────────────────────────┘
 ```
 

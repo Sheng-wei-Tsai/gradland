@@ -7,7 +7,7 @@ export const resume = {
   phone:      '0449 937 959',
   linkedin:   'linkedin.com/in/henry-tsai-973438294',
   github:     'github.com/Sheng-wei-Tsai',
-  portfolio:  'henrys-blog.vercel.app',
+  portfolio:  'gradland.au',
   visa:       'Full Australian work rights (485 Temporary Graduate Visa)',
 
   summary: `Full Stack Developer with a Master of Computer Science from QUT and a strong track record of building real-world applications independently. Proficient in TypeScript, React, Next.js, Python, and PostgreSQL, with hands-on experience integrating AI APIs (OpenAI, Anthropic) into production systems. Passionate about building tools that solve real problems — from AI-powered job search engines to mobile apps. Actively seeking a graduate or junior developer role in Brisbane or remote.`,
@@ -23,8 +23,8 @@ export const resume = {
   projects: [
     {
       name:        'Personal Career Platform & Blog',
-      url:         'https://github.com/Sheng-wei-Tsai/henrys-blog',
-      demo:        'https://henrys-blog.vercel.app',
+      url:         'https://github.com/Sheng-wei-Tsai/gradland',
+      demo:        'https://gradland.au',
       period:      '2026 – Present',
       description: 'Full-stack personal platform combining a technical blog, AI-powered weekly digest, Australian IT job search engine, AI cover letter generator, and job application tracker.',
       highlights: [

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Resume Analyser — TechPath AU',
+  title: 'Resume Analyser — Gradland',
   description: 'Get an AI-powered score for your resume against the Australian IT job market. Fix ATS issues and beat 90% of applicants.',
 };
 

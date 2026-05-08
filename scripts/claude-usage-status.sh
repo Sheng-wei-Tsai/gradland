@@ -140,7 +140,7 @@ echo
 
 # ── Autonomous loop status ────────────────────────────────────────────────────
 echo "── Autonomous loop today ──────────────────────────────────────"
-REPO="Sheng-wei-Tsai/henrys-blog"
+REPO="Sheng-wei-Tsai/gradland"
 if command -v gh &>/dev/null; then
   EXHAUSTED=$(gh api "repos/${REPO}/git/refs/heads/quota-exhausted/${TODAY_UTC}" \
     --silent 2>/dev/null && echo "yes" || echo "no")
@@ -153,7 +153,7 @@ if command -v gh &>/dev/null; then
   echo "  quota-exhausted/${TODAY_UTC}: ${EXHAUSTED}"
   echo "  analysis/${TODAY_UTC}:        ${ANALYSIS}"
   echo "  dev-done windows today:      ${WIN_COUNT}/4"
-  IDLE_PID_FILE="$HOME/.claude/idle-trigger-henrys-blog.pid"
+  IDLE_PID_FILE="$HOME/.claude/idle-trigger-gradland.pid"
   if [ -f "$IDLE_PID_FILE" ]; then
     IDLE_PID=$(cat "$IDLE_PID_FILE")
     if kill -0 "$IDLE_PID" 2>/dev/null; then
