@@ -130,7 +130,7 @@
 - [ ] Verify `error_logs` table exists in prod; if missing → `supabase/027_error_logs.sql`
 
 **Day 5 — Smoke + go-live**
-- [ ] `npm run check` clean
+- [x] `npm run check` clean ✅ 2026-05-08
 - [ ] Deploy to Vercel preview; verify headers via `curl -I` (CSP, HSTS, frame-ancestors, form-action, Referrer-Policy, Permissions-Policy)
 - [ ] Verify cookie banner blocks `/api/track` until consent
 - [ ] Verify `/privacy`, `/terms`, `/contact`, `/cookies` return 200 + linked from footer + Stripe Checkout
