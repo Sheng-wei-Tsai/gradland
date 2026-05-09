@@ -80,8 +80,8 @@ Full design system documented in [`DESIGN.md`](./DESIGN.md).
 ## Local Setup
 
 ```bash
-git clone https://github.com/Sheng-wei-Tsai/claude-code henry-blog
-cd henry-blog
+git clone https://github.com/Sheng-wei-Tsai/gradland.git gradland
+cd gradland
 npm install
 cp .env.local.example .env.local   # fill in your keys (see below)
 npm run dev

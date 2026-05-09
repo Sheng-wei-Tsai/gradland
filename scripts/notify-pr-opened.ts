@@ -17,7 +17,7 @@
 import { Resend } from 'resend';
 
 const OWNER_EMAIL = 'henry88002605@gmail.com';
-const FROM_EMAIL  = 'Gradland <noreply@henrysdigitallife.com>';
+const FROM_EMAIL  = 'Gradland <noreply@gradland.au>';
 
 interface NotifyArgs {
   prUrl:      string;

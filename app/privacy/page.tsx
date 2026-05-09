@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 const LAST_UPDATED = '9 May 2026';
-const CONTACT_EMAIL = 'admin@henrysdigitallife.com';
+const CONTACT_EMAIL = 'admin@gradland.au';
 
 const SUBPROCESSORS: { name: string; purpose: string; region: string; url: string }[] = [
   { name: 'Vercel Inc.',          purpose: 'Hosting, edge delivery, serverless compute',  region: 'Global (default region: Sydney, AU)', url: 'https://vercel.com/legal/privacy-policy' },

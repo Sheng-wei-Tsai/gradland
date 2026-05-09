@@ -59,7 +59,7 @@ describe('POST /api/stripe/job-listing', () => {
     mockCheckRateLimit.mockResolvedValue(false);
     process.env.STRIPE_SECRET_KEY           = 'sk_test_dummy';
     process.env.STRIPE_JOB_LISTING_PRICE_ID = 'price_test_dummy';
-    process.env.NEXT_PUBLIC_APP_URL         = 'https://henrysdigitallife.com';
+    process.env.NEXT_PUBLIC_APP_URL         = 'https://gradland.au';
   });
 
   // ── Input validation ─────────────────────────────────────────────────────────

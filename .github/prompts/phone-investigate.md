@@ -1,4 +1,4 @@
-You are investigating a question about Gradland (henry-blog). Do NOT modify any files. The question is provided below after "QUESTION:".
+You are investigating a question about Gradland. Do NOT modify any files. The question is provided below after "QUESTION:".
 
 Explore the codebase, trace the relevant code paths, and write a thorough answer. Include:
 - Exact file paths and line numbers for key code

@@ -70,7 +70,7 @@ export async function fetchIAFeed(limit = 12): Promise<IAFeedItem[]> {
   try {
     const res = await fetch(FEED_URL, {
       next: { revalidate: 21600 },
-      headers: { 'User-Agent': 'henry-blog/1.0 (AU IT career site; RSS reader)' },
+      headers: { 'User-Agent': 'gradland/1.0 (AU IT career site; RSS reader)' },
     });
     if (!res.ok) return [];
 

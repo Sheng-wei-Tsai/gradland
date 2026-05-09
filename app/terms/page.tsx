@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 const LAST_UPDATED = '6 May 2026';
-const CONTACT_EMAIL = 'admin@henrysdigitallife.com';
+const CONTACT_EMAIL = 'admin@gradland.au';
 
 const containerStyle: React.CSSProperties = {
   maxWidth: '760px',

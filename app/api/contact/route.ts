@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-const SUPPORT_INBOX = 'admin@henrysdigitallife.com';
-const FROM          = 'Gradland <noreply@henrysdigitallife.com>';
+const SUPPORT_INBOX = 'admin@gradland.au';
+const FROM          = 'Gradland <noreply@gradland.au>';
 
 const VALID_TOPICS = new Set(['general', 'billing', 'privacy', 'bug', 'partnership']);
 
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
   const ip = getIp(req);
   if (!checkRateLimit(ip)) {
     return NextResponse.json(
-      { error: 'Too many messages. Please email admin@henrysdigitallife.com directly.' },
+      { error: 'Too many messages. Please email admin@gradland.au directly.' },
       { status: 429 },
     );
   }
@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error('[contact] resend send failed', err);
     return NextResponse.json(
-      { error: 'Could not send right now. Please email admin@henrysdigitallife.com.' },
+      { error: 'Could not send right now. Please email admin@gradland.au.' },
       { status: 502 },
     );
   }

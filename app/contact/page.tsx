@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   alternates:  { canonical: '/contact' },
 };
 
-const CONTACT_EMAIL = 'admin@henrysdigitallife.com';
+const CONTACT_EMAIL = 'admin@gradland.au';
 
 const containerStyle: React.CSSProperties = {
   maxWidth: '680px',

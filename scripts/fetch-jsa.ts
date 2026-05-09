@@ -51,7 +51,7 @@ async function tryFetchLivePage(): Promise<boolean> {
     console.log(`Checking live data at ${SOURCE_URL} …`);
     const res = await fetch(SOURCE_URL, {
       signal: AbortSignal.timeout(8000),
-      headers: { 'User-Agent': 'henry-blog/1.0 (AU IT career site; data refresh script)' },
+      headers: { 'User-Agent': 'gradland/1.0 (AU IT career site; data refresh script)' },
     });
     if (!res.ok) {
       console.warn(`  ⚠ HTTP ${res.status} from JSA — using manual snapshot`);

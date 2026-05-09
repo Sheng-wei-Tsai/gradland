@@ -6,7 +6,7 @@
 import { Resend } from 'resend';
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://gradland.au';
-const FROM    = 'Gradland <noreply@henrysdigitallife.com>';
+const FROM    = 'Gradland <noreply@gradland.au>';
 
 function getClient(): Resend | null {
   const key = process.env.RESEND_API_KEY;
@@ -42,7 +42,7 @@ export async function sendJobListingConfirmation(opts: {
         <hr style="border: none; border-top: 1px solid #e8d5a8; margin: 24px 0;" />
         <p style="color: #7a5030; font-size: 13px;">
           Questions? Reply to this email or contact us at
-          <a href="mailto:admin@henrysdigitallife.com">admin@henrysdigitallife.com</a>.
+          <a href="mailto:admin@gradland.au">admin@gradland.au</a>.
         </p>
       </div>
     `,
@@ -79,7 +79,7 @@ export async function sendJobListingApproved(opts: {
         <hr style="border: none; border-top: 1px solid #e8d5a8; margin: 24px 0;" />
         <p style="color: #7a5030; font-size: 13px;">
           Questions? Contact us at
-          <a href="mailto:admin@henrysdigitallife.com">admin@henrysdigitallife.com</a>.
+          <a href="mailto:admin@gradland.au">admin@gradland.au</a>.
         </p>
       </div>
     `,
@@ -117,7 +117,7 @@ export async function sendJobListingRenewalReminder(opts: {
         <hr style="border: none; border-top: 1px solid #e8d5a8; margin: 24px 0;" />
         <p style="color: #7a5030; font-size: 13px;">
           Questions? Contact us at
-          <a href="mailto:admin@henrysdigitallife.com">admin@henrysdigitallife.com</a>.
+          <a href="mailto:admin@gradland.au">admin@gradland.au</a>.
         </p>
       </div>
     `,
@@ -150,7 +150,7 @@ export async function sendJobListingExpired(opts: {
         <hr style="border: none; border-top: 1px solid #e8d5a8; margin: 24px 0;" />
         <p style="color: #7a5030; font-size: 13px;">
           Questions? Contact us at
-          <a href="mailto:admin@henrysdigitallife.com">admin@henrysdigitallife.com</a>.
+          <a href="mailto:admin@gradland.au">admin@gradland.au</a>.
         </p>
       </div>
     `,

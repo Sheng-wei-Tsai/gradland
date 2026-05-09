@@ -44,7 +44,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   process.env.STRIPE_SECRET_KEY = 'sk_test_dummy';
   process.env.STRIPE_PRICE_ID   = 'price_test_dummy';
-  process.env.NEXT_PUBLIC_APP_URL = 'https://henrysdigitallife.com';
+  process.env.NEXT_PUBLIC_APP_URL = 'https://gradland.au';
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -190,17 +190,17 @@ describe('POST /api/stripe/checkout', () => {
     });
     mockCheckoutCreate.mockResolvedValue({ url: 'https://checkout.stripe.com/pay/cs_test_origin' });
 
-    // NEXT_PUBLIC_APP_URL is 'https://henrysdigitallife.com' (set in beforeEach)
+    // NEXT_PUBLIC_APP_URL is 'https://gradland.au' (set in beforeEach)
     // — that value is what populates the default allowlist when ALLOWED_ORIGINS is unset
     const req = new NextRequest('http://localhost/api/stripe/checkout', {
       method:  'POST',
-      headers: { Origin: 'https://henrysdigitallife.com' },
+      headers: { Origin: 'https://gradland.au' },
     });
     await checkoutPOST(req);
 
     const call = mockCheckoutCreate.mock.calls[0][0];
-    expect(call.success_url).toContain('henrysdigitallife.com/dashboard');
-    expect(call.cancel_url).toContain('henrysdigitallife.com/pricing');
+    expect(call.success_url).toContain('gradland.au/dashboard');
+    expect(call.cancel_url).toContain('gradland.au/pricing');
   });
 
   it('falls back to NEXT_PUBLIC_APP_URL when Origin header is not in the allowlist', async () => {
@@ -227,7 +227,7 @@ describe('POST /api/stripe/checkout', () => {
     // Disallowed origin must NOT appear in URLs — falls back to NEXT_PUBLIC_APP_URL
     expect(call.success_url).not.toContain('evil.example.com');
     expect(call.cancel_url).not.toContain('evil.example.com');
-    expect(call.success_url).toContain('henrysdigitallife.com');
+    expect(call.success_url).toContain('gradland.au');
   });
 });
 
