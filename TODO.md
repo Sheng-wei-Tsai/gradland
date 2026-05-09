@@ -785,6 +785,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-09 (supplement 1)
+
+> Twenty-fifth-pass scan — `app/learn/youtube/[videoId]/page.tsx` raw `createClient` missed by the 2026-05-06 AGENTS §5.2 sweep.
+
+### Code Quality
+- [x] Replace raw `createClient` from `@supabase/supabase-js` with `createSupabaseService()` from `lib/auth-server.ts` in `app/learn/youtube/[videoId]/page.tsx:2,13,42` — `generateMetadata` and the page default export each build their own client with `SUPABASE_SERVICE_ROLE_KEY ?? SUPABASE_ANON_KEY` fallback; same violation as the ten routes fixed on 2026-05-06; using the shared helper removes the manual `??` fallback and disables session persistence consistently (AGENTS §5.2) [quality] ✅ 2026-05-09
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

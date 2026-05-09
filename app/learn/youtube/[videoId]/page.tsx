@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { createClient } from '@supabase/supabase-js';
+import { createSupabaseService } from '@/lib/auth-server';
 import StudySession from './StudySession';
 
 type Props = { params: Promise<{ videoId: string }> };
@@ -10,10 +10,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://gradland.au';
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { videoId } = await params;
 
-  const sb = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
+  const sb = createSupabaseService();
   const { data } = await sb
     .from('video_content')
     .select('video_title, channel_title')
@@ -39,10 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function VideoStudyPage({ params }: Props) {
   const { videoId } = await params;
 
-  const sb = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
+  const sb = createSupabaseService();
 
   // Check global video cache — if the guide already exists, pass it as props so
   // the client component skips the streaming analysis entirely and renders immediately.
