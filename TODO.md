@@ -794,6 +794,18 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-09 (supplement 2)
+
+> Twenty-sixth-pass scan — `app/api/contact/route.ts` unbounded Map and missing test coverage missed by all prior sweeps.
+
+### Security
+- [x] Cap in-memory rate-limit Map size in `app/api/contact/route.ts:9` (`ipLog`) — same unbounded growth pattern fixed in `app/api/log-error/route.ts:5` (`ipLog`) and `app/api/track/route.ts:9` (`ipCounts`) on 2026-05-07; add `if (!existing && ipLog.size >= 5000) ipLog.delete(ipLog.keys().next().value!)` guard before `ipLog.set(ip, recent)` so a long-lived Vercel instance accumulates at most 5000 entries; also extract `ipLog.get(ip)` to a local `existing` variable to avoid a double lookup [security] [perf] ✅ 2026-05-09
+
+### Tests
+- [x] Add Vitest test for `/api/contact` POST — 400 on invalid JSON, 400 on missing/invalid email, 400 on message < 10 chars, 429 on 6th request from same IP within 1 hour, 200 with `{ ok: true, transport: 'none' }` when `RESEND_API_KEY` is unset, 200 on successful Resend send, 502 when Resend throws, unknown `topic` falls back to `'general'` (`app/api/contact/route.ts`) [tests] ✅ 2026-05-09
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

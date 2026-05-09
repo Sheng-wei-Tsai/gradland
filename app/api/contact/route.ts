@@ -17,9 +17,11 @@ function getIp(req: NextRequest): string {
 }
 
 function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const recent = (ipLog.get(ip) ?? []).filter(t => now - t < WINDOW_MS);
+  const now      = Date.now();
+  const existing = ipLog.get(ip);
+  const recent   = (existing ?? []).filter(t => now - t < WINDOW_MS);
   if (recent.length >= RATE_LIMIT) return false;
+  if (!existing && ipLog.size >= 5000) ipLog.delete(ipLog.keys().next().value!);
   recent.push(now);
   ipLog.set(ip, recent);
   return true;
