@@ -16,6 +16,18 @@ vi.mock('stripe', () => ({
   }),
 }));
 
+// ── Auth mock — default: anonymous visitor ────────────────────────────────────
+const mockGetServerUser = vi.fn(async () => null);
+vi.mock('@/lib/auth-server', () => ({
+  getServerUser: mockGetServerUser,
+}));
+
+// ── Rate-limit mock — default: not limited ────────────────────────────────────
+const mockCheckRateLimit = vi.fn(async () => false);
+vi.mock('@/lib/rate-limit-db', () => ({
+  checkRateLimit: mockCheckRateLimit,
+}));
+
 const { POST } = await import('@/app/api/stripe/job-listing/route');
 
 const VALID_BODY = {
@@ -43,6 +55,8 @@ describe('POST /api/stripe/job-listing', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockSessionsCreate.mockResolvedValue({ url: 'https://checkout.stripe.com/pay/cs_test_abc' });
+    mockGetServerUser.mockResolvedValue(null);
+    mockCheckRateLimit.mockResolvedValue(false);
     process.env.STRIPE_SECRET_KEY           = 'sk_test_dummy';
     process.env.STRIPE_JOB_LISTING_PRICE_ID = 'price_test_dummy';
     process.env.NEXT_PUBLIC_APP_URL         = 'https://henrysdigitallife.com';
@@ -200,16 +214,33 @@ describe('POST /api/stripe/job-listing', () => {
     expect(call.mode).toBe('payment');
   });
 
-  // ── IP rate limit ─────────────────────────────────────────────────────────────
+  // ── Abuse gate ───────────────────────────────────────────────────────────────
 
-  it('returns 429 on the 6th valid request from the same IP within one hour', async () => {
-    const ip = '10.99.0.1';
-    for (let i = 0; i < 5; i++) {
-      mockSessionsCreate.mockResolvedValueOnce({ url: 'https://checkout.stripe.com/pay/cs_test' });
-      const res = await POST(makePost(VALID_BODY, ip));
-      expect(res.status).toBe(200);
-    }
-    const res = await POST(makePost(VALID_BODY, ip));
+  it('returns 429 when IP rate limit is exceeded (anonymous visitor)', async () => {
+    mockCheckRateLimit.mockResolvedValueOnce(true);
+    const res  = await POST(makePost(VALID_BODY));
+    const body = await res.json();
     expect(res.status).toBe(429);
+    expect(body.error).toMatch(/Too many requests/);
+  });
+
+  it('uses per-user rate-limit key when authenticated', async () => {
+    mockGetServerUser.mockResolvedValueOnce({ id: 'user-abc' } as never);
+    await POST(makePost(VALID_BODY));
+    expect(mockCheckRateLimit).toHaveBeenCalledWith(
+      expect.stringContaining('user:user-abc'),
+      3600,
+      10,
+    );
+  });
+
+  it('uses per-IP rate-limit key when anonymous', async () => {
+    mockGetServerUser.mockResolvedValueOnce(null);
+    await POST(makePost(VALID_BODY));
+    expect(mockCheckRateLimit).toHaveBeenCalledWith(
+      expect.stringContaining('ip:'),
+      3600,
+      5,
+    );
   });
 });

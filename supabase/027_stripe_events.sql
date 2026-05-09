@@ -11,4 +11,11 @@ CREATE TABLE IF NOT EXISTS public.stripe_events (
 
 ALTER TABLE public.stripe_events ENABLE ROW LEVEL SECURITY;
 
--- No user-facing policies — all access is via the service-role key which bypasses RLS.
+-- Deny all access to anon and authenticated roles — service role bypasses RLS.
+CREATE POLICY "No direct access to stripe_events"
+  ON public.stripe_events
+  FOR ALL
+  USING (false);
+
+CREATE INDEX IF NOT EXISTS stripe_events_processed_at_idx
+  ON public.stripe_events (processed_at);

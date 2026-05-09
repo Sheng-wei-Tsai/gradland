@@ -19,6 +19,15 @@ vi.mock('stripe', () => ({
   },
 }));
 
+// Auth + rate-limit — default: anonymous, not limited
+vi.mock('@/lib/auth-server', () => ({
+  getServerUser: vi.fn(async () => null),
+}));
+
+vi.mock('@/lib/rate-limit-db', () => ({
+  checkRateLimit: vi.fn(async () => false),
+}));
+
 const { POST } = await import('./route');
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

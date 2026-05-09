@@ -8,14 +8,15 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
 // ── Hoist mock fns so vi.mock factories can reference them ────────────────────
-const { mockConstructEvent, mockRetrieve, mockUpdate, mockEq, mockUpsert, mockUpsertSelect } = vi.hoisted(() => {
-  const mockEq             = vi.fn();
-  const mockUpdate         = vi.fn(() => ({ eq: mockEq }));
+const { mockConstructEvent, mockRetrieve, mockUpdate, mockEq, mockEventsSelect, mockEventsUpsert } = vi.hoisted(() => {
+  const mockEq           = vi.fn();
+  const mockUpdate       = vi.fn(() => ({ eq: mockEq }));
   const mockConstructEvent = vi.fn();
-  const mockRetrieve       = vi.fn();
-  const mockUpsertSelect   = vi.fn().mockResolvedValue({ data: [{ event_id: 'evt_test' }], error: null });
-  const mockUpsert         = vi.fn(() => ({ select: mockUpsertSelect }));
-  return { mockConstructEvent, mockRetrieve, mockUpdate, mockEq, mockUpsert, mockUpsertSelect };
+  const mockRetrieve     = vi.fn();
+  // Default: new event (1 row returned = not a replay)
+  const mockEventsSelect = vi.fn().mockResolvedValue({ data: [{ event_id: 'evt_test' }], error: null });
+  const mockEventsUpsert = vi.fn(() => ({ select: mockEventsSelect }));
+  return { mockConstructEvent, mockRetrieve, mockUpdate, mockEq, mockEventsSelect, mockEventsUpsert };
 });
 
 vi.mock('stripe', () => ({
@@ -27,7 +28,10 @@ vi.mock('stripe', () => ({
 
 vi.mock('@/lib/auth-server', () => ({
   createSupabaseService: () => ({
-    from: vi.fn(() => ({ update: mockUpdate, upsert: mockUpsert })),
+    from: vi.fn((table: string) => {
+      if (table === 'stripe_events') return { upsert: mockEventsUpsert };
+      return { update: mockUpdate };
+    }),
   }),
 }));
 
@@ -55,8 +59,9 @@ describe('POST /api/stripe/webhook', () => {
     vi.clearAllMocks();
     mockEq.mockResolvedValue({ error: null });
     mockUpdate.mockReturnValue({ eq: mockEq });
-    mockUpsertSelect.mockResolvedValue({ data: [{ event_id: 'evt_test' }], error: null });
-    mockUpsert.mockReturnValue({ select: mockUpsertSelect });
+    // Default: new event (not a replay)
+    mockEventsSelect.mockResolvedValue({ data: [{ event_id: 'evt_test' }], error: null });
+    mockEventsUpsert.mockReturnValue({ select: mockEventsSelect });
   });
 
   // ── Signature validation ────────────────────────────────────────────────────
@@ -239,7 +244,7 @@ describe('POST /api/stripe/webhook', () => {
     mockConstructEvent.mockReturnValue(makeEvent('customer.subscription.deleted', {
       metadata: { supabase_user_id: 'user-dup' },
     }, 'evt_duplicate'));
-    mockUpsertSelect.mockResolvedValue({ data: [], error: null });
+    mockEventsSelect.mockResolvedValue({ data: [], error: null });
 
     const res = await POST(makeRequest('{}'));
     expect(res.status).toBe(200);
@@ -250,8 +255,8 @@ describe('POST /api/stripe/webhook', () => {
   it('processes event when stripe_events table is absent (graceful degradation)', async () => {
     mockConstructEvent.mockReturnValue(makeEvent('customer.subscription.deleted', {
       metadata: { supabase_user_id: 'user-nograce' },
-    }, 'evt_nodtable'));
-    mockUpsertSelect.mockResolvedValue({ data: null, error: { message: 'relation "stripe_events" does not exist', code: '42P01' } });
+    }, 'evt_notable'));
+    mockEventsSelect.mockResolvedValue({ data: null, error: { message: 'relation "stripe_events" does not exist', code: '42P01' } });
 
     const res = await POST(makeRequest('{}'));
     expect(res.status).toBe(200);

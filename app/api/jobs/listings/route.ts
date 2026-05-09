@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createSupabaseService } from '@/lib/auth-server';
 
 export interface FeaturedListing {
   id:          string;
@@ -15,18 +15,16 @@ export interface FeaturedListing {
 }
 
 export async function GET() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey     = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!supabaseUrl || !anonKey) {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return NextResponse.json({ listings: [] });
   }
 
-  const sb = createClient(supabaseUrl, anonKey);
+  // Query the public_job_listings view — excludes contact_email and enforces
+  // status='active' AND expires_at > now() at the DB layer via RLS + view definition.
+  const sb = createSupabaseService();
   const { data, error } = await sb
     .from('public_job_listings')
     .select('id, company, logo_url, title, location, job_type, description, apply_url, salary, posted_at')
-    .eq('status', 'active')
-    .gt('expires_at', new Date().toISOString())
     .order('posted_at', { ascending: false })
     .limit(10);
 

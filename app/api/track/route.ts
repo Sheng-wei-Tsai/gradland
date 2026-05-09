@@ -1,27 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseService } from '@/lib/auth-server';
+import { checkRateLimit } from '@/lib/rate-limit-db';
 
 const sb = createSupabaseService();
-
-// ── In-memory IP rate limiter — max 60 events per IP per minute ──────────────
-// Resets on cold start (serverless). Good enough to block naive spam.
-const ipCounts = new Map<string, { count: number; resetAt: number }>();
-
-function isRateLimited(ip: string): boolean {
-  const now    = Date.now();
-  const window = 60_000; // 1 minute
-  const limit  = 60;
-
-  const entry = ipCounts.get(ip);
-  if (!entry || now > entry.resetAt) {
-    if (!entry && ipCounts.size >= 5000) ipCounts.delete(ipCounts.keys().next().value!);
-    ipCounts.set(ip, { count: 1, resetAt: now + window });
-    return false;
-  }
-  if (entry.count >= limit) return true;
-  entry.count++;
-  return false;
-}
 
 // ── sessionId must be a 64-char hex or UUID-like string ──────────────────────
 const SESSION_RE = /^[a-f0-9-]{32,64}$/i;
@@ -38,7 +19,8 @@ export async function POST(req: NextRequest) {
     // IP from Vercel edge header; fall back to a placeholder in local dev
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? '127.0.0.1';
 
-    if (isRateLimited(ip)) {
+    const limited = await checkRateLimit(`track:${ip}`, 60, 60);
+    if (limited) {
       return NextResponse.json({ ok: false }, { status: 429 });
     }
 

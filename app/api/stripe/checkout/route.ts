@@ -37,8 +37,8 @@ export async function POST(req: NextRequest) {
       .eq('id', user.id);
   }
 
-  // Validate origin header against an allowlist so user-controlled input can't
-  // redirect the Stripe success/cancel URLs to an arbitrary host.
+  // Validate origin against allowlist so user-controlled input can't redirect
+  // Stripe success/cancel URLs to an arbitrary host (open-redirect prevention).
   const allowedOrigins = new Set<string>(
     process.env.ALLOWED_ORIGINS
       ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim()).filter(Boolean)

@@ -1,21 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseService } from '@/lib/auth-server';
-
-// Simple in-memory rate limit — max 10 error reports per IP per minute
-const ipLog = new Map<string, { count: number; resetAt: number }>();
+import { checkRateLimit } from '@/lib/rate-limit-db';
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
-  const now = Date.now();
-
-  const entry = ipLog.get(ip);
-  if (entry && now < entry.resetAt) {
-    if (entry.count >= 10) return NextResponse.json({}, { status: 429 });
-    entry.count++;
-  } else {
-    if (!entry && ipLog.size >= 5000) ipLog.delete(ipLog.keys().next().value!);
-    ipLog.set(ip, { count: 1, resetAt: now + 60_000 });
-  }
+  const limited = await checkRateLimit(`log-error:${ip}`, 60, 10);
+  if (limited) return NextResponse.json({}, { status: 429 });
 
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({}, { status: 400 });

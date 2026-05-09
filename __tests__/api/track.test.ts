@@ -10,6 +10,11 @@ vi.mock('@supabase/supabase-js', () => ({
   }),
 }));
 
+const mockCheckRateLimit = vi.fn(async () => false);
+vi.mock('@/lib/rate-limit-db', () => ({
+  checkRateLimit: mockCheckRateLimit,
+}));
+
 // Import after mocking
 const { POST } = await import('@/app/api/track/route');
 
@@ -70,13 +75,9 @@ describe('POST /api/track', () => {
     expect(body.ok).toBe(true);
   });
 
-  it('returns 429 on the 61st POST from the same IP within a minute', async () => {
-    const ip = '7.7.7.7';
-    const validBody = { path: '/blog', sessionId: 'abcdef1234567890abcdef1234567890' };
-    for (let i = 0; i < 60; i++) {
-      await POST(makeRequest(validBody, ip));
-    }
-    const res = await POST(makeRequest(validBody, ip));
+  it('returns 429 when rate limit is exceeded', async () => {
+    mockCheckRateLimit.mockResolvedValueOnce(true);
+    const res = await POST(makeRequest({ path: '/blog', sessionId: 'abcdef1234567890abcdef1234567890' }, '7.7.7.7'));
     expect(res.status).toBe(429);
   });
 

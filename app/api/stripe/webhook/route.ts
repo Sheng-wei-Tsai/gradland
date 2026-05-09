@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
     .upsert({ event_id: event.id, event_type: event.type }, { onConflict: 'event_id', ignoreDuplicates: true })
     .select('event_id');
   if (!dedupError && Array.isArray(dedupRows) && dedupRows.length === 0) {
-    return NextResponse.json({ received: true });
+    return NextResponse.json({ received: true, replay: true });
   }
 
   switch (event.type) {

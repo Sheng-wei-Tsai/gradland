@@ -77,6 +77,16 @@
 
 ## 🔴 Priority 0 — Blocking Launch
 
+### Production-Hardening Sprint — Phase A (Stripe + abuse + data exposure)
+**Why:** Audit (2026-05-09) found 5/8 Sprint 0 items unshipped. Phase A items directly block safe Stripe live activation.
+
+- [x] A1 — Stripe webhook idempotency: `supabase/027_stripe_events.sql` + dedup guard in `app/api/stripe/webhook/route.ts` ✅ *2026-05-09*
+- [x] A2 — Job-listing abuse gate: IP rate limit (5/hr) + optional auth in `app/api/stripe/job-listing/route.ts` ✅ *2026-05-09*
+- [x] A3 — Stripe checkout origin allowlist: `ALLOWED_ORIGINS` env check in `app/api/stripe/checkout/route.ts` ✅ *2026-05-09*
+- [x] A4 — RLS + view on `job_listings`: `supabase/028_job_listings_rls.sql` + `app/api/jobs/listings/route.ts` → query `public_job_listings` ✅ *2026-05-09*
+- [x] A5 — Migration collision docs: `supabase/README.md` explaining 020 duplicate + rule that next free prefix is 030+ ✅ *2026-05-09*
+- [x] A6 — Kill in-memory rate-limit Maps: `supabase/029_rate_limits.sql`, `lib/rate-limit-db.ts`, update `app/api/log-error/route.ts` + `app/api/track/route.ts` ✅ *2026-05-09*
+
 ### Stripe Production Launch + ABN Registration
 **Blocked on:** external manual steps only. Code is 100% done.
 

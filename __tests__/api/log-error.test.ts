@@ -9,6 +9,11 @@ vi.mock('@/lib/auth-server', () => ({
   }),
 }));
 
+const mockCheckRateLimit = vi.fn(async () => false);
+vi.mock('@/lib/rate-limit-db', () => ({
+  checkRateLimit: mockCheckRateLimit,
+}));
+
 const { POST } = await import('@/app/api/log-error/route');
 
 function makePost(body: object, ip = '1.2.3.4') {
@@ -37,13 +42,9 @@ describe('POST /api/log-error', () => {
     expect(body.ok).toBe(true);
   });
 
-  it('returns 429 on the 11th POST from the same IP within 60 s', async () => {
-    const ip = '10.0.0.99';
-    for (let i = 0; i < 10; i++) {
-      const res = await POST(makePost({ message: `err ${i}` }, ip));
-      expect(res.status).toBe(200);
-    }
-    const res = await POST(makePost({ message: 'over limit' }, ip));
+  it('returns 429 when rate limit is exceeded', async () => {
+    mockCheckRateLimit.mockResolvedValueOnce(true);
+    const res = await POST(makePost({ message: 'over limit' }, '10.0.0.99'));
     expect(res.status).toBe(429);
   });
 
