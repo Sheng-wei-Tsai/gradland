@@ -774,6 +774,17 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-09
+
+> Today's Opus scan — `npm audit` = 0 vulns; `tsc --noEmit` = clean; all API routes have tests (the earlier "no test" hits were path-pattern false positives — `stripe/webhook` has co-located `route.test.ts`, `comments/[id]` and `admin/users/[id]` have `__tests__/api/comments-id.test.ts` and `admin-users-id.test.ts`). Codebase is in launch-ready shape after 24 supplement sweeps. Three small dark-mode/style residues remain after all prior sweeps: a contribution-heatmap intensity scale that hardcodes light-mode vermilion in both rgba and hex form, a contact-form disabled-button grey, and two OAuth Spinner colours still using `'#fff'` instead of the `'white'` CSS keyword that the rest of the codebase standardised on per the 2026-05-07 supplement sweep.
+
+### Style (dark-mode breakage)
+- [ ] Replace heatmap intensity scale `rgba(192,40,28,0.04|0.09|0.28|0.55|0.78)` and `'#c0281c'` at `components/PostHeatmap.tsx:20-25` (and the `rgba(192,40,28,0.4)` legend border at line 326) with `var(--vermilion)`-based equivalents — the literal `192,40,28` is the LIGHT-mode `--vermilion` value (`#c0281c`) which stays dim against the dark `#0f0b1a` background in dark mode; either define five new `--heatmap-{0..4}` CSS vars in `globals.css` or use `color-mix(in srgb, var(--vermilion) NN%, transparent)` so the heatmap adapts; legend swatches at line 326 use the same hardcoded rgba [style]
+- [ ] Replace `background: sending ? '#ccc' : 'var(--terracotta)'` with `var(--parchment)` at `app/contact/ContactForm.tsx:131` — same hardcoded light-grey disabled state pattern that supplement 1 already fixed in `app/pricing/page.tsx:129` (`#ccc` → `var(--parchment)`); contact-form submit button currently flashes light-grey in dark mode while every other button in the codebase uses `var(--parchment)` [style]
+- [ ] Replace `<Spinner color="#fff" />` with `<Spinner color="white" />` at `app/login/page.tsx:122` (GitHub button) and `app/login/page.tsx:162` (Facebook button) — matches the `'#fff'` → `'white'` CSS keyword sweep already applied across the codebase per supplements 1–11; `globals.css:1453` and several CTA buttons use the keyword form, so the OAuth spinners should follow the same convention for consistency [style]
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
