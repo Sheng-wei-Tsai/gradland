@@ -473,6 +473,7 @@ export default function ProfilePage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
           <ActionRow href="/onboarding" label="Update career goal & role" />
           <ActionRow href="/pricing" label="Manage subscription" />
+          <ActionRow href="/dashboard/account/delete" label="Delete account" />
         </div>
       </div>
     </main>

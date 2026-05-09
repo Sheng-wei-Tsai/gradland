@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/nextjs';
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseService } from '@/lib/auth-server';
 import { checkRateLimit } from '@/lib/rate-limit-db';
@@ -13,6 +14,8 @@ export async function POST(req: NextRequest) {
   const message = String(body.message ?? '').slice(0, 500);
   const digest  = String(body.digest  ?? '').slice(0, 100);
   const url     = String(body.url     ?? '').slice(0, 500);
+
+  Sentry.captureMessage(message, { level: 'error', extra: { digest, url } });
 
   // Log to Supabase — best effort, don't surface failures to the client
   try {

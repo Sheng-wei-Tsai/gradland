@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   alternates:  { canonical: '/privacy' },
 };
 
-const LAST_UPDATED = '6 May 2026';
+const LAST_UPDATED = '9 May 2026';
 const CONTACT_EMAIL = 'admin@henrysdigitallife.com';
 
 const SUBPROCESSORS: { name: string; purpose: string; region: string; url: string }[] = [
@@ -15,9 +15,14 @@ const SUBPROCESSORS: { name: string; purpose: string; region: string; url: strin
   { name: 'Supabase Inc.',        purpose: 'Authentication, database, file storage',     region: 'Sydney, AU',                          url: 'https://supabase.com/privacy' },
   { name: 'Stripe Payments Australia Pty Ltd', purpose: 'Subscription billing + payment processing', region: 'AU + US',                            url: 'https://stripe.com/au/privacy' },
   { name: 'Anthropic PBC',        purpose: 'Generative-AI inference (Claude models)',    region: 'United States',                       url: 'https://www.anthropic.com/legal/privacy' },
-  { name: 'OpenAI L.L.C.',        purpose: 'Generative-AI inference (GPT models)',       region: 'United States',                       url: 'https://openai.com/policies/privacy-policy' },
+  { name: 'OpenAI L.L.C.',        purpose: 'Generative-AI inference (GPT models — cover letter, quiz)', region: 'United States',       url: 'https://openai.com/policies/privacy-policy' },
+  { name: 'Google LLC',           purpose: 'YouTube Data API v3 — learning-path video content', region: 'United States',               url: 'https://policies.google.com/privacy' },
   { name: 'Resend Inc.',          purpose: 'Transactional email delivery',               region: 'United States',                       url: 'https://resend.com/legal/privacy-policy' },
   { name: 'Logo.dev',             purpose: 'Company-logo image proxy',                   region: 'United States',                       url: 'https://logo.dev/privacy' },
+  { name: 'Adzuna Ltd',           purpose: 'Job listing search (AU market)',             region: 'United Kingdom / AU',                 url: 'https://www.adzuna.com.au/about/privacy-policy' },
+  { name: 'RapidAPI Inc. (JSearch)', purpose: 'Aggregated job listing search',          region: 'United States',                       url: 'https://rapidapi.com/privacy' },
+  { name: 'ScraperAPI LLC',       purpose: 'Job listing scraping proxy',                 region: 'United States',                       url: 'https://www.scraperapi.com/privacy-policy' },
+  { name: 'Sentry Inc.',          purpose: 'Error monitoring and performance observability', region: 'United States',                   url: 'https://sentry.io/privacy/' },
 ];
 
 const containerStyle: React.CSSProperties = {
@@ -163,7 +168,7 @@ export default function PrivacyPage() {
       <ul>
         <li><strong>Access</strong> — request a copy of the personal information we hold about you.</li>
         <li><strong>Correct</strong> — ask us to fix inaccurate information; most fields are user-editable in your dashboard.</li>
-        <li><strong>Delete</strong> — request deletion of your account and associated data.</li>
+        <li><strong>Delete</strong> — <Link href="/dashboard/account/delete" style={{ color: 'var(--terracotta)', textDecoration: 'underline' }}>delete your account</Link> in your dashboard settings; your data is removed within 30 days.</li>
         <li><strong>Object</strong> — object to processing for direct marketing (we do not currently send marketing email).</li>
         <li><strong>Port</strong> — receive a machine-readable export of your data.</li>
         <li><strong>Withdraw consent</strong> — revoke previously-granted analytics consent via the banner.</li>
