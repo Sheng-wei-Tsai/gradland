@@ -128,7 +128,7 @@ export default function ContactForm() {
       </div>
       <button type="submit" disabled={sending} style={{
         padding: '0.7rem 1.2rem',
-        background: sending ? '#ccc' : 'var(--terracotta)',
+        background: sending ? 'var(--parchment)' : 'var(--terracotta)',
         color: 'white',
         border: 'none',
         borderRadius: '10px',
