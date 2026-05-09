@@ -15,14 +15,14 @@ type Cell = {
   isToday: boolean; isFuture: boolean; isOutOfRange: boolean;
 };
 
-// Returns CSS var string for SVG fill — vermilion-based levels
+// Returns CSS color string for SVG fill — vermilion-based intensity levels
 function cellFill(count: number, isFuture: boolean, isOutOfRange: boolean): string {
-  if (isFuture || isOutOfRange) return 'rgba(192,40,28,0.04)';
-  if (count === 0) return 'rgba(192,40,28,0.09)';
-  if (count === 1) return 'rgba(192,40,28,0.28)';
-  if (count === 2) return 'rgba(192,40,28,0.55)';
-  if (count === 3) return 'rgba(192,40,28,0.78)';
-  return '#c0281c';
+  if (isFuture || isOutOfRange) return 'color-mix(in srgb, var(--vermilion) 4%, transparent)';
+  if (count === 0) return 'color-mix(in srgb, var(--vermilion) 9%, transparent)';
+  if (count === 1) return 'color-mix(in srgb, var(--vermilion) 28%, transparent)';
+  if (count === 2) return 'color-mix(in srgb, var(--vermilion) 55%, transparent)';
+  if (count === 3) return 'color-mix(in srgb, var(--vermilion) 78%, transparent)';
+  return 'var(--vermilion)';
 }
 
 function formatDisplay(dateStr: string): string {
@@ -323,7 +323,7 @@ export default function PostHeatmap({ dates }: Props) {
             <div key={n} style={{
               width: '10px', height: '10px', borderRadius: '2px',
               background: cellFill(n, false, false),
-              border: n === 4 ? '1px solid rgba(192,40,28,0.4)' : 'none',
+              border: n === 4 ? '1px solid color-mix(in srgb, var(--vermilion) 40%, transparent)' : 'none',
             }} />
           ))}
           <span style={{ fontSize: '0.67rem', color: 'var(--text-muted)', marginLeft: '2px' }}>More</span>
