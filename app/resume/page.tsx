@@ -184,7 +184,7 @@ export default function ResumePage() {
 
         {/* ── Resume Card ── */}
         <div className="resume-card" style={{
-          background: 'white', borderRadius: '16px',
+          background: 'var(--warm-white)', borderRadius: '16px',
           border: '1px solid var(--parchment)',
           boxShadow: '0 4px 32px rgba(44,31,20,0.07)',
           overflow: 'hidden',
@@ -211,14 +211,14 @@ export default function ResumePage() {
               <span>📍 {resume.location}</span>
               <span>📞 {resume.phone}</span>
               <a href={`mailto:${resume.email}`} style={{ color: 'white', textDecoration: 'none' }}>✉️ {resume.email}</a>
-              <a href={`https://${resume.linkedin}`} target="_blank" rel="noopener noreferrer" style={{ color: '#93c5fd', textDecoration: 'none' }}>
+              <a href={`https://${resume.linkedin}`} target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.75)', textDecoration: 'none' }}>
                 LinkedIn ↗
               </a>
-              <a href={`https://${resume.github}`} target="_blank" rel="noopener noreferrer" style={{ color: '#93c5fd', textDecoration: 'none' }}>
+              <a href={`https://${resume.github}`} target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.75)', textDecoration: 'none' }}>
                 GitHub ↗
               </a>
               {resume.portfolio && (
-                <a href={`https://${resume.portfolio}`} target="_blank" rel="noopener noreferrer" style={{ color: '#93c5fd', textDecoration: 'none' }}>
+                <a href={`https://${resume.portfolio}`} target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.75)', textDecoration: 'none' }}>
                   Portfolio ↗
                 </a>
               )}
@@ -245,7 +245,7 @@ export default function ResumePage() {
               <h2 style={{ fontFamily: "'Lora', serif", fontSize: '1rem', fontWeight: 700, color: 'var(--terracotta)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.8rem', borderBottom: '2px solid var(--parchment)', paddingBottom: '0.4rem' }}>
                 Professional Summary
               </h2>
-              <p style={{ fontSize: '0.93rem', lineHeight: 1.75, color: '#374151', margin: 0 }}>
+              <p style={{ fontSize: '0.93rem', lineHeight: 1.75, color: 'var(--text-primary)', margin: 0 }}>
                 {resume.summary}
               </p>
             </section>
@@ -258,7 +258,7 @@ export default function ResumePage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 {Object.entries(resume.skills).map(([category, skills]) => (
                   <div key={category} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                    <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#6b7280', minWidth: '130px', paddingTop: '0.2rem' }}>
+                    <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-muted)', minWidth: '130px', paddingTop: '0.2rem' }}>
                       {category}
                     </span>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
@@ -279,20 +279,20 @@ export default function ResumePage() {
                   <div key={project.name}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.3rem', marginBottom: '0.3rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                        <h3 style={{ fontFamily: "'Lora', serif", fontSize: '0.97rem', fontWeight: 600, color: '#111827', margin: 0 }}>
+                        <h3 style={{ fontFamily: "'Lora', serif", fontSize: '0.97rem', fontWeight: 600, color: 'var(--ink)', margin: 0 }}>
                           {project.name}
                         </h3>
                         <ExternalLink href={project.url}>GitHub ↗</ExternalLink>
                         {project.demo && <ExternalLink href={project.demo}>Live ↗</ExternalLink>}
                       </div>
-                      <span style={{ fontSize: '0.82rem', color: '#9ca3af' }}>{project.period}</span>
+                      <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{project.period}</span>
                     </div>
-                    <p style={{ fontSize: '0.88rem', color: '#4b5563', margin: '0 0 0.5rem', lineHeight: 1.6 }}>
+                    <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', margin: '0 0 0.5rem', lineHeight: 1.6 }}>
                       {project.description}
                     </p>
                     <ul style={{ margin: '0 0 0.6rem', paddingLeft: '1.2rem', display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
                       {project.highlights.map((h, i) => (
-                        <li key={i} style={{ fontSize: '0.85rem', color: '#4b5563', lineHeight: 1.6 }}>{h}</li>
+                        <li key={i} style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>{h}</li>
                       ))}
                     </ul>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
@@ -312,15 +312,15 @@ export default function ResumePage() {
                 <div key={edu.degree}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.3rem' }}>
                     <div>
-                      <h3 style={{ fontFamily: "'Lora', serif", fontSize: '0.97rem', fontWeight: 600, color: '#111827', margin: 0 }}>
+                      <h3 style={{ fontFamily: "'Lora', serif", fontSize: '0.97rem', fontWeight: 600, color: 'var(--ink)', margin: 0 }}>
                         {edu.degree}
                       </h3>
-                      <p style={{ fontSize: '0.88rem', color: '#4b5563', margin: '0.2rem 0' }}>
+                      <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', margin: '0.2rem 0' }}>
                         {edu.institution} · {edu.location}
                       </p>
-                      <p style={{ fontSize: '0.83rem', color: '#6b7280', margin: 0 }}>{edu.notes}</p>
+                      <p style={{ fontSize: '0.83rem', color: 'var(--text-muted)', margin: 0 }}>{edu.notes}</p>
                     </div>
-                    <span style={{ fontSize: '0.82rem', color: '#9ca3af', whiteSpace: 'nowrap' }}>{edu.period}</span>
+                    <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{edu.period}</span>
                   </div>
                 </div>
               ))}
