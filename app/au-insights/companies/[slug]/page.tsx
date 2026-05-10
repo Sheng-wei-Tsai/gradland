@@ -7,8 +7,9 @@ export function generateStaticParams() {
   return COMPANIES.map(c => ({ slug: c.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
-  const company = COMPANIES.find(c => c.slug === params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const company = COMPANIES.find(c => c.slug === slug);
   if (!company) return {};
   return { title: `${company.name} — AU Company Guide` };
 }
@@ -40,8 +41,9 @@ function SubRating({ label, value }: { label: string; value?: number }) {
   );
 }
 
-export default function CompanyPage({ params }: { params: { slug: string } }) {
-  const company = COMPANIES.find(c => c.slug === params.slug);
+export default async function CompanyPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const company = COMPANIES.find(c => c.slug === slug);
   if (!company) notFound();
 
   const tierColor = company.tier === 'SSS' ? 'var(--gold)'

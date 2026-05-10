@@ -875,6 +875,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-10 (supplement 5)
+
+> Supplement scan — `app/au-insights/companies/[slug]/page.tsx` missed by all prior Next.js-16 async-params sweeps. Every other dynamic-route page (`blog/[slug]`, `learn/[path]`, `learn/youtube/[videoId]`, `visa-news/[slug]`, etc.) already uses `Promise<{ slug: string }>` typing and `await params` — this is the sole remaining file using the old synchronous pattern, violating AGENTS.md §3.
+
+### Code Quality (AGENTS §3 — Next.js 16 async params)
+- [x] Await `params` in `app/au-insights/companies/[slug]/page.tsx` — `generateMetadata` (line 10) and `CompanyPage` (line 43) both type `params` as `{ slug: string }` (non-Promise) and access `.slug` directly; change both signatures to `{ params: Promise<{ slug: string }> }`, make both functions `async`, and destructure with `const { slug } = await params` before the `COMPANIES.find(...)` call — matches the exact pattern used in `app/blog/[slug]/page.tsx:29-30,56-57` and `app/learn/[path]/page.tsx:9-10,19-20` [quality] ✅ 2026-05-10
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
