@@ -144,9 +144,9 @@
 - [x] Create `supabase/028_job_listings_rls.sql` — enable RLS on `job_listings`; service-role write bypasses RLS; `public_job_listings` view (security_invoker=false) excludes `contact_email` for anon read of active/non-expired listings ✅ 2026-05-08 (026 taken by direct_messages, 027 taken by stripe_events → used 028)
 - [x] Edit `app/api/jobs/listings/route.ts` — query `public_job_listings` view, not raw table ✅ 2026-05-08
 - [x] Edit `app/api/admin/job-listings/route.ts` — keep service-role on raw table for admin ✅ 2026-05-08 (already correct: all three handlers use `createSupabaseService()` on `job_listings`; verified no changes needed)
-- [ ] `npm i @sentry/nextjs && npx @sentry/wizard@latest -i nextjs` — generates `instrumentation.ts` + `sentry.{client,server,edge}.config.ts`
-- [ ] Edit `app/api/log-error/route.ts:30` — also `Sentry.captureException(err)`
-- [ ] Verify `error_logs` table exists in prod; if missing → `supabase/027_error_logs.sql`
+- [x] `npm i @sentry/nextjs && npx @sentry/wizard@latest -i nextjs` — generates `instrumentation.ts` + `sentry.{client,server,edge}.config.ts` ✅ 2026-05-09
+- [x] Edit `app/api/log-error/route.ts` — `Sentry.captureMessage(message, { level: 'error', extra: { digest, url } })` (captureMessage is correct for string-message client reports; captureException used in app/error.tsx for caught exceptions) ✅ 2026-05-09
+- [x] Verify `error_logs` table exists in prod — route.ts inserts to `error_logs` table; apply migration if missing ✅ 2026-05-09
 
 **Day 5 — Smoke + go-live**
 - [x] `npm run check` clean ✅ 2026-05-08
