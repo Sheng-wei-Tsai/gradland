@@ -8,7 +8,7 @@ export async function GET() {
 
   const { data, error } = await sb
     .from('job_alerts')
-    .select('*')
+    .select('id,keywords,location,full_time,frequency,created_at')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
     .limit(100);

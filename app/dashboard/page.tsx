@@ -74,7 +74,7 @@ export default function DashboardPage() {
     Promise.all([
       supabase.from('saved_jobs').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
       supabase.from('job_applications').select('*').eq('user_id', user.id).order('applied_at', { ascending: false }),
-      supabase.from('job_alerts').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
+      supabase.from('job_alerts').select('id,keywords,location,full_time,frequency,created_at').eq('user_id', user.id).order('created_at', { ascending: false }),
       supabase.from('profiles').select('onboarding_role, onboarding_completed').eq('id', user.id).maybeSingle(),
       supabase.from('resume_analyses').select('id').eq('user_id', user.id).limit(1).maybeSingle(),
       supabase.from('skill_progress').select('id').eq('user_id', user.id).limit(1).maybeSingle(),

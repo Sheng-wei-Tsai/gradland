@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
   const sbSvc = createSupabaseService();
   const { data: cached } = await sbSvc
     .from('job_gap_analyses')
-    .select('*')
+    .select('match_percent,matched_skills,missing_skills,all_jd_skills,recommended_paths')
     .eq('user_id', user.id)
     .eq('job_id', jobId)
     .gt('expires_at', new Date().toISOString())

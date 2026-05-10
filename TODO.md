@@ -947,6 +947,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-10 (supplement 13)
+
+> Supplement scan — three `select('*')` calls violating AGENTS.md §10.3 ("never `select('*')` in production queries") found after all prior sweeps: `app/api/gap-analysis/route.ts:110` fetches a 7-column cache row but only reads 5 fields; `app/api/alerts/route.ts:11` returns all `job_alerts` columns to the client including `user_id` which the `JobAlert` client type does not include; `app/dashboard/page.tsx:77` repeats the same `job_alerts select('*')` pattern client-side.
+
+### Code Quality (AGENTS §10.3 — query hygiene)
+- [x] Replace `select('*')` with specific column selections in `app/api/gap-analysis/route.ts:110` (`match_percent,matched_skills,missing_skills,all_jd_skills,recommended_paths` — the only five fields read from `cached` at lines 119-124), `app/api/alerts/route.ts:11` (`id,keywords,location,full_time,frequency,created_at` — matches `JobAlert` client type, excludes unused `user_id`), and `app/dashboard/page.tsx:77` (same six-column set for the client-side `job_alerts` query) [quality] ✅ 2026-05-10
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
