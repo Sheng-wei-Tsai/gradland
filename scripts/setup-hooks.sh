@@ -17,7 +17,16 @@ while read local_ref local_sha remote_ref remote_sha; do
   if echo "$remote_ref" | grep -q "refs/heads/main"; then
     echo "🔒 Pre-push: running security & build check before pushing to main..."
 
-    # 1. Dependency audit
+    # 1. Lockfile sync — catches package.json/package-lock.json drift
+    #    that would break `npm ci` in every CI workflow.
+    echo "\n── lockfile sync ──────────────────────────────"
+    sh scripts/check-lockfile-sync.sh
+    if [ $? -ne 0 ]; then
+      echo "\n❌ Push blocked: package-lock.json is out of sync. See message above."
+      exit 1
+    fi
+
+    # 2. Dependency audit
     echo "\n── npm audit ──────────────────────────────────"
     npm audit --audit-level=moderate
     if [ $? -ne 0 ]; then
@@ -27,7 +36,7 @@ while read local_ref local_sha remote_ref remote_sha; do
       exit 1
     fi
 
-    # 2. Build + TypeScript check
+    # 3. Build + TypeScript check
     echo "\n── next build ─────────────────────────────────"
     npm run build
     if [ $? -ne 0 ]; then
@@ -44,4 +53,4 @@ EOF
 
 chmod +x "$HOOK"
 echo "✅ Pre-push hook installed at $HOOK"
-echo "   It will run 'npm audit' + 'npm run build' before every push to main."
+echo "   It will run lockfile-sync + 'npm audit' + 'npm run build' before every push to main."
