@@ -866,6 +866,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-10 (supplement 4)
+
+> Supplement scan — `LEVELS` color/bg hardcoded Tailwind hex in `ClaudeCodeGuide.tsx` missed by supplement 3. The supplement 3 sweep fixed the CopyButton rgba and Pro-tip box rgba, but left the LEVELS data array (`color`/`bg` fields) using Tailwind hex. These are used extensively in JSX via template-literal alpha-appending (e.g. `${level.color}60`) which is incompatible with CSS vars — same pattern fixed in `InterviewPrepClient.tsx` (TRACKS) and `NetworkingClient.tsx` (weekColors) in supplement 3.
+
+### Style (dark-mode breakage)
+- [x] Replace `color`/`bg` hardcoded Tailwind hex in `LEVELS` array at `app/learn/claude-code/ClaudeCodeGuide.tsx:33,277,605,1003,1443` — Foundation `#10b981`/`#d1fae5`, Core Skills `#f59e0b`/`#fef3c7`, Power User `#ef4444`/`#fee2e2`, Agents `#8b5cf6`/`#ede9fe`, Master `#d97706`/`#fef3c7`; add `colorRgb: string` to `Level` interface; replace template-literal alpha-append patterns at lines 2268,2271,2307,2345,2394 with `rgba(${level.colorRgb},X)` forms; map to jade/gold/vermilion tokens matching the TRACKS fix pattern [style] ✅ 2026-05-10
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

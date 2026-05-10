@@ -14,13 +14,14 @@ interface Lesson {
   docs?:    string;
 }
 interface Level {
-  id:      string;
-  title:   string;
-  badge:   string;
-  color:   string;
-  bg:      string;
-  summary: string;
-  lessons: Lesson[];
+  id:       string;
+  title:    string;
+  badge:    string;
+  color:    string;
+  colorRgb: string;
+  bg:       string;
+  summary:  string;
+  lessons:  Lesson[];
 }
 
 // ─── Curriculum ───────────────────────────────────────────────
@@ -30,7 +31,7 @@ const LEVELS: Level[] = [
   //  LEVEL 1 — Foundation
   // ══════════════════════════════════════════════════════════════
   {
-    id: 'foundation', title: 'Foundation', badge: '🌱', color: '#10b981', bg: '#d1fae5',
+    id: 'foundation', title: 'Foundation', badge: '🌱', color: 'var(--jade)', colorRgb: '30,122,82', bg: 'rgba(30,122,82,0.08)',
     summary: 'Understand how AI actually works, learn the 4D fluency framework, install Claude Code, and run your first real session.',
     lessons: [
       {
@@ -274,7 +275,7 @@ claude --plan
   //  LEVEL 2 — Core Skills
   // ══════════════════════════════════════════════════════════════
   {
-    id: 'core', title: 'Core Skills', badge: '⚡', color: '#f59e0b', bg: '#fef3c7',
+    id: 'core', title: 'Core Skills', badge: '⚡', color: 'var(--gold)', colorRgb: '200,138,20', bg: 'rgba(200,138,20,0.08)',
     summary: 'CLAUDE.md for persistent memory, context management, debugging, building features, tests, and git — the daily driver skills.',
     lessons: [
       {
@@ -602,7 +603,7 @@ user-facing changelog entry for these commits."`,
   //  LEVEL 3 — Power User
   // ══════════════════════════════════════════════════════════════
   {
-    id: 'power', title: 'Power User', badge: '🔥', color: '#ef4444', bg: '#fee2e2',
+    id: 'power', title: 'Power User', badge: '🔥', color: 'var(--vermilion)', colorRgb: '192,40,28', bg: 'rgba(192,40,28,0.08)',
     summary: 'Custom skills, hooks, CLI scripting, visual communication, and reasoning mode — the 10× multipliers.',
     lessons: [
       {
@@ -1000,7 +1001,7 @@ The thinking block is often where the most valuable insights are.`,
   //  LEVEL 4 — Agents & Integration
   // ══════════════════════════════════════════════════════════════
   {
-    id: 'agents', title: 'Agents & MCP', badge: '🔌', color: '#8b5cf6', bg: '#ede9fe',
+    id: 'agents', title: 'Agents & MCP', badge: '🔌', color: 'var(--jade)', colorRgb: '30,122,82', bg: 'rgba(30,122,82,0.08)',
     summary: 'Model Context Protocol, building MCP servers, subagents for parallel work, and advanced orchestration patterns.',
     lessons: [
       {
@@ -1440,7 +1441,7 @@ echo "All tasks complete. Review PRs on GitHub."`,
   //  LEVEL 5 — Master
   // ══════════════════════════════════════════════════════════════
   {
-    id: 'master', title: 'Master', badge: '🏆', color: '#d97706', bg: '#fef3c7',
+    id: 'master', title: 'Master', badge: '🏆', color: 'var(--gold)', colorRgb: '200,138,20', bg: 'rgba(200,138,20,0.08)',
     summary: 'GitHub Actions CI, the Anthropic API, Claude on Bedrock and Vertex, Agent SDK, and team-scale AI infrastructure.',
     lessons: [
       {
@@ -2265,10 +2266,10 @@ export default function ClaudeCodeGuide() {
           const isOpen   = openLesson === lesson.id;
           return (
             <div key={lesson.id} style={{
-              border: `1.5px solid ${isOpen ? level.color + '60' : 'var(--parchment)'}`,
+              border: `1.5px solid ${isOpen ? `rgba(${level.colorRgb},0.35)` : 'var(--parchment)'}`,
               borderRadius: '12px', overflow: 'hidden',
               background: 'var(--warm-white)',
-              boxShadow: isOpen ? `0 2px 12px ${level.color}18` : 'none',
+              boxShadow: isOpen ? `0 2px 12px rgba(${level.colorRgb},0.09)` : 'none',
               transition: 'all 0.2s ease',
             }}>
               {/* Header */}
@@ -2304,7 +2305,7 @@ export default function ClaudeCodeGuide() {
 
               {/* Content */}
               {isOpen && (
-                <div style={{ padding: '0 1.1rem 1.2rem', borderTop: `1px solid ${level.color}25` }}>
+                <div style={{ padding: '0 1.1rem 1.2rem', borderTop: `1px solid rgba(${level.colorRgb},0.14)` }}>
 
                   {/* Concept */}
                   <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
@@ -2342,7 +2343,7 @@ export default function ClaudeCodeGuide() {
                   )}
 
                   {/* Exercise */}
-                  <div style={{ background: `${level.color}0d`, border: `1px solid ${level.color}30`, borderRadius: '8px', padding: '0.85rem 1rem', marginBottom: '0.85rem' }}>
+                  <div style={{ background: `rgba(${level.colorRgb},0.05)`, border: `1px solid rgba(${level.colorRgb},0.18)`, borderRadius: '8px', padding: '0.85rem 1rem', marginBottom: '0.85rem' }}>
                     <div style={{ fontSize: '0.7rem', fontWeight: 700, color: level.color, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.4rem' }}>
                       🎯 Exercise
                     </div>
@@ -2391,7 +2392,7 @@ export default function ClaudeCodeGuide() {
 
       {/* ── Level complete banner ── */}
       {mounted && level.lessons.every(l => done.has(l.id)) && (
-        <div style={{ marginTop: '1.5rem', padding: '1.2rem', borderRadius: '12px', background: level.bg, border: `1.5px solid ${level.color}40`, textAlign: 'center' }}>
+        <div style={{ marginTop: '1.5rem', padding: '1.2rem', borderRadius: '12px', background: level.bg, border: `1.5px solid rgba(${level.colorRgb},0.25)`, textAlign: 'center' }}>
           <div style={{ fontSize: '1.8rem', marginBottom: '0.4rem' }}>🎉</div>
           <div style={{ fontFamily: "'Lora', serif", fontWeight: 700, color: level.color, marginBottom: '0.3rem' }}>
             {level.title} complete!
