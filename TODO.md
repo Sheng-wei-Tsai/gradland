@@ -983,6 +983,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-10 (supplement 17)
+
+> Supplement scan — three client-side Supabase queries still missing `.limit()` after supplements 13–16 (AGENTS §10.3). `app/learn/[path]/PathTracker.tsx:101-105` and `app/learn/PathProgress.tsx:27-31` both query `skill_progress` filtered by user+path with no row cap; `app/jobs/page.tsx:695-700` queries `saved_jobs` for job IDs with no cap (the dashboard GET query on this table had `.limit(200)` added in supplement 15 but the jobs page client-side query was not included in that fix).
+
+### Code Quality (AGENTS §10.3 — query hygiene)
+- [x] Add `.limit()` to unbounded `skill_progress` and `saved_jobs` queries: `app/learn/[path]/PathTracker.tsx:105` → `.limit(100)` (each path has ≤50 skills; 100 is a generous safe cap), `app/learn/PathProgress.tsx:30` → `.limit(100)` (same reasoning), `app/jobs/page.tsx:698` → `.limit(200)` (matches the cap on the dashboard saved_jobs query added in supplement 15) [quality] ✅ 2026-05-10
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

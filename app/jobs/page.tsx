@@ -695,6 +695,7 @@ export default function JobsPage() {
       .from('saved_jobs')
       .select('job_id')
       .eq('user_id', user.id)
+      .limit(200)
       .then(({ data }) => {
         if (data) setSavedIds(new Set(data.map(r => r.job_id)));
       });

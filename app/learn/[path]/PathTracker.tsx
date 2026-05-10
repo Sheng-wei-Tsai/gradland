@@ -102,7 +102,8 @@ export default function PathTracker({ path }: { path: SkillPath }) {
       .from('skill_progress')
       .select('skill_id, status, review_count, next_review_at, last_reviewed_at, checked_topics')
       .eq('user_id', user.id)
-      .eq('path_id', path.id);
+      .eq('path_id', path.id)
+      .limit(100);
     if (data) {
       const map: Record<string, SkillProgress> = {};
       data.forEach(r => { map[r.skill_id] = { ...r, checked_topics: r.checked_topics ?? [] }; });

@@ -28,6 +28,7 @@ export default function PathProgress({ pathId }: { pathId: string }) {
         .select('checked_topics')
         .eq('user_id', user.id)
         .eq('path_id', pathId)
+        .limit(100)
         .then(({ data }) => {
           if (data) {
             setChecked(data.reduce((sum, r) => sum + (r.checked_topics?.length ?? 0), 0));
