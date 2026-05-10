@@ -37,6 +37,9 @@ jobs:
           node-version: 22
           cache: npm
 
+      - name: Verify package-lock.json is in sync with package.json
+        run: sh scripts/check-lockfile-sync.sh
+
       - run: npm ci
 
       - name: Audit dependencies (block on moderate+)

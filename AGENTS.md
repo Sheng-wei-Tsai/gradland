@@ -56,14 +56,20 @@ Critical differences from Next.js 13/14:
 **Never push to `main` without running:**
 
 ```bash
-npm run check    # = npm audit --audit-level=moderate && next build
+npm run check
+# = sh scripts/check-lockfile-sync.sh
+#   && npm audit --audit-level=moderate
+#   && npx tsx scripts/validate-content.ts
+#   && next build
 ```
 
 Enforced by:
 1. `.git/hooks/pre-push` (install via `sh scripts/setup-hooks.sh`)
-2. GitHub Actions `check` job in `.github/workflows/deploy.yml` — deploy is gated on it
+2. GitHub Actions `check` job in `.github/workflows/deploy.yml` — deploy is gated on it. The lockfile-sync step runs *before* `npm ci` so failures surface with a clear remediation message instead of npm's generic `EUSAGE` error.
 
 If `npm audit` reports moderate+ vulnerabilities: fix with `npm audit fix` or add a `overrides` entry in `package.json`. **Do NOT bypass with `--no-verify`** except for content-only commits (daily posts, doc updates) where zero code changed.
+
+**Lockfile drift:** `scripts/check-lockfile-sync.sh` runs `npm ci --dry-run` (≈0.6s) and fails fast if `package.json` and `package-lock.json` are out of sync. If it complains, run `npm install` and commit the regenerated `package-lock.json` — never edit the lockfile by hand. Drift breaks every workflow that runs `npm ci` (deploy gate, daily-posts, daily-diagrams, scrape-jobs, claude-pr-loop, autonomous-loop, phone-task, claude-analyst, daily-career-edge).
 
 ---
 
