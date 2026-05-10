@@ -825,6 +825,13 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-10
+
+### Style (dark-mode breakage)
+- [x] Replace `background: '#C0281C'` with `var(--vermilion)` on the GRAB button in `components/BoulderingGame.tsx:319` — hardcoded light-mode vermilion literal breaks dark-mode rendering; every other CTA in the codebase uses `var(--vermilion)` [style] ✅ 2026-05-10
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

@@ -316,7 +316,7 @@ function MobileDpad({
           style={{
             ...BTN_BASE,
             width: '64px', height: '64px',
-            background: '#C0281C', color: 'white',
+            background: 'var(--vermilion)', color: 'white',
             borderRadius: '50%',
             border: '2.5px solid rgba(20,10,5,0.4)',
             boxShadow: '3px 3px 0 rgba(20,10,5,0.3)',
