@@ -299,7 +299,7 @@ export default function LearnPageClient({ paths }: { paths: SkillPath[] }) {
                         <div style={{ flex: 1 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.4rem', flexWrap: 'wrap' }}>
                             <span style={{ fontSize: '1.4rem' }}>{path.emoji}</span>
-                            <span style={{ fontFamily: "'Lora', serif", fontSize: '1rem', fontWeight: 700, color: '#f8fafc' }}>{path.title}</span>
+                            <span style={{ fontFamily: "'Lora', serif", fontSize: '1rem', fontWeight: 700, color: 'white' }}>{path.title}</span>
                             <span style={{ fontSize: '0.65rem', fontWeight: 700, color: demandColor[path.demand], background: demandBg[path.demand] ?? 'rgba(122,80,48,0.12)', padding: '0.15em 0.55em', borderRadius: '4px' }}>
                               {path.demand} Demand
                             </span>
@@ -309,7 +309,7 @@ export default function LearnPageClient({ paths }: { paths: SkillPath[] }) {
                               </span>
                             )}
                           </div>
-                          <p style={{ fontSize: '0.83rem', color: 'rgba(248,250,252,0.7)', lineHeight: 1.55, marginBottom: '0.85rem', maxWidth: '52ch' }}>
+                          <p style={{ fontSize: '0.83rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.55, marginBottom: '0.85rem', maxWidth: '52ch' }}>
                             {path.description}
                           </p>
                           <div style={{ display: 'flex', gap: '1.4rem', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -319,8 +319,8 @@ export default function LearnPageClient({ paths }: { paths: SkillPath[] }) {
                               { label: 'Skills',     val: `${totalSkills} total` },
                             ].map(stat => (
                               <div key={stat.label}>
-                                <div style={{ fontSize: '0.62rem', color: 'rgba(248,250,252,0.45)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{stat.label}</div>
-                                <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#f8fafc' }}>{stat.val}</div>
+                                <div style={{ fontSize: '0.62rem', color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{stat.label}</div>
+                                <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'white' }}>{stat.val}</div>
                               </div>
                             ))}
                             <PathProgress pathId={path.id} />
@@ -450,13 +450,13 @@ export default function LearnPageClient({ paths }: { paths: SkillPath[] }) {
               </svg>
             </motion.div>
             <div style={{ flex: 1, position: 'relative' }}>
-              <p style={{ fontSize: '0.7rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.3rem' }}>
+              <p style={{ fontSize: '0.7rem', fontWeight: 700, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.3rem' }}>
                 Video Learning
               </p>
-              <h3 style={{ fontFamily: "'Lora', serif", fontSize: '1.05rem', fontWeight: 700, color: '#f8fafc', marginBottom: '0.3rem' }}>
+              <h3 style={{ fontFamily: "'Lora', serif", fontSize: '1.05rem', fontWeight: 700, color: 'white', marginBottom: '0.3rem' }}>
                 Learn from YouTube
               </h3>
-              <p style={{ fontSize: '0.82rem', color: '#94a3b8', lineHeight: 1.55, marginBottom: '1.2rem' }}>
+              <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.6)', lineHeight: 1.55, marginBottom: '1.2rem' }}>
                 Paste any YouTube URL — Gemini builds your study guide + quiz.
               </p>
             </div>

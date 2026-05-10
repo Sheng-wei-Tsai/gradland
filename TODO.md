@@ -929,6 +929,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-10 (supplement 11)
+
+> Twelfth-pass scan — `app/learn/LearnPageClient.tsx` uses `color: '#f8fafc'` (Tailwind slate-50) for white text on dark gradient path cards at lines 302, 323, and 456 — the same near-white hex that was standardised to the `'white'` CSS keyword across admin, au-insights, login, and interview pages in prior sweeps. Lines 312, 322, 459 use `rgba(248,250,252,0.7/0.45)` and `#94a3b8` (slate-400) on the same intentionally-dark cards; the rgba values should be migrated to `rgba(255,255,255,...)` and the slate-400 text to `var(--text-muted)` for consistency.
+
+### Style (dark-mode breakage / standardisation)
+- [x] Replace `color: '#f8fafc'` with `'white'` at `app/learn/LearnPageClient.tsx:302,323,456`; replace `rgba(248,250,252,0.7)` → `rgba(255,255,255,0.7)` (line 312), `rgba(248,250,252,0.45)` → `rgba(255,255,255,0.45)` (line 322), and `color: '#94a3b8'` → `rgba(255,255,255,0.6)` (lines 453,459) — all text is on intentionally-dark gradient cards; normalising the slightly-off-white `#f8fafc`/`rgba(248,250,252,...)` to pure `'white'`/`rgba(255,255,255,...)` follows the exact pattern from 2026-05-07 sweeps [style] ✅ 2026-05-10
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
