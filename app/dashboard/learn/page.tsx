@@ -48,7 +48,8 @@ export default function DashboardLearnPage() {
         .from('user_active_paths')
         .select('path_id, enrolled_at')
         .eq('user_id', user!.id)
-        .order('enrolled_at', { ascending: false });
+        .order('enrolled_at', { ascending: false })
+        .limit(20);
 
       if (!active || active.length === 0) { setFetching(false); return; }
 
@@ -56,7 +57,8 @@ export default function DashboardLearnPage() {
       const { data: progress } = await supabase
         .from('skill_progress')
         .select('path_id, checked_topics, status')
-        .eq('user_id', user!.id);
+        .eq('user_id', user!.id)
+        .limit(100);
 
       const summaries: PathSummary[] = active.map(row => {
         const total   = totalTopicsForPath(row.path_id);

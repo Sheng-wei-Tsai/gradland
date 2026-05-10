@@ -999,6 +999,13 @@
 ### Style (hardcoded hex)
 - [x] Remove `accentHex` fields from `weekPalette` in `app/interview-prep/networking/NetworkingClient.tsx:59-62` and replace `accentColor: weekPalette[wi].accentHex` with `accentColor: weekPalette[wi].color` at line 133 — `accentColor` supports CSS custom properties so `var(--jade)`/`var(--vermilion)`/`var(--gold)` are valid and adapt to dark mode; the hardcoded hex values are light-mode token literals that stay bright against the dark `#0f0b1a` background [style] ✅ 2026-05-10
 
+## 🛡 Daily Analyst Findings — 2026-05-10 (supplement 19)
+
+> Supplement scan — `app/dashboard/learn/page.tsx` has two unbounded Supabase queries missed by supplements 15 and 17. Supplement 15 added `.limit()` to `LearnPageClient.tsx:101` `user_active_paths → .limit(20)`, and supplement 17 added `.limit(100)` to `PathTracker.tsx:105` and `PathProgress.tsx:30` `skill_progress` queries — but the dashboard learn page (a separate `'use client'` component) was not included in either sweep.
+
+### Code Quality (AGENTS §10.3 — query hygiene)
+- [x] Add `.limit()` to unbounded queries in `app/dashboard/learn/page.tsx` — `user_active_paths` at line 47 → `.limit(20)` (consistent with `LearnPageClient.tsx` supplement 15 cap; there are only 5 skill paths so this is a safe ceiling), `skill_progress` at line 56 → `.limit(100)` (consistent with `PathTracker.tsx` supplement 17 cap; each path has ≤50 skills so 100 is a generous ceiling) [quality] ✅ 2026-05-10
+
 ---
 
 ## 📊 Priority Rationale
