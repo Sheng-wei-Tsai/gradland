@@ -965,6 +965,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-10 (supplement 15)
+
+> Supplement scan — three client-side Supabase queries in `app/dashboard/page.tsx` and one in `app/learn/LearnPageClient.tsx` are missing `.limit()`, violating AGENTS.md §10.3 ("Always add `.limit(N)` — never run unbounded queries"). Supplement 13 and 14 fixed the `select('*')` violations on these same lines but left them unbounded. A user accumulating hundreds of saved jobs or applications would transfer all rows on every dashboard load.
+
+### Code Quality (AGENTS §10.3 — query hygiene)
+- [x] Add `.limit()` to unbounded client-side queries: `app/dashboard/page.tsx:75` `saved_jobs` → `.limit(200)`, `app/dashboard/page.tsx:76` `job_applications` → `.limit(200)`, `app/dashboard/page.tsx:77` `job_alerts` → `.limit(50)`, and `app/learn/LearnPageClient.tsx:101` `user_active_paths` → `.limit(20)` — all four are filtered by `user_id` but have no row cap; AGENTS §10.3 requires a limit on every query; 200/200/50/20 are generous practical ceilings (the UI renders all rows so an arbitrary cap avoids silent data truncation in normal use while bounding worst-case payload size) [quality] ✅ 2026-05-10
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

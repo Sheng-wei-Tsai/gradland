@@ -98,7 +98,7 @@ export default function LearnPageClient({ paths }: { paths: SkillPath[] }) {
   /* Load enrolled paths */
   useEffect(() => {
     if (user) {
-      supabase.from('user_active_paths').select('path_id').eq('user_id', user.id)
+      supabase.from('user_active_paths').select('path_id').eq('user_id', user.id).limit(20)
         .then(({ data }) => { if (data) setEnrolled(data.map(r => r.path_id)); });
     } else {
       setEnrolled(getEnrolledLocal());

@@ -72,9 +72,9 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!user) return;
     Promise.all([
-      supabase.from('saved_jobs').select('id,job_id,title,company,location,salary,url').eq('user_id', user.id).order('created_at', { ascending: false }),
-      supabase.from('job_applications').select('id,job_id,title,company,url,status,applied_at').eq('user_id', user.id).order('applied_at', { ascending: false }),
-      supabase.from('job_alerts').select('id,keywords,location,full_time,frequency,created_at').eq('user_id', user.id).order('created_at', { ascending: false }),
+      supabase.from('saved_jobs').select('id,job_id,title,company,location,salary,url').eq('user_id', user.id).order('created_at', { ascending: false }).limit(200),
+      supabase.from('job_applications').select('id,job_id,title,company,url,status,applied_at').eq('user_id', user.id).order('applied_at', { ascending: false }).limit(200),
+      supabase.from('job_alerts').select('id,keywords,location,full_time,frequency,created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(50),
       supabase.from('profiles').select('onboarding_role, onboarding_completed').eq('id', user.id).maybeSingle(),
       supabase.from('resume_analyses').select('id').eq('user_id', user.id).limit(1).maybeSingle(),
       supabase.from('skill_progress').select('id').eq('user_id', user.id).limit(1).maybeSingle(),
