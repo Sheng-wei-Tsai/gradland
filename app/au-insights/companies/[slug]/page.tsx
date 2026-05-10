@@ -46,12 +46,12 @@ export default async function CompanyPage({ params }: { params: Promise<{ slug: 
   const company = COMPANIES.find(c => c.slug === slug);
   if (!company) notFound();
 
-  const tierColor = company.tier === 'SSS' ? 'var(--gold)'
-    : company.tier === 'S' ? 'var(--amber)'
-    : company.tier === 'A+' ? 'var(--terracotta)'
-    : company.tier === 'A' ? 'var(--brown-mid)'
-    : company.tier === 'B+' ? 'var(--brown-light)'
-    : 'var(--text-muted)';
+  const tierPalette = company.tier === 'SSS' ? { color: 'var(--gold)',        bg: 'rgba(200,138,20,0.08)', border: 'rgba(200,138,20,0.25)' }
+    : company.tier === 'S'  ? { color: 'var(--amber)',       bg: 'rgba(200,138,20,0.08)', border: 'rgba(200,138,20,0.25)' }
+    : company.tier === 'A+' ? { color: 'var(--terracotta)',  bg: 'rgba(192,40,28,0.08)',  border: 'rgba(192,40,28,0.25)' }
+    : company.tier === 'A'  ? { color: 'var(--brown-mid)',   bg: 'rgba(61,28,14,0.08)',   border: 'rgba(61,28,14,0.25)' }
+    : company.tier === 'B+' ? { color: 'var(--brown-light)', bg: 'rgba(122,80,48,0.08)', border: 'rgba(122,80,48,0.25)' }
+    : { color: 'var(--text-muted)', bg: 'rgba(122,80,48,0.08)', border: 'rgba(122,80,48,0.25)' };
 
   return (
     <div style={{ maxWidth: '720px', margin: '0 auto', padding: '0 1.5rem', paddingBottom: '5rem' }}>
@@ -73,8 +73,8 @@ export default async function CompanyPage({ params }: { params: Promise<{ slug: 
           <div>
             <span style={{
               display: 'inline-block', fontSize: '0.72rem', fontWeight: 700,
-              color: tierColor, background: `${tierColor}15`,
-              border: `1px solid ${tierColor}40`,
+              color: tierPalette.color, background: tierPalette.bg,
+              border: `1px solid ${tierPalette.border}`,
               padding: '0.15rem 0.7rem', borderRadius: '99px',
               marginBottom: '0.6rem',
             }}>
@@ -281,17 +281,17 @@ export default async function CompanyPage({ params }: { params: Promise<{ slug: 
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
             {company.interviewQuestions!.map((q, i) => {
-              const roundColor: Record<string, { bg: string; text: string }> = {
-                'Online Assessment': { bg: 'var(--warm-white)',               text: 'var(--text-muted)' },
-                'Phone Screen':      { bg: 'rgba(200,138,20,0.06)',            text: 'var(--brown-mid)' },
-                'Technical':         { bg: 'rgba(200,138,20,0.06)',            text: 'var(--brown-mid)' },
-                'System Design':     { bg: 'rgba(61,28,14,0.06)',              text: 'var(--brown-mid)' },
-                'Values/Culture':    { bg: 'rgba(30,122,82,0.06)',             text: 'var(--jade)' },
-                'Manager':           { bg: 'rgba(200,138,20,0.08)',            text: 'var(--brown-mid)' },
-                'Initial Interview': { bg: 'rgba(200,138,20,0.08)',            text: 'var(--brown-mid)' },
-                'Final':             { bg: 'rgba(192,40,28,0.06)',             text: 'var(--terracotta)' },
+              const roundColor: Record<string, { bg: string; text: string; border: string }> = {
+                'Online Assessment': { bg: 'var(--warm-white)',               text: 'var(--text-muted)',  border: 'rgba(122,80,48,0.19)' },
+                'Phone Screen':      { bg: 'rgba(200,138,20,0.06)',            text: 'var(--brown-mid)',   border: 'rgba(61,28,14,0.19)' },
+                'Technical':         { bg: 'rgba(200,138,20,0.06)',            text: 'var(--brown-mid)',   border: 'rgba(61,28,14,0.19)' },
+                'System Design':     { bg: 'rgba(61,28,14,0.06)',              text: 'var(--brown-mid)',   border: 'rgba(61,28,14,0.19)' },
+                'Values/Culture':    { bg: 'rgba(30,122,82,0.06)',             text: 'var(--jade)',        border: 'rgba(30,122,82,0.19)' },
+                'Manager':           { bg: 'rgba(200,138,20,0.08)',            text: 'var(--brown-mid)',   border: 'rgba(61,28,14,0.19)' },
+                'Initial Interview': { bg: 'rgba(200,138,20,0.08)',            text: 'var(--brown-mid)',   border: 'rgba(61,28,14,0.19)' },
+                'Final':             { bg: 'rgba(192,40,28,0.06)',             text: 'var(--terracotta)',  border: 'rgba(192,40,28,0.19)' },
               };
-              const rc = roundColor[q.round] ?? { bg: 'var(--warm-white)', text: 'var(--text-muted)' };
+              const rc = roundColor[q.round] ?? { bg: 'var(--warm-white)', text: 'var(--text-muted)', border: 'rgba(122,80,48,0.19)' };
               return (
                 <div key={i} style={{
                   background: 'var(--warm-white)', border: '1px solid var(--parchment)',
@@ -302,7 +302,7 @@ export default async function CompanyPage({ params }: { params: Promise<{ slug: 
                     <span style={{
                       fontSize: '0.65rem', fontWeight: 700, padding: '0.15rem 0.55rem',
                       borderRadius: '99px', background: rc.bg, color: rc.text,
-                      border: `1px solid ${rc.text}30`,
+                      border: `1px solid ${rc.border}`,
                     }}>
                       {q.round}
                     </span>

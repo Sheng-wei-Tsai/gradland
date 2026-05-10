@@ -73,6 +73,11 @@ const WHO_COLORS: Record<string, string> = {
   Employer: 'var(--jade)',
   DHA:      'var(--gold)',
 };
+const WHO_BG: Record<string, string> = {
+  You:      'rgba(192,40,28,0.09)',
+  Employer: 'rgba(30,122,82,0.09)',
+  DHA:      'rgba(200,138,20,0.09)',
+};
 
 // ── Step state types ──────────────────────────────────────────────────────────
 type StepStatus = 'not_started' | 'in_progress' | 'completed';
@@ -316,7 +321,7 @@ export default function VisaTrackerPage() {
                     </span>
                     <span style={{
                       fontSize: '0.7rem', fontWeight: 700, padding: '0.15em 0.55em', borderRadius: '5px',
-                      background: `${WHO_COLORS[step.who]}18`, color: WHO_COLORS[step.who],
+                      background: WHO_BG[step.who] ?? 'rgba(122,80,48,0.09)', color: WHO_COLORS[step.who],
                     }}>
                       {step.who}
                     </span>

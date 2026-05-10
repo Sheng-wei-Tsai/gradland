@@ -219,12 +219,12 @@ export function ResearchClient({ company }: { company: CompanyData }) {
     }
   }
 
-  const tierColor = company.tier === 'SSS' ? 'var(--gold)'
-    : company.tier === 'S' ? 'var(--amber)'
-    : company.tier === 'A+' ? 'var(--terracotta)'
-    : company.tier === 'A' ? 'var(--brown-mid)'
-    : company.tier === 'B+' ? 'var(--brown-light)'
-    : 'var(--text-muted)';
+  const tierPalette = company.tier === 'SSS' ? { color: 'var(--gold)',        bg: 'rgba(200,138,20,0.12)', border: 'rgba(200,138,20,0.25)' }
+    : company.tier === 'S'  ? { color: 'var(--amber)',       bg: 'rgba(200,138,20,0.12)', border: 'rgba(200,138,20,0.25)' }
+    : company.tier === 'A+' ? { color: 'var(--terracotta)',  bg: 'rgba(192,40,28,0.12)',  border: 'rgba(192,40,28,0.25)' }
+    : company.tier === 'A'  ? { color: 'var(--brown-mid)',   bg: 'rgba(61,28,14,0.12)',   border: 'rgba(61,28,14,0.25)' }
+    : company.tier === 'B+' ? { color: 'var(--brown-light)', bg: 'rgba(122,80,48,0.12)', border: 'rgba(122,80,48,0.25)' }
+    : { color: 'var(--text-muted)', bg: 'rgba(122,80,48,0.12)', border: 'rgba(122,80,48,0.25)' };
 
   return (
     <div style={{ maxWidth: '720px', margin: '0 auto', padding: '0 1.5rem', paddingBottom: '5rem' }}>
@@ -245,8 +245,8 @@ export function ResearchClient({ company }: { company: CompanyData }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
           <span style={{
             display: 'inline-block', fontSize: '0.72rem', fontWeight: 700,
-            color: tierColor, background: `${tierColor}20`,
-            border: `1px solid ${tierColor}40`,
+            color: tierPalette.color, background: tierPalette.bg,
+            border: `1px solid ${tierPalette.border}`,
             padding: '0.15rem 0.7rem', borderRadius: '99px',
           }}>
             {company.tierLabel}

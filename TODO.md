@@ -920,6 +920,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-10 (supplement 10)
+
+> Supplement scan — `tierColor` CSS-var alpha-append in two company-profile files and `WHO_COLORS` alpha-append in visa-tracker missed by all prior supplement sweeps. The earlier supplement 5 sweep (`companies/[slug]/page.tsx`) fixed async params but left `tierColor = 'var(--gold)'` with `\`${tierColor}15\``/`\`${tierColor}40\`` template literals (invalid CSS). `ResearchClient.tsx` has the same `tierColor` pattern. `visa-tracker/page.tsx:319` has `\`${WHO_COLORS[step.who]}18\`` — `WHO_COLORS` was fixed from raw hex to CSS vars in supplement 7 but the alpha-append was not updated. Also `roundColor[...].text` is a CSS var and `\`1px solid ${rc.text}30\`` at `page.tsx:305` is invalid.
+
+### Style / Code Quality
+- [x] Fix broken template-literal alpha-append in `app/au-insights/companies/[slug]/page.tsx:76-77,305` and `app/companies/[slug]/research/ResearchClient.tsx:248-249` — replace `tierColor` string with `tierPalette` object `{color, bg, border}` using explicit rgba pairs; fix `roundColor` type to include `border: string` field and replace `\`1px solid ${rc.text}30\`` with `rc.border`; in `app/dashboard/visa-tracker/page.tsx:319` add `WHO_BG` map and replace `\`${WHO_COLORS[step.who]}18\`` with `WHO_BG` lookup [style] [quality] ✅ 2026-05-10
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
