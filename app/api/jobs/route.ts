@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createSupabaseServer } from '@/lib/auth-server';
 import { sourceLabel, makeSingleSource, formatAttribution, type SourceRef } from '@/lib/jobs-sources';
 
 const APP_ID          = process.env.ADZUNA_APP_ID;
@@ -373,14 +373,12 @@ const CITY_STATE: Record<string, string> = {
 };
 
 async function fetchScrapedJobs(location: string): Promise<AdzunaJob[]> {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey     = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!supabaseUrl || !anonKey) {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     console.warn('[jobs] Scraped: Supabase env vars not set — skipping');
     return [];
   }
   try {
-    const sb    = createClient(supabaseUrl, anonKey);
+    const sb    = await createSupabaseServer();
     const loc   = location.slice(0, 40);
     const state = CITY_STATE[loc.toLowerCase()];
 

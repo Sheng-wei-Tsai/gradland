@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
-// ── Supabase mock (for fetchScrapedJobs) ──────────────────────────────────────
+// ── Supabase mock (for fetchScrapedJobs via createSupabaseServer) ────────────
 // Chain: from().select().or().gt().gte().not().order().limit()
 const mockLimit  = vi.fn().mockResolvedValue({ data: [], error: null });
 const mockOrder  = vi.fn().mockReturnValue({ limit: mockLimit });
@@ -12,8 +12,8 @@ const mockOr     = vi.fn().mockReturnValue({ gt: mockGt });
 const mockSelect = vi.fn().mockReturnValue({ or: mockOr });
 const mockFrom   = vi.fn().mockReturnValue({ select: mockSelect });
 
-vi.mock('@supabase/supabase-js', () => ({
-  createClient: vi.fn().mockReturnValue({ from: mockFrom }),
+vi.mock('@/lib/auth-server', () => ({
+  createSupabaseServer: vi.fn().mockResolvedValue({ from: mockFrom }),
 }));
 
 // RAPIDAPI_KEY / SCRAPERAPI_KEY / ADZUNA_APP_ID / ADZUNA_APP_KEY are NOT set in

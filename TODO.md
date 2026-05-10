@@ -831,6 +831,9 @@
 - [x] Replace `background: '#C0281C'` with `var(--vermilion)` on the GRAB button in `components/BoulderingGame.tsx:319` — hardcoded light-mode vermilion literal breaks dark-mode rendering; every other CTA in the codebase uses `var(--vermilion)` [style] ✅ 2026-05-10
 - [x] Replace hardcoded Tailwind gray hex in `app/resume/page.tsx` body — card background `'white'` (line 187) → `var(--warm-white)`, and body text colours `#111827`/`#374151`/`#4b5563`/`#6b7280`/`#9ca3af` (lines 248, 261, 282, 288, 290, 295, 315, 318, 321, 323) → design tokens (`var(--ink)`, `var(--text-primary)`, `var(--text-secondary)`, `var(--text-muted)`) so the resume card adapts to dark mode; section headings, tag pills, and the JobMatchWidget already use tokens correctly [style] ✅ 2026-05-10
 
+### Code Quality (AGENTS §5.2 — Supabase client discipline)
+- [x] Replace raw `createClient` from `@supabase/supabase-js` with `createSupabaseServer()` from `lib/auth-server.ts` in `app/api/jobs/route.ts:2,383` (`fetchScrapedJobs`) — the function builds its own anon-key client instead of using the shared SSR helper; same violation pattern fixed across ten routes on 2026-05-06; update test mock in `__tests__/api/jobs.test.ts:15-17` from `vi.mock('@supabase/supabase-js')` to `vi.mock('@/lib/auth-server', { createSupabaseServer: vi.fn().mockResolvedValue(...) })` [quality] ✅ 2026-05-10
+
 ---
 
 ## 📊 Priority Rationale
