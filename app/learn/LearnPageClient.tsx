@@ -45,6 +45,9 @@ const STEPS = [
 const demandColor: Record<string, string> = {
   'Very High': 'var(--jade)', 'High': 'var(--gold)', 'Medium': 'var(--text-muted)',
 };
+const demandBg: Record<string, string> = {
+  'Very High': 'rgba(30,122,82,0.12)', 'High': 'rgba(200,138,20,0.12)', 'Medium': 'rgba(122,80,48,0.12)',
+};
 
 const PATH_ACCENTS: Record<string, { bg: string; border: string; accent: string }> = {
   'junior-frontend':  { bg: 'linear-gradient(135deg, #0c4a6e 0%, #075985 100%)', border: '#0ea5e9', accent: '#38bdf8' },
@@ -297,7 +300,7 @@ export default function LearnPageClient({ paths }: { paths: SkillPath[] }) {
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.4rem', flexWrap: 'wrap' }}>
                             <span style={{ fontSize: '1.4rem' }}>{path.emoji}</span>
                             <span style={{ fontFamily: "'Lora', serif", fontSize: '1rem', fontWeight: 700, color: '#f8fafc' }}>{path.title}</span>
-                            <span style={{ fontSize: '0.65rem', fontWeight: 700, color: demandColor[path.demand], background: `${demandColor[path.demand]}20`, padding: '0.15em 0.55em', borderRadius: '4px' }}>
+                            <span style={{ fontSize: '0.65rem', fontWeight: 700, color: demandColor[path.demand], background: demandBg[path.demand] ?? 'rgba(122,80,48,0.12)', padding: '0.15em 0.55em', borderRadius: '4px' }}>
                               {path.demand} Demand
                             </span>
                             {isEnrolled && (

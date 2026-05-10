@@ -911,6 +911,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-10 (supplement 9)
+
+> Supplement scan — `demandColor` template-literal alpha-append in `app/learn/LearnPageClient.tsx:300` produces invalid CSS after a previous sweep replaced hex values with CSS variables. `${demandColor[path.demand]}20` now renders as `var(--jade)20` (invalid) — same class of bug fixed in `InterviewPrepClient.tsx` (supplement 8) and `NetworkingClient.tsx` (supplement 3).
+
+### Code Quality / Style
+- [x] Fix broken template-literal alpha-append at `app/learn/LearnPageClient.tsx:300` — `\`${demandColor[path.demand]}20\`` produces invalid CSS (`var(--jade)20`) since `demandColor` uses CSS vars; add parallel `demandBg` map using design-system rgba pairs (`rgba(30,122,82,0.12)` for jade/Very High, `rgba(200,138,20,0.12)` for gold/High, `rgba(122,80,48,0.12)` for text-muted/Medium) and replace the broken template literal with map lookup; `acc.border`/`acc.accent` at lines 290/294/304 are hex from PATH_ACCENTS and remain valid [quality] [style] ✅ 2026-05-10
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
