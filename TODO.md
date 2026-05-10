@@ -848,6 +848,13 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-10 (supplement 2)
+
+### Style (dark-mode breakage)
+- [x] Replace `BANDS` hardcoded Tailwind hex (`#10b981`/`#22c55e`/`#f59e0b`/`#f97316`/`#ef4444`) with design tokens (`var(--jade)`/`var(--jade)`/`var(--gold)`/`var(--gold)`/`var(--vermilion)`) in `app/api/readiness-score/route.ts:9-13` — the `bandColor` field is returned in the API response and used in `ReadinessScore.tsx` as SVG `stroke` attribute and CSS `color`/`background` inline styles; hardcoded Tailwind hex renders incorrectly in dark mode (jade-500 `#10b981` is dimmer than `var(--jade)` which resolves to `#3ec880` in dark mode); CSS custom properties are valid in both SVG presentation attributes and CSS inline styles [style] ✅ 2026-05-10
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

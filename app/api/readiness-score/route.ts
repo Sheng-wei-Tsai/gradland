@@ -6,11 +6,11 @@ const sb = createSupabaseService();
 
 // Score bands
 const BANDS = [
-  { min: 85, label: 'Job Ready',           color: '#10b981' },
-  { min: 70, label: 'Strong Candidate',    color: '#22c55e' },
-  { min: 55, label: 'Getting There',       color: '#f59e0b' },
-  { min: 40, label: 'Building Foundation', color: '#f97316' },
-  { min:  0, label: 'Early Stage',         color: '#ef4444' },
+  { min: 85, label: 'Job Ready',           color: 'var(--jade)' },
+  { min: 70, label: 'Strong Candidate',    color: 'var(--jade)' },
+  { min: 55, label: 'Getting There',       color: 'var(--gold)' },
+  { min: 40, label: 'Building Foundation', color: 'var(--gold)' },
+  { min:  0, label: 'Early Stage',         color: 'var(--vermilion)' },
 ];
 
 function getBand(score: number) {
