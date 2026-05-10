@@ -836,6 +836,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-10 (supplement 1)
+
+> Supplement scan — `GRAD_BY_FIELD` chart-bar colours in `app/au-insights/data/job-market.ts` missed by the 2026-05-07 supplement 11 sweep of `JobMarketCharts.tsx`. That sweep fixed D3 axis/annotation colours and the STATUS_COLOR map but left the data array's `color` field untouched. The `#374151` (Education, dark charcoal) and `#6b7280` (Science, gray) bars are near-invisible on the dark `#07050f` background; the others are off-token Tailwind hex.
+
+### Style (dark-mode breakage)
+- [x] Replace hardcoded Tailwind hex in `GRAD_BY_FIELD` color fields at `app/au-insights/data/job-market.ts:137-143` — `#dc2626`→`var(--vermilion)`, `#0369a1`→`var(--jade)`, `#10b981`→`var(--gold)`, `#d97706`→`rgba(30,122,82,0.55)`, `#7c3aed`→`rgba(200,138,20,0.65)`, `#6b7280`→`rgba(192,40,28,0.55)`, `#374151`→`var(--text-muted)`; D3 already reads these as SVG fill attributes (verified: `JobMarketCharts.tsx:409` calls `.attr('fill', d => d.color)` and the same chart already uses `var(--parchment)`/`var(--text-muted)` in axis calls at lines 396-414); follows the exact pattern established in `SponsorshipCharts.tsx:27-43` for INDUSTRIES/ICT_ROLES color arrays [style] ✅ 2026-05-10
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

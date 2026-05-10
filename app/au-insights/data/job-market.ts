@@ -134,13 +134,13 @@ export const GRAD_BY_UNI: { uni: string; rate: number; salary: number }[] = [
 ];
 
 export const GRAD_BY_FIELD: { field: string; rate: number; salary: number; color: string }[] = [
-  { field: 'Computing & IT',      rate: 74.2, salary: 73000, color: '#dc2626' },
-  { field: 'Engineering',         rate: 78.1, salary: 76000, color: '#0369a1' },
-  { field: 'Health',              rate: 88.4, salary: 68000, color: '#10b981' },
-  { field: 'Business',            rate: 70.3, salary: 65000, color: '#d97706' },
-  { field: 'Law',                 rate: 72.1, salary: 72000, color: '#7c3aed' },
-  { field: 'Science',             rate: 62.8, salary: 62000, color: '#6b7280' },
-  { field: 'Education',           rate: 80.5, salary: 60000, color: '#374151' },
+  { field: 'Computing & IT',      rate: 74.2, salary: 73000, color: 'var(--vermilion)' },
+  { field: 'Engineering',         rate: 78.1, salary: 76000, color: 'var(--jade)' },
+  { field: 'Health',              rate: 88.4, salary: 68000, color: 'var(--gold)' },
+  { field: 'Business',            rate: 70.3, salary: 65000, color: 'rgba(30,122,82,0.55)' },
+  { field: 'Law',                 rate: 72.1, salary: 72000, color: 'rgba(200,138,20,0.65)' },
+  { field: 'Science',             rate: 62.8, salary: 62000, color: 'rgba(192,40,28,0.55)' },
+  { field: 'Education',           rate: 80.5, salary: 60000, color: 'var(--text-muted)' },
 ];
 
 // ── JSA Occupation Shortage List 2024 — ICT occupations ──────────────────────
