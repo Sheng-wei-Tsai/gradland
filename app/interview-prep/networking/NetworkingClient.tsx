@@ -56,10 +56,10 @@ const WEEKS: Array<{
 ];
 
 const weekPalette = [
-  { color: 'var(--jade)',      bg: 'rgba(30,122,82,0.12)',  accentHex: '#1e7a52' },
-  { color: 'var(--vermilion)', bg: 'rgba(192,40,28,0.12)',  accentHex: '#c0281c' },
-  { color: 'var(--gold)',      bg: 'rgba(200,138,20,0.12)', accentHex: '#c88a14' },
-  { color: 'var(--jade)',      bg: 'rgba(30,122,82,0.12)',  accentHex: '#1e7a52' },
+  { color: 'var(--jade)',      bg: 'rgba(30,122,82,0.12)'  },
+  { color: 'var(--vermilion)', bg: 'rgba(192,40,28,0.12)'  },
+  { color: 'var(--gold)',      bg: 'rgba(200,138,20,0.12)' },
+  { color: 'var(--jade)',      bg: 'rgba(30,122,82,0.12)'  },
 ];
 
 export default function NetworkingClient() {
@@ -130,7 +130,7 @@ export default function NetworkingClient() {
                         type="checkbox"
                         checked={checked.has(task.id)}
                         onChange={() => toggle(task.id)}
-                        style={{ marginTop: '0.15rem', accentColor: weekPalette[wi].accentHex, flexShrink: 0, width: '15px', height: '15px' }}
+                        style={{ marginTop: '0.15rem', accentColor: weekPalette[wi].color, flexShrink: 0, width: '15px', height: '15px' }}
                       />
                       <span style={{ fontSize: '0.85rem', color: checked.has(task.id) ? 'var(--text-muted)' : 'var(--text-secondary)', lineHeight: 1.5, textDecoration: checked.has(task.id) ? 'line-through' : 'none' }}>
                         {task.text}

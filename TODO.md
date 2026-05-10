@@ -992,6 +992,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-10 (supplement 18)
+
+> Supplement scan — `weekPalette` in `app/interview-prep/networking/NetworkingClient.tsx:59-62` includes `accentHex` fields with hardcoded light-mode hex values (`#1e7a52`, `#c0281c`, `#c88a14`) used for the checkbox `accentColor` CSS property at line 133. The supplement 3 sweep replaced `weekColors` with `weekPalette` using design tokens but introduced `accentHex` as a workaround, not realising `accentColor` supports CSS custom properties (`var()`) directly.
+
+### Style (hardcoded hex)
+- [x] Remove `accentHex` fields from `weekPalette` in `app/interview-prep/networking/NetworkingClient.tsx:59-62` and replace `accentColor: weekPalette[wi].accentHex` with `accentColor: weekPalette[wi].color` at line 133 — `accentColor` supports CSS custom properties so `var(--jade)`/`var(--vermilion)`/`var(--gold)` are valid and adapt to dark mode; the hardcoded hex values are light-mode token literals that stay bright against the dark `#0f0b1a` background [style] ✅ 2026-05-10
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
