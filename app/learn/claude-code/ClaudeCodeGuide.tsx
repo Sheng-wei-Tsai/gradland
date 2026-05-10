@@ -2069,7 +2069,7 @@ function CopyButton({ text }: { text: string }) {
       position: 'absolute', top: '0.6rem', right: '0.6rem',
       padding: '0.25rem 0.65rem', borderRadius: '5px', fontSize: '0.72rem',
       fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
-      background: copied ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.1)',
+      background: copied ? 'rgba(30,122,82,0.15)' : 'rgba(255,255,255,0.1)',
       color: copied ? 'var(--jade)' : 'rgba(255,255,255,0.7)',
       transition: 'all 0.2s ease',
     }}>
@@ -2350,7 +2350,7 @@ export default function ClaudeCodeGuide() {
                   </div>
 
                   {/* Tip */}
-                  <div style={{ background: 'rgba(245,158,11,0.07)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: '8px', padding: '0.75rem 1rem', marginBottom: '1rem' }}>
+                  <div style={{ background: 'rgba(200,138,20,0.07)', border: '1px solid rgba(200,138,20,0.25)', borderRadius: '8px', padding: '0.75rem 1rem', marginBottom: '1rem' }}>
                     <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--gold)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.35rem' }}>
                       💡 Pro tip
                     </div>

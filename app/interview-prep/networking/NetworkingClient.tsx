@@ -55,7 +55,12 @@ const WEEKS: Array<{
   },
 ];
 
-const weekColors = ['#14b8a6', '#818cf8', '#f59e0b', '#10b981'];
+const weekPalette = [
+  { color: 'var(--jade)',      bg: 'rgba(30,122,82,0.12)',  accentHex: '#1e7a52' },
+  { color: 'var(--vermilion)', bg: 'rgba(192,40,28,0.12)',  accentHex: '#c0281c' },
+  { color: 'var(--gold)',      bg: 'rgba(200,138,20,0.12)', accentHex: '#c88a14' },
+  { color: 'var(--jade)',      bg: 'rgba(30,122,82,0.12)',  accentHex: '#1e7a52' },
+];
 
 export default function NetworkingClient() {
   const [checked, setChecked] = useState<Set<string>>(new Set());
@@ -110,7 +115,7 @@ export default function NetworkingClient() {
             return (
               <div key={week.week}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.65rem' }}>
-                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: `${weekColors[wi]}20`, border: `2px solid ${weekColors[wi]}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.72rem', fontWeight: 700, color: weekColors[wi], flexShrink: 0 }}>
+                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: weekPalette[wi].bg, border: `2px solid ${weekPalette[wi].color}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.72rem', fontWeight: 700, color: weekPalette[wi].color, flexShrink: 0 }}>
                     {week.week}
                   </div>
                   <div>
@@ -125,7 +130,7 @@ export default function NetworkingClient() {
                         type="checkbox"
                         checked={checked.has(task.id)}
                         onChange={() => toggle(task.id)}
-                        style={{ marginTop: '0.15rem', accentColor: weekColors[wi], flexShrink: 0, width: '15px', height: '15px' }}
+                        style={{ marginTop: '0.15rem', accentColor: weekPalette[wi].accentHex, flexShrink: 0, width: '15px', height: '15px' }}
                       />
                       <span style={{ fontSize: '0.85rem', color: checked.has(task.id) ? 'var(--text-muted)' : 'var(--text-secondary)', lineHeight: 1.5, textDecoration: checked.has(task.id) ? 'line-through' : 'none' }}>
                         {task.text}

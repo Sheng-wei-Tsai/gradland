@@ -855,6 +855,17 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-10 (supplement 3)
+
+> Supplement scan — non-design-system rgba values and `accent` hex missed by supplement 3 (ClaudeCodeGuide) and supplement 13 (InterviewPrepClient/NetworkingClient). The earlier sweeps fixed named hex values but left rgba equivalents using the same Tailwind rgb tuples, plus the TRACKS `accent` and `dotColor` fields.
+
+### Style (dark-mode breakage)
+- [x] Replace non-design-system rgba values in `app/learn/claude-code/ClaudeCodeGuide.tsx:2072,2353` — CopyButton copied-state background uses `rgba(16,185,129,0.15)` (jade-500 rgb) → `rgba(30,122,82,0.15)` (jade token rgb); "Pro tip" box background/border uses `rgba(245,158,11,0.07)`/`rgba(245,158,11,0.25)` (amber-400 rgb) → `rgba(200,138,20,0.07)`/`rgba(200,138,20,0.25)` (gold token rgb); supplement 3 fixed `#10b981` and `#d97706` text colors but missed the rgba bg/border companion values [style] ✅ 2026-05-10
+- [x] Replace TRACKS `accent`/`dotColor` hardcoded hex in `app/interview-prep/InterviewPrepClient.tsx:91,96,125-162,224-233,300,327,493,495` — `ProgressPill` uses `${accent}20` background template (breaks with CSS vars); refactor to `color`+`bg` props; update TRACKS objects: `#10b981`→`var(--jade)`/`rgba(30,122,82,...)`, `#f59e0b`→`var(--gold)`/`rgba(200,138,20,...)`, `#818cf8`→`var(--vermilion)`/`rgba(192,40,28,...)`, `#14b8a6`→`var(--jade)`/`rgba(30,122,82,...)`; also replace "Start here" gradient rgba at line 493,495; supplement 13 fixed `demandColor`/`difficultyColor` maps but missed TRACKS [style] ✅ 2026-05-10
+- [x] Replace `weekColors` array in `app/interview-prep/networking/NetworkingClient.tsx:58,113,128` — `['#14b8a6','#818cf8','#f59e0b','#10b981']` uses `${weekColors[wi]}20` alpha-append pattern; replace with `weekPalette` array of `{color, bg, accentHex}` objects using jade/vermilion/gold tokens; supplement 13 fixed success-box/progress-bar but missed the week badge colours [style] ✅ 2026-05-10
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

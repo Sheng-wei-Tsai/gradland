@@ -88,12 +88,12 @@ function CartoonArrow({ delay }: { delay: number }) {
 }
 
 // ── Progress pill ─────────────────────────────────────────────────────────────
-function ProgressPill({ value, label, accent }: { value: string | number; label: string; accent: string }) {
+function ProgressPill({ value, label, color, bg }: { value: string | number; label: string; color: string; bg: string }) {
   return (
     <span style={{
       display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
       fontSize: '0.7rem', fontWeight: 700,
-      color: accent, background: `${accent}20`,
+      color, background: bg,
       padding: '0.2em 0.6em', borderRadius: '99px',
     }}>
       {value} {label}
@@ -122,8 +122,9 @@ const TOOL_CARDS = [
     tagLine:     'AI-POWERED · CLAUDE',
     desc:        'AU recruiter prompt scores your resume — format, keywords, and the specifics Australian hiring managers actually look at.',
     bg:          'linear-gradient(135deg, #064e3b 0%, #065f46 100%)',
-    dotColor:    'rgba(16,185,129,0.22)',
-    accent:      '#10b981',
+    dotColor:    'rgba(30,122,82,0.22)',
+    accentColor: 'var(--jade)',
+    accentBg:    'rgba(30,122,82,0.12)',
     cta:         'Analyse my resume',
     progressKey: 'resume' as const,
   },
@@ -134,8 +135,9 @@ const TOOL_CARDS = [
     tagLine:     'GPT-4.1 · AU ENGLISH',
     desc:        'Paste the job description — GPT-4.1 writes a 4-paragraph cover letter in Australian English, tailored and ready to send.',
     bg:          'linear-gradient(135deg, #451a03 0%, #78350f 100%)',
-    dotColor:    'rgba(245,158,11,0.22)',
-    accent:      '#f59e0b',
+    dotColor:    'rgba(200,138,20,0.22)',
+    accentColor: 'var(--gold)',
+    accentBg:    'rgba(200,138,20,0.12)',
     cta:         'Generate cover letter',
     progressKey: 'coverLetter' as const,
   },
@@ -146,8 +148,9 @@ const TOOL_CARDS = [
     tagLine:     'GAMIFIED · ALEX MENTOR',
     desc:        'Practice 10 real AU tech questions per role. Mentor Alex streams scored feedback — plus a Reality Check stage international candidates need.',
     bg:          'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)',
-    dotColor:    'rgba(129,140,248,0.22)',
-    accent:      '#818cf8',
+    dotColor:    'rgba(192,40,28,0.22)',
+    accentColor: 'var(--vermilion)',
+    accentBg:    'rgba(192,40,28,0.12)',
     cta:         'Start practising',
     progressKey: 'interview' as const,
   },
@@ -158,8 +161,9 @@ const TOOL_CARDS = [
     tagLine:     'FREE · AU MARKET',
     desc:        'LinkedIn templates, GitHub checklist, AU tech meetup map for 4 cities, and a 30-day action plan — the #1 gap for international grads.',
     bg:          'linear-gradient(135deg, #042f2e 0%, #134e4a 100%)',
-    dotColor:    'rgba(20,184,166,0.22)',
-    accent:      '#14b8a6',
+    dotColor:    'rgba(30,122,82,0.22)',
+    accentColor: 'var(--jade)',
+    accentBg:    'rgba(30,122,82,0.12)',
     cta:         'Start networking',
     progressKey: 'networking' as const,
   },
@@ -221,16 +225,16 @@ export default function InterviewPrepClient() {
     switch (key) {
       case 'resume':
         return progress.resumeCount > 0
-          ? <ProgressPill value={progress.resumeCount} label="analyses" accent="#10b981" />
-          : <ProgressPill value="New" label="" accent="#10b981" />;
+          ? <ProgressPill value={progress.resumeCount} label="analyses" color="var(--jade)" bg="rgba(30,122,82,0.12)" />
+          : <ProgressPill value="New" label="" color="var(--jade)" bg="rgba(30,122,82,0.12)" />;
       case 'coverLetter':
         return progress.coverLetterCount > 0
-          ? <ProgressPill value={progress.coverLetterCount} label="generated" accent="#f59e0b" />
-          : <ProgressPill value="New" label="" accent="#f59e0b" />;
+          ? <ProgressPill value={progress.coverLetterCount} label="generated" color="var(--gold)" bg="rgba(200,138,20,0.12)" />
+          : <ProgressPill value="New" label="" color="var(--gold)" bg="rgba(200,138,20,0.12)" />;
       case 'interview':
-        return <ProgressPill value={`Lv ${progress.interviewLevel}`} label={`· ${progress.interviewXp} XP`} accent="#818cf8" />;
+        return <ProgressPill value={`Lv ${progress.interviewLevel}`} label={`· ${progress.interviewXp} XP`} color="var(--vermilion)" bg="rgba(192,40,28,0.12)" />;
       case 'networking':
-        return <ProgressPill value={`${progress.networkingPct}%`} label="done" accent="#14b8a6" />;
+        return <ProgressPill value={`${progress.networkingPct}%`} label="done" color="var(--jade)" bg="rgba(30,122,82,0.12)" />;
     }
   }
 
@@ -297,7 +301,7 @@ export default function InterviewPrepClient() {
                   <p style={{
                     fontFamily: 'Impact, "Arial Narrow Bold", sans-serif',
                     fontSize: '0.65rem', fontWeight: 400, letterSpacing: '0.12em',
-                    color: tool.accent, marginBottom: '0.4rem',
+                    color: tool.accentColor, marginBottom: '0.4rem',
                     textTransform: 'uppercase',
                   }}>
                     {tool.tagLine}
@@ -324,7 +328,7 @@ export default function InterviewPrepClient() {
                     {/* CTA — yellow comic button style */}
                     <span style={{
                       display: 'inline-block',
-                      background: tool.accent,
+                      background: tool.accentColor,
                       color: '#0f172a',
                       padding: '0.42rem 1.1rem',
                       borderRadius: '99px',
@@ -490,9 +494,9 @@ export default function InterviewPrepClient() {
                         whileTap={prefersReduced ? {} : { scale: 0.99 }}
                         style={{
                           background: role.badge
-                            ? 'linear-gradient(135deg, rgba(20,184,166,0.08) 0%, var(--warm-white) 60%)'
+                            ? 'linear-gradient(135deg, rgba(30,122,82,0.08) 0%, var(--warm-white) 60%)'
                             : 'var(--warm-white)',
-                          border: role.badge ? '1.5px solid rgba(20,184,166,0.4)' : '1px solid var(--parchment)',
+                          border: role.badge ? '1.5px solid rgba(30,122,82,0.4)' : '1px solid var(--parchment)',
                           borderRadius: '14px',
                           padding: '1.3rem 1.4rem',
                           cursor: 'pointer',
