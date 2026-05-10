@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
   const { data, error } = await sb
     .from('job_alerts')
     .insert({ user_id: user.id, keywords, location, full_time, frequency })
-    .select()
+    .select('id,keywords,location,full_time,frequency,created_at')
     .maybeSingle();
 
   if (error || !data) return NextResponse.json({ error: 'Failed to create alert' }, { status: 500 });

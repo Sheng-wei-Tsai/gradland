@@ -101,8 +101,8 @@ export default function DashboardPage() {
     const { data } = await supabase.from('job_applications').insert({
       user_id: user!.id, job_id: job.job_id,
       title: job.title, company: job.company, url: job.url, status: 'applied',
-    }).select().maybeSingle();
-    if (data) setApplications(prev => [data, ...prev]);
+    }).select('id,job_id,title,company,url,status,applied_at').maybeSingle();
+    if (data) setApplications(prev => [data as unknown as JobApplication, ...prev]);
   };
 
   const updateStatus = async (appId: string, status: JobApplication['status']) => {

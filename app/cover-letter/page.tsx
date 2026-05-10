@@ -104,7 +104,7 @@ function CoverLetterContent() {
           company,
           job_description: jobDescription,
           cover_letter:    full,
-        }).select().maybeSingle();
+        }).select('id,job_title,company,cover_letter,created_at').maybeSingle();
         if (data) {
           setHistory(prev => [data, ...prev].slice(0, 10));
           setSaved(true);

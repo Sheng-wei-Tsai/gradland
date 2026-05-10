@@ -974,6 +974,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-10 (supplement 16)
+
+> Supplement scan — three bare `.select()` calls (equivalent to `select('*')`) found in INSERT responses not covered by supplements 13–15. Supplement 13 fixed the GET query at `alerts/route.ts:11` but missed the POST INSERT response at line 38; supplements 14–15 fixed `dashboard/page.tsx` GET queries but missed the `addToTracker` INSERT response at line 104. `cover-letter/page.tsx:107` was not covered by any prior sweep.
+
+### Code Quality (AGENTS §10.3 — query hygiene)
+- [x] Replace bare `.select()` (equivalent to `select('*')`) with specific columns on INSERT responses: `app/api/alerts/route.ts:38` → `.select('id,keywords,location,full_time,frequency,created_at')` (matches `JobAlert` client type, excludes `user_id/active/last_run_at`); `app/cover-letter/page.tsx:107` → `.select('id,job_title,company,cover_letter,created_at')` (matches `CoverLetterHistoryItem` exactly, excludes `user_id/job_description`); `app/dashboard/page.tsx:104` → `.select('id,job_id,title,company,url,status,applied_at')` + cast `data as unknown as JobApplication` (matches columns returned by the GET query fixed in supplement 14, excludes `notes/updated_at/user_id` which are null/default on fresh insert and not rendered immediately) [quality] ✅ 2026-05-10
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
