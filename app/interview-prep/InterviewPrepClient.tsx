@@ -107,10 +107,20 @@ const demandColor: Record<string, string> = {
   'High':      'var(--gold)',
   'Medium':    'var(--text-muted)',
 };
+const demandBg: Record<string, string> = {
+  'Very High': 'rgba(30,122,82,0.08)',
+  'High':      'rgba(200,138,20,0.08)',
+  'Medium':    'rgba(122,80,48,0.08)',
+};
 const difficultyColor: Record<string, string> = {
   'Entry':  'var(--jade)',
   'Mid':    'var(--gold)',
   'Senior': 'var(--vermilion)',
+};
+const difficultyBg: Record<string, string> = {
+  'Entry':  'rgba(30,122,82,0.08)',
+  'Mid':    'rgba(200,138,20,0.08)',
+  'Senior': 'rgba(192,40,28,0.08)',
 };
 
 // ── Tool cards config ─────────────────────────────────────────────────────────
@@ -517,10 +527,10 @@ export default function InterviewPrepClient() {
                                   </span>
                                 ) : (
                                   <>
-                                    <span style={{ fontSize: '0.63rem', fontWeight: 700, color: difficultyColor[role.difficulty], background: `${difficultyColor[role.difficulty]}15`, padding: '0.13em 0.5em', borderRadius: '4px' }}>
+                                    <span style={{ fontSize: '0.63rem', fontWeight: 700, color: difficultyColor[role.difficulty], background: difficultyBg[role.difficulty], padding: '0.13em 0.5em', borderRadius: '4px' }}>
                                       {role.difficulty}
                                     </span>
-                                    <span style={{ fontSize: '0.63rem', fontWeight: 700, color: demandColor[role.demand], background: `${demandColor[role.demand]}15`, padding: '0.13em 0.5em', borderRadius: '4px' }}>
+                                    <span style={{ fontSize: '0.63rem', fontWeight: 700, color: demandColor[role.demand], background: demandBg[role.demand], padding: '0.13em 0.5em', borderRadius: '4px' }}>
                                       {role.demand} Demand
                                     </span>
                                   </>

@@ -902,6 +902,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-10 (supplement 8)
+
+> Supplement scan — `demandColor`/`difficultyColor` template-literal alpha-append in `app/interview-prep/InterviewPrepClient.tsx:520,523` produces invalid CSS after the supplement 13 fix replaced hex values with CSS variables. `${difficultyColor[role.difficulty]}15` now renders as `var(--jade)15` (invalid) instead of the intended hex-alpha. The supplement 3 sweep fixed the same class of bug for TRACKS/TOOL_CARDS `dotColor` but missed these two standalone color maps at lines 105–113.
+
+### Code Quality / Style
+- [x] Fix broken template-literal alpha-append at `app/interview-prep/InterviewPrepClient.tsx:520,523` — `\`${difficultyColor[role.difficulty]}15\`` and `\`${demandColor[role.demand]}15\`` produce invalid CSS (`var(--jade)15`) since supplement 13 replaced hex with CSS vars; add parallel `difficultyBg`/`demandBg` maps using design-system rgba pairs (`rgba(30,122,82,0.08)` for jade, `rgba(200,138,20,0.08)` for gold, `rgba(192,40,28,0.08)` for vermilion, `rgba(122,80,48,0.08)` for text-muted) and replace the broken template literals with map lookups [quality] [style] ✅ 2026-05-10
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
