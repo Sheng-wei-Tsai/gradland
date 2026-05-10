@@ -956,6 +956,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-10 (supplement 14)
+
+> Follow-up scan — supplement 13 fixed `job_alerts select('*')` at `app/dashboard/page.tsx:77` but missed the two adjacent queries on lines 75-76: `saved_jobs` and `job_applications` both still use `select('*')`. The dashboard renders only 7 of 12 `SavedJob` columns (`id,job_id,title,company,location,salary,url`) and 7 of 10 `JobApplication` columns (`id,job_id,title,company,url,status,applied_at`); the remaining columns (`description,category,contract_type,created_at` / `notes,updated_at,user_id`) are transferred over the wire on every dashboard load but never read.
+
+### Code Quality (AGENTS §10.3 — query hygiene)
+- [x] Replace `select('*')` with specific column selections in `app/dashboard/page.tsx:75` (`id,job_id,title,company,location,salary,url` — the seven fields rendered in the Saved Jobs tab and passed to `addToTracker`; excludes unused `description,category,contract_type,created_at,user_id`) and `app/dashboard/page.tsx:76` (`id,job_id,title,company,url,status,applied_at` — the seven fields rendered in the Applications tab and used for status filtering; excludes unused `notes,updated_at,user_id`) [quality] ✅ 2026-05-10
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

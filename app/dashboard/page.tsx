@@ -72,15 +72,15 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!user) return;
     Promise.all([
-      supabase.from('saved_jobs').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
-      supabase.from('job_applications').select('*').eq('user_id', user.id).order('applied_at', { ascending: false }),
+      supabase.from('saved_jobs').select('id,job_id,title,company,location,salary,url').eq('user_id', user.id).order('created_at', { ascending: false }),
+      supabase.from('job_applications').select('id,job_id,title,company,url,status,applied_at').eq('user_id', user.id).order('applied_at', { ascending: false }),
       supabase.from('job_alerts').select('id,keywords,location,full_time,frequency,created_at').eq('user_id', user.id).order('created_at', { ascending: false }),
       supabase.from('profiles').select('onboarding_role, onboarding_completed').eq('id', user.id).maybeSingle(),
       supabase.from('resume_analyses').select('id').eq('user_id', user.id).limit(1).maybeSingle(),
       supabase.from('skill_progress').select('id').eq('user_id', user.id).limit(1).maybeSingle(),
     ]).then(([saved, apps, alts, profile, resume, skills]) => {
-      setSavedJobs(saved.data ?? []);
-      setApplications(apps.data ?? []);
+      setSavedJobs((saved.data ?? []) as unknown as SavedJob[]);
+      setApplications((apps.data ?? []) as unknown as JobApplication[]);
       setAlerts(alts.data ?? []);
       setOnboardingRole(profile.data?.onboarding_role ?? null);
       setOnboardingDone(profile.data?.onboarding_completed ?? false);
