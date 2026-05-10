@@ -84,7 +84,7 @@
 - [x] B2 — Sentry: `@sentry/nextjs` installed; `sentry.{client,server,edge}.config.ts` + `instrumentation.ts` created; wired into `app/error.tsx` + `app/api/log-error/route.ts`; env vars in `.env.example` ✅ *2026-05-09*
 - [x] B3 — Account deletion: `supabase/030_soft_delete_profiles.sql`, `app/api/account/delete/route.ts` (cancels Stripe sub + deletes comments + soft-deletes profile), `app/dashboard/account/delete/page.tsx` (type DELETE to confirm), linked from profile settings + privacy page ✅ *2026-05-09*
 - [x] B4 — Sub-processor list: added Google/YouTube, Adzuna, RapidAPI/JSearch, ScraperAPI, Sentry to `app/privacy/page.tsx` ✅ *2026-05-09*
-- [ ] B5 — Apply migrations in prod: run `030_soft_delete_profiles.sql`; set `NEXT_PUBLIC_SENTRY_DSN` + `SENTRY_DSN` in Vercel env; smoke-test error capture
+- [x] B5 — Apply migrations in prod: run `030_soft_delete_profiles.sql`; set `NEXT_PUBLIC_SENTRY_DSN` + `SENTRY_DSN` in Vercel env; smoke-test error capture; added `release` + `environment` tags to all three Sentry configs (uses Vercel system env vars `VERCEL_GIT_COMMIT_SHA` / `VERCEL_ENV`) ✅ *2026-05-10*
 
 ### Production-Hardening Sprint — Phase A (Stripe + abuse + data exposure)
 **Why:** Audit (2026-05-09) found 5/8 Sprint 0 items unshipped. Phase A items directly block safe Stripe live activation.
