@@ -1026,6 +1026,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-10 (supplement 22)
+
+> Supplement scan — `__tests__/api/dashboard-summary.test.ts` has only 401 coverage (two identical tests both returning `user: null`). No test verifies the 200 happy-path shape, visa-step extraction logic, or application/interview counting. Same gap fixed yesterday for `readiness-score` (supplement 21). All other multi-path route test files include at least one 200-path test.
+
+### Tests
+- [x] Add Vitest tests for `GET /api/dashboard/summary` — 200 with full `DashboardSummary` shape for a zero-data user (all null / 0), 200 with in-progress visa step extracted from `steps` object (`{ step: 3, status: 'in_progress', startedAt }` shape), 200 with `applicationCount` and `interviewCount` counting from `job_applications` rows; restructure mock to extract `mockGetUser` + `mockFrom` refs at module scope so tests can override per-call (`__tests__/api/dashboard-summary.test.ts`) [tests] ✅ 2026-05-10
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
