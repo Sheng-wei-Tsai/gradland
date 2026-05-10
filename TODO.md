@@ -1035,6 +1035,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-10 (supplement 23)
+
+> Supplement scan — `__tests__/api/visa-tracker.test.ts` has only 401 coverage for GET (one test returning `user: null`). No test verifies the 200 happy-path: the default empty object returned when no tracker row exists, or the actual data returned when a row is found. Same gap fixed for `readiness-score` (supplement 21) and `dashboard-summary` (supplement 22). Additionally, the mock chain defines `single` but the GET route calls `.maybeSingle()` — a mismatch that would throw if the mock were exercised past the 401 guard.
+
+### Tests
+- [x] Add Vitest tests for `GET /api/visa-tracker` — 200 returns default `{ employer: '', occupation: '', started_at: null, steps: {} }` when no row exists (`.maybeSingle()` returns `null`), 200 returns actual row data when row exists; update mock chain to include `maybeSingle` alongside `single` (`__tests__/api/visa-tracker.test.ts`) [tests] ✅ 2026-05-10
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

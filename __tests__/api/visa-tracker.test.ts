@@ -1,15 +1,15 @@
 import { describe, it, expect, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 
-const mockGetUser = vi.fn().mockResolvedValue({ data: { user: null }, error: null });
-const mockSingle  = vi.fn().mockResolvedValue({ data: null });
-const mockUpsert  = vi.fn().mockResolvedValue({ error: null });
+const mockGetUser    = vi.fn().mockResolvedValue({ data: { user: null }, error: null });
+const mockMaybeSingle = vi.fn().mockResolvedValue({ data: null });
+const mockUpsert     = vi.fn().mockResolvedValue({ error: null });
 
 const chainable: Record<string, unknown> = {
-  select: vi.fn(),
-  eq:     vi.fn(),
-  single: mockSingle,
-  upsert: mockUpsert,
+  select:      vi.fn(),
+  eq:          vi.fn(),
+  maybeSingle: mockMaybeSingle,
+  upsert:      mockUpsert,
 };
 (chainable.select as ReturnType<typeof vi.fn>).mockReturnValue(chainable);
 (chainable.eq     as ReturnType<typeof vi.fn>).mockReturnValue(chainable);
@@ -37,6 +37,28 @@ describe('GET /api/visa-tracker', () => {
   it('returns 401 without auth', async () => {
     const res = await GET();
     expect(res.status).toBe(401);
+  });
+
+  it('returns 200 with default empty object when no tracker row exists', async () => {
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'u1' } }, error: null });
+    mockMaybeSingle.mockResolvedValueOnce({ data: null });
+    const res = await GET();
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body).toEqual({ employer: '', occupation: '', started_at: null, steps: {} });
+  });
+
+  it('returns 200 with tracker data when row exists', async () => {
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'u1' } }, error: null });
+    const row = { employer: 'Atlassian', occupation: 'Software Engineer', started_at: '2024-01-15', steps: { '1': { status: 'completed' } } };
+    mockMaybeSingle.mockResolvedValueOnce({ data: row });
+    const res = await GET();
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.employer).toBe('Atlassian');
+    expect(body.occupation).toBe('Software Engineer');
+    expect(body.started_at).toBe('2024-01-15');
+    expect(body.steps['1'].status).toBe('completed');
   });
 });
 
