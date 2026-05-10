@@ -1017,6 +1017,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-10 (supplement 21)
+
+> Supplement scan — `__tests__/api/readiness-score.test.ts` has only 401 coverage (two identical tests both returning `user: null`). No test verifies the 200 happy-path shape, so the BANDS CSS-var fix from 2026-05-10 supplement 2 (`bandColor: 'var(--jade)'` etc.) has zero regression protection. All other route test files include at least one 200-path test.
+
+### Tests
+- [x] Add Vitest tests for `GET /api/readiness-score` — 200 with `score=0`, `bandColor` matches `/^var\(--/` (verifies BANDS token fix from supplement 2), `components` object has all four keys (`resume`/`skills`/`interview`/`quiz`) each with numeric `score` and string `detail`, `boostAction` has `label`/`href`/`gain` fields; use `mockResolvedValueOnce` on `createSupabaseServer` to return a valid user while keeping the existing zero-data mock for all DB queries (`__tests__/api/readiness-score.test.ts`) [tests] ✅ 2026-05-10
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
