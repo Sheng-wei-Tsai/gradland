@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 import { SKILL_CATEGORIES, ROLE_REQUIREMENTS, ROLE_COMPANY_MAP } from './data/skill-requirements';
 
 function scoreRole(selectedSkills: Set<string>, role: (typeof ROLE_REQUIREMENTS)[0]) {
@@ -237,7 +238,7 @@ export default function SkillMap() {
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem' }}>
                 {companySlugs.map(slug => (
-                  <a
+                  <Link
                     key={slug}
                     href={`/au-insights/companies/${slug}`}
                     style={{
@@ -253,7 +254,7 @@ export default function SkillMap() {
                     }}
                   >
                     {slug}
-                  </a>
+                  </Link>
                 ))}
               </div>
             </div>

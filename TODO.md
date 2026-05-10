@@ -884,6 +884,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-10 (supplement 6)
+
+> Supplement scan — `app/au-insights/SkillMap.tsx:240` uses `<a href="/au-insights/companies/${slug}">` for an internal route, causing a full page reload instead of client-side navigation. Every other internal link in the au-insights section uses `<Link>` from `next/link` per AGENTS.md §8. This is the sole remaining `<a href>` internal-route violation after the 2026-05-02 sweep that fixed `Comments.tsx` and `GettingStartedChecklist.tsx`.
+
+### Code Quality (AGENTS §8 — internal navigation)
+- [x] Replace `<a href={...}>` with `<Link>` in `app/au-insights/SkillMap.tsx:240` — company slug chips under "Best companies for {role}" render as raw `<a>` tags pointing to `/au-insights/companies/${slug}`; add `import Link from 'next/link'` and swap `<a>` → `<Link>` (drop `transition` inline style, which works in CSS but is fine on Link too); matches pattern used in `app/au-insights/VisaNews.tsx:100-104` and `app/au-insights/companies/[slug]/page.tsx:122-129` [quality] ✅ 2026-05-10
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
