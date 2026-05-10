@@ -1008,6 +1008,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-10 (supplement 20)
+
+> Supplement scan — `app/learn/claude-lab/page.tsx` and `app/learn/claude-lab/ClaudeLabShell.tsx` use hardcoded dark-mode token literals instead of CSS custom properties. The terminal page intentionally uses a fixed dark background (`#07050f`/`#0f0b1a`) but the foreground colours (`#e84040`/`#f0b830`/`#3ec880`/`#c8b090`/`#786858`) are hardcoded dark-mode equivalents of design tokens rather than the tokens themselves. `#786858` is the old insufficient `--text-muted` dark value (3.5:1 contrast, flagged in AGENTS §7.2); the updated target is `#a09080` via `var(--text-muted)`. All other hex values also have CSS-var equivalents.
+
+### Style (dark-mode / design-token standardisation)
+- [x] Replace hardcoded dark-mode hex in `app/learn/claude-lab/page.tsx` and `app/learn/claude-lab/ClaudeLabShell.tsx` — traffic-light dots `#e84040`→`var(--vermilion)`, `#f0b830`→`var(--gold)`, `#3ec880`→`var(--jade)` (page.tsx:35-37); title text `#c8b090`→`var(--text-secondary)` (page.tsx:41); back-link text `#786858`→`var(--text-muted)` (page.tsx:51); loading-state text `#786858`→`var(--text-muted)` (ClaudeLabShell.tsx:18) — the fixed dark background (`#07050f`/`#0f0b1a`) is intentional terminal chrome and need not change; replacing foreground hex with tokens gives correct colours in both themes and benefits from any future token updates [style] ✅ 2026-05-10
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

@@ -32,13 +32,13 @@ export default function ClaudeLabPage() {
       >
         {/* Traffic-light dots + title */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span style={{ width: 11, height: 11, borderRadius: '50%', background: '#e84040', display: 'inline-block' }} />
-          <span style={{ width: 11, height: 11, borderRadius: '50%', background: '#f0b830', display: 'inline-block' }} />
-          <span style={{ width: 11, height: 11, borderRadius: '50%', background: '#3ec880', display: 'inline-block' }} />
+          <span style={{ width: 11, height: 11, borderRadius: '50%', background: 'var(--vermilion)', display: 'inline-block' }} />
+          <span style={{ width: 11, height: 11, borderRadius: '50%', background: 'var(--gold)', display: 'inline-block' }} />
+          <span style={{ width: 11, height: 11, borderRadius: '50%', background: 'var(--jade)', display: 'inline-block' }} />
           <span
             style={{
               marginLeft: '0.6rem',
-              color: '#c8b090',
+              color: 'var(--text-secondary)',
               fontSize: '0.8rem',
               fontFamily: '"Courier New", monospace',
             }}
@@ -48,7 +48,7 @@ export default function ClaudeLabPage() {
         </div>
         <Link
           href="/learn"
-          style={{ color: '#786858', fontSize: '0.78rem', fontFamily: '"Courier New", monospace', textDecoration: 'none' }}
+          style={{ color: 'var(--text-muted)', fontSize: '0.78rem', fontFamily: '"Courier New", monospace', textDecoration: 'none' }}
         >
           ← learn
         </Link>

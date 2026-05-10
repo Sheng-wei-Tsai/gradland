@@ -15,7 +15,7 @@ const ClaudeLabTerminal = dynamic(
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: '#786858',
+          color: 'var(--text-muted)',
           fontFamily: '"Courier New", monospace',
           fontSize: '0.85rem',
         }}
