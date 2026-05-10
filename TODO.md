@@ -757,6 +757,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-10 (supplement 12)
+
+> Twenty-seventh-pass scan — four `#ccc` disabled/inactive colour instances in `app/learn/youtube/[videoId]/StudySession.tsx` missed by all prior sweeps including the 2026-05-08 sweep that fixed `#9ca3af` → `var(--text-muted)` at lines 822-823.
+
+### Style (dark-mode breakage)
+- [x] Replace `color: '#ccc'` with `var(--text-muted)` in disabled/inactive states in `app/learn/youtube/[videoId]/StudySession.tsx` — flashcard Prev/Next button disabled colour at lines 370/379 (`idx === 0` / `idx === total - 1` conditions), inactive stage-indicator label at line 984 (the final `'#ccc'` in the done/active/inactive ternary), and disabled tab colour at line 1285 (`!guide && tab.id !== 'guide'` condition); the 2026-05-08 sweep replaced `#9ca3af` with `var(--text-muted)` at lines 822-823 using the same pattern but missed these four; in dark mode `#ccc` (light-grey) has ~12:1 contrast on `var(--warm-white)` = `#0f0b1a`, making disabled buttons appear nearly enabled; `var(--text-muted)` = `#a09080` in dark mode gives ~5.7:1 — clearly readable but appropriately dimmer than enabled (`var(--brown-dark)` which inverts to `#f0e6d0`) [style] ✅ 2026-05-10
+
+---
+
 ## 🛡 Daily Analyst Findings — 2026-05-08 (supplement 9)
 
 > Twenty-first-pass scan — delete/error button hex in `components/Comments.tsx` missed by all prior sweeps.

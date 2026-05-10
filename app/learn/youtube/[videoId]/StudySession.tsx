@@ -367,7 +367,7 @@ function FlashcardsTab({ concepts }: { concepts: Concept[] }) {
         <button onClick={() => goTo(Math.max(0, idx - 1))} disabled={idx === 0}
           style={{ padding: '0.4rem 0.9rem', borderRadius: '8px', border: '1px solid var(--parchment)',
             background: 'transparent', cursor: idx === 0 ? 'default' : 'pointer',
-            color: idx === 0 ? '#ccc' : 'var(--brown-dark)', fontFamily: 'inherit', fontSize: '0.85rem' }}>
+            color: idx === 0 ? 'var(--text-muted)' : 'var(--brown-dark)', fontFamily: 'inherit', fontSize: '0.85rem' }}>
           ← Prev
         </button>
         <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', minWidth: '48px', textAlign: 'center' }}>
@@ -376,7 +376,7 @@ function FlashcardsTab({ concepts }: { concepts: Concept[] }) {
         <button onClick={() => goTo(Math.min(total - 1, idx + 1))} disabled={idx === total - 1}
           style={{ padding: '0.4rem 0.9rem', borderRadius: '8px', border: '1px solid var(--parchment)',
             background: 'transparent', cursor: idx === total - 1 ? 'default' : 'pointer',
-            color: idx === total - 1 ? '#ccc' : 'var(--brown-dark)', fontFamily: 'inherit', fontSize: '0.85rem' }}>
+            color: idx === total - 1 ? 'var(--text-muted)' : 'var(--brown-dark)', fontFamily: 'inherit', fontSize: '0.85rem' }}>
           Next →
         </button>
       </div>
@@ -981,7 +981,7 @@ function LoadingStages({ stage }: { stage: 'transcript' | 'analysing' | 'buildin
               </div>
               <span style={{
                 fontSize: '0.85rem', fontWeight: active ? 600 : 400,
-                color: done ? 'var(--jade)' : active ? 'var(--brown-dark)' : '#ccc',
+                color: done ? 'var(--jade)' : active ? 'var(--brown-dark)' : 'var(--text-muted)',
                 transition: 'color 0.3s',
               }}>{s.label}</span>
             </div>
@@ -1282,7 +1282,7 @@ export default function StudySession({
                   background: activeTab === tab.id ? 'var(--warm-white)' : 'transparent',
                   borderBottom: activeTab === tab.id ? '2px solid var(--terracotta)' : '2px solid transparent',
                   color: activeTab === tab.id ? 'var(--terracotta)'
-                    : !guide && tab.id !== 'guide' ? '#ccc' : 'var(--text-muted)',
+                    : 'var(--text-muted)',
                   fontFamily: 'inherit', fontSize: '0.72rem', fontWeight: activeTab === tab.id ? 700 : 400,
                   cursor: !guide && tab.id !== 'guide' ? 'not-allowed' : 'pointer',
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem',
