@@ -59,12 +59,13 @@ function TopicChip({ label }: { label: string }) {
 
 // ─── Course accordion card ────────────────────────────────────
 function CourseCard({
-  course, idx, levelColor, isDone, isOpen,
+  course, idx, levelColor, levelColorRgb, isDone, isOpen,
   onToggleOpen, onToggleDone, onMarkDoneNext,
 }: {
   course: GitHubCourse;
   idx: number;
   levelColor: string;
+  levelColorRgb: string;
   isDone: boolean;
   isOpen: boolean;
   onToggleOpen: () => void;
@@ -73,10 +74,10 @@ function CourseCard({
 }) {
   return (
     <div style={{
-      border: `1.5px solid ${isOpen ? levelColor + '60' : 'var(--parchment)'}`,
+      border: `1.5px solid ${isOpen ? `rgba(${levelColorRgb},0.38)` : 'var(--parchment)'}`,
       borderRadius: '12px', overflow: 'hidden',
       background: 'var(--warm-white)',
-      boxShadow: isOpen ? `0 2px 12px ${levelColor}18` : 'none',
+      boxShadow: isOpen ? `0 2px 12px rgba(${levelColorRgb},0.09)` : 'none',
       transition: 'all 0.2s ease',
     }}>
       {/* Header row */}
@@ -124,7 +125,7 @@ function CourseCard({
 
       {/* Expanded body */}
       {isOpen && (
-        <div style={{ padding: '0 1.1rem 1.2rem', borderTop: `1px solid ${levelColor}25` }}>
+        <div style={{ padding: '0 1.1rem 1.2rem', borderTop: `1px solid rgba(${levelColorRgb},0.15)` }}>
 
           {/* Description */}
           <p style={{ fontSize: '0.87rem', color: 'var(--text-secondary)', lineHeight: 1.7, margin: '1rem 0 0.9rem' }}>
@@ -133,8 +134,8 @@ function CourseCard({
 
           {/* What you'll learn */}
           <div style={{
-            background: `${levelColor}0d`,
-            border: `1px solid ${levelColor}30`,
+            background: `rgba(${levelColorRgb},0.05)`,
+            border: `1px solid rgba(${levelColorRgb},0.19)`,
             borderRadius: '8px', padding: '0.85rem 1rem', marginBottom: '0.85rem',
           }}>
             <div style={{ fontSize: '0.7rem', fontWeight: 700, color: levelColor, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.5rem' }}>
@@ -370,6 +371,7 @@ export default function GitHubSkillsGuide() {
             course={course}
             idx={idx}
             levelColor={level.color}
+            levelColorRgb={level.colorRgb}
             isDone={mounted && done.has(course.id)}
             isOpen={openCourse === course.id}
             onToggleOpen={() => setOpenCourse(openCourse === course.id ? null : course.id)}
@@ -386,7 +388,7 @@ export default function GitHubSkillsGuide() {
       {mounted && level.courses.every(c => done.has(c.id)) && (
         <div style={{
           marginTop: '1.5rem', padding: '1.2rem', borderRadius: '12px',
-          background: level.bg, border: `1.5px solid ${level.color}40`, textAlign: 'center',
+          background: level.bg, border: `1.5px solid rgba(${level.colorRgb},0.25)`, textAlign: 'center',
         }}>
           <div style={{ fontSize: '1.8rem', marginBottom: '0.4rem' }}>🎉</div>
           <div style={{ fontFamily: "'Lora', serif", fontWeight: 700, color: level.color, marginBottom: '0.3rem' }}>

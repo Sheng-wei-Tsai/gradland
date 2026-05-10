@@ -893,6 +893,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-10 (supplement 7)
+
+> Supplement scan — `lib/github-skills.ts` GITHUB_LEVELS `color`/`bg` fields use hardcoded Tailwind hex (`#059669`/`#d97706`/`#7c3aed`/`#0ea5e9`/`#dc2626`/`#4338ca`) with `rgba(r,g,b,0.07)` backgrounds using the same raw rgb tuples. `GitHubSkillsGuide.tsx` uses template-literal alpha appending (`${levelColor}60`, `${levelColor}18`, `${levelColor}25`, `${levelColor}0d`, `${levelColor}30`, `${level.color}40`) which is incompatible with CSS variables — same class of bug fixed in `ClaudeCodeGuide.tsx` (supplement 4) and `InterviewPrepClient.tsx` (supplement 3). GitHub brand green `#1f883d` at lines 38, 194, 264, 274, 277, 280, 289 is intentional vendor colour and must be kept.
+
+### Style (dark-mode breakage)
+- [x] Replace `color`/`bg` hardcoded Tailwind hex in `GITHUB_LEVELS` at `lib/github-skills.ts:33-34,111-112,206-207,318-319,532-533,627-628` — Foundation `#059669`→`var(--jade)`, Collaboration `#d97706`→`var(--gold)`, Actions `#7c3aed`→`var(--vermilion)`, Copilot `#0ea5e9`→`var(--jade)`, Security `#dc2626`→`var(--vermilion)`, Advanced `#4338ca`→`var(--gold)`; add `colorRgb: string` to `GitHubLevel` interface; update `bg` to `rgba(colorRgb, 0.08)`; in `GitHubSkillsGuide.tsx` add `levelColorRgb` prop to `CourseCard` and replace template-literal alpha-append patterns (`${levelColor}60`→`rgba(${levelColorRgb},0.38)`, `${levelColor}18`→`rgba(${levelColorRgb},0.09)`, `${levelColor}25`→`rgba(${levelColorRgb},0.15)`, `${levelColor}0d`→`rgba(${levelColorRgb},0.05)`, `${levelColor}30`→`rgba(${levelColorRgb},0.19)`, `${level.color}40`→`rgba(${level.colorRgb},0.25)`) — matches pattern from ClaudeCodeGuide supplement 4; keep `#1f883d` GitHub brand at lines 38-40,194,264,274,277,280,289 [style] ✅ 2026-05-10
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

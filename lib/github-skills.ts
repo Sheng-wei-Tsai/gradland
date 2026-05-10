@@ -16,6 +16,7 @@ export interface GitHubLevel {
   title: string;
   badge: string;
   color: string;
+  colorRgb: string;
   bg: string;
   summary: string;
   courses: GitHubCourse[];
@@ -30,8 +31,8 @@ export const GITHUB_LEVELS: GitHubLevel[] = [
     id: 'foundation',
     title: 'Foundation',
     badge: '🌱',
-    color: '#059669',
-    bg: 'rgba(5,150,105,0.07)',
+    color: 'var(--jade)', colorRgb: '30,122,82',
+    bg: 'rgba(30,122,82,0.08)',
     summary: 'Git basics, GitHub core concepts, Markdown, and publishing your first site. No prerequisites — start here.',
     courses: [
       {
@@ -108,8 +109,8 @@ export const GITHUB_LEVELS: GitHubLevel[] = [
     id: 'collaboration',
     title: 'Collaboration',
     badge: '⚡',
-    color: '#d97706',
-    bg: 'rgba(217,119,6,0.07)',
+    color: 'var(--gold)', colorRgb: '200,138,20',
+    bg: 'rgba(200,138,20,0.08)',
     summary: 'The real-world skills for working in teams: reviewing code, resolving conflicts, managing history, and navigating large repos.',
     courses: [
       {
@@ -203,8 +204,8 @@ export const GITHUB_LEVELS: GitHubLevel[] = [
     id: 'actions',
     title: 'GitHub Actions',
     badge: '🔧',
-    color: '#7c3aed',
-    bg: 'rgba(124,58,237,0.07)',
+    color: 'var(--vermilion)', colorRgb: '192,40,28',
+    bg: 'rgba(192,40,28,0.08)',
     summary: 'Automate everything — CI tests, Docker builds, releases, deployments. GitHub Actions is the most in-demand DevOps skill for AU IT roles.',
     courses: [
       {
@@ -315,8 +316,8 @@ export const GITHUB_LEVELS: GitHubLevel[] = [
     id: 'copilot',
     title: 'Copilot & AI',
     badge: '🤖',
-    color: '#0ea5e9',
-    bg: 'rgba(14,165,233,0.07)',
+    color: 'var(--jade)', colorRgb: '30,122,82',
+    bg: 'rgba(30,122,82,0.08)',
     summary: '12 courses covering every Copilot feature — from first autocomplete to MCP servers, custom extensions, and AI-powered GitHub Actions.',
     courses: [
       {
@@ -529,8 +530,8 @@ export const GITHUB_LEVELS: GitHubLevel[] = [
     id: 'security',
     title: 'Security',
     badge: '🛡️',
-    color: '#dc2626',
-    bg: 'rgba(220,38,38,0.07)',
+    color: 'var(--vermilion)', colorRgb: '192,40,28',
+    bg: 'rgba(192,40,28,0.08)',
     summary: 'DevSecOps skills that employers increasingly require: supply chain security, code scanning with CodeQL, secret detection, and hands-on security challenges.',
     courses: [
       {
@@ -624,8 +625,8 @@ export const GITHUB_LEVELS: GitHubLevel[] = [
     id: 'advanced',
     title: 'Advanced DevOps',
     badge: '🏆',
-    color: '#4338ca',
-    bg: 'rgba(67,56,202,0.07)',
+    color: 'var(--gold)', colorRgb: '200,138,20',
+    bg: 'rgba(200,138,20,0.08)',
     summary: 'Codespaces, cloud deployments, custom Actions, legacy modernisation, and cloud migration. Skills that command senior-level salaries.',
     courses: [
       {
