@@ -1107,6 +1107,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-11 (supplement 7)
+
+> Supplement scan — `lib/email.ts` received HTML escaping in commit `a84b776` for `opts.title` and `opts.company` (supplement 6) but has no regression test. By parity, supplement 5 added a test for the parallel contact-route escaping fix; the same coverage should exist for the four transactional email helpers.
+
+### Tests
+- [x] Add Vitest tests for HTML escaping in `lib/email.ts` — call each of the four helpers (`sendJobListingConfirmation`, `sendJobListingApproved`, `sendJobListingRenewalReminder`, `sendJobListingExpired`) with `title: '<script>alert(1)</script>'` and `company: '<img/src=x onerror=alert(2)>'`; assert `mockSend.mock.calls[0][0].html` contains `&lt;script&gt;` and `&lt;img/src=x` and does NOT contain the raw tags; also verify no-op when `RESEND_API_KEY` is unset; mirrors pattern from `__tests__/api/contact.test.ts:108-118`; new file: `__tests__/lib/email.test.ts` [tests] ✅ 2026-05-11
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
