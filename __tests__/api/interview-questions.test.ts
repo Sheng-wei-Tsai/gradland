@@ -38,8 +38,8 @@ sbChain.eq.mockReturnValue(sbChain);
 
 const mockFrom = vi.fn().mockReturnValue(sbChain);
 
-vi.mock('@supabase/supabase-js', () => ({
-  createClient: vi.fn().mockReturnValue({ from: mockFrom }),
+vi.mock('@/lib/auth-server', () => ({
+  createSupabaseService: vi.fn().mockReturnValue({ from: mockFrom }),
 }));
 
 // ── OpenAI mock ───────────────────────────────────────────────────────────────

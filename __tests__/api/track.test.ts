@@ -4,8 +4,8 @@ import { NextRequest } from 'next/server';
 // Shared mock so individual tests can override upsert behaviour
 const mockUpsert = vi.fn().mockResolvedValue({ error: null });
 
-vi.mock('@supabase/supabase-js', () => ({
-  createClient: () => ({
+vi.mock('@/lib/auth-server', () => ({
+  createSupabaseService: vi.fn().mockReturnValue({
     from: () => ({ upsert: mockUpsert }),
   }),
 }));

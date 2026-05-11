@@ -1076,6 +1076,13 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-11 (supplement 2)
+
+### Tests (stale Supabase mock — module-boundary pattern)
+- [x] Fix stale `vi.mock('@supabase/supabase-js')` in four test files whose routes were migrated to `createSupabaseService()` from `lib/auth-server.ts` on 2026-05-06 but whose tests were not updated — same pattern fixed in `__tests__/api/learn-analyse.test.ts` (supplement 24, 2026-05-10); replace `vi.mock('@supabase/supabase-js', () => ({ createClient: ... }))` with `vi.mock('@/lib/auth-server', () => ({ createSupabaseService: vi.fn().mockReturnValue({ from: mockFrom }) }))` in: `__tests__/api/track.test.ts:7-11`, `__tests__/api/cover-letter.test.ts:35-37`, `__tests__/api/interview-questions.test.ts:41-43`, `__tests__/api/resume-analyse.test.ts:23-25`; mocking at the module boundary (auth-server) rather than the internal dependency (supabase-js) means a future refactor of the shared helper won't silently break test mocks [tests] [quality] ✅ 2026-05-11
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

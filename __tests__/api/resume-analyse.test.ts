@@ -20,8 +20,8 @@ const mockInsertThen = vi.fn();
 const mockInsert     = vi.fn().mockReturnValue({ then: mockInsertThen });
 const mockFrom       = vi.fn().mockReturnValue({ insert: mockInsert });
 
-vi.mock('@supabase/supabase-js', () => ({
-  createClient: vi.fn().mockReturnValue({ from: mockFrom }),
+vi.mock('@/lib/auth-server', () => ({
+  createSupabaseService: vi.fn().mockReturnValue({ from: mockFrom }),
 }));
 
 // ── Anthropic mock ────────────────────────────────────────────────────────────

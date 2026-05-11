@@ -32,8 +32,8 @@ const mockEq          = vi.fn().mockReturnValue({ maybeSingle: mockMaybeSingle }
 const mockSelect      = vi.fn().mockReturnValue({ eq: mockEq });
 const mockFrom        = vi.fn().mockReturnValue({ select: mockSelect, upsert: mockUpsert });
 
-vi.mock('@supabase/supabase-js', () => ({
-  createClient: vi.fn().mockReturnValue({ from: mockFrom }),
+vi.mock('@/lib/auth-server', () => ({
+  createSupabaseService: vi.fn().mockReturnValue({ from: mockFrom }),
 }));
 
 // ── OpenAI mock ───────────────────────────────────────────────────────────────
