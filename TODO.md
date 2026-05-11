@@ -1053,6 +1053,24 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-11
+
+> Daily scan — four small, independently-revertable fixes spanning §10.3 query hygiene, §5.4 input validation, §5.4 HTML escaping, and §6 caching. Each is unrelated to the others; commit separately.
+
+### Code Quality (AGENTS §10.3 — query hygiene)
+- [ ] Add `.limit(200)` to unbounded `skill_progress` query in `app/api/gap-analysis/route.ts:131` — `.from('skill_progress').select('skill_id, status').eq('user_id', user.id).in('status', [...])` has no row cap, violating AGENTS §10.3 ("Always add `.limit(N)` — never run unbounded queries"); supplement 17 fixed the same skill_progress pattern in `learn/[path]/PathTracker.tsx:105` and `PathProgress.tsx:30` with `.limit(100)` and supplement 19 fixed `dashboard/learn/page.tsx:56` but the API route was missed in both sweeps; use `.limit(200)` since gap-analysis sums across all paths (a user with 4 active paths × ~50 skills each = 200; safe ceiling vs the per-path 100 cap) [quality]
+
+### Security (AGENTS §5.4 — input validation)
+- [ ] Validate UUID format on path param `id` in `app/api/comments/[id]/route.ts:5,30` — both PATCH (line 5) and DELETE (line 30) destructure `id` from path params and pass it directly to `.eq('id', id)` without format validation; matches the strict UUID guard pattern already used in `app/api/alerts/route.ts:51` (`!/^[0-9a-f-]{36}$/.test(id)`) and `app/api/admin/job-listings/route.ts:51,122` (full UUID regex); add `if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) return NextResponse.json({ error: 'Invalid id' }, { status: 400 })` immediately after `const { id } = await params` in both handlers; today's behaviour leaks Supabase errors as a generic 403 "Not found or forbidden" when a malformed id is passed and wastes a DB round-trip [security]
+
+### Security (AGENTS §5.4 — HTML escaping in admin emails)
+- [ ] Escape `${ip}`, `${name}`, and `${email}` before HTML interpolation in `app/api/contact/route.ts:81,83` — `escapedMessage` (line 86) is properly escaped via `.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')`, but the same template literal interpolates `ip` (attacker-controlled via `x-forwarded-for`), `name` (user-supplied, only sliced/trimmed), and `email` (validated against `EMAIL_RE` which doesn't forbid `<>` characters at lookbehind boundaries) without escaping; recipient is admin-only (`admin@gradland.au`) so impact is limited to the inbox owner, but unescaped HTML lets attackers inject `<a href="https://phish.example">click</a>` into admin emails (phishing surface) or break the email rendering; extract the existing escape logic into `function escapeHtml(s: string)` at module scope, apply to `ip`/`name`/`email` before interpolation, keep `escapedMessage` using the same helper [security]
+
+### Performance (AGENTS §6 — caching)
+- [ ] Add `Cache-Control` header to `app/api/visa-news/route.ts:5` — the route returns `getAllVisaNews()` (filesystem markdown read) on every request with no cache header, while the structurally identical `app/api/ai-usage/route.ts:5-7` already returns `headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400' }`; visa-news content updates once per day via the `visa-news` workflow so a 1-hour edge cache + 24-hour stale-while-revalidate matches the data freshness requirement; change `return NextResponse.json(posts)` to `return NextResponse.json(posts, { headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400' } })` [perf]
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
