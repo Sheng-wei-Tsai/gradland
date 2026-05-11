@@ -1044,6 +1044,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-10 (supplement 24)
+
+> Supplement scan — `__tests__/api/learn-analyse.test.ts` mocks `@supabase/supabase-js` `createClient` but the route uses `createSupabaseService()` from `lib/auth-server.ts` (AGENTS §5.2 fix was applied to the route on 2026-05-06 but the test was not updated). The stale mock is dead code — the Supabase chain is never exercised. Additionally, the `sbChain` defines `single` but the route calls `.maybeSingle()`, and there are no 200 happy-path tests for the KV cache hit or Supabase cache hit paths. Same gap pattern fixed for `readiness-score` (supplement 21), `dashboard-summary` (supplement 22), and `visa-tracker` (supplement 23).
+
+### Tests
+- [x] Fix `__tests__/api/learn-analyse.test.ts` — replace stale `vi.mock('@supabase/supabase-js')` with `createSupabaseService` in the existing `vi.mock('@/lib/auth-server')` block; add `vi.mock('@/lib/kv')` with `mockKvGet`/`mockKvSet`; update `sbChain` to use `maybeSingle` instead of `single`; add 200 test for KV cache hit (returns cached JSON without calling Supabase), 200 test for Supabase cache hit (KV miss → Supabase returns `{ study_guide: { essay, summary } }` → 200 without calling Gemini) [tests] ✅ 2026-05-11
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

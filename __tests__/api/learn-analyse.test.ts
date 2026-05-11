@@ -11,25 +11,32 @@ vi.mock('@/lib/subscription', () => ({
   recordUsage:            vi.fn(),
 }));
 
+// ── KV mocks ──────────────────────────────────────────────────────────────────
+const mockKvGet = vi.fn().mockResolvedValue(null);
+const mockKvSet = vi.fn().mockResolvedValue(undefined);
+
+vi.mock('@/lib/kv', () => ({
+  kvGet: mockKvGet,
+  kvSet: mockKvSet,
+}));
+
+// ── Supabase mock — cache always misses by default ────────────────────────────
+const sbChain = {
+  select:      vi.fn(),
+  eq:          vi.fn(),
+  maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+  upsert:      vi.fn().mockResolvedValue({ error: null }),
+};
+sbChain.select.mockReturnValue(sbChain);
+sbChain.eq.mockReturnValue(sbChain);
+
 vi.mock('@/lib/auth-server', () => ({
+  createSupabaseService: vi.fn().mockReturnValue({ from: vi.fn().mockReturnValue(sbChain) }),
   rateLimitResponse: () =>
     new Response(
       JSON.stringify({ error: 'Rate limit exceeded' }),
       { status: 429, headers: { 'content-type': 'application/json' } },
     ),
-}));
-
-// ── Supabase mock — cache always misses ───────────────────────────────────────
-const sbChain = {
-  select:      vi.fn(),
-  eq:          vi.fn(),
-  single:      vi.fn().mockResolvedValue({ data: null, error: null }),
-};
-sbChain.select.mockReturnValue(sbChain);
-sbChain.eq.mockReturnValue(sbChain);
-
-vi.mock('@supabase/supabase-js', () => ({
-  createClient: vi.fn().mockReturnValue({ from: vi.fn().mockReturnValue(sbChain) }),
 }));
 
 // ── Gemini mock ───────────────────────────────────────────────────────────────
@@ -55,12 +62,16 @@ function makePost(body: object) {
   });
 }
 
-const validAuth = { user: { id: 'u1' } };
+const validAuth  = { user: { id: 'u1' } };
+const fakeGuide  = { essay: 'This video covers async/await in depth.', summary: 'Short summary.', keyConcepts: [] };
 
 describe('POST /api/learn/analyse', () => {
   afterEach(() => {
     mockRequireSubscription.mockReset();
     mockCheckEndpointRateLimit.mockResolvedValue(true);
+    mockKvGet.mockResolvedValue(null);
+    mockKvSet.mockResolvedValue(undefined);
+    sbChain.maybeSingle.mockResolvedValue({ data: null, error: null });
     delete process.env.GEMINI_API_KEY;
   });
 
@@ -112,5 +123,28 @@ describe('POST /api/learn/analyse', () => {
     mockCheckEndpointRateLimit.mockResolvedValueOnce(false);
     const res = await POST(makePost({ videoId: 'abc1234defg', videoTitle: 'Test' }));
     expect(res.status).toBe(429);
+  });
+
+  it('returns 200 from KV cache hit without calling Supabase', async () => {
+    mockRequireSubscription.mockResolvedValueOnce(validAuth);
+    process.env.GEMINI_API_KEY = 'test-key';
+    mockKvGet.mockResolvedValueOnce(JSON.stringify(fakeGuide));
+
+    const res = await POST(makePost({ videoId: 'abc1234defg', videoTitle: 'Test Video' }));
+    expect(res.status).toBe(200);
+    const body = await res.json() as typeof fakeGuide;
+    expect(body.essay).toBe(fakeGuide.essay);
+    expect(sbChain.maybeSingle).not.toHaveBeenCalled();
+  });
+
+  it('returns 200 from Supabase cache hit without calling Gemini', async () => {
+    mockRequireSubscription.mockResolvedValueOnce(validAuth);
+    process.env.GEMINI_API_KEY = 'test-key';
+    sbChain.maybeSingle.mockResolvedValueOnce({ data: { study_guide: fakeGuide }, error: null });
+
+    const res = await POST(makePost({ videoId: 'abc1234defg', videoTitle: 'Test Video' }));
+    expect(res.status).toBe(200);
+    const body = await res.json() as typeof fakeGuide;
+    expect(body.essay).toBe(fakeGuide.essay);
   });
 });
