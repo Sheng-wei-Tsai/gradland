@@ -29,6 +29,10 @@ function checkRateLimit(ip: string): boolean {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 export async function POST(req: NextRequest) {
   const ip = getIp(req);
   if (!checkRateLimit(ip)) {
@@ -78,9 +82,9 @@ export async function POST(req: NextRequest) {
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <h2 style="color: #140a05; margin-top: 0;">Contact form submission</h2>
-          <p style="color: #7a5030; font-size: 13px;">Topic: <strong>${safeTopic}</strong> · IP: ${ip}</p>
+          <p style="color: #7a5030; font-size: 13px;">Topic: <strong>${safeTopic}</strong> · IP: ${escapeHtml(ip)}</p>
           <table style="font-size: 14px; margin: 12px 0;">
-            <tr><td style="padding: 4px 12px 4px 0; color:#7a5030;">From</td><td>${name || '(no name)'} &lt;${email}&gt;</td></tr>
+            <tr><td style="padding: 4px 12px 4px 0; color:#7a5030;">From</td><td>${escapeHtml(name) || '(no name)'} &lt;${escapeHtml(email)}&gt;</td></tr>
           </table>
           <hr style="border: none; border-top: 1px solid #e8d5a8; margin: 16px 0;" />
           <div style="font-size: 14px; line-height: 1.6;">${escapedMessage}</div>
