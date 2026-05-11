@@ -8,6 +8,10 @@ import { Resend } from 'resend';
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://gradland.au';
 const FROM    = 'Gradland <noreply@gradland.au>';
 
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 function getClient(): Resend | null {
   const key = process.env.RESEND_API_KEY;
   if (!key) return null;
@@ -28,6 +32,9 @@ export async function sendJobListingConfirmation(opts: {
     return;
   }
 
+  const title   = escapeHtml(opts.title);
+  const company = escapeHtml(opts.company);
+
   await resend.emails.send({
     from:    FROM,
     to:      opts.to,
@@ -35,7 +42,7 @@ export async function sendJobListingConfirmation(opts: {
     html: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
         <h2 style="color: #140a05;">Listing received</h2>
-        <p>Thanks for posting <strong>${opts.title}</strong> at <strong>${opts.company}</strong> on Gradland.</p>
+        <p>Thanks for posting <strong>${title}</strong> at <strong>${company}</strong> on Gradland.</p>
         <p>Your listing is currently under review. We typically approve listings within 24 hours.
            You'll receive another email once it goes live.</p>
         <p>Your listing will remain active for <strong>30 days</strong> after approval.</p>
@@ -58,6 +65,8 @@ export async function sendJobListingApproved(opts: {
   const resend = getClient();
   if (!resend) return;
 
+  const title   = escapeHtml(opts.title);
+  const company = escapeHtml(opts.company);
   const expiryDate = new Date(opts.expiresAt).toLocaleDateString('en-AU', {
     day: 'numeric', month: 'long', year: 'numeric',
   });
@@ -69,7 +78,7 @@ export async function sendJobListingApproved(opts: {
     html: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
         <h2 style="color: #140a05;">Your listing is live!</h2>
-        <p><strong>${opts.title}</strong> at <strong>${opts.company}</strong> is now visible to candidates on Gradland.</p>
+        <p><strong>${title}</strong> at <strong>${company}</strong> is now visible to candidates on Gradland.</p>
         <p>
           <a href="${APP_URL}/jobs" style="display:inline-block; background:#c0281c; color:#fff; padding:10px 20px; border-radius:6px; text-decoration:none; font-weight:600;">
             View on jobs page →
@@ -95,6 +104,8 @@ export async function sendJobListingRenewalReminder(opts: {
   const resend = getClient();
   if (!resend) return;
 
+  const title   = escapeHtml(opts.title);
+  const company = escapeHtml(opts.company);
   const expiryDate = new Date(opts.expiresAt).toLocaleDateString('en-AU', {
     day: 'numeric', month: 'long', year: 'numeric',
   });
@@ -106,7 +117,7 @@ export async function sendJobListingRenewalReminder(opts: {
     html: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
         <h2 style="color: #140a05;">Listing expiring soon</h2>
-        <p>Your listing <strong>${opts.title}</strong> at <strong>${opts.company}</strong>
+        <p>Your listing <strong>${title}</strong> at <strong>${company}</strong>
            expires on <strong>${expiryDate}</strong>.</p>
         <p>To keep reaching visa-aware IT candidates, post a new listing:</p>
         <p>
@@ -132,6 +143,9 @@ export async function sendJobListingExpired(opts: {
   const resend = getClient();
   if (!resend) return;
 
+  const title   = escapeHtml(opts.title);
+  const company = escapeHtml(opts.company);
+
   await resend.emails.send({
     from:    FROM,
     to:      opts.to,
@@ -139,7 +153,7 @@ export async function sendJobListingExpired(opts: {
     html: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
         <h2 style="color: #140a05;">Listing expired</h2>
-        <p>Your listing <strong>${opts.title}</strong> at <strong>${opts.company}</strong>
+        <p>Your listing <strong>${title}</strong> at <strong>${company}</strong>
            has expired and is no longer visible to candidates.</p>
         <p>Post a new listing to continue reaching visa-aware IT graduates in Australia:</p>
         <p>

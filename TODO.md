@@ -1100,6 +1100,13 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-11 (supplement 6)
+
+### Security (AGENTS §5.4 — HTML escaping in transactional emails)
+- [x] Escape `opts.title` and `opts.company` before HTML interpolation in `lib/email.ts` ✅ 2026-05-11 — all four email helpers (`sendJobListingConfirmation`, `sendJobListingApproved`, `sendJobListingRenewalReminder`, `sendJobListingExpired`) interpolate user-supplied `company` (sliced to 100 chars in `app/api/stripe/job-listing/route.ts:53`) and `title` (sliced to 200 chars) directly into Resend HTML email bodies without escaping; a job poster can craft `company: '<img src="https://tracker.example/x.png"/>'` to embed tracking pixels or `title: '<a href="https://phish.example">click</a>'` to inject phishing links into the transactional emails they receive; apply the same pattern established in `app/api/contact/route.ts:32-34` (`function escapeHtml`) — add `escapeHtml()` helper at module scope in `lib/email.ts` and call it on `opts.title` and `opts.company` before template literal interpolation in all four functions [security]
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
