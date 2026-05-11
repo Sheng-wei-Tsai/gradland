@@ -130,7 +130,8 @@ export async function POST(req: NextRequest) {
     .from('skill_progress')
     .select('skill_id, status')
     .eq('user_id', user.id)
-    .in('status', ['learning', 'needs_review', 'mastered']);
+    .in('status', ['learning', 'needs_review', 'mastered'])
+    .limit(200);
 
   const userSkillIds = new Set((progressRows ?? []).map(r => r.skill_id));
 

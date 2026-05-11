@@ -27,10 +27,12 @@ const svrChainable = {
   select: vi.fn(),
   eq:     vi.fn(),
   in:     vi.fn(),
+  limit:  vi.fn(),
 };
 (svrChainable.select as ReturnType<typeof vi.fn>).mockReturnValue(svrChainable);
 (svrChainable.eq     as ReturnType<typeof vi.fn>).mockReturnValue(svrChainable);
-(svrChainable.in     as ReturnType<typeof vi.fn>).mockResolvedValue({ data: [] });
+(svrChainable.in     as ReturnType<typeof vi.fn>).mockReturnValue(svrChainable);
+(svrChainable.limit  as ReturnType<typeof vi.fn>).mockResolvedValue({ data: [] });
 
 vi.mock('@/lib/auth-server', () => ({
   createSupabaseServer: vi.fn().mockResolvedValue({
