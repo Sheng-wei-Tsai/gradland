@@ -50,15 +50,24 @@ describe('DELETE /api/comments/[id]', () => {
     mockFrom.mockReset();
   });
 
+  it('returns 400 when id is not a valid UUID', async () => {
+    const res = await DELETE(makeDeleteReq('not-a-uuid'), makeParams('not-a-uuid'));
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/invalid id/i);
+  });
+
   it('returns 401 when no session', async () => {
+    const id = '00000000-0000-0000-0000-000000000001';
     mockGetUser.mockResolvedValue({ data: { user: null } });
-    const res = await DELETE(makeDeleteReq('c1'), makeParams('c1'));
+    const res = await DELETE(makeDeleteReq(id), makeParams(id));
     expect(res.status).toBe(401);
     const body = await res.json();
     expect(body.error).toMatch(/unauthorized/i);
   });
 
   it('returns 403 when comment belongs to another user (RLS-equivalent)', async () => {
+    const id = '00000000-0000-0000-0000-000000000099';
     mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
     mockFrom.mockImplementation((table: string) => {
       if (table === 'profiles') {
@@ -77,7 +86,7 @@ describe('DELETE /api/comments/[id]', () => {
         }),
       };
     });
-    const res = await DELETE(makeDeleteReq('c99'), makeParams('c99'));
+    const res = await DELETE(makeDeleteReq(id), makeParams(id));
     expect(res.status).toBe(403);
   });
 });
@@ -89,15 +98,24 @@ describe('PATCH /api/comments/[id]', () => {
     mockFrom.mockReset();
   });
 
+  it('returns 400 when id is not a valid UUID', async () => {
+    const res = await PATCH(makePatch('bad-id!!', { content: 'hello' }), makeParams('bad-id!!'));
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/invalid id/i);
+  });
+
   it('returns 400 when content exceeds 2000 chars', async () => {
+    const id = '00000000-0000-0000-0000-000000000001';
     mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
-    const res = await PATCH(makePatch('c1', { content: 'a'.repeat(2001) }), makeParams('c1'));
+    const res = await PATCH(makePatch(id, { content: 'a'.repeat(2001) }), makeParams(id));
     expect(res.status).toBe(400);
     const body = await res.json();
     expect(body.error).toBeDefined();
   });
 
   it('returns 200 and response includes edited_at timestamp', async () => {
+    const id      = '00000000-0000-0000-0000-000000000001';
     const editedAt = '2026-05-07T01:00:00.000Z';
     mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
     mockFrom.mockReturnValue({
@@ -106,7 +124,7 @@ describe('PATCH /api/comments/[id]', () => {
           eq: vi.fn().mockReturnValue({
             select: vi.fn().mockReturnValue({
               maybeSingle: vi.fn().mockResolvedValue({
-                data: { id: 'c1', content: 'fixed typo', edited_at: editedAt },
+                data: { id, content: 'fixed typo', edited_at: editedAt },
                 error: null,
               }),
             }),
@@ -114,7 +132,7 @@ describe('PATCH /api/comments/[id]', () => {
         }),
       }),
     });
-    const res  = await PATCH(makePatch('c1', { content: 'fixed typo' }), makeParams('c1'));
+    const res  = await PATCH(makePatch(id, { content: 'fixed typo' }), makeParams(id));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.comment).toBeDefined();

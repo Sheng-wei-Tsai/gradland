@@ -162,21 +162,23 @@ describe('PATCH /api/comments/[id]', () => {
     });
   }
 
+  const CID = '00000000-0000-0000-0000-000000000001';
+
   it('returns 401 without auth', async () => {
     mockGetUser.mockResolvedValue({ data: { user: null } });
-    const res = await PATCH(makePatch('c1', { content: 'updated' }), makeParams('c1'));
+    const res = await PATCH(makePatch(CID, { content: 'updated' }), makeParams(CID));
     expect(res.status).toBe(401);
   });
 
   it('returns 400 when content is empty', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
-    const res = await PATCH(makePatch('c1', { content: '' }), makeParams('c1'));
+    const res = await PATCH(makePatch(CID, { content: '' }), makeParams(CID));
     expect(res.status).toBe(400);
   });
 
   it('returns 400 when content exceeds 2000 chars', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
-    const res = await PATCH(makePatch('c1', { content: 'a'.repeat(2001) }), makeParams('c1'));
+    const res = await PATCH(makePatch(CID, { content: 'a'.repeat(2001) }), makeParams(CID));
     expect(res.status).toBe(400);
   });
 
@@ -193,7 +195,7 @@ describe('PATCH /api/comments/[id]', () => {
         }),
       }),
     });
-    const res = await PATCH(makePatch('c1', { content: 'updated' }), makeParams('c1'));
+    const res = await PATCH(makePatch(CID, { content: 'updated' }), makeParams(CID));
     expect(res.status).toBe(403);
   });
 
@@ -205,7 +207,7 @@ describe('PATCH /api/comments/[id]', () => {
           eq: vi.fn().mockReturnValue({
             select: vi.fn().mockReturnValue({
               maybeSingle: vi.fn().mockResolvedValue({
-                data: { id: 'c1', content: 'updated', edited_at: '2026-05-06T00:00:00Z' },
+                data: { id: CID, content: 'updated', edited_at: '2026-05-06T00:00:00Z' },
                 error: null,
               }),
             }),
@@ -213,7 +215,7 @@ describe('PATCH /api/comments/[id]', () => {
         }),
       }),
     });
-    const res  = await PATCH(makePatch('c1', { content: 'updated' }), makeParams('c1'));
+    const res  = await PATCH(makePatch(CID, { content: 'updated' }), makeParams(CID));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.comment).toBeDefined();
@@ -231,9 +233,11 @@ describe('DELETE /api/comments/[id]', () => {
     return new NextRequest(`http://localhost/api/comments/${id}`, { method: 'DELETE' });
   }
 
+  const CID = '00000000-0000-0000-0000-000000000001';
+
   it('returns 401 without auth', async () => {
     mockGetUser.mockResolvedValue({ data: { user: null } });
-    const res = await DELETE(makeDeleteReq('c1'), makeParams('c1'));
+    const res = await DELETE(makeDeleteReq(CID), makeParams(CID));
     expect(res.status).toBe(401);
   });
 
@@ -255,7 +259,7 @@ describe('DELETE /api/comments/[id]', () => {
         }),
       };
     });
-    const res  = await DELETE(makeDeleteReq('c1'), makeParams('c1'));
+    const res  = await DELETE(makeDeleteReq(CID), makeParams(CID));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.ok).toBe(true);
@@ -279,7 +283,7 @@ describe('DELETE /api/comments/[id]', () => {
         }),
       };
     });
-    const res = await DELETE(makeDeleteReq('c1'), makeParams('c1'));
+    const res = await DELETE(makeDeleteReq(CID), makeParams(CID));
     expect(res.status).toBe(200);
   });
 
@@ -301,7 +305,7 @@ describe('DELETE /api/comments/[id]', () => {
         }),
       };
     });
-    const res = await DELETE(makeDeleteReq('c1'), makeParams('c1'));
+    const res = await DELETE(makeDeleteReq(CID), makeParams(CID));
     expect(res.status).toBe(403);
   });
 });
