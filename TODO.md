@@ -1081,6 +1081,11 @@
 ### Tests (stale Supabase mock — module-boundary pattern)
 - [x] Fix stale `vi.mock('@supabase/supabase-js')` in four test files whose routes were migrated to `createSupabaseService()` from `lib/auth-server.ts` on 2026-05-06 but whose tests were not updated — same pattern fixed in `__tests__/api/learn-analyse.test.ts` (supplement 24, 2026-05-10); replace `vi.mock('@supabase/supabase-js', () => ({ createClient: ... }))` with `vi.mock('@/lib/auth-server', () => ({ createSupabaseService: vi.fn().mockReturnValue({ from: mockFrom }) }))` in: `__tests__/api/track.test.ts:7-11`, `__tests__/api/cover-letter.test.ts:35-37`, `__tests__/api/interview-questions.test.ts:41-43`, `__tests__/api/resume-analyse.test.ts:23-25`; mocking at the module boundary (auth-server) rather than the internal dependency (supabase-js) means a future refactor of the shared helper won't silently break test mocks [tests] [quality] ✅ 2026-05-11
 
+## 🛡 Daily Analyst Findings — 2026-05-11 (supplement 3)
+
+### Tests (missing Cache-Control assertion)
+- [x] Add Cache-Control assertion to `GET /api/visa-news` test in `__tests__/api/public-read-routes.test.ts` ✅ 2026-05-11 — the `Cache-Control: public, s-maxage=3600, stale-while-revalidate=86400` header was added in commit `17fc2d7` but the test file was not updated; the structurally identical `ai-usage` route already has this assertion at lines 70-75 of the same file (`expect(cacheControl).toContain('s-maxage=3600')` + `stale-while-revalidate=86400`); add a third `it` block under `describe('GET /api/visa-news')` following the exact same pattern [tests]
+
 ---
 
 ## 📊 Priority Rationale

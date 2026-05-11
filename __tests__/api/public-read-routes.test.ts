@@ -95,4 +95,11 @@ describe('GET /api/visa-news', () => {
     const body = await res.json();
     expect(body).toEqual([]);
   });
+
+  it('includes Cache-Control header with s-maxage=3600', async () => {
+    const res = await getVisaNews();
+    const cacheControl = res.headers.get('Cache-Control');
+    expect(cacheControl).toContain('s-maxage=3600');
+    expect(cacheControl).toContain('stale-while-revalidate=86400');
+  });
 });
