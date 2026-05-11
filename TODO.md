@@ -1093,6 +1093,13 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-11 (supplement 5)
+
+### Tests (missing HTML-escape assertion)
+- [x] Add Vitest test verifying `escapeHtml` is applied to `name` and `ip` before HTML insertion in `__tests__/api/contact.test.ts` ✅ 2026-05-11 — the 2026-05-11 security fix (commit `1bcd075`) added `escapeHtml()` to `ip`, `name`, and `email` before interpolation into the Resend HTML body (`app/api/contact/route.ts:85,87`) but the test file was not updated; add one `it` block: send a POST with `name: '<script>alert(1)</script>'` and `x-forwarded-for: '127.0.0.1<img/src=x>'`, assert `mockSend.mock.calls[0][0].html` contains `&lt;script&gt;` and `&lt;img/src=x&gt;` and does NOT contain the raw `<script>` or `<img/src=x>` strings; verifies the XSS defence-in-depth fix has regression protection [tests]
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

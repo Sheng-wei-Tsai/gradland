@@ -104,4 +104,17 @@ describe('POST /api/contact', () => {
     const res = await POST(makePost(VALID_BODY, ip));
     expect(res.status).toBe(429);
   });
+
+  it('escapes HTML in name and ip before inserting into Resend email body', async () => {
+    const res = await POST(makePost(
+      { ...VALID_BODY, name: '<script>alert(1)</script>' },
+      '127.0.0.1<img/src=x>',
+    ));
+    expect(res.status).toBe(200);
+    const html = (mockSend.mock.calls[0][0] as { html: string }).html;
+    expect(html).toContain('&lt;script&gt;');
+    expect(html).not.toContain('<script>');
+    expect(html).toContain('&lt;img/src=x&gt;');
+    expect(html).not.toContain('<img/src=x>');
+  });
 });
