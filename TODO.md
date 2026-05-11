@@ -1086,6 +1086,11 @@
 ### Tests (missing Cache-Control assertion)
 - [x] Add Cache-Control assertion to `GET /api/visa-news` test in `__tests__/api/public-read-routes.test.ts` ✅ 2026-05-11 — the `Cache-Control: public, s-maxage=3600, stale-while-revalidate=86400` header was added in commit `17fc2d7` but the test file was not updated; the structurally identical `ai-usage` route already has this assertion at lines 70-75 of the same file (`expect(cacheControl).toContain('s-maxage=3600')` + `stale-while-revalidate=86400`); add a third `it` block under `describe('GET /api/visa-news')` following the exact same pattern [tests]
 
+## 🛡 Daily Analyst Findings — 2026-05-11 (supplement 4)
+
+### Security (dependency — 13 high-severity CVEs in next 16.0.0–16.2.5)
+- [x] Upgrade `next` from 16.2.4 → 16.2.6 via `npm audit fix` — `npm audit --audit-level=moderate` reports 1 high-severity finding covering 13 advisories (DoS via Server Components/Cache/image optimisation, XSS via CSP nonce + beforeInteractive scripts, SSRF via WebSocket upgrades, cache poisoning, middleware/proxy bypass variants); patch 16.2.6 fixes all 13; no API changes needed — patch bump only (`@next/env`, `@next/swc-linux-x64-*` updated in lockfile); run `npm audit fix`, verify tests + build green [security] ✅ 2026-05-11
+
 ---
 
 ## 📊 Priority Rationale
