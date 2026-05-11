@@ -47,9 +47,12 @@ function makeParams(id: string) {
   return { params: Promise.resolve({ id }) };
 }
 
-const ADMIN_USER     = { id: 'admin-id', email: 'admin@test.com' };
+const VALID_ADMIN_UUID = '00000000-0000-0000-0000-000000000001';
+const VALID_USER_UUID  = '00000000-0000-0000-0000-000000000002';
+
+const ADMIN_USER     = { id: VALID_ADMIN_UUID, email: 'admin@test.com' };
 const PATCH_RESPONSE = {
-  data: { id: 'u2', full_name: 'Bob', email: 'bob@test.com', role: 'admin' },
+  data: { id: VALID_USER_UUID, full_name: 'Bob', email: 'bob@test.com', role: 'admin' },
   error: null,
 };
 
@@ -61,9 +64,17 @@ describe('PATCH /api/admin/users/[id]', () => {
     mockFrom.mockImplementation(() => makeChain(PATCH_RESPONSE));
   });
 
+  it('returns 400 when id is not a valid UUID', async () => {
+    mockRequireAdmin.mockResolvedValue(ADMIN_USER);
+    const res = await PATCH(makePatch('not-a-uuid', { role: 'admin' }), makeParams('not-a-uuid'));
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBe('Invalid id');
+  });
+
   it('returns 403 when caller is not an admin', async () => {
     mockRequireAdmin.mockResolvedValue(null);
-    const res = await PATCH(makePatch('u2', { role: 'admin' }), makeParams('u2'));
+    const res = await PATCH(makePatch(VALID_USER_UUID, { role: 'admin' }), makeParams(VALID_USER_UUID));
     expect(res.status).toBe(403);
     const body = await res.json();
     expect(body.error).toBe('Forbidden');
@@ -71,7 +82,7 @@ describe('PATCH /api/admin/users/[id]', () => {
 
   it('returns 400 for an invalid role enum value', async () => {
     mockRequireAdmin.mockResolvedValue(ADMIN_USER);
-    const res = await PATCH(makePatch('u2', { role: 'superuser' }), makeParams('u2'));
+    const res = await PATCH(makePatch(VALID_USER_UUID, { role: 'superuser' }), makeParams(VALID_USER_UUID));
     expect(res.status).toBe(400);
     const body = await res.json();
     expect(body.error).toBe('Invalid role');
@@ -79,7 +90,7 @@ describe('PATCH /api/admin/users/[id]', () => {
 
   it('returns 400 when role is missing entirely', async () => {
     mockRequireAdmin.mockResolvedValue(ADMIN_USER);
-    const res = await PATCH(makePatch('u2', {}), makeParams('u2'));
+    const res = await PATCH(makePatch(VALID_USER_UUID, {}), makeParams(VALID_USER_UUID));
     expect(res.status).toBe(400);
     const body = await res.json();
     expect(body.error).toBe('Invalid role');
@@ -87,7 +98,7 @@ describe('PATCH /api/admin/users/[id]', () => {
 
   it('returns 200 with updated user on a valid role change', async () => {
     mockRequireAdmin.mockResolvedValue(ADMIN_USER);
-    const res = await PATCH(makePatch('u2', { role: 'admin' }), makeParams('u2'));
+    const res = await PATCH(makePatch(VALID_USER_UUID, { role: 'admin' }), makeParams(VALID_USER_UUID));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.user).toBeDefined();
@@ -102,25 +113,33 @@ describe('DELETE /api/admin/users/[id]', () => {
     mockFrom.mockImplementation(() => makeChain({ error: null }));
   });
 
+  it('returns 400 when id is not a valid UUID', async () => {
+    mockRequireAdmin.mockResolvedValue(ADMIN_USER);
+    const res = await DELETE(makeDelete('not-a-uuid'), makeParams('not-a-uuid'));
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBe('Invalid id');
+  });
+
   it('returns 403 when caller is not an admin', async () => {
     mockRequireAdmin.mockResolvedValue(null);
-    const res = await DELETE(makeDelete('u2'), makeParams('u2'));
+    const res = await DELETE(makeDelete(VALID_USER_UUID), makeParams(VALID_USER_UUID));
     expect(res.status).toBe(403);
     const body = await res.json();
     expect(body.error).toBe('Forbidden');
   });
 
   it('returns 400 when an admin tries to ban themselves (self-ban prevention)', async () => {
-    mockRequireAdmin.mockResolvedValue({ id: 'admin-id' });
-    const res = await DELETE(makeDelete('admin-id'), makeParams('admin-id'));
+    mockRequireAdmin.mockResolvedValue({ id: VALID_ADMIN_UUID });
+    const res = await DELETE(makeDelete(VALID_ADMIN_UUID), makeParams(VALID_ADMIN_UUID));
     expect(res.status).toBe(400);
     const body = await res.json();
     expect(body.error).toBe('Cannot ban yourself');
   });
 
   it('returns 200 when banning a different user', async () => {
-    mockRequireAdmin.mockResolvedValue({ id: 'admin-id' });
-    const res = await DELETE(makeDelete('u2'), makeParams('u2'));
+    mockRequireAdmin.mockResolvedValue({ id: VALID_ADMIN_UUID });
+    const res = await DELETE(makeDelete(VALID_USER_UUID), makeParams(VALID_USER_UUID));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.ok).toBe(true);

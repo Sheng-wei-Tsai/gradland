@@ -1069,6 +1069,11 @@
 ### Performance (AGENTS §6 — caching)
 - [x] Add `Cache-Control` header to `app/api/visa-news/route.ts:5` ✅ 2026-05-11 — the route returns `getAllVisaNews()` (filesystem markdown read) on every request with no cache header, while the structurally identical `app/api/ai-usage/route.ts:5-7` already returns `headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400' }`; visa-news content updates once per day via the `visa-news` workflow so a 1-hour edge cache + 24-hour stale-while-revalidate matches the data freshness requirement; change `return NextResponse.json(posts)` to `return NextResponse.json(posts, { headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400' } })` [perf]
 
+## 🛡 Daily Analyst Findings — 2026-05-11 (supplement 1)
+
+### Security (AGENTS §5.4 — input validation)
+- [x] Add UUID format validation on path param `id` in `app/api/admin/users/[id]/route.ts` PATCH and DELETE — both handlers destructure `id` from path params and pass it directly to `.eq('id', id)` without format validation; matches the UUID guard pattern already in `app/api/comments/[id]/route.ts:4,8,34`, `app/api/network/messages/[profileId]/route.ts:6,14,64`, and `app/api/admin/job-listings/route.ts:51,122`; add `const UUID_RE = /^[0-9a-f]{8}-...-[0-9a-f]{12}$/i` and check immediately after `const { id } = await params` in both handlers; also update `__tests__/api/admin-users-id.test.ts` to use valid UUIDs in all test IDs and add 2 new tests covering the 400 UUID-invalid path [security] ✅ 2026-05-11
+
 ---
 
 ## 📊 Priority Rationale
