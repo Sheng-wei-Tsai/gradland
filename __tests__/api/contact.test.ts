@@ -2,11 +2,16 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
 const mockSend = vi.fn().mockResolvedValue({ id: 'mock-id' });
+const mockCheckRateLimit = vi.fn().mockResolvedValue(false);
 
 vi.mock('resend', () => ({
   Resend: vi.fn().mockImplementation(function MockResend() {
     return { emails: { send: mockSend } };
   }),
+}));
+
+vi.mock('@/lib/rate-limit-db', () => ({
+  checkRateLimit: (...args: unknown[]) => mockCheckRateLimit(...args),
 }));
 
 const { POST } = await import('@/app/api/contact/route');
@@ -34,6 +39,7 @@ describe('POST /api/contact', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockSend.mockResolvedValue({ id: 'mock-id' });
+    mockCheckRateLimit.mockResolvedValue(false);
     process.env.RESEND_API_KEY = 'test-resend-key';
   });
 
@@ -94,14 +100,10 @@ describe('POST /api/contact', () => {
     expect(res.status).toBe(502);
   });
 
-  it('returns 429 on the 6th request from the same IP within 1 hour', async () => {
+  it('returns 429 when DB rate-limit check signals over-limit', async () => {
     delete process.env.RESEND_API_KEY;
-    const ip = '10.99.55.1';
-    for (let i = 0; i < 5; i++) {
-      const res = await POST(makePost(VALID_BODY, ip));
-      expect(res.status).toBe(200);
-    }
-    const res = await POST(makePost(VALID_BODY, ip));
+    mockCheckRateLimit.mockResolvedValueOnce(true);
+    const res = await POST(makePost(VALID_BODY, '10.99.55.1'));
     expect(res.status).toBe(429);
   });
 
