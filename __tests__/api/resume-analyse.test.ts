@@ -98,6 +98,15 @@ describe('POST /api/resume-analyse', () => {
       expect(res.status).toBe(429);
     });
 
+    it('returns 400 when request body is not multipart/form-data', async () => {
+      const req = new NextRequest('http://localhost/api/resume-analyse', { method: 'POST' });
+      vi.spyOn(req, 'formData').mockRejectedValue(new TypeError('invalid form data'));
+      const res  = await POST(req);
+      expect(res.status).toBe(400);
+      const body = await res.json();
+      expect(body.error).toBeTruthy();
+    });
+
     it('returns 400 when no file is provided', async () => {
       const res  = await POST(makeRequest(null));
       expect(res.status).toBe(400);

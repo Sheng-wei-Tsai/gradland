@@ -48,7 +48,7 @@ export async function DELETE(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const id = req.nextUrl.searchParams.get('id');
-  if (!id || !/^[0-9a-f-]{36}$/.test(id)) {
+  if (!id || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
     return NextResponse.json({ error: 'Invalid id' }, { status: 400 });
   }
 

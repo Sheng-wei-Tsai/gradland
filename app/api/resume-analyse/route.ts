@@ -83,7 +83,8 @@ export async function POST(req: NextRequest) {
   const withinLimit = await checkEndpointRateLimit(auth.user.id, 'resume-analyse');
   if (!withinLimit) return rateLimitResponse();
 
-  const formData = await req.formData();
+  const formData = await req.formData().catch(() => null);
+  if (!formData) return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   const file = formData.get('resume') as File | null;
 
   if (!file || file.type !== 'application/pdf') {

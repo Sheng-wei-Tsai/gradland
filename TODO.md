@@ -1155,6 +1155,16 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-12 (supplement 4)
+
+> Supplement scan — two small security guards in API routes missed by all prior sweeps: the UUID validation regex in `app/api/alerts/route.ts` is looser than the pattern established everywhere else in the codebase, and `app/api/resume-analyse/route.ts` calls `req.formData()` without any error handling so a malformed multipart request produces a 500 instead of a clean 400.
+
+### Security (AGENTS §5.4 — input validation)
+- [x] Tighten UUID regex in `app/api/alerts/route.ts:51` DELETE handler — current pattern `/^[0-9a-f-]{36}$/` accepts any 36-character string of hex digits and dashes (e.g. `------------------------------------` or `aaa-aaaa-aaaa-aaaa-aaaaaaaaaaaaaaaa` with wrong hyphen placement), whereas the strict pattern used in `app/api/comments/[id]/route.ts:4,8,34`, `app/api/admin/job-listings/route.ts:51,122`, and `app/api/admin/users/[id]/route.ts` is `/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i`; replace the loose regex with the strict pattern so `8-4-4-4-12` structure is enforced before the id reaches Postgres; existing test at `__tests__/api/alerts.test.ts:120` (`id=not-a-real-uuid`) still passes — no test update needed [security] ✅ 2026-05-12
+- [x] Guard `req.formData()` against parse failure in `app/api/resume-analyse/route.ts:86` — bare `await req.formData()` throws a `TypeError` when the request is not multipart/form-data (e.g. content-type mismatch or missing boundary); the thrown error propagates to Next.js and returns a 500 instead of 400; change to `await req.formData().catch(() => null)` + null guard returning `{ error: 'Invalid request body' }` 400, matching the pattern used for `req.json()` throughout the codebase; add one `it` block to `__tests__/api/resume-analyse.test.ts` that spies on `req.formData` with `mockRejectedValue(new TypeError('invalid form data'))` and asserts `res.status === 400` [security] ✅ 2026-05-12
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
