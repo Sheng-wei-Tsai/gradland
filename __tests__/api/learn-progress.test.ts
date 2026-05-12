@@ -68,17 +68,41 @@ describe('POST /api/learn/progress', () => {
     expect(res.status).toBe(400);
   });
 
+  it('returns 400 when videoId is not 11-char alphanumeric', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
+    const res = await POST(makePost({ videoId: 'short', videoTitle: 'Intro' }));
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/invalid videoid/i);
+  });
+
+  it('returns 400 for videoId with disallowed characters', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
+    const res = await POST(makePost({ videoId: 'abc!@#$%^&*!', videoTitle: 'Intro' }));
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/invalid videoid/i);
+  });
+
   it('returns 200 with ok:true on a valid upsert', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
-    const res = await POST(makePost({ videoId: 'v1', videoTitle: 'Intro', completed: true }));
+    const res = await POST(makePost({ videoId: 'dQw4w9WgXcW', videoTitle: 'Intro', completed: true }));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.ok).toBe(true);
   });
 
+  it('truncates videoTitle to 200 chars before upsert', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
+    const longTitle = 'A'.repeat(300);
+    await POST(makePost({ videoId: 'dQw4w9WgXcW', videoTitle: longTitle }));
+    const [payload] = mockUpsert.mock.calls[0] as [Record<string, unknown>];
+    expect((payload.video_title as string).length).toBe(200);
+  });
+
   it('upserts on (user_id,video_id) conflict — omitting quizScore preserves prior quiz_score', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
-    await POST(makePost({ videoId: 'v1', videoTitle: 'Intro' }));
+    await POST(makePost({ videoId: 'dQw4w9WgXcW', videoTitle: 'Intro' }));
     expect(mockUpsert).toHaveBeenCalledOnce();
     const [payload, opts] = mockUpsert.mock.calls[0] as [
       Record<string, unknown>,
@@ -91,7 +115,7 @@ describe('POST /api/learn/progress', () => {
 
   it('includes quiz_score and quiz_taken:true when quizScore is provided', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
-    await POST(makePost({ videoId: 'v1', videoTitle: 'Intro', quizScore: 85 }));
+    await POST(makePost({ videoId: 'dQw4w9WgXcW', videoTitle: 'Intro', quizScore: 85 }));
     const [payload] = mockUpsert.mock.calls[0] as [Record<string, unknown>];
     expect(payload.quiz_score).toBe(85);
     expect(payload.quiz_taken).toBe(true);
@@ -100,7 +124,7 @@ describe('POST /api/learn/progress', () => {
   it('returns 500 when the DB upsert fails', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
     mockUpsert.mockResolvedValueOnce({ error: { message: 'constraint violation' } });
-    const res = await POST(makePost({ videoId: 'v1', videoTitle: 'Intro' }));
+    const res = await POST(makePost({ videoId: 'dQw4w9WgXcW', videoTitle: 'Intro' }));
     expect(res.status).toBe(500);
   });
 });

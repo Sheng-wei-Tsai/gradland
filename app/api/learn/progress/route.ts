@@ -18,11 +18,12 @@ export async function POST(req: NextRequest) {
 
   const { videoId, videoTitle, quizScore, completed } = body;
   if (!videoId || !videoTitle) return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+  if (!/^[A-Za-z0-9_-]{11}$/.test(videoId)) return NextResponse.json({ error: 'Invalid videoId' }, { status: 400 });
 
   const update: Record<string, unknown> = {
     user_id:     user.id,
     video_id:    videoId,
-    video_title: videoTitle,
+    video_title: videoTitle.slice(0, 200),
     updated_at:  new Date().toISOString(),
   };
   if (quizScore !== undefined) { update.quiz_score = quizScore; update.quiz_taken = true; }
