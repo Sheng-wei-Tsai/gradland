@@ -13,12 +13,8 @@ mockEq.mockReturnValue({ eq: mockEq, limit: mockLimit });
 mockSelect.mockReturnValue({ eq: mockEq });
 mockFrom.mockReturnValue({ upsert: mockUpsert, select: mockSelect });
 
-vi.mock('next/headers', () => ({
-  cookies: vi.fn().mockResolvedValue({ getAll: () => [] }),
-}));
-
-vi.mock('@supabase/ssr', () => ({
-  createServerClient: vi.fn().mockReturnValue({
+vi.mock('@/lib/auth-server', () => ({
+  createSupabaseServer: vi.fn().mockResolvedValue({
     auth: { getUser: mockGetUser },
     from:  mockFrom,
   }),
