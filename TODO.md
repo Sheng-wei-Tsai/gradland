@@ -1174,6 +1174,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-12 (supplement 6)
+
+> Supplement scan — `lib/subscription.ts` is the security gateway called by every paid AI route but has no unit tests. Every API route test mocks it via `vi.mock('@/lib/subscription')`, so the implementation itself is never exercised. The five functions have distinct paths: `getSubscriptionStatus` has 4 branches (no row, admin, pro-active, pro-expired, free), `checkRateLimit` has 2 (within/over), `checkEndpointRateLimit` has 3 (no limit defined, within, over), `recordUsage` inserts a row, and `requireSubscription` has 5 outcomes (401/owner-bypass/403/429/200). A refactor of any branch silently invalidates the rate-limiting guarantee across all paid routes.
+
+### Tests
+- [x] Add Vitest unit tests for `lib/subscription.ts` — mock `createSupabaseServer`, `createSupabaseService`, and response helpers from `lib/auth-server`; fluent Supabase chain mocks for `profiles` (`.select().eq().maybeSingle()`) and `api_usage` (`.select().eq().gte()` + `.insert()`); 17 tests covering all branches of `getSubscriptionStatus` (no row/admin/pro-lifetime/pro-future/pro-expired/free), `checkRateLimit` (within/over 100), `checkEndpointRateLimit` (no limit/within/over), `recordUsage` (insert shape), `requireSubscription` (401/owner-bypass/403/200-pro/429-pro); new file: `__tests__/lib/subscription.test.ts` [tests] ✅ 2026-05-12
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
