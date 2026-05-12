@@ -24,6 +24,8 @@ export async function GET(req: NextRequest) {
   const maxResults = 30; // 30 per page — balanced between speed and quota
 
   if (!channelId) return NextResponse.json({ error: 'Missing channelId' }, { status: 400 });
+  // Prevent query-param injection via template literal at line 12 (e.g. channelId=foo%26key=attacker)
+  if (!/^[A-Za-z0-9_-]{18,30}$/.test(channelId)) return NextResponse.json({ error: 'Invalid channelId' }, { status: 400 });
 
   const apiKey = process.env.YOUTUBE_API_KEY;
   if (!apiKey) return NextResponse.json({ error: 'YouTube API key not configured' }, { status: 503 });

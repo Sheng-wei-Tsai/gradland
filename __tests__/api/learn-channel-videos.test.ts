@@ -65,11 +65,18 @@ describe('GET /api/learn/channel-videos', () => {
     expect(body.error).toMatch(/channelId/i);
   });
 
+  it('returns 400 when channelId fails format validation', async () => {
+    const res = await GET(makeGet({ channelId: 'short' }));
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/channelId/i);
+  });
+
   // ── API key guard ─────────────────────────────────────────────────────────
 
   it('returns 503 when YOUTUBE_API_KEY is not configured', async () => {
     // env var intentionally absent
-    const res = await GET(makeGet({ channelId: 'UC_nokey_1' }));
+    const res = await GET(makeGet({ channelId: 'UC_nokey_100000000000000' }));
     expect(res.status).toBe(503);
     const body = await res.json();
     expect(body.error).toMatch(/not configured/i);
@@ -82,7 +89,7 @@ describe('GET /api/learn/channel-videos', () => {
     mockFetch.mockResolvedValueOnce({
       json: () => Promise.resolve({ items: [] }),
     });
-    const res = await GET(makeGet({ channelId: 'UC_notfound_1' }));
+    const res = await GET(makeGet({ channelId: 'UC_notfound_100000000000' }));
     expect(res.status).toBe(404);
     const body = await res.json();
     expect(body.error).toMatch(/not found/i);
@@ -98,7 +105,7 @@ describe('GET /api/learn/channel-videos', () => {
         { videoId: 'vid1', title: 'TypeScript Basics' },
         { videoId: 'vid2', title: 'React Hooks Deep Dive' },
       ]));
-    const res = await GET(makeGet({ channelId: 'UC_success_1' }));
+    const res = await GET(makeGet({ channelId: 'UC_success_1000000000000' }));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.videos).toHaveLength(2);
@@ -115,7 +122,7 @@ describe('GET /api/learn/channel-videos', () => {
         [{ videoId: 'p1', title: 'Page 1 Video' }],
         'NEXT_TOKEN_XYZ',
       ));
-    const res = await GET(makeGet({ channelId: 'UC_pages_1' }));
+    const res = await GET(makeGet({ channelId: 'UC_pages_100000000000000' }));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.nextPageToken).toBe('NEXT_TOKEN_XYZ');
@@ -165,7 +172,7 @@ describe('GET /api/learn/channel-videos', () => {
             ],
           }),
       });
-    const res = await GET(makeGet({ channelId: 'UC_filter_1' }));
+    const res = await GET(makeGet({ channelId: 'UC_filter_1000000000000' }));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.videos).toHaveLength(1);
@@ -183,7 +190,7 @@ describe('GET /api/learn/channel-videos', () => {
         status: 403,
         json:   () => Promise.resolve({ error: { message: 'Quota exceeded' } }),
       });
-    const res = await GET(makeGet({ channelId: 'UC_err_1' }));
+    const res = await GET(makeGet({ channelId: 'UC_err_10000000000000000' }));
     expect(res.status).toBe(403);
     const body = await res.json();
     expect(body.error).toMatch(/Quota exceeded/);
@@ -199,7 +206,7 @@ describe('GET /api/learn/channel-videos', () => {
       .mockResolvedValueOnce(mockPlaylist([
         { videoId: 'vdesc1', title: 'Long Description Video', description: longDesc },
       ]));
-    const res = await GET(makeGet({ channelId: 'UC_desc_1' }));
+    const res = await GET(makeGet({ channelId: 'UC_desc_100000000000000' }));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.videos[0].description).toHaveLength(200);
