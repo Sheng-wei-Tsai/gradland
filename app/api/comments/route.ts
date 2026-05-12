@@ -30,7 +30,8 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const body = await req.json();
+  const body = await req.json().catch(() => null);
+  if (!body) return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   const slug      = String(body.post_slug ?? '').trim();
   const content   = String(body.content   ?? '').trim();
   const parent_id = body.parent_id ?? null;

@@ -105,6 +105,20 @@ describe('PATCH /api/comments/[id]', () => {
     expect(body.error).toMatch(/invalid id/i);
   });
 
+  it('returns 400 for unparseable request body', async () => {
+    const id = '00000000-0000-0000-0000-000000000001';
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
+    const res = await PATCH(
+      new NextRequest(`http://localhost/api/comments/${id}`, {
+        method: 'PATCH',
+        body: 'invalid-json{{',
+        headers: { 'content-type': 'application/json' },
+      }),
+      makeParams(id),
+    );
+    expect(res.status).toBe(400);
+  });
+
   it('returns 400 when content exceeds 2000 chars', async () => {
     const id = '00000000-0000-0000-0000-000000000001';
     mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });

@@ -1146,6 +1146,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-12 (supplement 3)
+
+> Supplement scan — three route handlers call `req.json()` without a try-catch or `.catch()`, so malformed JSON bodies throw a SyntaxError that propagates to Next.js and produces a 500 rather than the correct 400. The pattern was fixed in `interview/chat`, `interview/evaluate`, `interview/mentor`, `interview/questions`, `learn/analyse`, `learn/quiz`, `learn/progress` (today's commit), `cover-letter`, `contact`, and others via `.catch(() => null)` or `try/catch`, but three handlers were missed.
+
+### Code Quality (input validation — graceful JSON parse failure)
+- [x] Guard `req.json()` against malformed JSON in `app/api/comments/route.ts:33` (POST), `app/api/comments/[id]/route.ts:13` (PATCH), and `app/api/admin/users/[id]/route.ts:13` (PATCH) — all three call bare `await req.json()` without error handling; add `.catch(() => null)` + null guard returning 400 on each; add `returns 400 for unparseable request body` test to `__tests__/api/comments.test.ts`, `__tests__/api/comments-id.test.ts`, and `__tests__/api/admin-users-id.test.ts` [quality] ✅ 2026-05-12
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

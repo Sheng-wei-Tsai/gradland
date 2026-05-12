@@ -127,6 +127,16 @@ describe('POST /api/comments', () => {
     expect(res.status).toBe(400);
   });
 
+  it('returns 400 for unparseable request body', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
+    const res = await POST(new NextRequest('http://localhost/api/comments', {
+      method: 'POST',
+      body: 'invalid-json{{',
+      headers: { 'content-type': 'application/json' },
+    }));
+    expect(res.status).toBe(400);
+  });
+
   it('returns 400 when parent_id is not a valid UUID', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
     const res  = await POST(makeReq('POST', 'http://localhost/api/comments', {

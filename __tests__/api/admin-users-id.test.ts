@@ -80,6 +80,19 @@ describe('PATCH /api/admin/users/[id]', () => {
     expect(body.error).toBe('Forbidden');
   });
 
+  it('returns 400 for unparseable request body', async () => {
+    mockRequireAdmin.mockResolvedValue(ADMIN_USER);
+    const res = await PATCH(
+      new NextRequest(`http://localhost/api/admin/users/${VALID_USER_UUID}`, {
+        method: 'PATCH',
+        body: 'invalid-json{{',
+        headers: { 'content-type': 'application/json' },
+      }),
+      makeParams(VALID_USER_UUID),
+    );
+    expect(res.status).toBe(400);
+  });
+
   it('returns 400 for an invalid role enum value', async () => {
     mockRequireAdmin.mockResolvedValue(ADMIN_USER);
     const res = await PATCH(makePatch(VALID_USER_UUID, { role: 'superuser' }), makeParams(VALID_USER_UUID));

@@ -10,8 +10,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const admin = await requireAdmin();
   if (!admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const body = await req.json();
-  const role = body.role;
+  const body = await req.json().catch(() => null);
+  const role = body?.role;
   if (!['user', 'admin'].includes(role)) {
     return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
   }
