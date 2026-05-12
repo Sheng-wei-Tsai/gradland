@@ -121,6 +121,52 @@ describe('POST /api/learn/progress', () => {
     expect(payload.quiz_taken).toBe(true);
   });
 
+  it('returns 400 when quizScore is negative', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
+    const res = await POST(makePost({ videoId: 'dQw4w9WgXcW', videoTitle: 'Intro', quizScore: -1 }));
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/quizScore/i);
+  });
+
+  it('returns 400 when quizScore exceeds 100', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
+    const res = await POST(makePost({ videoId: 'dQw4w9WgXcW', videoTitle: 'Intro', quizScore: 101 }));
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/quizScore/i);
+  });
+
+  it('returns 400 when quizScore is a non-integer number', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
+    const res = await POST(makePost({ videoId: 'dQw4w9WgXcW', videoTitle: 'Intro', quizScore: 50.5 }));
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/quizScore/i);
+  });
+
+  it('returns 400 when quizScore is a string', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
+    const res = await POST(makePost({ videoId: 'dQw4w9WgXcW', videoTitle: 'Intro', quizScore: '85' }));
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/quizScore/i);
+  });
+
+  it('coerces truthy completed (number 1) to Boolean true before upsert', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
+    await POST(makePost({ videoId: 'dQw4w9WgXcW', videoTitle: 'Intro', completed: 1 }));
+    const [payload] = mockUpsert.mock.calls[0] as [Record<string, unknown>];
+    expect(payload.completed).toBe(true);
+  });
+
+  it('coerces falsy completed (number 0) to Boolean false before upsert', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
+    await POST(makePost({ videoId: 'dQw4w9WgXcW', videoTitle: 'Intro', completed: 0 }));
+    const [payload] = mockUpsert.mock.calls[0] as [Record<string, unknown>];
+    expect(payload.completed).toBe(false);
+  });
+
   it('returns 500 when the DB upsert fails', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
     mockUpsert.mockResolvedValueOnce({ error: { message: 'constraint violation' } });

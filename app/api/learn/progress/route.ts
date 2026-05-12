@@ -26,8 +26,14 @@ export async function POST(req: NextRequest) {
     video_title: videoTitle.slice(0, 200),
     updated_at:  new Date().toISOString(),
   };
-  if (quizScore !== undefined) { update.quiz_score = quizScore; update.quiz_taken = true; }
-  if (completed !== undefined) update.completed = completed;
+  if (quizScore !== undefined) {
+    if (typeof quizScore !== 'number' || !Number.isInteger(quizScore) || quizScore < 0 || quizScore > 100) {
+      return NextResponse.json({ error: 'quizScore must be an integer between 0 and 100' }, { status: 400 });
+    }
+    update.quiz_score = quizScore;
+    update.quiz_taken = true;
+  }
+  if (completed !== undefined) update.completed = Boolean(completed);
 
   const { error } = await sb
     .from('video_progress')
