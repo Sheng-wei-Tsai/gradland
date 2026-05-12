@@ -1165,6 +1165,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-12 (supplement 5)
+
+> Supplement scan — `lib/rate-limit-db.ts` has no unit tests. Every API route that calls `checkRateLimit` mocks the entire module (`vi.mock('@/lib/rate-limit-db')`), so the implementation itself is never exercised by the test suite. The function has three distinct paths: success (returns `count > limit`), DB error (fails-open → `false`), and exception (try/catch → `false`). Missing coverage means a refactor of the Supabase RPC call or the bucket logic could silently break the rate-limiter across all protected routes (`contact`, `log-error`, `track`, `stripe/job-listing`, `analytics/ai-insights`).
+
+### Tests
+- [x] Add Vitest unit tests for `lib/rate-limit-db.ts` — mock `createSupabaseService` from `lib/auth-server` and its `.rpc()` chain; test: (1) `count <= limit` → returns `false` (not limited), (2) `count > limit` → returns `true` (over limit), (3) DB error on RPC → returns `false` (fails-open), (4) thrown exception → returns `false` (fails-open); verify the `p_key` and `p_bucket` args passed to `.rpc('increment_rate_limit', ...)` are correct; new file: `__tests__/lib/rate-limit-db.test.ts` [tests] ✅ 2026-05-12
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
