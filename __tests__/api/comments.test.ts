@@ -127,6 +127,16 @@ describe('POST /api/comments', () => {
     expect(res.status).toBe(400);
   });
 
+  it('returns 400 when parent_id is not a valid UUID', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
+    const res  = await POST(makeReq('POST', 'http://localhost/api/comments', {
+      post_slug: 'my-post', content: 'hello', parent_id: 'not-a-uuid',
+    }));
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/parent_id/i);
+  });
+
   it('returns 201 with the new comment on success', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
     mockFrom.mockReturnValue({
