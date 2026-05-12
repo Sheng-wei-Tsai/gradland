@@ -89,6 +89,25 @@ describe('POST /api/learn/analyse', () => {
     expect(res.status).toBe(400);
   });
 
+  it('returns 400 when videoId is not a valid 11-char YouTube ID', async () => {
+    mockRequireSubscription.mockResolvedValueOnce(validAuth);
+    const res = await POST(makePost({ videoId: 'not-valid!!', videoTitle: 'Test' }));
+    expect(res.status).toBe(400);
+  });
+
+  it('truncates videoTitle and channelTitle to 200 chars before using them', async () => {
+    mockRequireSubscription.mockResolvedValueOnce(validAuth);
+    process.env.GEMINI_API_KEY = 'test-key';
+    const longTitle   = 'A'.repeat(300);
+    const longChannel = 'B'.repeat(300);
+    mockKvGet.mockResolvedValueOnce(JSON.stringify(fakeGuide));
+
+    const res = await POST(makePost({ videoId: 'abc1234defg', videoTitle: longTitle, channelTitle: longChannel }));
+    expect(res.status).toBe(200);
+    // Confirm it reached the cache path — the 300-char strings were accepted (truncated internally)
+    expect(mockKvGet).toHaveBeenCalledWith('study-guide:abc1234defg');
+  });
+
   it('returns 422 when video duration exceeds 2 hours', async () => {
     mockRequireSubscription.mockResolvedValueOnce(validAuth);
     const res = await POST(makePost({

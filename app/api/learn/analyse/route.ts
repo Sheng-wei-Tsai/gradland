@@ -55,8 +55,14 @@ export async function POST(req: NextRequest) {
   try { body = await req.json(); }
   catch { return new Response('Bad request', { status: 400 }); }
 
-  const { videoId, videoTitle, channelTitle, durationSeconds } = body;
-  if (!videoId) return new Response('Missing videoId', { status: 400 });
+  const { durationSeconds } = body;
+  const videoId = typeof body.videoId === 'string' ? body.videoId : '';
+  const videoTitle = typeof body.videoTitle === 'string' ? body.videoTitle.slice(0, 200) : '';
+  const channelTitle = typeof body.channelTitle === 'string' ? body.channelTitle.slice(0, 200) : '';
+
+  if (!videoId || !/^[A-Za-z0-9_-]{11}$/.test(videoId)) {
+    return new Response('Missing or invalid videoId', { status: 400 });
+  }
 
   if (typeof durationSeconds === 'number' && durationSeconds > 7200) {
     return NextResponse.json(

@@ -1139,6 +1139,11 @@
 ### Tests (stale Supabase mock — module-boundary pattern)
 - [x] Fix stale `vi.mock('@supabase/ssr')` + `vi.mock('next/headers')` in `__tests__/api/learn-progress.test.ts` — route was migrated to `createSupabaseServer()` from `lib/auth-server.ts` in commit `47874c0` but the test was not updated; replace both stale mocks with `vi.mock('@/lib/auth-server', () => ({ createSupabaseServer: vi.fn().mockResolvedValue({ auth: { getUser: mockGetUser }, from: mockFrom }) }))` using `mockResolvedValue` (async function); follows exact pattern from `__tests__/api/track.test.ts:7-11` and the four files fixed in `0c6abc4` [tests] [quality] ✅ 2026-05-12
 
+## 🛡 Daily Analyst Findings — 2026-05-12 (supplement 2)
+
+### Security (AGENTS §5.4 — input validation)
+- [x] Validate `videoId` format and truncate `videoTitle`/`channelTitle` in `app/api/learn/analyse/route.ts:58-59` — `videoId` was only checked for truthiness (`if (!videoId)`), not format; `videoTitle` and `channelTitle` were interpolated raw into the Gemini prompt (line 106) and stored in the Supabase upsert (lines 178-179) without any length cap; matches the `learn/video-meta` validation pattern (`/^[A-Za-z0-9_-]{11}$/`) and the `learn/quiz` + `learn/progress` truncation pattern (`.slice(0, 200)`); add 2 new tests: 400 on malformed videoId, and KV-hit 200 confirming truncated strings are accepted (`__tests__/api/learn-analyse.test.ts`) [security] ✅ 2026-05-12
+
 ---
 
 ## 📊 Priority Rationale
