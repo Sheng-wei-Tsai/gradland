@@ -179,6 +179,18 @@ describe('GET /api/learn/channel-videos', () => {
     expect(body.videos[0].id).toBe('public1');
   });
 
+  // ── Unexpected error handling ─────────────────────────────────────────────
+
+  it('returns 500 with generic message when an unexpected error is thrown', async () => {
+    process.env.YOUTUBE_API_KEY = 'yt-test';
+    mockFetch.mockRejectedValueOnce(new Error('internal details that must not leak'));
+    const res = await GET(makeGet({ channelId: 'UC_throw_100000000000000' }));
+    expect(res.status).toBe(500);
+    const body = await res.json();
+    expect(body.error).toBe('Failed to load channel videos');
+    expect(body.error).not.toContain('internal details');
+  });
+
   // ── YouTube API error forwarding ──────────────────────────────────────────
 
   it('forwards YouTube API non-OK response status and error message', async () => {

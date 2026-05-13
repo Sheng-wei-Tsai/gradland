@@ -85,7 +85,7 @@ export async function GET(req: NextRequest) {
       videos,
       nextPageToken: data.nextPageToken ?? null, // null = no more pages
     });
-  } catch (err) {
-    return NextResponse.json({ error: (err as Error).message }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: 'Failed to load channel videos' }, { status: 500 });
   }
 }
