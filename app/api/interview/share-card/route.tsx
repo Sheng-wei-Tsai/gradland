@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
 
         {/* Header row */}
         <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center', marginBottom: '44px' }}>
-          <div style={{ fontSize: '22px', fontWeight: 700, color: '#c0281c', letterSpacing: '3px' }}>TECHPATH AU</div>
+          <div style={{ fontSize: '22px', fontWeight: 700, color: '#c0281c', letterSpacing: '3px' }}>GRADLAND</div>
           <div style={{ fontSize: '16px', color: '#7a5030' }}>AI Interview Coach</div>
         </div>
 

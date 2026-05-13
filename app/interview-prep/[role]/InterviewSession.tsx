@@ -1215,7 +1215,7 @@ I'm very open to discussing the full package — I want to find something that w
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Share your result:</span>
                   <a
                     href={`/api/interview/share-card?role=${encodeURIComponent(role.title)}&score=${avgScore}&xp=${sessionXp}&level=${levelInfo.current.level}&levelTitle=${encodeURIComponent(levelInfo.current.title)}`}
-                    download={`techpath-au-${role.id}-${avgScore}.png`}
+                    download={`gradland-${role.id}-${avgScore}.png`}
                     style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.45rem 0.95rem', background: 'var(--terracotta)', color: 'white', borderRadius: '99px', fontSize: '0.82rem', fontWeight: 600, textDecoration: 'none' }}
                   >
                     ⬇ Download card
