@@ -31,7 +31,7 @@ export async function GET() {
     .order('created_at', { ascending: false })
     .limit(200);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: 'Failed to load job listings' }, { status: 500 });
   return NextResponse.json({ listings: data ?? [] });
 }
 
@@ -59,7 +59,7 @@ export async function PATCH(req: NextRequest) {
 
   if (body.action === 'reject') {
     const { error } = await sb.from('job_listings').delete().eq('id', body.id);
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) return NextResponse.json({ error: 'Failed to delete listing' }, { status: 500 });
     return NextResponse.json({ ok: true });
   }
 
@@ -69,14 +69,14 @@ export async function PATCH(req: NextRequest) {
       .select('contact_email, company, title, expires_at')
       .eq('id', body.id)
       .maybeSingle();
-    if (fetchError) return NextResponse.json({ error: fetchError.message }, { status: 500 });
+    if (fetchError) return NextResponse.json({ error: 'Failed to load listing' }, { status: 500 });
     if (!listing)   return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
 
     const { error } = await sb
       .from('job_listings')
       .update({ status: 'active' })
       .eq('id', body.id);
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) return NextResponse.json({ error: 'Failed to approve listing' }, { status: 500 });
 
     await sendJobListingApproved({
       to:        listing.contact_email,
@@ -94,7 +94,7 @@ export async function PATCH(req: NextRequest) {
       .select('expires_at')
       .eq('id', body.id)
       .maybeSingle();
-    if (fetchError) return NextResponse.json({ error: fetchError.message }, { status: 500 });
+    if (fetchError) return NextResponse.json({ error: 'Failed to load listing' }, { status: 500 });
     if (!listing)   return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
 
     const current    = new Date(listing.expires_at);
@@ -104,7 +104,7 @@ export async function PATCH(req: NextRequest) {
       .from('job_listings')
       .update({ expires_at: newExpiry, status: 'active' })
       .eq('id', body.id);
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) return NextResponse.json({ error: 'Failed to extend listing' }, { status: 500 });
     return NextResponse.json({ ok: true, expires_at: newExpiry });
   }
 
@@ -125,6 +125,6 @@ export async function DELETE(req: NextRequest) {
 
   const sb = createSupabaseService();
   const { error } = await sb.from('job_listings').delete().eq('id', id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: 'Failed to delete listing' }, { status: 500 });
   return NextResponse.json({ ok: true });
 }

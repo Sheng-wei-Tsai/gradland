@@ -1210,6 +1210,13 @@
 ### Quality (info disclosure — raw error messages in three user-facing routes)
 - [x] Stop returning raw error messages to clients in `app/api/learn/quiz/route.ts:112`, `app/api/learn/progress/route.ts:36`, and `app/api/visa-tracker/route.ts:58` — quiz catch block leaks `(err as Error).message` (OpenAI/JSON-parse details); progress and visa-tracker leak `error.message` from Supabase upsert failures; replace with static strings `'Quiz generation failed'`, `'Failed to save progress'`, and `'Failed to save tracker'` respectively; no test updates needed as no test asserts the 500 body message [quality] ✅ 2026-05-13
 
+## 🛡 Daily Analyst Findings — 2026-05-13 (supplement 3)
+
+> Supplement scan — `app/api/admin/job-listings/route.ts` returns raw `error.message` / `fetchError.message` strings in seven 500 responses across GET, PATCH (reject/approve/extend), and DELETE handlers. The route is admin-gated (`requireAdmin()`) so only the platform operator sees these messages, but leaking Supabase error details is inconsistent with the pattern established by today's sweeps of `channel-videos`, `learn/videos`, `learn/quiz`, `learn/progress`, and `visa-tracker`. No existing test asserts on any 500-body message in this file.
+
+### Quality (info disclosure — raw error messages in admin job-listings route)
+- [x] Stop returning raw error messages to the client in `app/api/admin/job-listings/route.ts` — GET at line 34 leaks `error.message` on DB list failure; PATCH reject at line 62, approve-fetch at line 72, approve-update at line 79, extend-fetch at line 97, extend-update at line 107 each leak `error.message`/`fetchError.message`; DELETE at line 128 leaks `error.message`; replace all seven with static strings (`'Failed to load job listings'`, `'Failed to delete listing'`, `'Failed to load listing'`, `'Failed to approve listing'`, `'Failed to extend listing'`); Sentry captures the unhandled DB error via global instrumentation so observability is unaffected; no test updates needed [quality] ✅ 2026-05-13
+
 ---
 
 ## 📊 Priority Rationale
