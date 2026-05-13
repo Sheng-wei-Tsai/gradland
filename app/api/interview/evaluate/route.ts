@@ -91,9 +91,7 @@ Evaluate this ${isCode ? 'code solution' : 'answer'} now.`;
     return new Response(readable, {
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
     });
-  } catch (err) {
-    console.error('OpenAI evaluate error:', err);
-    const msg = err instanceof Error ? err.message : 'Failed to evaluate answer';
-    return new Response(JSON.stringify({ error: msg }), { status: 502 });
+  } catch {
+    return new Response(JSON.stringify({ error: 'Evaluation failed' }), { status: 502 });
   }
 }

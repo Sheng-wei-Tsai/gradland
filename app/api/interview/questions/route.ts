@@ -136,9 +136,7 @@ Requirements:
 
     void recordUsage(auth.user.id, 'interview/questions');
     return new Response(raw, { headers: { 'Content-Type': 'application/json' } });
-  } catch (err) {
-    console.error('OpenAI questions error:', err);
-    const msg = err instanceof Error ? err.message : 'Failed to generate questions';
-    return new Response(JSON.stringify({ error: msg }), { status: 502 });
+  } catch {
+    return new Response(JSON.stringify({ error: 'Failed to generate questions' }), { status: 502 });
   }
 }

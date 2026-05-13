@@ -130,9 +130,7 @@ export async function POST(req: NextRequest) {
     return new Response(readable, {
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
     });
-  } catch (err) {
-    console.error('OpenAI mentor error:', err);
-    const msg = err instanceof Error ? err.message : 'Failed to generate narration';
-    return new Response(JSON.stringify({ error: msg }), { status: 502 });
+  } catch {
+    return new Response(JSON.stringify({ error: 'Failed to generate narration' }), { status: 502 });
   }
 }

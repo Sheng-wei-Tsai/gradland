@@ -63,9 +63,7 @@ export async function POST(req: NextRequest) {
     return new Response(readable, {
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
     });
-  } catch (err) {
-    console.error('OpenAI chat error:', err);
-    const msg = err instanceof Error ? err.message : 'Chat failed';
-    return new Response(JSON.stringify({ error: msg }), { status: 502 });
+  } catch {
+    return new Response(JSON.stringify({ error: 'Chat failed' }), { status: 502 });
   }
 }

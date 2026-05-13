@@ -1224,6 +1224,13 @@
 ### Quality (info disclosure — raw error messages in cron and channel-videos routes)
 - [x] Stop returning raw error messages to the client in `app/api/cron/expire-job-listings/route.ts:37` and `app/api/learn/channel-videos/route.ts:53` — cron route returns `expireError.message` (Supabase error) in the 500 path; channel-videos route returns `err?.error?.message ?? 'YouTube API error'` (YouTube API error detail) in the non-OK path; replace with `'Failed to expire job listings'` and `'YouTube API error'` (the existing fallback, now always used); update `__tests__/api/cron-expire-job-listings.test.ts:230` from `toBe('Constraint violation')` to `toBe('Failed to expire job listings')` and `__tests__/api/learn-channel-videos.test.ts:208` from `toMatch(/Quota exceeded/)` to `toBe('YouTube API error')` [quality] ✅ 2026-05-13
 
+## 🛡 Daily Analyst Findings — 2026-05-13 (supplement 5)
+
+> Supplement scan — four interview route handlers return `err.message` directly to clients in 502 responses. The main 2026-05-13 sweep fixed `learn/channel-videos`, `learn/videos`, `learn/quiz`, `learn/progress`, `visa-tracker`, `admin/job-listings`, and `cron/expire-job-listings` but missed the four `app/api/interview/` routes that share the pattern `const msg = err instanceof Error ? err.message : 'static fallback'; return new Response(JSON.stringify({ error: msg }), { status: 502 })`. These routes are auth-gated (`requireSubscription`) so only authenticated users see the leaked OpenAI/network error details, but it is inconsistent with the hardened pattern across the rest of the codebase.
+
+### Quality (info disclosure — raw error messages in interview routes)
+- [x] Stop returning raw error messages to clients in `app/api/interview/chat/route.ts:68`, `app/api/interview/evaluate/route.ts:96`, `app/api/interview/questions/route.ts:141`, and `app/api/interview/mentor/route.ts:135` — all four use `err instanceof Error ? err.message : 'static fallback'` as the 502 body; replace with static strings (`'Chat failed'`, `'Evaluation failed'`, `'Failed to generate questions'`, `'Failed to generate narration'`); drop unused `msg` variable and `console.error` call, using bare `} catch {` matching the pattern in `app/api/learn/videos/route.ts:65`; update 4 test assertions in `interview-ai-routes.test.ts` and `interview-questions.test.ts` [quality] ✅ 2026-05-13
+
 ---
 
 ## 📊 Priority Rationale

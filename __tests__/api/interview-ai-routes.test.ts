@@ -129,7 +129,7 @@ describe('POST /api/interview/chat', () => {
     const res = await chatPOST(makePost(url, { messages: msgs }));
     expect(res.status).toBe(502);
     const body = await res.json();
-    expect(body.error).toMatch(/upstream timeout/i);
+    expect(body.error).toBe('Chat failed');
   });
 });
 
@@ -214,7 +214,7 @@ describe('POST /api/interview/evaluate', () => {
     const res = await evaluatePOST(makePost(url, validBody));
     expect(res.status).toBe(502);
     const body = await res.json();
-    expect(body.error).toMatch(/model overloaded/i);
+    expect(body.error).toBe('Evaluation failed');
   });
 });
 
@@ -303,6 +303,6 @@ describe('POST /api/interview/mentor', () => {
     const res = await mentorPOST(makePost(url, validBody));
     expect(res.status).toBe(502);
     const body = await res.json();
-    expect(body.error).toMatch(/connection reset/i);
+    expect(body.error).toBe('Failed to generate narration');
   });
 });

@@ -182,7 +182,7 @@ describe('POST /api/interview/questions', () => {
     const res = await POST(makePost({ roleId: 'junior-frontend' }));
     expect(res.status).toBe(502);
     const body = await res.json();
-    expect(body.error).toMatch(/upstream timeout/i);
+    expect(body.error).toBe('Failed to generate questions');
   });
 
   it('falls through corrupt KV entry to Supabase', async () => {
