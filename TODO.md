@@ -1203,6 +1203,13 @@
 ### Quality (info disclosure — raw error message)
 - [x] Stop returning raw error messages to the client in `app/api/learn/videos/route.ts:66` — the catch block does `return NextResponse.json({ error: (err as Error).message }, { status: 500 })`, which leaks internal details (fetch failure reasons, DNS errors, YouTube API internals) to any caller; replace with the bare-catch pattern used in `app/api/learn/channel-videos/route.ts:89` and `app/api/companies/research/route.ts:131-133` (`} catch { return NextResponse.json({ error: 'Failed to load IBM channel videos' }, { status: 500 }); }`); Sentry already captures the unhandled exception via the global instrumentation so observability is unaffected; update `__tests__/api/learn-videos.test.ts:128` to assert the generic message string instead of the dynamic `/Network failure/` pattern [quality] ✅ 2026-05-13
 
+## 🛡 Daily Analyst Findings — 2026-05-13 (supplement 2)
+
+> Supplement scan — three more routes return raw error messages in 500 responses, leaking Supabase error details and OpenAI failure reasons to authenticated callers. The pattern matches the two fixes shipped today (`learn/channel-videos` commit `623098e`, `learn/videos` commit `cf87e6a`). All three existing tests only assert `res.status === 500` with no body assertion, so the message can be genericised without touching tests.
+
+### Quality (info disclosure — raw error messages in three user-facing routes)
+- [x] Stop returning raw error messages to clients in `app/api/learn/quiz/route.ts:112`, `app/api/learn/progress/route.ts:36`, and `app/api/visa-tracker/route.ts:58` — quiz catch block leaks `(err as Error).message` (OpenAI/JSON-parse details); progress and visa-tracker leak `error.message` from Supabase upsert failures; replace with static strings `'Quiz generation failed'`, `'Failed to save progress'`, and `'Failed to save tracker'` respectively; no test updates needed as no test asserts the 500 body message [quality] ✅ 2026-05-13
+
 ---
 
 ## 📊 Priority Rationale

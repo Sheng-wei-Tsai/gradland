@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     .from('video_progress')
     .upsert(update, { onConflict: 'user_id,video_id' });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: 'Failed to save progress' }, { status: 500 });
   return NextResponse.json({ ok: true });
 }
 

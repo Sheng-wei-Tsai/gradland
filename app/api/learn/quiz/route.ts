@@ -108,7 +108,7 @@ Rules:
 
     void recordUsage(auth.user.id, 'learn/quiz');
     return NextResponse.json({ questions });
-  } catch (err) {
-    return NextResponse.json({ error: (err as Error).message }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: 'Quiz generation failed' }, { status: 500 });
   }
 }
