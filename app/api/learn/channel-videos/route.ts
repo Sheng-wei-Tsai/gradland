@@ -49,8 +49,7 @@ export async function GET(req: NextRequest) {
     );
 
     if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      return NextResponse.json({ error: err?.error?.message ?? 'YouTube API error' }, { status: res.status });
+      return NextResponse.json({ error: 'YouTube API error' }, { status: res.status });
     }
 
     const data = await res.json();

@@ -1217,6 +1217,13 @@
 ### Quality (info disclosure — raw error messages in admin job-listings route)
 - [x] Stop returning raw error messages to the client in `app/api/admin/job-listings/route.ts` — GET at line 34 leaks `error.message` on DB list failure; PATCH reject at line 62, approve-fetch at line 72, approve-update at line 79, extend-fetch at line 97, extend-update at line 107 each leak `error.message`/`fetchError.message`; DELETE at line 128 leaks `error.message`; replace all seven with static strings (`'Failed to load job listings'`, `'Failed to delete listing'`, `'Failed to load listing'`, `'Failed to approve listing'`, `'Failed to extend listing'`); Sentry captures the unhandled DB error via global instrumentation so observability is unaffected; no test updates needed [quality] ✅ 2026-05-13
 
+## 🛡 Daily Analyst Findings — 2026-05-13 (supplement 4)
+
+> Follow-up scan — two raw-error-message leaks missed by the 2026-05-13 supplement sweep. The supplement 3 pass covered `admin/job-listings` but left `app/api/cron/expire-job-listings/route.ts:37` (Supabase error message in 500 response — only seen by the GitHub Actions cron caller but inconsistent with the pattern) and `app/api/learn/channel-videos/route.ts:53` (YouTube API `err?.error?.message` forwarded to the authenticated caller in the non-OK path — the catch block at line 89 was fixed in the main 2026-05-13 scan but the non-OK branch at line 53 was missed). Both need to be replaced with static strings and their test assertions updated.
+
+### Quality (info disclosure — raw error messages in cron and channel-videos routes)
+- [x] Stop returning raw error messages to the client in `app/api/cron/expire-job-listings/route.ts:37` and `app/api/learn/channel-videos/route.ts:53` — cron route returns `expireError.message` (Supabase error) in the 500 path; channel-videos route returns `err?.error?.message ?? 'YouTube API error'` (YouTube API error detail) in the non-OK path; replace with `'Failed to expire job listings'` and `'YouTube API error'` (the existing fallback, now always used); update `__tests__/api/cron-expire-job-listings.test.ts:230` from `toBe('Constraint violation')` to `toBe('Failed to expire job listings')` and `__tests__/api/learn-channel-videos.test.ts:208` from `toMatch(/Quota exceeded/)` to `toBe('YouTube API error')` [quality] ✅ 2026-05-13
+
 ---
 
 ## 📊 Priority Rationale

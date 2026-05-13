@@ -227,6 +227,6 @@ describe('GET /api/cron/expire-job-listings', () => {
     const res  = await GET(makeReq(`Bearer ${CRON_SECRET}`));
     const body = await res.json();
     expect(res.status).toBe(500);
-    expect(body.error).toBe('Constraint violation');
+    expect(body.error).toBe('Failed to expire job listings');
   });
 });

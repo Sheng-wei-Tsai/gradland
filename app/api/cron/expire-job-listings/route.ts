@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
 
   if (expireError) {
     console.error('[cron/expire-job-listings] expire update failed:', expireError.message);
-    return NextResponse.json({ error: expireError.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to expire job listings' }, { status: 500 });
   }
 
   // Send expiry emails

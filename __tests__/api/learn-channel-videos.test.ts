@@ -193,7 +193,7 @@ describe('GET /api/learn/channel-videos', () => {
 
   // ── YouTube API error forwarding ──────────────────────────────────────────
 
-  it('forwards YouTube API non-OK response status and error message', async () => {
+  it('returns generic error on YouTube API non-OK response, preserving status code', async () => {
     process.env.YOUTUBE_API_KEY = 'yt-test';
     mockFetch
       .mockResolvedValueOnce(mockChannel('PL_err_1'))
@@ -205,7 +205,7 @@ describe('GET /api/learn/channel-videos', () => {
     const res = await GET(makeGet({ channelId: 'UC_err_10000000000000000' }));
     expect(res.status).toBe(403);
     const body = await res.json();
-    expect(body.error).toMatch(/Quota exceeded/);
+    expect(body.error).toBe('YouTube API error');
   });
 
   // ── Description truncation ────────────────────────────────────────────────
