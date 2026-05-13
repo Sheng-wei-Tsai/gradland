@@ -547,6 +547,11 @@ function sanitizeJobHtml(html: string): string {
     .replace(/\s+on\w+="[^"]*"/gi, '')
     .replace(/\s+on\w+='[^']*'/gi, '')
     .replace(/href="javascript:[^"]*"/gi, 'href="#"')
+    .replace(/href='javascript:[^']*'/gi, "href='#'")
+    .replace(/href=javascript:\S*/gi, 'href="#"')
+    .replace(/src="javascript:[^"]*"/gi, 'src="#"')
+    .replace(/src='javascript:[^']*'/gi, "src='#'")
+    .replace(/src=javascript:\S*/gi, 'src="#"')
     .trim();
 }
 
