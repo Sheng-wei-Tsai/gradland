@@ -1238,6 +1238,11 @@
 ### Quality (info disclosure — raw Gemini error in streaming fallback)
 - [x] Replace `friendly = raw` with a static fallback in `app/api/learn/analyse/route.ts:167` — the `else` branch in the streaming error handler sends the raw Gemini error message to authenticated callers; known patterns (too-long, audio-only) already map to friendly strings; unknown errors should fall back to `'Video analysis failed. Please try again or try a different video.'` to match the hardened pattern across the rest of the codebase [quality] ✅ 2026-05-13
 
+## 🛡 Daily Analyst Findings — 2026-05-13 (supplement 7)
+
+### Style (admin error displays)
+- [x] Replace `color: 'red'` with `var(--vermilion)` on error `<p>` elements in `app/admin/page.tsx:27`, `app/admin/comments/page.tsx:44`, `app/admin/users/page.tsx:58`, and `app/admin/analytics/page.tsx:106` — the CSS keyword `red` is off-brand and does not adapt to the design system's dark-mode vermilion (`#e84040`); every other error/danger colour in the codebase uses `var(--vermilion)` (e.g. `Comments.tsx:140,148`, `contact/ContactForm.tsx`, `login/page.tsx`) [style] ✅ 2026-05-13
+
 ---
 
 ## 📊 Priority Rationale

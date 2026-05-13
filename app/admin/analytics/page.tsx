@@ -103,7 +103,7 @@ function Dashboard() {
   }, [summary]);
 
   if (loadingData) return <p style={{ color: 'var(--text-muted)', padding: '3rem' }}>Loading analytics…</p>;
-  if (error) return <p style={{ color: 'red', padding: '3rem' }}>{error}</p>;
+  if (error) return <p style={{ color: 'var(--vermilion)', padding: '3rem' }}>{error}</p>;
   if (!summary) return null;
 
   const { overview, daily, topPages, referrers, countries, devices } = summary;

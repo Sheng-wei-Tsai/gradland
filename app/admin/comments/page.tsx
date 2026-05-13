@@ -41,7 +41,7 @@ function CommentsTable() {
   };
 
   if (loading) return <p style={{ color: 'var(--text-muted)' }}>Loading…</p>;
-  if (error)   return <p style={{ color: 'red' }}>{error}</p>;
+  if (error)   return <p style={{ color: 'var(--vermilion)' }}>{error}</p>;
 
   return (
     <div style={{ maxWidth: '860px', margin: '0 auto', padding: '3rem 1.5rem' }}>

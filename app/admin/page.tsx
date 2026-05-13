@@ -24,7 +24,7 @@ function Dashboard() {
       .catch(() => setError('Failed to load'));
   }, []);
 
-  if (error) return <p style={{ color: 'red' }}>{error}</p>;
+  if (error) return <p style={{ color: 'var(--vermilion)' }}>{error}</p>;
   if (!stats) return <p style={{ color: 'var(--text-muted)' }}>Loading…</p>;
 
   const card = (label: string, count: number, href: string) => (
