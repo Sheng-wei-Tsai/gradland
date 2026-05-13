@@ -164,7 +164,7 @@ Rules:
         } else if (lower.includes('audio') || lower.includes('no speech') || lower.includes('music') || lower.includes('sound only') || lower.includes('unsupported')) {
           friendly = 'This appears to be a music or audio-only video. AI analysis works best on tech tutorials with spoken explanations and on-screen content.';
         } else {
-          friendly = raw;
+          friendly = 'Video analysis failed. Please try again or try a different video.';
         }
         controller.enqueue(encoder.encode(JSON.stringify({ error: friendly })));
       }

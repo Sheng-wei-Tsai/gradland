@@ -1231,6 +1231,13 @@
 ### Quality (info disclosure — raw error messages in interview routes)
 - [x] Stop returning raw error messages to clients in `app/api/interview/chat/route.ts:68`, `app/api/interview/evaluate/route.ts:96`, `app/api/interview/questions/route.ts:141`, and `app/api/interview/mentor/route.ts:135` — all four use `err instanceof Error ? err.message : 'static fallback'` as the 502 body; replace with static strings (`'Chat failed'`, `'Evaluation failed'`, `'Failed to generate questions'`, `'Failed to generate narration'`); drop unused `msg` variable and `console.error` call, using bare `} catch {` matching the pattern in `app/api/learn/videos/route.ts:65`; update 4 test assertions in `interview-ai-routes.test.ts` and `interview-questions.test.ts` [quality] ✅ 2026-05-13
 
+## 🛡 Daily Analyst Findings — 2026-05-13 (supplement 6)
+
+> Supplement scan — `app/api/learn/analyse/route.ts:167` streaming error handler leaks raw Gemini error messages in the `else` fallback branch. The main 2026-05-13 sweep fixed nine routes returning `(err as Error).message` or `error.message` in response bodies, but missed this streaming-path variant where `friendly = raw` sends the actual Gemini internal error to the authenticated caller via the stream. Known error patterns (too-long, audio-only) are mapped to user-friendly messages; the `else` branch should do the same.
+
+### Quality (info disclosure — raw Gemini error in streaming fallback)
+- [x] Replace `friendly = raw` with a static fallback in `app/api/learn/analyse/route.ts:167` — the `else` branch in the streaming error handler sends the raw Gemini error message to authenticated callers; known patterns (too-long, audio-only) already map to friendly strings; unknown errors should fall back to `'Video analysis failed. Please try again or try a different video.'` to match the hardened pattern across the rest of the codebase [quality] ✅ 2026-05-13
+
 ---
 
 ## 📊 Priority Rationale
