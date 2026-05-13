@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
 
     const { videos, nextPageToken } = await fetchVideos(apiKey, playlistId, pageToken);
     return NextResponse.json({ videos, nextPageToken: nextPageToken ?? null });
-  } catch (err) {
-    return NextResponse.json({ error: (err as Error).message }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: 'Failed to load IBM channel videos' }, { status: 500 });
   }
 }

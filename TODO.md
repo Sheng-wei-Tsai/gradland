@@ -1196,6 +1196,13 @@
 ### Quality (info disclosure — raw error message)
 - [x] Stop returning raw error messages to the client in `app/api/learn/channel-videos/route.ts:89` — the catch block does `return NextResponse.json({ error: (err as Error).message }, { status: 500 })`, which leaks internal details (stack-style strings, Supabase error codes, fetch failure reasons) to any unauthenticated caller; replace with the bare-catch pattern used in `app/api/companies/research/route.ts:131-133` (`} catch { return NextResponse.json({ error: 'Failed to load channel videos' }, { status: 500 }); }`); Sentry already captures the unhandled exception via the global instrumentation so observability is unaffected; update `__tests__/api/learn-channel-videos.test.ts` to assert the generic message string instead of the dynamic one [quality] ✅ 2026-05-13
 
+## 🛡 Daily Analyst Findings — 2026-05-13 (supplement 1)
+
+> Follow-up scan — `app/api/learn/videos/route.ts` (IBM channel) has the same raw-error-message leak fixed today in `app/api/learn/channel-videos/route.ts` (commit `623098e`). Both routes catch exceptions in an outer try/catch and return `(err as Error).message` as the 500 body, exposing fetch-failure reasons, DNS errors, and YouTube API internals to any caller. The test at `__tests__/api/learn-videos.test.ts:128` asserts `expect(body.error).toMatch(/Network failure/)` — tying the test to the raw message rather than a stable contract.
+
+### Quality (info disclosure — raw error message)
+- [x] Stop returning raw error messages to the client in `app/api/learn/videos/route.ts:66` — the catch block does `return NextResponse.json({ error: (err as Error).message }, { status: 500 })`, which leaks internal details (fetch failure reasons, DNS errors, YouTube API internals) to any caller; replace with the bare-catch pattern used in `app/api/learn/channel-videos/route.ts:89` and `app/api/companies/research/route.ts:131-133` (`} catch { return NextResponse.json({ error: 'Failed to load IBM channel videos' }, { status: 500 }); }`); Sentry already captures the unhandled exception via the global instrumentation so observability is unaffected; update `__tests__/api/learn-videos.test.ts:128` to assert the generic message string instead of the dynamic `/Network failure/` pattern [quality] ✅ 2026-05-13
+
 ---
 
 ## 📊 Priority Rationale

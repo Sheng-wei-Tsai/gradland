@@ -119,12 +119,12 @@ describe('GET /api/learn/videos', () => {
     expect(body.videos[0].description).toBe('D'.repeat(200));
   });
 
-  it('returns 500 on fetch error', async () => {
+  it('returns 500 on fetch error with a generic message', async () => {
     process.env.YOUTUBE_API_KEY = 'yt-test';
     mockFetch.mockRejectedValueOnce(new Error('Network failure'));
     const res = await GET(makeGet());
     expect(res.status).toBe(500);
     const body = await res.json();
-    expect(body.error).toMatch(/Network failure/);
+    expect(body.error).toBe('Failed to load IBM channel videos');
   });
 });
