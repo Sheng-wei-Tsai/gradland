@@ -1183,6 +1183,21 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-13
+
+> Daily scan — three small fixes spanning stale brand text on every social-shareable OG image, sanitizer gaps in user-supplied job HTML, and an internal error-message leak. `npm audit` = 0 vulns; `tsc --noEmit` = clean. The "TECHPATH AU" string on the interview share card is the highest-impact item: every user who shares their result publishes the wrong brand to LinkedIn/X/etc. The pre-rebrand string survived every prior sweep because the file is `.tsx` rendered into a PNG via `ImageResponse`, so a text-search for visible UI strings never surfaced it.
+
+### Quality (stale brand on social share)
+- [ ] Replace `TECHPATH AU` with `GRADLAND` in `app/api/interview/share-card/route.tsx:36` — the `ImageResponse` OG card rendered for every interview-result share still displays the pre-rebrand brand string; this is the public-facing artefact every user posts to LinkedIn/X when they hit the "Share on LinkedIn" / "Download card" buttons in `app/interview-prep/[role]/InterviewSession.tsx:1216-1229`; also update `download={`techpath-au-${role.id}-${avgScore}.png`}` to `download={`gradland-${role.id}-${avgScore}.png`}` at `app/interview-prep/[role]/InterviewSession.tsx:1218` so the saved file matches; leave `LS_KEY = 'techpath_enrolled_paths'` at `app/learn/LearnPageClient.tsx:11` alone — that is a localStorage key and renaming would silently un-enrol every existing user from their saved paths [quality]
+
+### Security (jobs HTML sanitizer — incomplete `javascript:` URL coverage)
+- [ ] Cover single-quoted and unquoted `javascript:` URLs in `sanitizeJobHtml()` at `app/api/jobs/route.ts:540-551` — the output is rendered via `dangerouslySetInnerHTML` in `app/jobs/page.tsx:317` (`<div className="job-description-html" dangerouslySetInnerHTML={{ __html: job.description }} />`), so any gap in the sanitizer is a stored-XSS sink fed by third-party job feeds (Adzuna/JSearch/scraped HTML); current `.replace(/href="javascript:[^"]*"/gi, 'href="#"')` at line 549 only matches double-quoted hrefs; add `.replace(/href='javascript:[^']*'/gi, "href='#'")` and `.replace(/href=javascript:\S*/gi, 'href="#"')` (unquoted variant — HTML5 attributes can be unquoted up to whitespace); also extend to `src=` for completeness since `<img>` is not in the stripped-tag denylist on line 546; add 2 regression tests to `__tests__/api/jobs.test.ts` covering both single-quoted and unquoted `javascript:` payloads [security]
+
+### Quality (info disclosure — raw error message)
+- [ ] Stop returning raw error messages to the client in `app/api/learn/channel-videos/route.ts:89` — the catch block does `return NextResponse.json({ error: (err as Error).message }, { status: 500 })`, which leaks internal details (stack-style strings, Supabase error codes, fetch failure reasons) to any unauthenticated caller; replace with the bare-catch pattern used in `app/api/companies/research/route.ts:131-133` (`} catch { return NextResponse.json({ error: 'Failed to load channel videos' }, { status: 500 }); }`); Sentry already captures the unhandled exception via the global instrumentation so observability is unaffected; update `__tests__/api/learn-channel-videos.test.ts` to assert the generic message string instead of the dynamic one [quality]
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
