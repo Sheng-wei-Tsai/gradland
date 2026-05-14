@@ -1245,6 +1245,26 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-14
+
+> Daily scan — `npm audit` = 0 vulns; `tsc --noEmit` = clean; 53 API routes, all auth-gated routes have tests. Three findings target a real-world abuse surface: three public-facing routes call third-party metered APIs (YouTube Data API, RapidAPI) without rate limiting, so a botnet can burn the daily quota in minutes and break the `/learn/youtube` and `/learn/ibm` features for legitimate users. One small XSS-sanitizer gap (unquoted `onclick=` attributes) and one `.env.example` documentation drift on `KV_REST_API_*` round out the list. The AGENTS.md tech-debt table is also significantly stale — most items listed as "do not replicate" have been fixed in prior sweeps but the doc was never updated.
+
+### Security (public AI/external-API routes — rate-limit gap)
+- [ ] Add IP-based `checkRateLimit` (from `lib/rate-limit-db.ts`) to `app/api/learn/channel-videos/route.ts:21` — currently unauthenticated; fetches YouTube Data API on every cache-miss request (1 quota unit per `playlistItems` call + 1 per `channels` first-time-per-channel call); a botnet sending 10k requests/hour with random `channelId` values exhausts the daily YouTube quota (10k units default) in <1 hour and breaks `/learn/youtube` for legitimate users; same `getIp + checkRateLimit('learn/channel-videos:' + ip, 3600, 60)` pattern used in `app/api/contact/route.ts:9-28`; cap 60/hr/IP is generous for a UI that issues at most one call per channel visit [security]
+- [ ] Add IP-based `checkRateLimit` to `app/api/learn/videos/route.ts:53` (IBM channel route) — same pattern + risk as `channel-videos`; only one channel (`UCKWaEZ-_VweaEx1j62do_vQ`) is fetched but every request still hits YouTube quota; use key `'learn/videos:' + ip`, 60/hr cap [security]
+- [ ] Add IP-based `checkRateLimit` to `app/api/learn/video-meta/route.ts:6` for the RapidAPI cache-miss path — Supabase cache hit is free, but on miss the route calls `youtube138.p.rapidapi.com` (paid quota); an attacker sending requests with random valid 11-char videoIds (~64^11 namespace) bypasses cache every time and burns the RapidAPI plan; add `checkRateLimit('learn/video-meta:' + ip, 3600, 30)` immediately before the RapidAPI fetch at line 34 (after cache check so legitimate cache hits remain unmetered) [security]
+
+### Security (XSS sanitizer — unquoted attribute gap)
+- [ ] Cover unquoted event-handler attributes in `sanitizeJobHtml()` at `app/api/jobs/route.ts:547-548` — current pattern `.replace(/\s+on\w+="[^"]*"/gi, '')` + single-quoted variant strips quoted `onclick="…"` and `onclick='…'` but not unquoted `<a onclick=alert(1) href="...">` which HTML5 permits up to whitespace; the output is rendered via `dangerouslySetInnerHTML` in `app/jobs/page.tsx:317`; add `.replace(/\s+on\w+=\S+/gi, '')` after the existing two replaces (place LAST so it doesn't break the quoted variants matching `\S+` greedily — order matters); add 1 regression test to `__tests__/api/jobs.test.ts` covering an unquoted `onclick=alert(1)` payload (mirrors the single-quoted/unquoted `javascript:` URL tests added in commit `1c05e32`) [security]
+
+### Documentation (env-var drift in .env.example)
+- [ ] Add `KV_REST_API_URL` and `KV_REST_API_TOKEN` to `.env.example` — `lib/kv.ts:7-8` reads both env vars (used by `app/api/learn/analyse/route.ts`, `app/api/learn/quiz/route.ts`, `app/api/cover-letter/route.ts`, `app/api/interview/questions/route.ts` cache layers) but they are absent from `.env.example`; a fresh contributor running `cp .env.example .env.local` gets the no-op KV path silently with no indication that caching is disabled; add a `# ── Cache (Vercel KV) ──` section after the Logo CDN block following the same comment style as the other sections; both keys come from `vercel kv` Marketplace integration [quality]
+
+### Documentation (AGENTS.md tech-debt table stale)
+- [ ] Refresh `AGENTS.md` §15 "Known Tech Debt" table — most entries are stale because the fixes shipped in prior sweeps but the doc was never updated. Remove or mark as resolved: `@import` Google Fonts (fixed 2026-05-02 — `app/globals.css` now uses `next/font` per §6.2), `images: { unoptimized: true }` (fixed — `next.config.ts:7-22` now sets `remotePatterns`), `<img>` tags in PersonalisedHero/Header (fixed — verified no `<img>` usages remain in app/components per current grep), `<a href>` for internal routes in PersonalisedHero/GettingStartedChecklist (fixed 2026-05-02), `--text-muted: #786858` in dark mode (fixed — `globals.css:113` now `#a09080`), missing `middleware.ts` (shipped as `proxy.ts` per 2026-05-08 Sprint 0 B1), No CSP headers (shipped in `proxy.ts` 2026-05-06), Inline `onMouseEnter/Leave` (fixed 2026-05-02). Keep `export const dynamic = 'force-dynamic'` row only if a homepage instance still sets it (`app/page.tsx` now uses `revalidate = 3600` per current read — also stale; remove this row too). Also update §7.2 to drop the `--text-muted: #786858` warning that no longer applies. Net effect: trims a 9-row "do not replicate" table that is now mostly false alarms, restoring AGENTS.md as a trustworthy guide for new agents [quality] [docs]
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
