@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { checkRateLimit } from '@/lib/rate-limit-db';
 
 const IBM_CHANNEL_ID = 'UCKWaEZ-_VweaEx1j62do_vQ';
 
@@ -51,6 +52,13 @@ async function fetchVideos(apiKey: string, playlistId: string, pageToken?: strin
 }
 
 export async function GET(req: NextRequest) {
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+          ?? req.headers.get('x-real-ip')
+          ?? 'unknown';
+  if (await checkRateLimit('learn/videos:' + ip, 3600, 60)) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
+
   const apiKey = process.env.YOUTUBE_API_KEY;
   if (!apiKey) return NextResponse.json({ error: 'YouTube API not configured' }, { status: 503 });
 

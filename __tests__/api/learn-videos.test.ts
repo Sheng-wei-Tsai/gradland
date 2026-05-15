@@ -1,6 +1,10 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
+// ── Rate-limit mock — always pass-through (not limited) ──────────────────────
+const mockCheckRateLimit = vi.fn().mockResolvedValue(false);
+vi.mock('@/lib/rate-limit-db', () => ({ checkRateLimit: mockCheckRateLimit }));
+
 // Must be stubbed before route import so the module's fetch calls are intercepted.
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
@@ -44,7 +48,16 @@ function mockPlaylist(
 describe('GET /api/learn/videos', () => {
   afterEach(() => {
     mockFetch.mockReset();
+    mockCheckRateLimit.mockResolvedValue(false);
     delete process.env.YOUTUBE_API_KEY;
+  });
+
+  it('returns 429 when IP is over rate limit', async () => {
+    mockCheckRateLimit.mockResolvedValueOnce(true);
+    const res = await GET(makeGet());
+    expect(res.status).toBe(429);
+    const body = await res.json();
+    expect(body.error).toMatch(/too many/i);
   });
 
   it('returns 503 when YOUTUBE_API_KEY is not configured', async () => {

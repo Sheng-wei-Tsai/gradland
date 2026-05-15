@@ -5,6 +5,10 @@ import { NextRequest } from 'next/server';
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
+// ── Rate-limit mock — always pass-through (not limited) ──────────────────────
+const mockCheckRateLimit = vi.fn().mockResolvedValue(false);
+vi.mock('@/lib/rate-limit-db', () => ({ checkRateLimit: mockCheckRateLimit }));
+
 // ── Supabase mock ─────────────────────────────────────────────────────────────
 const mockMaybeSingle = vi.fn().mockResolvedValue({ data: null, error: null });
 const mockEq          = vi.fn().mockReturnValue({ maybeSingle: mockMaybeSingle });
@@ -30,6 +34,8 @@ describe('GET /api/learn/video-meta', () => {
   afterEach(() => {
     mockFetch.mockReset();
     mockMaybeSingle.mockResolvedValue({ data: null, error: null });
+    mockCheckRateLimit.mockClear();
+    mockCheckRateLimit.mockResolvedValue(false);
     delete process.env.RAPIDAPI_KEY;
   });
 
@@ -83,6 +89,31 @@ describe('GET /api/learn/video-meta', () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.channelTitle).toBe('');
+  });
+
+  // ── Rate limit (only on cache miss — Supabase hit bypasses) ─────────────
+
+  it('returns 429 when IP is over rate limit on a cache-miss request', async () => {
+    // default mockMaybeSingle returns null (cache miss) → hits rate limit check
+    mockCheckRateLimit.mockResolvedValueOnce(true);
+    process.env.RAPIDAPI_KEY = 'test-key';
+    const res = await GET(makeGet({ videoId: VALID_ID }));
+    expect(res.status).toBe(429);
+    const body = await res.json();
+    expect(body.error).toMatch(/too many/i);
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+
+  it('returns 200 from Supabase cache without calling the rate limiter (cache hit bypasses)', async () => {
+    mockMaybeSingle.mockResolvedValueOnce({
+      data:  { video_title: 'Cached Video', channel_title: 'Chan' },
+      error: null,
+    });
+    const res = await GET(makeGet({ videoId: VALID_ID }));
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.title).toBe('Cached Video');
+    expect(mockCheckRateLimit).not.toHaveBeenCalled();
   });
 
   // ── API key guard ─────────────────────────────────────────────────────────

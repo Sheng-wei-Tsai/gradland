@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseService } from '@/lib/auth-server';
+import { checkRateLimit } from '@/lib/rate-limit-db';
 
 const HOST = 'youtube138.p.rapidapi.com';
 
@@ -25,6 +26,14 @@ export async function GET(req: NextRequest) {
       duration:     '',
       description:  '',
     });
+  }
+
+  // ── Rate limit before hitting paid RapidAPI (cache hits remain unmetered) ──
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+          ?? req.headers.get('x-real-ip')
+          ?? 'unknown';
+  if (await checkRateLimit('learn/video-meta:' + ip, 3600, 30)) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
   }
 
   // ── Fallback: fetch from RapidAPI ─────────────────────────────────────────
