@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
 
   const { videoId, videoTitle, quizScore, completed } = body;
   if (!videoId || !videoTitle) return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+  if (!/^[A-Za-z0-9_-]{11}$/.test(videoId)) return NextResponse.json({ error: 'Invalid videoId' }, { status: 400 });
 
   const update: Record<string, unknown> = {
     user_id:     user.id,
