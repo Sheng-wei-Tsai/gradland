@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
+// ── Rate-limit mock — always pass-through (not limited) ──────────────────────
+vi.mock('@/lib/rate-limit-db', () => ({ checkRateLimit: vi.fn().mockResolvedValue(false) }));
+
 // ── Global fetch mock ─────────────────────────────────────────────────────────
 // Must be stubbed before the route module is imported so the route's fetch calls
 // are intercepted. Each test uses a unique channelId to avoid the module-level

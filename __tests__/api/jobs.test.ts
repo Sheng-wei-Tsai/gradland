@@ -148,6 +148,15 @@ describe('GET /api/jobs — AU tab', () => {
     expect(body.jobs[0].description).toContain('href="#"');
   });
 
+  it('sanitizes unquoted event-handler attributes in job descriptions', async () => {
+    const xssRow = { ...IT_ROW, id: 'xss-4', description: '<a onclick=alert(1) href="https://example.com">click</a>' };
+    resetChain([xssRow]);
+    const body = await (await GET(makeReq())).json();
+
+    expect(body.jobs[0].description).not.toContain('onclick=');
+    expect(body.jobs[0].description).toContain('href="https://example.com"');
+  });
+
   it('tab=au is selected by default when tab param is omitted', async () => {
     resetChain([IT_ROW]);
     const body = await (await GET(makeReq())).json();

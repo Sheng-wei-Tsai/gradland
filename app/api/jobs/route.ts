@@ -546,6 +546,7 @@ function sanitizeJobHtml(html: string): string {
     .replace(/<\/?(?:form|input|button|textarea|select|object|embed|applet|meta|link|base)[^>]*>/gi, '')
     .replace(/\s+on\w+="[^"]*"/gi, '')
     .replace(/\s+on\w+='[^']*'/gi, '')
+    .replace(/\s+on\w+=\S+/gi, '')
     .replace(/href="javascript:[^"]*"/gi, 'href="#"')
     .replace(/href='javascript:[^']*'/gi, "href='#'")
     .replace(/href=javascript:\S*/gi, 'href="#"')
