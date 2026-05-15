@@ -1,4 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { checkRateLimit } from '@/lib/rate-limit-db';
+
+function getIp(req: NextRequest): string {
+  return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+      ?? req.headers.get('x-real-ip')
+      ?? 'unknown';
+}
 
 // In-process cache for uploads playlist IDs — these never change so we only
 // fetch them once per server instance per channel.
@@ -24,6 +31,11 @@ export async function GET(req: NextRequest) {
   const maxResults = 30; // 30 per page — balanced between speed and quota
 
   if (!channelId) return NextResponse.json({ error: 'Missing channelId' }, { status: 400 });
+
+  const ip = getIp(req);
+  if (await checkRateLimit('learn/channel-videos:' + ip, 3600, 60)) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
 
   const apiKey = process.env.YOUTUBE_API_KEY;
   if (!apiKey) return NextResponse.json({ error: 'YouTube API key not configured' }, { status: 503 });
