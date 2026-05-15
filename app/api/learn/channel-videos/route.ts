@@ -1,4 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { checkRateLimit } from '@/lib/rate-limit-db';
+
+function getIp(req: NextRequest): string {
+  return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+      ?? req.headers.get('x-real-ip')
+      ?? 'unknown';
+}
 
 // In-process cache for uploads playlist IDs — these never change so we only
 // fetch them once per server instance per channel.
@@ -26,6 +33,11 @@ export async function GET(req: NextRequest) {
   if (!channelId) return NextResponse.json({ error: 'Missing channelId' }, { status: 400 });
   // Prevent query-param injection via template literal at line 12 (e.g. channelId=foo%26key=attacker)
   if (!/^[A-Za-z0-9_-]{18,30}$/.test(channelId)) return NextResponse.json({ error: 'Invalid channelId' }, { status: 400 });
+
+  const ip = getIp(req);
+  if (await checkRateLimit('learn/channel-videos:' + ip, 3600, 60)) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
 
   const apiKey = process.env.YOUTUBE_API_KEY;
   if (!apiKey) return NextResponse.json({ error: 'YouTube API key not configured' }, { status: 503 });
