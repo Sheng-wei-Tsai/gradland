@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
+import { checkRateLimit } from '@/lib/rate-limit-db';
 
 const SUPPORT_INBOX = 'admin@gradland.au';
 const FROM          = 'Gradland <noreply@gradland.au>';
 
 const VALID_TOPICS = new Set(['general', 'billing', 'privacy', 'bug', 'partnership']);
-
-const ipLog = new Map<string, number[]>();
-const RATE_LIMIT  = 5;
-const WINDOW_MS   = 60 * 60 * 1000;
 
 function getIp(req: NextRequest): string {
   return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
@@ -16,22 +13,11 @@ function getIp(req: NextRequest): string {
       ?? 'unknown';
 }
 
-function checkRateLimit(ip: string): boolean {
-  const now      = Date.now();
-  const existing = ipLog.get(ip);
-  const recent   = (existing ?? []).filter(t => now - t < WINDOW_MS);
-  if (recent.length >= RATE_LIMIT) return false;
-  if (!existing && ipLog.size >= 5000) ipLog.delete(ipLog.keys().next().value!);
-  recent.push(now);
-  ipLog.set(ip, recent);
-  return true;
-}
-
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export async function POST(req: NextRequest) {
   const ip = getIp(req);
-  if (!checkRateLimit(ip)) {
+  if (await checkRateLimit('contact:' + ip, 3600, 5)) {
     return NextResponse.json(
       { error: 'Too many messages. Please email admin@gradland.au directly.' },
       { status: 429 },
