@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { sourceLabel, makeSingleSource, formatAttribution, type SourceRef } from '@/lib/jobs-sources';
+import { checkRateLimit } from '@/lib/rate-limit-db';
+
+function getIp(req: NextRequest): string {
+  return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+      ?? req.headers.get('x-real-ip')
+      ?? 'unknown';
+}
 
 const APP_ID          = process.env.ADZUNA_APP_ID;
 const APP_KEY         = process.env.ADZUNA_APP_KEY;
@@ -565,6 +572,11 @@ function dedupKey(title: string, company: string): string {
 // ─── Route ────────────────────────────────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
+  const ip = getIp(req);
+  if (await checkRateLimit('jobs:' + ip, 3600, 120)) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
+
   const sp = req.nextUrl.searchParams;
   const keywords  = sp.get('keywords') || 'software developer';
   const location  = sp.get('location') || 'Brisbane';
