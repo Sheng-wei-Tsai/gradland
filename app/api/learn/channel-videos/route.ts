@@ -17,7 +17,7 @@ async function getUploadsPlaylistId(channelId: string, apiKey: string): Promise<
 
   const res = await fetch(
     `https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${channelId}&key=${apiKey}`,
-    { next: { revalidate: 86400 } }, // 24h — uploads playlist ID never changes
+    { next: { revalidate: 86400 }, signal: AbortSignal.timeout(8000) }, // 24h cache — playlist ID never changes
   );
   const data = await res.json();
   const id: string = data.items?.[0]?.contentDetails?.relatedPlaylists?.uploads ?? '';
@@ -57,7 +57,9 @@ export async function GET(req: NextRequest) {
     const res = await fetch(
       `https://www.googleapis.com/youtube/v3/playlistItems?${params}`,
       // First page is cacheable; subsequent pages must not be (different pageToken each time)
-      pageToken ? { cache: 'no-store' } : { next: { revalidate: 3600 } },
+      pageToken
+        ? { cache: 'no-store', signal: AbortSignal.timeout(8000) }
+        : { next: { revalidate: 3600 }, signal: AbortSignal.timeout(8000) },
     );
 
     if (!res.ok) {

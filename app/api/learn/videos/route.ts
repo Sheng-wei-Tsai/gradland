@@ -14,7 +14,7 @@ interface YTItem {
 async function getUploadsPlaylistId(apiKey: string): Promise<string> {
   const res = await fetch(
     `https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${IBM_CHANNEL_ID}&key=${apiKey}`,
-    { next: { revalidate: 86400 } }, // 24h — playlist ID never changes
+    { next: { revalidate: 86400 }, signal: AbortSignal.timeout(8000) }, // 24h cache — playlist ID never changes
   );
   const data = await res.json();
   return data.items?.[0]?.contentDetails?.relatedPlaylists?.uploads ?? '';
@@ -29,7 +29,7 @@ async function fetchVideos(apiKey: string, playlistId: string, pageToken?: strin
   });
   if (pageToken) params.set('pageToken', pageToken);
 
-  const res  = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?${params}`, { next: { revalidate: 3600 } });
+  const res  = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?${params}`, { next: { revalidate: 3600 }, signal: AbortSignal.timeout(8000) });
   const data = await res.json();
 
   const videos: YTItem[] = (data.items ?? []).map((item: {
