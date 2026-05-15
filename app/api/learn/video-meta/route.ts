@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseService } from '@/lib/auth-server';
+import { checkRateLimit } from '@/lib/rate-limit-db';
 
 const HOST = 'youtube138.p.rapidapi.com';
+
+function getIp(req: NextRequest): string {
+  return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+      ?? req.headers.get('x-real-ip')
+      ?? 'unknown';
+}
 
 export async function GET(req: NextRequest) {
   const videoId = req.nextUrl.searchParams.get('videoId');
@@ -27,20 +34,32 @@ export async function GET(req: NextRequest) {
     });
   }
 
+  // ── Cache miss → about to spend RapidAPI quota. Gate by IP. ───────────────
+  const ip = getIp(req);
+  if (await checkRateLimit('video-meta:' + ip, 3600, 30)) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
+
   // ── Fallback: fetch from RapidAPI ─────────────────────────────────────────
   const apiKey = process.env.RAPIDAPI_KEY;
   if (!apiKey) return NextResponse.json({ error: 'RapidAPI key not configured' }, { status: 503 });
 
-  const res = await fetch(`https://${HOST}/video/details/`, {
-    method:  'POST',
-    headers: {
-      'Content-Type':    'application/json',
-      'x-rapidapi-host': HOST,
-      'x-rapidapi-key':  apiKey,
-    },
-    body: JSON.stringify({ id: videoId, hl: 'en', gl: 'AU' }),
-    cache: 'no-store', // POST body not part of Next.js cache key — never cache
-  });
+  let res: Response;
+  try {
+    res = await fetch(`https://${HOST}/video/details/`, {
+      method:  'POST',
+      headers: {
+        'Content-Type':    'application/json',
+        'x-rapidapi-host': HOST,
+        'x-rapidapi-key':  apiKey,
+      },
+      body:   JSON.stringify({ id: videoId, hl: 'en', gl: 'AU' }),
+      cache:  'no-store', // POST body not part of Next.js cache key — never cache
+      signal: AbortSignal.timeout(8000),
+    });
+  } catch {
+    return NextResponse.json({ error: 'Upstream timeout' }, { status: 504 });
+  }
 
   if (!res.ok) return NextResponse.json({ error: 'Video not found' }, { status: 404 });
 
