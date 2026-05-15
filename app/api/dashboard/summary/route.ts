@@ -51,6 +51,7 @@ export async function GET() {
     sb.from('job_applications')
       .select('status')
       .eq('user_id', uid)
+      .order('applied_at', { ascending: false })
       .limit(500),
   ]);
 
