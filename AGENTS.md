@@ -175,13 +175,11 @@ import { Space_Grotesk, Lora, Caveat } from 'next/font/google';
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-space' });
 ```
 
-The CSS `@import url('https://fonts.googleapis.com/...')` in `globals.css` is **known tech debt** — do not replicate this pattern in any new file.
-
 ### 6.3 Images
 
 - Use `<Image>` from `next/image` for ALL images — never raw `<img>` tags
-- The `images: { unoptimized: true }` in `next.config.ts` is tech debt — when fixing, add `remotePatterns` for `*.googleusercontent.com` and `*.githubusercontent.com`
 - Always set explicit `width` and `height` on `<Image>` to prevent CLS
+- New external hostnames must be added to `remotePatterns` in `next.config.ts` (see §15 for the anti-pattern to avoid)
 
 ### 6.4 Client vs Server Components
 

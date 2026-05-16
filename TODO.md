@@ -1330,6 +1330,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-16 (supplement 8)
+
+> Supplement scan — AGENTS.md §6.2 and §6.3 contain stale "tech debt" warnings not removed by the 2026-05-16 §15 refresh. `globals.css:1` confirms the `@import` was removed (comment: "Fonts are loaded via next/font in app/layout.tsx — NOT via @import"); `next.config.ts:5` confirms `unoptimized: true` was removed and `remotePatterns` added. Both anti-patterns are already listed in §15 "Resolved Anti-Patterns". The inline sentences incorrectly imply open work that does not exist and could mislead future agents.
+
+### Documentation (stale tech-debt warnings in AGENTS.md)
+- [x] Remove stale "known tech debt" sentence from `AGENTS.md:178` (§6.2) — `globals.css` no longer has `@import` (confirmed by line 1 comment); anti-pattern is already in §15; remove the sentence entirely. Also remove the stale `images: { unoptimized: true } is tech debt` bullet from `AGENTS.md:183` (§6.3) — `next.config.ts:5` confirms it was removed and `remotePatterns` already added; replace bullet with a plain instruction: "New external hostnames must be added to `remotePatterns` in `next.config.ts`"; no code changes needed [docs] [quality] ✅ 2026-05-16
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
