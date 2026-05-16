@@ -28,6 +28,7 @@ const SORT_OPTIONS = [
 const CATEGORIES: { label: string; keyword: string }[] = [
   { label: 'All',       keyword: '' },
   { label: 'Developer', keyword: 'developer' },
+  { label: 'AI / ML',   keyword: 'AI engineer' },
   { label: 'DevOps',    keyword: 'devops' },
   { label: 'Data',      keyword: 'data engineer' },
   { label: 'Security',  keyword: 'cyber security' },
@@ -35,14 +36,20 @@ const CATEGORIES: { label: string; keyword: string }[] = [
 ];
 
 const QUICK_STARTS = [
+  'AI Engineer',
+  'ML Engineer',
+  'LLM Engineer',
   'Software Developer',
   'Full Stack Developer',
   'DevOps Engineer',
   'Data Engineer',
+  'Data Scientist',
+  'MLOps',
+  'Computer Vision',
+  'Prompt Engineer',
+  'Python Developer',
   'Cyber Security',
   'QA Engineer',
-  'Python Developer',
-  'ML Engineer',
 ];
 
 const LS_KEY        = 'job-search-prefs';

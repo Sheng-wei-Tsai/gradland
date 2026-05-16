@@ -87,6 +87,9 @@ const IT_KEYWORDS = [
   'software developer', 'frontend developer', 'backend developer',
   'full stack developer', 'devops engineer', 'data engineer',
   'QA engineer', 'cloud engineer', 'cyber security',
+  // 2026 AI wave — separate queries surface roles the generic "developer" search misses
+  'AI engineer', 'machine learning engineer', 'LLM engineer',
+  'MLOps engineer', 'computer vision engineer', 'data scientist',
 ];
 
 const LOCATIONS = ['Brisbane', 'Sydney', 'Melbourne', 'Perth', 'Adelaide'];

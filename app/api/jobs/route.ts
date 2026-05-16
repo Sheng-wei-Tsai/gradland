@@ -209,7 +209,7 @@ async function fetchJSearch(keywords: string, location: string): Promise<AdzunaJ
     const params = new URLSearchParams({
       query:       `${keywords} in ${location}, Australia`,
       page:        '1',
-      num_pages:   '1',
+      num_pages:   '2', // 2 pages × 10 = 20 results — boosts remote/freelance volume
       date_posted: 'week',
       country:     'au',
     });
