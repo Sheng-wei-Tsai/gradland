@@ -1290,6 +1290,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-16 (supplement 3)
+
+> Supplement scan — `app/api/visa/pathway/route.ts` (added in commit `b0937c7`) has zero test coverage. Every other API route in the codebase has a corresponding test file in `__tests__/api/`. The route accepts 8 validated fields, is auth + subscription gated, and calls `checkEndpointRateLimit` — all branches that need regression protection. A future change to input validation or the rate-limit gate could silently break the feature.
+
+### Tests
+- [x] Add Vitest tests for `POST /api/visa/pathway` — 401 without session, 403 SUBSCRIPTION_REQUIRED without active plan, 400 on invalid `currentVisa` (not in VALID_VISA allowlist), 400 on malformed `anzsco` (not 6 digits), 400 on `experienceYears` out-of-range (negative or > 50), 400 on invalid `state` (not in VALID_STATE), 429 when `checkEndpointRateLimit` returns false, 200 returns `{ input, analysis }` with all eight input fields echoed back — new file: `__tests__/api/visa-pathway.test.ts` [tests] ✅ 2026-05-16
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
