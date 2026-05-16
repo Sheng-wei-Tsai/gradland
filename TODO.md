@@ -1299,6 +1299,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-16 (supplement 4)
+
+> Supplement scan — `app/api/onboarding/route.ts` gained two new validated fields in commit `69b7d27` (`anzsco`: 6-digit code, must match `/^\d{6}$/`; `experienceYears`: number 0–50, Math.trunc clamped) but `__tests__/api/onboarding.test.ts` only covers the original three fields (role, visaStatus, jobStage). The new validation branches have zero regression protection — a future refactor could silently accept a malformed ANZSCO or an out-of-range experience value and store it in the profiles DB column without error.
+
+### Tests
+- [x] Add Vitest tests for new `anzsco` and `experienceYears` validation in `POST /api/onboarding` — (1) 400 when `anzsco` is 5 digits (`'26131'`), (2) 400 when `anzsco` contains non-digits (`'2613XX'`), (3) 200 when `anzsco` is empty string (allowed — "other" role; stored as null), (4) 200 when `experienceYears` is a non-numeric string (`'two'` — coerced to null, not rejected), (5) 200 when `experienceYears` is 51 and the upsert receives `onboarding_experience_years: 50` (Math.min clamp); amend `__tests__/api/onboarding.test.ts` — no new file needed [tests] ✅ 2026-05-16
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

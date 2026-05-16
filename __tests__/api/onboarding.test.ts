@@ -72,4 +72,46 @@ describe('POST /api/onboarding', () => {
     const res = await POST(makeRequest({}));
     expect(res.status).toBe(200);
   });
+
+  // ── ANZSCO validation ────────────────────────────────────────────────────────
+
+  it('returns 400 when anzsco is only 5 digits', async () => {
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'u1' } }, error: null });
+    const res = await POST(makeRequest({ anzsco: '26131' }));
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/anzsco/i);
+  });
+
+  it('returns 400 when anzsco contains non-digit characters', async () => {
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'u1' } }, error: null });
+    const res = await POST(makeRequest({ anzsco: '2613XX' }));
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/anzsco/i);
+  });
+
+  it('returns 200 when anzsco is empty string (stored as null)', async () => {
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'u1' } }, error: null });
+    const res = await POST(makeRequest({ anzsco: '' }));
+    expect(res.status).toBe(200);
+  });
+
+  // ── experienceYears coercion ─────────────────────────────────────────────────
+
+  it('returns 200 when experienceYears is a non-numeric string (coerced to null)', async () => {
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'u1' } }, error: null });
+    const res = await POST(makeRequest({ experienceYears: 'two' }));
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.ok).toBe(true);
+  });
+
+  it('clamps experienceYears of 51 to 50 before upsert', async () => {
+    mockUpsert.mockClear();
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'u1' } }, error: null });
+    await POST(makeRequest({ experienceYears: 51 }));
+    const upsertArg = mockUpsert.mock.calls[0][0];
+    expect(upsertArg.onboarding_experience_years).toBe(50);
+  });
 });
