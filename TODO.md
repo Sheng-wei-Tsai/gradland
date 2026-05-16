@@ -1325,7 +1325,7 @@
 ## 🛡 Daily Analyst Findings — 2026-05-16 (supplement 7)
 
 ### Tests
-- [ ] Add assertions for `onboardingAnzsco` and `onboardingExperienceYrs` in `__tests__/api/dashboard-summary.test.ts` — both fields were added to `DashboardSummary` in commit `69b7d27` to support PathwayPlanner pre-fill (`app/visa-pathway/PathwayPlanner.tsx:116-119`), but none of the existing tests assert them; the zero-data test (line 61) should add `expect(body.onboardingAnzsco).toBeNull()` and `expect(body.onboardingExperienceYrs).toBeNull()`; add one new happy-path test returning `onboarding_anzsco: '261313'` and `onboarding_experience_years: 3` from the profiles mock and verifying they are forwarded in the response; a regression removing either field from the route would go undetected by the current suite [tests]
+- [x] Add assertions for `onboardingAnzsco` and `onboardingExperienceYrs` in `__tests__/api/dashboard-summary.test.ts` ✅ 2026-05-16 — both fields were added to `DashboardSummary` in commit `69b7d27` to support PathwayPlanner pre-fill (`app/visa-pathway/PathwayPlanner.tsx:116-119`), but none of the existing tests assert them; the zero-data test (line 61) should add `expect(body.onboardingAnzsco).toBeNull()` and `expect(body.onboardingExperienceYrs).toBeNull()`; add one new happy-path test returning `onboarding_anzsco: '261313'` and `onboarding_experience_years: 3` from the profiles mock and verifying they are forwarded in the response; a regression removing either field from the route would go undetected by the current suite [tests]
 
 ---
 
