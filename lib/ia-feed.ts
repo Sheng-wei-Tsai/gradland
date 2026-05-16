@@ -105,6 +105,7 @@ export async function fetchIAFeed(limit = 12): Promise<IAFeedItem[]> {
 export function formatRelativeDate(isoDate: string): string {
   try {
     const d = new Date(isoDate);
+    if (isNaN(d.getTime())) return '';
     const diff = Date.now() - d.getTime();
     const days = Math.floor(diff / 86400000);
     if (days === 0) return 'Today';

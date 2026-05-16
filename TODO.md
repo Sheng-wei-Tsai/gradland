@@ -1348,6 +1348,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-16 (supplement 10)
+
+> Supplement scan — `lib/ia-feed.ts` exports `formatRelativeDate` which is used in `app/digest/page.tsx:91` to display publication timestamps for Information Age feed items. The function has 6 distinct code paths (today / yesterday / Xd ago / Xw ago / locale date / invalid-date fallback) with zero unit test coverage. An off-by-one in the days calculation or a broken `toLocaleDateString` call would silently show wrong dates to every digest reader. Same risk pattern that prompted tests for `lib/sponsor-detect.ts` (✅ 2026-05-16), `lib/skill-paths.ts` (✅ 2026-05-16), and `lib/visa-rules.ts` (✅ 2026-05-16).
+
+### Tests
+- [x] Add Vitest unit tests for `lib/ia-feed.ts` — `formatRelativeDate`: (1) returns `'Today'` when date is earlier the same day, (2) returns `'Yesterday'` for 1 day ago, (3) returns `'3d ago'` for 3 days ago (< 7 branch), (4) returns `'2w ago'` for 14 days ago (< 30 branch), (5) returns locale date string for 45 days ago (≥ 30 branch — match `\d+ \w+` rather than exact string for locale portability), (6) returns `''` for an invalid date string; use `vi.useFakeTimers()` + `vi.setSystemTime()` so results are deterministic; also fixed bug: invalid dates (`new Date('not-a-date').getTime()` returns `NaN`) fell through to `toLocaleDateString` returning `'Invalid Date'` instead of `''` — added `isNaN(d.getTime())` guard in `lib/ia-feed.ts:108`; new file: `__tests__/lib/ia-feed.test.ts` [tests] ✅ 2026-05-16
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
