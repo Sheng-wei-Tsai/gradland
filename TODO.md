@@ -1272,6 +1272,13 @@
 - [x] Add Vitest test for `app/api/comments/[id]/route.ts` — cover (1) PATCH returns 400 on non-UUID `id`, (2) PATCH returns 401 without session, (3) PATCH returns 403 when `user.id !== comment.user_id` (the `.eq('user_id', user.id)` ownership scope at line 25 is the security boundary — a regression here would let any logged-in user edit any comment), (4) DELETE returns `ok: true` when the caller is admin (`profiles.role === 'admin'`) deleting another user's comment. Mirror the mock pattern in `__tests__/api/comments.test.ts` for the parent route [tests] ✅ 2026-05-16
 - [x] Add Vitest test for `app/api/admin/users/[id]/route.ts` — cover (1) PATCH returns 403 when caller is not admin (verify `requireAdmin()` gate), (2) PATCH returns 400 on `role` value outside `['user','admin']`, (3) DELETE returns 400 when admin tries to ban themselves (line 38-40 self-ban guard), (4) DELETE deletes the user's comments AND sets `role='banned'` in one happy-path test. This is the only mutation endpoint that can change platform roles and is currently zero-test [tests] ✅ 2026-05-16
 
+## 🛡 Daily Analyst Findings — 2026-05-16 (supplement 1)
+
+> Supplement scan — `lib/sponsor-detect.ts` added in commit `b54eafa` has zero unit test coverage. It is a pure function with 6 positive and 7 negative regex patterns used to heuristically detect visa-sponsorship mentions across all job sources (Adzuna, Google Jobs, JSearch, Remotive, Jobicy). Every call site mocks `@/lib/sponsor-detect` entirely so the actual regexes are never exercised by the test suite. A typo or conflicting pattern in POSITIVE/NEGATIVE would silently produce wrong `sponsor_signal` values on every `/api/jobs` response.
+
+### Tests
+- [x] Add Vitest unit tests for `lib/sponsor-detect.ts` — test: (1) returns `false` for `null`/`undefined`/empty string, (2) returns `true` when text matches a POSITIVE pattern (`'will sponsor visa'`, `'482 visa sponsorship available'`, `'accredited sponsor'`), (3) returns `false` when NEGATIVE overrides a POSITIVE match (`'no visa sponsorship available'`), (4) returns `false` when only a NEGATIVE pattern matches (`'Australian citizens only'`), (5) returns `false` when no pattern matches (`'competitive salary'`), (6) NEGATIVE `'citizens and permanent residents only'` overrides any POSITIVE; new file: `__tests__/lib/sponsor-detect.test.ts` [tests] ✅ 2026-05-16
+
 ---
 
 ## 📊 Priority Rationale
