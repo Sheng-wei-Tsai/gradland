@@ -1270,7 +1270,7 @@
 
 ### Tests (mutation routes with auth/ownership checks)
 - [x] Add Vitest test for `app/api/comments/[id]/route.ts` — cover (1) PATCH returns 400 on non-UUID `id`, (2) PATCH returns 401 without session, (3) PATCH returns 403 when `user.id !== comment.user_id` (the `.eq('user_id', user.id)` ownership scope at line 25 is the security boundary — a regression here would let any logged-in user edit any comment), (4) DELETE returns `ok: true` when the caller is admin (`profiles.role === 'admin'`) deleting another user's comment. Mirror the mock pattern in `__tests__/api/comments.test.ts` for the parent route [tests] ✅ 2026-05-16
-- [ ] Add Vitest test for `app/api/admin/users/[id]/route.ts` — cover (1) PATCH returns 403 when caller is not admin (verify `requireAdmin()` gate), (2) PATCH returns 400 on `role` value outside `['user','admin']`, (3) DELETE returns 400 when admin tries to ban themselves (line 38-40 self-ban guard), (4) DELETE deletes the user's comments AND sets `role='banned'` in one happy-path test. This is the only mutation endpoint that can change platform roles and is currently zero-test [tests]
+- [x] Add Vitest test for `app/api/admin/users/[id]/route.ts` — cover (1) PATCH returns 403 when caller is not admin (verify `requireAdmin()` gate), (2) PATCH returns 400 on `role` value outside `['user','admin']`, (3) DELETE returns 400 when admin tries to ban themselves (line 38-40 self-ban guard), (4) DELETE deletes the user's comments AND sets `role='banned'` in one happy-path test. This is the only mutation endpoint that can change platform roles and is currently zero-test [tests] ✅ 2026-05-16
 
 ---
 
