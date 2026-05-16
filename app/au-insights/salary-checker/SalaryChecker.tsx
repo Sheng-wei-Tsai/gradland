@@ -1,6 +1,7 @@
 'use client';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { SALARIES_BY_ROLE, JSA_ICT_OCCUPATIONS } from '../data/job-market';
+import { checkSalaryCompliance, SALARY_THRESHOLD_EDITION, type VisaStatus } from '@/lib/visa-rules';
 
 const EXPERIENCE_BANDS = [
   { id: 'junior', label: '0–2 yrs (Graduate)', key: 'junior' as const },
@@ -37,6 +38,24 @@ function isInShortage(role: string): boolean {
     Array.from(JSA_SHORTAGE_ROLES).some(r => lower.includes(r.split(' ')[0].toLowerCase()));
 }
 
+const VISA_LABELS: Record<VisaStatus, string> = {
+  outside:  "Outside Australia, planning to move",
+  student:  "Student visa (500)",
+  graduate: "Graduate visa (485)",
+  working:  "Working visa (482 / skilled)",
+  resident: "Resident or citizen",
+  unsure:   "Not sure / prefer not to say",
+};
+
+const VISA_OPTIONS: { value: VisaStatus | ''; label: string }[] = [
+  { value: '',         label: 'Skip — no visa context' },
+  { value: 'graduate', label: VISA_LABELS.graduate },
+  { value: 'working',  label: VISA_LABELS.working },
+  { value: 'student',  label: VISA_LABELS.student },
+  { value: 'outside',  label: VISA_LABELS.outside },
+  { value: 'resident', label: VISA_LABELS.resident },
+];
+
 const NEGOTIATION_SCRIPTS: Record<'above' | 'fair' | 'below' | 'low', string> = {
   above: `Thank you so much for the offer — I'm really excited about this opportunity. The compensation looks strong and I'm happy to accept.`,
   fair:  `Thank you for the offer. I'm very interested in the role. Based on market data I've reviewed, I was hoping we could get to [counter-offer]. Is there any flexibility on the base salary?`,
@@ -50,9 +69,32 @@ export default function SalaryChecker() {
   const [companyTier, setCompanyTier] = useState('');
   const [offerStr, setOfferStr] = useState('');
   const [copied, setCopied] = useState(false);
+  const [visa, setVisa] = useState<VisaStatus | ''>('');
+
+  // Pre-fill visa status from logged-in profile (silent fail — works logged-out)
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/dashboard/summary')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (cancelled || !data) return;
+        const v = data.onboardingVisaStatus as string | null;
+        if (v && (['outside','student','graduate','working','resident','unsure'] as string[]).includes(v)) {
+          setVisa(v as VisaStatus);
+        }
+      })
+      .catch(() => { /* logged-out / network — ignore */ });
+    return () => { cancelled = true; };
+  }, []);
 
   const offer = parseInt(offerStr.replace(/[^0-9]/g, ''), 10) || 0;
   const roleData = SALARIES_BY_ROLE.find(r => r.role === role);
+
+  // Visa compliance — independent of role, fires whenever offer entered
+  const visaCheck = useMemo(() => {
+    if (offer <= 0 || !visa) return null;
+    return checkSalaryCompliance(offer, visa);
+  }, [offer, visa]);
 
   const result = useMemo(() => {
     if (!roleData || offer <= 0) return null;
@@ -211,8 +253,51 @@ export default function SalaryChecker() {
               ))}
             </select>
           </div>
+          <div>
+            <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--brown-dark)', display: 'block', marginBottom: '0.35rem' }}>
+              Your visa status <span style={{ fontWeight: 400, color: 'var(--text-muted)' }}>(unlocks visa-pathway compliance check)</span>
+            </label>
+            <select value={visa} onChange={e => setVisa(e.target.value as VisaStatus | '')} style={inputStyle}>
+              {VISA_OPTIONS.map(o => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
+
+      {/* Visa Compliance — runs whenever offer + visa selected, even without role */}
+      {visaCheck && visaCheck.verdict !== 'na' && (() => {
+        const v = visaCheck.verdict;
+        const colour = v === 'safe' ? 'var(--jade)' : v === 'risky' ? 'var(--gold)' : 'var(--terracotta)';
+        const bg     = v === 'safe' ? 'rgba(30,122,82,0.06)' : v === 'risky' ? 'rgba(200,138,20,0.07)' : 'rgba(192,40,28,0.06)';
+        const border = v === 'safe' ? 'rgba(30,122,82,0.3)'  : v === 'risky' ? 'rgba(200,138,20,0.3)'  : 'rgba(192,40,28,0.25)';
+        const heading =
+          v === 'safe'  ? '🟢 Visa-pathway safe' :
+          v === 'risky' ? '🟡 Visa-pathway risky' :
+                          '🔴 Below visa floor — sponsorship blocked';
+        return (
+          <div style={{ border: `2px solid ${border}`, borderRadius: '12px', overflow: 'hidden' }}>
+            <div style={{ background: bg, padding: '1rem 1.2rem', borderBottom: `1px solid ${border}` }}>
+              <div style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.25rem' }}>
+                Visa Pathway Compliance · {VISA_LABELS[visa as VisaStatus]}
+              </div>
+              <div style={{ fontSize: '1.05rem', fontWeight: 700, color: colour, marginBottom: '0.15rem' }}>
+                {heading}
+              </div>
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                {visaCheck.floorLabel}
+              </div>
+            </div>
+            <div style={{ padding: '1rem 1.2rem', fontSize: '0.85rem', color: 'var(--brown-dark)', lineHeight: 1.6 }}>
+              {visaCheck.rationale}
+              <p style={{ fontSize: '0.68rem', color: 'var(--text-muted)', margin: '0.7rem 0 0', lineHeight: 1.55 }}>
+                Source: Department of Home Affairs — {SALARY_THRESHOLD_EDITION}. Threshold indexed each 1 July.
+              </p>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Result */}
       {result && (
