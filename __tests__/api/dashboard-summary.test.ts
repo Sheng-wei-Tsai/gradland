@@ -35,6 +35,7 @@ function makeAppsChain(rows: { status: string }[] = []) {
   const c: any = {};
   c.select = vi.fn().mockReturnValue(c);
   c.eq     = vi.fn().mockReturnValue(c);
+  c.order  = vi.fn().mockReturnValue(c);
   c.limit  = vi.fn().mockResolvedValue({ data: rows, error: null });
   return c;
 }

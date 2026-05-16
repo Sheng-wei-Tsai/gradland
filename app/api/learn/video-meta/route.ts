@@ -40,16 +40,22 @@ export async function GET(req: NextRequest) {
   const apiKey = process.env.RAPIDAPI_KEY;
   if (!apiKey) return NextResponse.json({ error: 'RapidAPI key not configured' }, { status: 503 });
 
-  const res = await fetch(`https://${HOST}/video/details/`, {
-    method:  'POST',
-    headers: {
-      'Content-Type':    'application/json',
-      'x-rapidapi-host': HOST,
-      'x-rapidapi-key':  apiKey,
-    },
-    body: JSON.stringify({ id: videoId, hl: 'en', gl: 'AU' }),
-    cache: 'no-store', // POST body not part of Next.js cache key — never cache
-  });
+  let res: Response;
+  try {
+    res = await fetch(`https://${HOST}/video/details/`, {
+      method:  'POST',
+      headers: {
+        'Content-Type':    'application/json',
+        'x-rapidapi-host': HOST,
+        'x-rapidapi-key':  apiKey,
+      },
+      body:   JSON.stringify({ id: videoId, hl: 'en', gl: 'AU' }),
+      cache:  'no-store', // POST body not part of Next.js cache key — never cache
+      signal: AbortSignal.timeout(8000),
+    });
+  } catch {
+    return NextResponse.json({ error: 'Upstream timeout' }, { status: 504 });
+  }
 
   if (!res.ok) return NextResponse.json({ error: 'Video not found' }, { status: 404 });
 

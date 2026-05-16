@@ -42,20 +42,24 @@ export async function POST(req: NextRequest) {
       model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: systemContent },
-        ...messages.slice(-10),
+        ...messages.slice(-10).map(m => ({ ...m, content: String(m.content ?? '').slice(0, 5000) })),
       ],
       max_tokens: 200,
       stream: true,
-    });
+    }, { signal: AbortSignal.timeout(30000) });
 
     const encoder = new TextEncoder();
     const readable = new ReadableStream({
       async start(controller) {
-        for await (const chunk of stream) {
-          const text = chunk.choices[0]?.delta?.content ?? '';
-          if (text) controller.enqueue(encoder.encode(text));
+        try {
+          for await (const chunk of stream) {
+            const text = chunk.choices[0]?.delta?.content ?? '';
+            if (text) controller.enqueue(encoder.encode(text));
+          }
+          controller.close();
+        } catch (err) {
+          controller.error(err);
         }
-        controller.close();
       },
     });
 

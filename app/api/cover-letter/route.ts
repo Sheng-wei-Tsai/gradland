@@ -101,20 +101,25 @@ Write the cover letter now. 3-4 paragraphs, plain text only, no headers or bulle
     ],
     max_tokens: 800,
     stream: true,
-  });
+  }, { signal: AbortSignal.timeout(45000) });
 
   const encoder = new TextEncoder();
   const chunks: string[] = [];
   const readable = new ReadableStream({
     async start(controller) {
-      for await (const chunk of stream) {
-        const text = chunk.choices[0]?.delta?.content ?? '';
-        if (text) {
-          controller.enqueue(encoder.encode(text));
-          chunks.push(text);
+      try {
+        for await (const chunk of stream) {
+          const text = chunk.choices[0]?.delta?.content ?? '';
+          if (text) {
+            controller.enqueue(encoder.encode(text));
+            chunks.push(text);
+          }
         }
+        controller.close();
+      } catch (err) {
+        controller.error(err);
+        return;
       }
-      controller.close();
       // Write to both caches after stream completes (fire-and-forget)
       const fullText = chunks.join('');
       if (fullText.length > 100) {
