@@ -9,6 +9,7 @@ import type { FeaturedListing } from '../api/jobs/listings/route';
 import GapAnalysisPanel from '@/components/GapAnalysisPanel';
 import EIcon from '@/components/icons/EIcon';
 import CitySelector from '@/components/CitySelector';
+import SponsorBadge from '@/components/SponsorBadge';
 
 type JobTab = 'au' | 'remote' | 'freelance';
 
@@ -506,11 +507,7 @@ function JobCard({ job, savedIds, onSaveToggle, onApply, isLoggedIn, onOpenDetai
               {job.contract_type  && <span className="tag">{job.contract_type}</span>}
               {job.category       && <span className="tag">{job.category}</span>}
               {job.salary         && <span className="tag" style={{ color: 'var(--terracotta)', display: 'inline-flex', alignItems: 'center', gap: '0.25em' }}><EIcon name="coin" size={12} />{job.salary}</span>}
-              {job.sponsor_signal && (
-                <span className="tag" style={{ color: 'var(--jade)', fontWeight: 700 }} title="This employer is on the Home Affairs 482 accredited sponsor list">
-                  482 sponsor
-                </span>
-              )}
+              <SponsorBadge signal={job.sponsor_signal} />
               {/* Attribution button — expands to show all source URLs */}
               <div style={{ position: 'relative', display: 'inline-block' }}>
                 <button
@@ -657,6 +654,7 @@ export default function JobsPage() {
   const [salaryMax, setSalaryMax] = useState<string>(prefs.salaryMax ?? '');
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
+  const [sponsorOnly, setSponsorOnly] = useState<boolean>(prefs.sponsorOnly ?? false);
 
   const [featuredListings, setFeaturedListings] = useState<FeaturedListing[]>([]);
 
@@ -711,8 +709,8 @@ export default function JobsPage() {
 
   // Persist prefs to localStorage whenever they change
   useEffect(() => {
-    savePrefs({ keywords, location, sortBy, fullTime, workingRights, category, salaryMin, salaryMax });
-  }, [keywords, location, sortBy, fullTime, workingRights, category, salaryMin, salaryMax]);
+    savePrefs({ keywords, location, sortBy, fullTime, workingRights, category, salaryMin, salaryMax, sponsorOnly });
+  }, [keywords, location, sortBy, fullTime, workingRights, category, salaryMin, salaryMax, sponsorOnly]);
 
   // overrideKeywords: used by quick-start pills to pass the new value before state updates
   // overrideTab: used by tab buttons to pass the new tab before state updates
@@ -833,6 +831,7 @@ export default function JobsPage() {
     category !== 'All',
     fullTime,
     workingRights,
+    sponsorOnly,
     !!salaryMin,
     !!salaryMax,
   ].filter(Boolean).length;
@@ -851,12 +850,15 @@ export default function JobsPage() {
 
   const [selectedJob, setSelectedJob] = useState<AdzunaJob | null>(null);
 
+  // Apply sponsor filter before sectioning (so sections + counts reflect sponsor view)
+  const sponsorFilter  = (j: AdzunaJob) => sponsorOnly ? !!j.sponsor_signal : true;
+  const filteredAll    = jobs.filter(sponsorFilter);
   // AU tab: split flat jobs array into three sections (scraped / google / adzuna)
-  const showSections   = activeTab === 'au' && filterSource === 'all' && (scrapedCount > 0 || googleCount > 0 || adzunaCount > 0);
+  const showSections   = activeTab === 'au' && filterSource === 'all' && !sponsorOnly && (scrapedCount > 0 || googleCount > 0 || adzunaCount > 0);
   const sectionScraped = showSections ? jobs.slice(0, scrapedCount) : [];
   const sectionGoogle  = showSections ? jobs.slice(scrapedCount, scrapedCount + googleCount) : [];
   const sectionAdzuna  = showSections ? jobs.slice(scrapedCount + googleCount) : [];
-  const visibleJobs    = filterSource === 'all' ? jobs : jobs.filter(j => j.source === filterSource);
+  const visibleJobs    = filterSource === 'all' ? filteredAll : filteredAll.filter(j => j.source === filterSource);
   const jobCardProps   = { savedIds, onSaveToggle: handleSaveToggle, onApply: handleApply, isLoggedIn: !!user, onOpenDetail: setSelectedJob };
 
   return (
@@ -1004,6 +1006,15 @@ export default function JobsPage() {
           >
             {workingRights && <EIcon name="tick" size={12} />}
             Working rights
+          </button>
+
+          <button
+            onClick={() => setSponsorOnly(v => !v)}
+            className={sponsorOnly ? 'search-chip active' : 'search-chip'}
+            title="Show only employers who sponsor visas (482 / TSS) — accredited sponsors plus listings that explicitly mention sponsorship"
+          >
+            {sponsorOnly && <EIcon name="tick" size={12} />}
+            Sponsors visa
           </button>
 
           <button
@@ -1286,6 +1297,14 @@ export default function JobsPage() {
                 style={{ fontSize: '0.9rem', padding: '0.55rem 1rem' }}
               >
                 {workingRights && <EIcon name="tick" size={13} />}Working rights
+              </button>
+              <button
+                onClick={() => setSponsorOnly(v => !v)}
+                className={sponsorOnly ? 'search-chip active' : 'search-chip'}
+                style={{ fontSize: '0.9rem', padding: '0.55rem 1rem' }}
+                title="Sponsors visa (482 / TSS)"
+              >
+                {sponsorOnly && <EIcon name="tick" size={13} />}Sponsors visa
               </button>
             </div>
 
