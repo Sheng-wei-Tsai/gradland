@@ -4,17 +4,20 @@ export const runtime = 'edge';
 export const size = { width: 180, height: 180 };
 export const contentType = 'image/png';
 
+// Brand mark for iOS / macOS home screens. Mirrors the layered horizon design
+// in /public/logos/gradland-mark-light.svg using flat <div> blocks so Satori
+// renders it deterministically (no bezier curves).
 export default function AppleIcon() {
   return new ImageResponse(
     (
       <div
         style={{
-          width: '100%',
+          width:  '100%',
           height: '100%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: '#140a05',
+          background: '#0a0805',
         }}
       >
         <div
@@ -22,48 +25,62 @@ export default function AppleIcon() {
             width: 152,
             height: 152,
             borderRadius: 32,
-            background: '#f5edd6',
+            background: '#f5efe1',
+            border: '3px solid #1a1410',
             display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'flex-start',
-            paddingTop: 28,
             position: 'relative',
-            boxShadow: '6px 8px 0 #140a05',
+            overflow: 'hidden',
           }}
         >
+          {/* Sun */}
           <div
             style={{
-              width: 110,
-              height: 26,
-              borderRadius: 6,
-              background: '#c0281c',
-              marginBottom: 0,
+              position: 'absolute',
+              top: 30,
+              left: 110,
+              width: 16,
+              height: 16,
+              borderRadius: 8,
+              background: '#d4a04c',
             }}
           />
+          {/* Three layered dunes — anchored to the bottom edge */}
           <div
             style={{
-              width: 0,
-              height: 0,
-              borderLeft: '14px solid transparent',
-              borderRight: '14px solid transparent',
-              borderTop: '78px solid #c0281c',
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 96,
+              background: '#e0a982',
+              borderTopLeftRadius:  64,
+              borderTopRightRadius: 64,
             }}
           />
           <div
             style={{
               position: 'absolute',
-              top: 32,
-              right: 18,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 4,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 72,
+              background: '#d4a04c',
+              borderTopLeftRadius:  56,
+              borderTopRightRadius: 56,
             }}
-          >
-            <div style={{ width: 4, height: 4, borderRadius: 4, background: '#c0281c' }} />
-            <div style={{ width: 4, height: 4, borderRadius: 4, background: '#c0281c' }} />
-            <div style={{ width: 4, height: 4, borderRadius: 4, background: '#c0281c' }} />
-          </div>
+          />
+          <div
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 48,
+              background: '#2d5f3f',
+              borderTopLeftRadius: 48,
+              borderTopRightRadius: 48,
+            }}
+          />
         </div>
       </div>
     ),

@@ -2,16 +2,23 @@ import React from 'react';
 
 type LogoMarkProps = {
   size?:    number;
+  /** Kept for backward-compat. The new mark has its own framed border so this is now a no-op. */
   withShadow?: boolean;
+  variant?: 'light' | 'dark';
   className?: string;
   style?:   React.CSSProperties;
   ariaLabel?: string;
   decorative?: boolean;
 };
 
+/**
+ * Brand mark — horizon design (sun, contour line, three colour bands).
+ * Sourced from public/logos/gradland-mark-{light,dark}.svg; rendered inline
+ * so the component scales crisply with the `size` prop and stays themable.
+ */
 const LogoMark: React.FC<LogoMarkProps> = ({
   size = 40,
-  withShadow = true,
+  variant = 'light',
   className,
   style,
   ariaLabel = 'Gradland',
@@ -21,38 +28,41 @@ const LogoMark: React.FC<LogoMarkProps> = ({
     ? { 'aria-hidden': true as const, role: 'presentation' as const }
     : { 'aria-label': ariaLabel, role: 'img' as const };
 
+  const isDark = variant === 'dark';
+  const frameOuter = isDark ? '#0a0805' : '#1a1410';
+  const frameInner = isDark ? '#1a1410' : '#f5efe1';
+  const frameStroke = isDark ? '#f5efe1' : '#1a1410';
+  const sun         = '#d4a04c';
+  const contour     = isDark ? '#5b9970' : '#2d5f3f';
+  const dune1       = '#e0a982';
+  const dune2       = '#d4a04c';
+  const dune3       = isDark ? '#5b9970' : '#2d5f3f';
+  const clipId      = isDark ? 'lm-frame-dark' : 'lm-frame-light';
+
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 100 100"
+      viewBox="0 0 200 200"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       style={style}
       {...a11y}
     >
       <defs>
-        <pattern id="lm-dotgrid" width="6" height="6" patternUnits="userSpaceOnUse">
-          <circle cx="3" cy="3" r="0.55" fill="#d4c79a" opacity="0.55" />
-        </pattern>
-        <clipPath id="lm-clip">
-          <rect x="6" y="6" width="84" height="84" rx="18" ry="18" />
+        <clipPath id={clipId}>
+          <rect x="4" y="4" width="180" height="180" rx="22" />
         </clipPath>
       </defs>
-
-      {withShadow && (
-        <rect x="9" y="11" width="84" height="84" rx="18" ry="18" fill="#140a05" />
-      )}
-
-      <rect x="6" y="6" width="84" height="84" rx="18" ry="18" fill="#f5edd6" />
-      <rect x="6" y="6" width="84" height="84" rx="18" ry="18" fill="url(#lm-dotgrid)" clipPath="url(#lm-clip)" />
-
-      <rect x="22" y="22" width="48" height="14" rx="3.5" ry="3.5" fill="#c0281c" />
-      <path d="M 41 36 L 56 36 L 53 78 L 44 78 Z" fill="#c0281c" />
-
-      <circle cx="76" cy="24" r="1.05" fill="#c0281c" />
-      <circle cx="78" cy="29" r="1.05" fill="#c0281c" />
-      <circle cx="76" cy="34" r="1.05" fill="#c0281c" />
+      <rect x="12" y="12" width="180" height="180" rx="22" fill={frameOuter} />
+      <rect x="4" y="4" width="180" height="180" rx="22" fill={frameInner} stroke={frameStroke} strokeWidth="2" />
+      <g clipPath={`url(#${clipId})`}>
+        <circle cx="130" cy="38" r="8" fill={sun} />
+        <path d="M 4 55 C 60 50, 100 60, 184 53" stroke={contour} strokeWidth="1.5" fill="none" strokeDasharray="3 2.5" strokeLinecap="round" />
+        <path d="M 4 65 C 50 60, 100 72, 184 65 L 184 184 L 4 184 Z" fill={dune1} />
+        <path d="M 4 90 C 45 80, 100 95, 184 88 L 184 184 L 4 184 Z" fill={dune2} />
+        <path d="M 4 115 C 45 108, 100 113, 184 118 L 184 184 L 4 184 Z" fill={dune3} />
+      </g>
     </svg>
   );
 };

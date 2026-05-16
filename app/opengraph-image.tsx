@@ -4,6 +4,8 @@ export const alt  = 'Gradland — Career platform for international IT graduates
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
+// Mirrors /public/logos/gradland-mark-light.svg via flat <div> blocks so Satori
+// renders deterministically (no bezier curves).
 function LogoBlock() {
   return (
     <div
@@ -11,31 +13,20 @@ function LogoBlock() {
         width: 220,
         height: 220,
         borderRadius: 44,
-        background: '#f5edd6',
+        background: '#f5efe1',
+        border: '3px solid #1a1410',
         display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        paddingTop: 36,
         position: 'relative',
+        overflow: 'hidden',
         boxShadow: '8px 10px 0 #140a05',
       }}
     >
-      <div style={{ width: 132, height: 32, borderRadius: 8, background: '#c0281c' }} />
-      <div
-        style={{
-          width: 0,
-          height: 0,
-          borderLeft: '18px solid transparent',
-          borderRight: '18px solid transparent',
-          borderTop: '108px solid #c0281c',
-        }}
-      />
-      <div style={{ position: 'absolute', top: 44, right: 26, display: 'flex', flexDirection: 'column', gap: 6 }}>
-        <div style={{ width: 6, height: 6, borderRadius: 6, background: '#c0281c' }} />
-        <div style={{ width: 6, height: 6, borderRadius: 6, background: '#c0281c' }} />
-        <div style={{ width: 6, height: 6, borderRadius: 6, background: '#c0281c' }} />
-      </div>
+      {/* Sun */}
+      <div style={{ position: 'absolute', top: 38, left: 156, width: 22, height: 22, borderRadius: 11, background: '#d4a04c' }} />
+      {/* Three layered dunes anchored to bottom */}
+      <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 136, background: '#e0a982', borderTopLeftRadius: 96, borderTopRightRadius: 96 }} />
+      <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 104, background: '#d4a04c', borderTopLeftRadius: 80, borderTopRightRadius: 80 }} />
+      <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 68, background: '#2d5f3f', borderTopLeftRadius: 64, borderTopRightRadius: 64 }} />
     </div>
   );
 }
