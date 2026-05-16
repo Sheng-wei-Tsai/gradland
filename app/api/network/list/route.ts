@@ -6,6 +6,11 @@ const VALID_VISAS  = ['485', '482', 'student', 'pr', 'citizen', 'other'] as cons
 
 export const dynamic = 'force-dynamic';
 
+// Escape PostgreSQL ILIKE wildcard characters in user-supplied input.
+function escapeLikeNeedle(s: string): string {
+  return s.replace(/\\/g, '\\\\').replace(/%/g, '\\%').replace(/_/g, '\\_');
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
 
@@ -27,6 +32,9 @@ export async function GET(req: NextRequest) {
   if (visa && (VALID_VISAS as readonly string[]).includes(visa)) {
     query = query.eq('visa_type', visa);
   }
+  if (role) {
+    query = query.ilike('role_title', `%${escapeLikeNeedle(role)}%`);
+  }
 
   const { data, error } = await query;
 
@@ -34,14 +42,5 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to load profiles' }, { status: 500 });
   }
 
-  let profiles = data ?? [];
-
-  if (role) {
-    const needle = role.toLowerCase();
-    profiles = profiles.filter(p =>
-      p.role_title.toLowerCase().includes(needle),
-    );
-  }
-
-  return NextResponse.json(profiles);
+  return NextResponse.json(data ?? []);
 }

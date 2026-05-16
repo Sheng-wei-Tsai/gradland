@@ -21,6 +21,7 @@ function makeChain(result: { data: any[] | null; error: any } = { data: [], erro
   c.order  = vi.fn(() => c);
   c.limit  = vi.fn(() => c);
   c.eq     = vi.fn(() => c);
+  c.ilike  = vi.fn(() => c);
   c.then   = (resolve: (v: unknown) => void, reject: (e: unknown) => void) =>
     Promise.resolve(result).then(resolve, reject);
   chainRef = c;
@@ -83,19 +84,20 @@ describe('GET /api/network/list', () => {
     expect(visaEqCall).toBeUndefined();
   });
 
-  it('filters profiles in-memory by role keyword (case-insensitive)', async () => {
-    const res  = await GET(makeGet({ role: 'software' }));
-    const body = await res.json();
-    expect(res.status).toBe(200);
-    expect(body).toHaveLength(1);
-    expect(body[0].role_title).toBe('Software Engineer');
+  it('calls .ilike("role_title", ...) for a role keyword filter (server-side)', async () => {
+    await GET(makeGet({ role: 'software' }));
+    expect(chainRef.ilike).toHaveBeenCalledWith('role_title', '%software%');
   });
 
-  it('returns empty array when role keyword matches no profiles', async () => {
+  it('returns empty array when DB returns no results for role filter', async () => {
+    mockFrom.mockImplementationOnce(() =>
+      makeChain({ data: [], error: null }),
+    );
     const res  = await GET(makeGet({ role: 'accountant' }));
     const body = await res.json();
     expect(res.status).toBe(200);
     expect(body).toEqual([]);
+    expect(chainRef.ilike).toHaveBeenCalledWith('role_title', '%accountant%');
   });
 
   it('returns 500 when Supabase query returns an error', async () => {
