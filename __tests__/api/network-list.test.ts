@@ -89,6 +89,16 @@ describe('GET /api/network/list', () => {
     expect(chainRef.ilike).toHaveBeenCalledWith('role_title', '%software%');
   });
 
+  it('escapes ILIKE wildcard % in role before DB call', async () => {
+    await GET(makeGet({ role: '%py' }));
+    expect(chainRef.ilike).toHaveBeenCalledWith('role_title', '%\\%py%');
+  });
+
+  it('escapes ILIKE wildcard _ in role before DB call', async () => {
+    await GET(makeGet({ role: 'java_dev' }));
+    expect(chainRef.ilike).toHaveBeenCalledWith('role_title', '%java\\_dev%');
+  });
+
   it('returns empty array when DB returns no results for role filter', async () => {
     mockFrom.mockImplementationOnce(() =>
       makeChain({ data: [], error: null }),

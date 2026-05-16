@@ -1281,6 +1281,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-16 (supplement 2)
+
+> Supplement scan — `__tests__/api/network-list.test.ts` tests the happy-path `.ilike()` call with clean alphanumeric input (`'software'`, `'accountant'`) but has zero coverage for the `escapeLikeNeedle` function added in commit `80f5d15`. PostgreSQL ILIKE treats `%` and `_` as wildcards and `\` as an escape prefix, so a user-supplied `role=%` would expand to `%%%` (matches everything) without escaping. The function is correct but untested — a future refactor could silently break the escaping and let users bypass the search filter with a wildcard role query.
+
+### Tests
+- [x] Add two regression tests for `escapeLikeNeedle` in `__tests__/api/network-list.test.ts` — (1) role containing `%` is escaped: `role=%py` → `.ilike('role_title', '%\\%py%')`, (2) role containing `_` is escaped: `role=java_dev` → `.ilike('role_title', '%java\\_dev%')`; both assert on `chainRef.ilike` call args following the pattern at line 88–90 of the existing test file [tests] ✅ 2026-05-16
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
