@@ -40,6 +40,9 @@ export const ENDPOINT_LIMITS: Record<string, number> = {
   'gap-analysis':         5, // Job-to-gap skill extraction — 5/day
   'analytics/ai-insights': 10, // GPT-4o admin analytics — 10/day
   'companies/research':  10, // Claude claude-sonnet-4-6 company brief — 10/day
+
+  // Pure rules engine, no AI — high limit, just abuse guard
+  'visa-pathway':        50,
 };
 
 // ── Subscription status ───────────────────────────────────────────────

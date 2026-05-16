@@ -122,6 +122,10 @@ function getTodayCards(s: DashboardSummary, nextActionTitle: string) {
     const path = `junior-${s.onboardingRole}`;
     cards.push({ emoji: '🎯', label: 'Interview prep', body: ROLE_LABELS[s.onboardingRole] ?? 'IT', href: `/interview-prep/${path}` });
   }
+  // Visa pathway — highest signal for international grads with a known visa
+  if (s.onboardingVisaStatus && s.onboardingVisaStatus !== 'resident') {
+    cards.push({ emoji: '🛂', label: 'Visa pathway', body: 'Plan your PR', href: '/visa-pathway' });
+  }
   cards.push({ emoji: '💼', label: 'Job search', body: s.applicationCount ? `${s.applicationCount} active` : 'Find roles', href: '/jobs' });
 
   return cards.slice(0, 3);
