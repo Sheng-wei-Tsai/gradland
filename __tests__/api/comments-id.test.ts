@@ -66,6 +66,31 @@ describe('DELETE /api/comments/[id]', () => {
     expect(body.error).toMatch(/unauthorized/i);
   });
 
+  it('admin can delete another user\'s comment (200 ok: true)', async () => {
+    const id = '00000000-0000-0000-0000-000000000099';
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'admin-id' } } });
+    mockFrom.mockImplementation((table: string) => {
+      if (table === 'profiles') {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              maybeSingle: vi.fn().mockResolvedValue({ data: { role: 'admin' } }),
+            }),
+          }),
+        };
+      }
+      return {
+        delete: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue(makeThenableEq({ error: null })),
+        }),
+      };
+    });
+    const res = await DELETE(makeDeleteReq(id), makeParams(id));
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.ok).toBe(true);
+  });
+
   it('returns 403 when comment belongs to another user (RLS-equivalent)', async () => {
     const id = '00000000-0000-0000-0000-000000000099';
     mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
@@ -96,6 +121,33 @@ describe('PATCH /api/comments/[id]', () => {
   beforeEach(() => {
     mockGetUser.mockReset();
     mockFrom.mockReset();
+  });
+
+  it('returns 401 when no session', async () => {
+    const id = '00000000-0000-0000-0000-000000000001';
+    mockGetUser.mockResolvedValue({ data: { user: null } });
+    const res = await PATCH(makePatch(id, { content: 'updated' }), makeParams(id));
+    expect(res.status).toBe(401);
+    const body = await res.json();
+    expect(body.error).toMatch(/unauthorized/i);
+  });
+
+  it('returns 403 when comment belongs to another user (ownership scope)', async () => {
+    const id = '00000000-0000-0000-0000-000000000001';
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
+    mockFrom.mockReturnValue({
+      update: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            select: vi.fn().mockReturnValue({
+              maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+            }),
+          }),
+        }),
+      }),
+    });
+    const res = await PATCH(makePatch(id, { content: 'updated' }), makeParams(id));
+    expect(res.status).toBe(403);
   });
 
   it('returns 400 when id is not a valid UUID', async () => {
