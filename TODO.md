@@ -1339,6 +1339,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-16 (supplement 9)
+
+> Supplement scan — `lib/skill-paths.ts` has four exported pure functions (`getNextReviewDate`, `getReviewLabel`, `getPathById`, `getAllSkillIds`) with zero unit test coverage. The spaced-repetition logic (`REVIEW_INTERVALS = [1, 3, 7, 14, 30]`) is used in `app/learn/[path]/PathTracker.tsx` to tell users when to revisit a skill — an off-by-one or wrong clamping behaviour would silently show users the wrong next-review date. Same risk pattern that prompted tests for `lib/sponsor-detect.ts` (✅ 2026-05-16), `lib/visa-rules.ts` (✅ 2026-05-16), and `lib/visa-pathway.ts` (✅ 2026-05-16).
+
+### Tests
+- [x] Add Vitest unit tests for `lib/skill-paths.ts` — `getReviewLabel`: all 5 label positions (counts 0–4) and clamping at count ≥ 5; `getNextReviewDate`: verify the returned Date is `REVIEW_INTERVALS[count]` days from today (within ±1s tolerance), hour clamped to 9am, and clamping at max interval (count ≥ 5); `getPathById`: returns a `SkillPath` for a known id (`'junior-frontend'`), returns `undefined` for unknown id; `getAllSkillIds`: returns a flat array of all skill IDs across all phases for a given path, length matches sum of skills per phase; new file: `__tests__/lib/skill-paths.test.ts` [tests] ✅ 2026-05-16
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
