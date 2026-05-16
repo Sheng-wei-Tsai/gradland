@@ -1348,6 +1348,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-16 (supplement 12)
+
+> Supplement scan — `lib/posts.ts` contains two private security functions (`isSafeSlug` / `isInsideDir`) that guard every `getPostBySlug` call against path traversal attacks. These functions have zero unit test coverage. A regex typo or logic error would allow an attacker to read arbitrary server files via a crafted blog slug (e.g. `../../etc/passwd`). Same risk pattern that prompted tests for `lib/sponsor-detect.ts` (✅ 2026-05-16) and `lib/visa-rules.ts` (✅ 2026-05-16).
+
+### Security + Tests
+- [x] Add Vitest tests for path traversal protection in `lib/posts.ts` — test `getPostBySlug` (the public entry-point that calls both guards): (1) `'../../etc/passwd'` → null (contains `..`), (2) `'../admin'` → null (contains `..`), (3) `'.hidden'` → null (leading `.`), (4) `'<script>alert(1)</script>'` → null (regex rejects non-alphanumeric), (5) `'spaces in slug'` → null (space fails regex), (6) `'valid-but-missing'` → null (file not found, no crash), (7) a real slug from `content/posts/` returns a Post with correct `slug`, `title`, `date`, `source` fields and non-empty `content`; also test `getAllPosts()` returns a non-empty array with correct Post shape; new file: `__tests__/lib/posts.test.ts` [security] [tests] ✅ 2026-05-16
+
+---
+
 ## 🛡 Daily Analyst Findings — 2026-05-16 (supplement 11)
 
 ### Quality (missing SEO metadata on new feature pages)
