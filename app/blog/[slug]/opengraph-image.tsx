@@ -13,7 +13,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
   const { slug } = await params;
   const post = getPostBySlug(slug);
 
-  const title = post?.title ?? 'Henry Tsai';
+  const title = post?.title ?? 'Gradland';
   const date  = post?.date  ? format(new Date(post.date), 'd MMM yyyy') : '';
   const readTime = post?.readingTime ?? '';
   const tags = post?.tags?.slice(0, 3) ?? [];
@@ -40,16 +40,29 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           display: 'flex',
         }} />
 
-        {/* Header */}
+        {/* Header — brand lockup + meta */}
         <div style={{
           display: 'flex', alignItems: 'center',
           justifyContent: 'space-between',
         }}>
-          <div style={{
-            fontSize: 22, fontWeight: 600, color: '#c0281c',
-            letterSpacing: '0.05em', display: 'flex',
-          }}>
-            Henry Tsai
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            {/* Horizon mark (Satori-safe flat blocks, mirrors /public/logos/gradland-mark-light.svg) */}
+            <div style={{
+              width: 60, height: 60, borderRadius: 12,
+              background: '#f5efe1', border: '2px solid #1a1410',
+              display: 'flex', position: 'relative', overflow: 'hidden',
+            }}>
+              <div style={{ position: 'absolute', top: 10, left: 42, width: 8, height: 8, borderRadius: 4, background: '#d4a04c' }} />
+              <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 36, background: '#e0a982', borderTopLeftRadius: 26, borderTopRightRadius: 26 }} />
+              <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 28, background: '#d4a04c', borderTopLeftRadius: 22, borderTopRightRadius: 22 }} />
+              <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 18, background: '#2d5f3f', borderTopLeftRadius: 18, borderTopRightRadius: 18 }} />
+            </div>
+            <div style={{
+              fontSize: 26, fontWeight: 700, color: '#1a0a03',
+              letterSpacing: '0.02em', display: 'flex',
+            }}>
+              Gradland
+            </div>
           </div>
           <div style={{
             fontSize: 20, color: '#8a6a5a', display: 'flex', gap: 16,
