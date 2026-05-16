@@ -1348,6 +1348,13 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-16 (supplement 11)
+
+### Quality (missing SEO metadata on new feature pages)
+- [x] Add `layout.tsx` with `export const metadata` to `app/visa-pathway/`, `app/au-insights/salary-checker/`, and `app/au-insights/grad-programs/` — all three are `'use client'` pages without sibling layout files, so they inherit the root or parent metadata title instead of showing a page-specific title in search results and browser tabs; `visa-pathway` has no parent layout at all; `salary-checker` and `grad-programs` inherit the generic "Australian IT Career Insights" title from `au-insights/layout.tsx`; follow the established pattern in `app/cover-letter/layout.tsx`, `app/jobs/layout.tsx`, and `app/resume/layout.tsx` [quality] ✅ 2026-05-16
+
+---
+
 ## 🛡 Daily Analyst Findings — 2026-05-16 (supplement 10)
 
 > Supplement scan — `lib/ia-feed.ts` exports `formatRelativeDate` which is used in `app/digest/page.tsx:91` to display publication timestamps for Information Age feed items. The function has 6 distinct code paths (today / yesterday / Xd ago / Xw ago / locale date / invalid-date fallback) with zero unit test coverage. An off-by-one in the days calculation or a broken `toLocaleDateString` call would silently show wrong dates to every digest reader. Same risk pattern that prompted tests for `lib/sponsor-detect.ts` (✅ 2026-05-16), `lib/skill-paths.ts` (✅ 2026-05-16), and `lib/visa-rules.ts` (✅ 2026-05-16).
