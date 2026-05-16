@@ -46,7 +46,7 @@ Critical differences from Next.js 13/14:
 - `generateMetadata` and `generateStaticParams` signatures may differ — check the docs
 - Middleware uses the `@supabase/ssr` pattern — do NOT use deprecated `@supabase/auth-helpers-nextjs`
 - `next/font` is the only correct font loading method — `@import` from Google Fonts is render-blocking
-- `images: { unoptimized: true }` in `next.config.ts` is a known tech debt item — do not perpetuate it
+- Never set `images: { unoptimized: true }` — add new external hosts to `remotePatterns` in `next.config.ts` instead
 - Heed all deprecation warnings in the build output
 
 ---
@@ -220,11 +220,9 @@ Full token reference: `app/globals.css` — all variables defined in `:root` and
 | `--jade` | `#1e7a52` | `#3ec880` | Success, positive |
 | `--text-primary` | `#140a05` | `#f0e6d0` | Body text |
 | `--text-secondary` | `#3d1c0e` | `#c8b090` | Subtext |
-| `--text-muted` | `#7a5030` | `#786858` | Captions, hints |
+| `--text-muted` | `#7a5030` | `#a09080` | Captions, hints |
 | `--panel-shadow` | `4px 4px 0 #140a05` | `4px 4px 0 rgba(232,64,64,0.6)` | Comic card shadow |
 | `--panel-border` | `3px solid #140a05` | `3px solid rgba(240,230,208,0.25)` | Hard-edge border |
-
-> ⚠️ `--text-muted` in dark mode (#786858) is known to have insufficient contrast (3.5:1 vs required 4.5:1). Target value is `#a09080`. Fix when touching affected components.
 
 ### 7.3 Hover states — CSS class required
 
@@ -444,21 +442,21 @@ Auto-generated content commits (daily posts) use the simplified format: `ai-news
 
 ---
 
-## 15. Known Tech Debt (Do Not Replicate)
+## 15. Resolved Anti-Patterns — Do Not Re-Introduce
 
-These are acknowledged issues being fixed incrementally. **Do not add new instances of any of these patterns.**
+All previously tracked tech-debt items were resolved by 2026-05-13. **Do not re-introduce any of these patterns:**
 
-| Issue | Location | Impact |
-|-------|----------|--------|
-| `@import` from Google Fonts | `app/globals.css:1` | Render-blocking — replace with `next/font` |
-| `images: { unoptimized: true }` | `next.config.ts:4` | No image optimization — fix with `remotePatterns` |
-| `export const dynamic = 'force-dynamic'` on static pages | `app/page.tsx:7` | Disables caching on static content |
-| `<img>` tags (not `<Image>`) | `PersonalisedHero.tsx:119`, `Header.tsx:304,492` | No lazy loading or WebP conversion |
-| `<a href>` for internal routes | `PersonalisedHero.tsx`, `GettingStartedChecklist.tsx` | Full page reloads on navigation |
-| `--text-muted: #786858` in dark mode | `globals.css:75` | Fails WCAG contrast (3.5:1) — target `#a09080` |
-| No `middleware.ts` | missing | Dashboard/admin routes lack server-side auth guard |
-| No CSP headers | `next.config.ts` | Missing security headers |
-| Inline `onMouseEnter/Leave` for hover | Multiple components | Broken on touch, unnecessary JS |
+| Anti-pattern | Correct approach |
+|-------------|-----------------|
+| `@import` from Google Fonts | Use `next/font` in `app/layout.tsx` — already done |
+| `images: { unoptimized: true }` | Add new external hosts to `remotePatterns` in `next.config.ts` |
+| `export const dynamic = 'force-dynamic'` on static pages | Use `export const revalidate = N` for ISR pages |
+| Raw `<img>` tags | Use `<Image>` from `next/image` with explicit `width`/`height` |
+| `<a href>` for internal routes | Use `<Link>` from `next/link` |
+| `onMouseEnter`/`onMouseLeave` for CSS hover styling | Use `:hover` CSS class in `globals.css` — JS hover breaks touch |
+| Hardcoded hex (`#c0281c`) instead of tokens | Use `var(--vermilion)` — hardcoded hex breaks dark mode |
+| In-memory rate-limit `Map` per route | Use `checkRateLimit` from `lib/rate-limit-db.ts` (Supabase-backed) |
+| Auth/CSP middleware missing | Auth guard + per-request CSP nonce live in `proxy.ts` — extend there |
 
 ---
 
