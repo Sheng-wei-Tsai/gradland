@@ -5,21 +5,21 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 const FREE_FEATURES = [
-  'Browse all job listings',
+  'Browse all jobs with Sponsor visa filter',
+  'Salary checker with TSMIT / CSIT compliance',
   'Save & track applications',
-  'Read blog posts',
-  'Job alerts',
-  'Comments',
+  'Read AU Insights, visa news, blog',
+  'Job alerts & comments',
 ];
 
 const PRO_FEATURES = [
-  'Everything in Free',
+  'Visa Pathway Planner — 189 / 190 / 491 / 482 / 186 scoring',
   'AI cover letter generator',
   'AI resume match & gap analysis',
   'Interview prep (questions, coach, mentor)',
   'YouTube video study guide + flashcards',
   'AI-generated quiz per video',
-  '100 AI calls per day',
+  '100 AI calls per day across every tool',
   'Priority support',
 ];
 
@@ -58,9 +58,9 @@ export default function PricingPage() {
           color: 'var(--brown-dark)', marginBottom: '0.75rem' }}>
           Simple, honest pricing
         </h1>
-        <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', lineHeight: 1.7, maxWidth: '480px', margin: '0 auto' }}>
-          All AI features for one flat monthly price.
-          Cancel anytime — no lock-ins, no surprises.
+        <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', lineHeight: 1.7, maxWidth: '520px', margin: '0 auto' }}>
+          Free tools to land an AU IT job. Pro adds the visa-pathway intelligence
+          a migration agent would charge $300+ to give you. Cancel anytime.
         </p>
       </div>
 
