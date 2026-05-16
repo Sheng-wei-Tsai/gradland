@@ -1315,6 +1315,13 @@
 ### Tests
 - [x] Add Vitest unit tests for `lib/visa-rules.ts` — `getVisaSalaryFloor`: null/undefined → CSIT, 'resident' → null, all other VisaStatus values → CSIT; `checkSalaryCompliance`: 'resident' → verdict='na'/floor=0, offer≥SSIT → verdict='safe'/specialist label, CSIT≤offer<SSIT → verdict='safe'/CSIT label, offer within 10% below CSIT → verdict='risky', offer >10% below CSIT → verdict='below', null visa defaults to CSIT floor — new file: `__tests__/lib/visa-rules.test.ts` [tests] ✅ 2026-05-16
 
+## 🛡 Daily Analyst Findings — 2026-05-16 (supplement 6)
+
+> Supplement scan — `lib/visa-pathway.ts` (added in commit `b0937c7`) has zero unit test coverage. It is a pure deterministic rules engine (`calculatePoints` / `analysePathways`) exported to `app/api/visa/pathway/route.ts`. `__tests__/api/visa-pathway.test.ts` only tests auth gates and field validation — the actual points-calculation branches and per-subclass verdict logic are never exercised. A typo in `AGE_POINTS`, wrong floor constant, or off-by-one in the CSOL lookup would silently produce wrong eligibility results for every user — same risk pattern that prompted tests for `lib/visa-rules.ts` (✅ 2026-05-16).
+
+### Tests
+- [x] Add Vitest unit tests for `lib/visa-pathway.ts` — `calculatePoints`: correct base/withState/withRegional for a typical profile, each age bracket, English level, education level, experience threshold, salary bonus (CSIT/SSIT), breakdown array entries, salary below CSIT yields 0 bonus with no breakdown entry; `analysePathways`: returns 5 pathways with visa codes 189/190/491/482/186 and a `computedAt` field, 189 eligible when points≥70+CSOL, 189 close in [60,70), 189 blocked when not on CSOL, 190 eligible-with-nomination when available state, 190 blocked when state not in list, 491 eligible-with-nomination with `timeToEligibility`, 482 eligible when CSOL+CSIT+1yr, 482 blocked when salary<CSIT, 482 shows Specialist Skills label when salary≥SSIT, 186 eligible via TRT (currentVisa=working+2yr), 186 eligible via Direct Entry (3yr+CSOL+CSIT), 186 blocked when all gates fail, topPick.verdict='eligible' when any pathway is eligible, summary contains "No subclass open" when all blocked — new file: `__tests__/lib/visa-pathway.test.ts` [tests] ✅ 2026-05-16
+
 ---
 
 ## 📊 Priority Rationale
