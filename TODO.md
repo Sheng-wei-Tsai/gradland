@@ -1308,6 +1308,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-16 (supplement 5)
+
+> Supplement scan — `lib/visa-rules.ts` (added in commit `4a65f86`) has zero unit test coverage. It is a pure function library (`getVisaSalaryFloor` / `checkSalaryCompliance`) consumed by `SalaryChecker.tsx` and `app/api/visa/pathway/route.ts`. A typo or off-by-one in the CSIT/SSIT threshold logic or the 10%-gap `'risky'` verdict would silently produce wrong visa compliance results for every user — same risk pattern that prompted tests for `lib/sponsor-detect.ts` (✅ 2026-05-16) and `lib/rate-limit-db.ts` (✅ 2026-05-12).
+
+### Tests
+- [x] Add Vitest unit tests for `lib/visa-rules.ts` — `getVisaSalaryFloor`: null/undefined → CSIT, 'resident' → null, all other VisaStatus values → CSIT; `checkSalaryCompliance`: 'resident' → verdict='na'/floor=0, offer≥SSIT → verdict='safe'/specialist label, CSIT≤offer<SSIT → verdict='safe'/CSIT label, offer within 10% below CSIT → verdict='risky', offer >10% below CSIT → verdict='below', null visa defaults to CSIT floor — new file: `__tests__/lib/visa-rules.test.ts` [tests] ✅ 2026-05-16
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
