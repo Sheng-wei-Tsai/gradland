@@ -1357,6 +1357,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-16 (supplement 13)
+
+> Supplement scan — `lib/diagrams.ts` exports three functions (`getAllDiagrams`, `getDiagramsByTopic`, `getDiagram`) with zero unit test coverage. The `lib/posts.ts` companion was tested in supplement 12 but the diagrams module was missed. Both read from the filesystem at build time. A regression in sort order, field defaulting, or topic filtering would silently break `/learn/diagrams` and `/posts/diagram`. Same risk pattern as supplement 12.
+
+### Tests
+- [x] Add Vitest unit tests for `lib/diagrams.ts` — `getAllDiagrams()`: returns a non-empty array, every item has `slug`/`title`/`date`/`topic`/`difficulty`/`mermaid`/`excerpt` fields of correct types, sorted newest-first by `date`; `getDiagramsByTopic('Databases')`: returns only diagrams whose `topic === 'Databases'`, all results are a strict subset of `getAllDiagrams()`; `getDiagram('2026-04-30-database-sharding')`: returns a `Diagram` object with `slug` equal to the input, non-empty `title` and `mermaid`; `getDiagram('does-not-exist')`: returns `undefined`; new file: `__tests__/lib/diagrams.test.ts` [tests] ✅ 2026-05-16
+
+---
+
 ## 🛡 Daily Analyst Findings — 2026-05-16 (supplement 11)
 
 ### Quality (missing SEO metadata on new feature pages)
