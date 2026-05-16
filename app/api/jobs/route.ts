@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServer } from '@/lib/auth-server';
 import { sourceLabel, makeSingleSource, formatAttribution, type SourceRef } from '@/lib/jobs-sources';
 import { checkRateLimit } from '@/lib/rate-limit-db';
+import { detectSponsorSignal } from '@/lib/sponsor-detect';
 
 function getIp(req: NextRequest): string {
   return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
@@ -117,7 +118,12 @@ interface RemotiveHit {
 
 function withAttribution(jobs: AdzunaJob[]): AdzunaJob[] {
   return jobs.map(j => {
-    if (j.sources?.length) return j;
+    // Keyword-detect sponsorship from title + description — covers sources that
+    // don't tag accredited-sponsor status. scraped_jobs already arrives tagged.
+    const detected = j.sponsor_signal || detectSponsorSignal(`${j.title} ${j.description}`);
+    if (j.sources?.length) {
+      return j.sponsor_signal === detected ? j : { ...j, sponsor_signal: detected };
+    }
     const srcs = makeSingleSource(
       j.source === 'google_jobs' ? 'googlejobs' : j.source,
       j.url,
@@ -127,7 +133,7 @@ function withAttribution(jobs: AdzunaJob[]): AdzunaJob[] {
       primary_source: j.source,
       sources:        srcs,
       attribution:    formatAttribution(srcs),
-      sponsor_signal: false,
+      sponsor_signal: detected,
     };
   });
 }
