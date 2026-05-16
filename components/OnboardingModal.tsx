@@ -7,18 +7,20 @@ interface Props {
   onComplete: () => void;
 }
 
-// step 0 = welcome screen, steps 1-3 = questions
-type Step = 0 | 1 | 2 | 3;
+// step 0 = welcome screen, steps 1-4 = questions
+type Step = 0 | 1 | 2 | 3 | 4;
 
+// ANZSCO codes power TSMIT compliance, visa pathway, sponsor matching.
+// Derived silently from role — most users don't know their occupation code.
 const ROLES = [
-  { value: 'frontend',      label: 'Frontend',      emoji: '🎨' },
-  { value: 'fullstack',     label: 'Full Stack',     emoji: '⚡' },
-  { value: 'backend',       label: 'Backend',        emoji: '🔧' },
-  { value: 'data-engineer', label: 'Data Engineer',  emoji: '📊' },
-  { value: 'devops',        label: 'DevOps / Cloud', emoji: '☁️' },
-  { value: 'mobile',        label: 'Mobile',         emoji: '📱' },
-  { value: 'qa',            label: 'QA Engineer',    emoji: '🧪' },
-  { value: 'other',         label: 'Something else', emoji: '💼' },
+  { value: 'frontend',      label: 'Frontend',      emoji: '🎨', anzsco: '261212' },
+  { value: 'fullstack',     label: 'Full Stack',     emoji: '⚡', anzsco: '261313' },
+  { value: 'backend',       label: 'Backend',        emoji: '🔧', anzsco: '261313' },
+  { value: 'data-engineer', label: 'Data Engineer',  emoji: '📊', anzsco: '261313' },
+  { value: 'devops',        label: 'DevOps / Cloud', emoji: '☁️', anzsco: '261313' },
+  { value: 'mobile',        label: 'Mobile',         emoji: '📱', anzsco: '261313' },
+  { value: 'qa',            label: 'QA Engineer',    emoji: '🧪', anzsco: '261314' },
+  { value: 'other',         label: 'Something else', emoji: '💼', anzsco: '' },
 ];
 
 const VISA_OPTIONS = [
@@ -30,6 +32,14 @@ const VISA_OPTIONS = [
   { value: 'unsure',   label: 'Not sure / prefer not to say' },
 ];
 
+const EXPERIENCE_OPTIONS = [
+  { value: '0',  label: 'No professional experience yet' },
+  { value: '1',  label: 'Less than 1 year' },
+  { value: '2',  label: '1–2 years' },
+  { value: '4',  label: '3–5 years' },
+  { value: '7',  label: '5+ years' },
+];
+
 const STAGE_OPTIONS = [
   { value: 'building',   label: 'Just starting out — building skills' },
   { value: 'applying',   label: 'Actively applying — no offers yet' },
@@ -37,33 +47,50 @@ const STAGE_OPTIONS = [
   { value: 'offer',      label: 'Just received an offer / navigating visa' },
 ];
 
-const QUESTION_TITLES: Record<1 | 2 | 3, string> = {
+const QUESTION_TITLES: Record<1 | 2 | 3 | 4, string> = {
   1: 'What IT role are you targeting?',
   2: "What's your current situation in Australia?",
-  3: 'Where are you in your job search?',
+  3: 'How much professional experience do you have?',
+  4: 'Where are you in your job search?',
 };
 
 const PARTIAL_KEY = 'onboarding_partial';
 
-function loadPartial(): { role: string | null; visaStatus: string | null; jobStage: string | null; step: Step } {
+interface PartialState {
+  role:            string | null;
+  visaStatus:      string | null;
+  experienceYears: string | null;
+  jobStage:        string | null;
+  step:            Step;
+}
+
+function loadPartial(): PartialState {
   try {
     const raw = localStorage.getItem(PARTIAL_KEY);
-    if (!raw) return { role: null, visaStatus: null, jobStage: null, step: 0 };
-    return JSON.parse(raw);
-  } catch { return { role: null, visaStatus: null, jobStage: null, step: 0 }; }
+    if (!raw) return { role: null, visaStatus: null, experienceYears: null, jobStage: null, step: 0 };
+    const parsed = JSON.parse(raw);
+    return {
+      role:            parsed.role            ?? null,
+      visaStatus:      parsed.visaStatus      ?? null,
+      experienceYears: parsed.experienceYears ?? null,
+      jobStage:        parsed.jobStage        ?? null,
+      step:            (parsed.step ?? 0) as Step,
+    };
+  } catch { return { role: null, visaStatus: null, experienceYears: null, jobStage: null, step: 0 }; }
 }
 
 export default function OnboardingModal({ onComplete }: Props) {
   const router = useRouter();
-  const partial = typeof window !== 'undefined' ? loadPartial() : { role: null, visaStatus: null, jobStage: null, step: 0 as Step };
-  const [step,       setStep]       = useState<Step>(partial.step);
-  const [dir,        setDir]        = useState<1 | -1>(1);   // slide direction
-  const [role,       setRole]       = useState<string | null>(partial.role);
-  const [visaStatus, setVisaStatus] = useState<string | null>(partial.visaStatus);
-  const [jobStage,   setJobStage]   = useState<string | null>(partial.jobStage);
-  const [saving,     setSaving]     = useState(false);
-  const [done,       setDone]       = useState(false);
-  const [animKey,    setAnimKey]    = useState(0);  // remount content to trigger slide
+  const partial = typeof window !== 'undefined' ? loadPartial() : { role: null, visaStatus: null, experienceYears: null, jobStage: null, step: 0 as Step };
+  const [step,            setStep]            = useState<Step>(partial.step);
+  const [dir,             setDir]             = useState<1 | -1>(1);   // slide direction
+  const [role,            setRole]            = useState<string | null>(partial.role);
+  const [visaStatus,      setVisaStatus]      = useState<string | null>(partial.visaStatus);
+  const [experienceYears, setExperienceYears] = useState<string | null>(partial.experienceYears);
+  const [jobStage,        setJobStage]        = useState<string | null>(partial.jobStage);
+  const [saving,          setSaving]          = useState(false);
+  const [done,            setDone]            = useState(false);
+  const [animKey,         setAnimKey]         = useState(0);  // remount content to trigger slide
   const modalRef = useRef<HTMLDivElement>(null);
 
   // Whether the current step has a valid selection
@@ -71,7 +98,8 @@ export default function OnboardingModal({ onComplete }: Props) {
     step === 0 ||
     (step === 1 && role !== null) ||
     (step === 2 && visaStatus !== null) ||
-    (step === 3 && jobStage !== null);
+    (step === 3 && experienceYears !== null) ||
+    (step === 4 && jobStage !== null);
 
   const goTo = (next: Step) => {
     setDir(next > step ? 1 : -1);
@@ -79,7 +107,7 @@ export default function OnboardingModal({ onComplete }: Props) {
     setStep(next);
     // Persist progress so re-opening the modal resumes from here
     try {
-      localStorage.setItem(PARTIAL_KEY, JSON.stringify({ role, visaStatus, jobStage, step: next }));
+      localStorage.setItem(PARTIAL_KEY, JSON.stringify({ role, visaStatus, experienceYears, jobStage, step: next }));
     } catch { /* storage unavailable */ }
   };
 
@@ -114,24 +142,34 @@ export default function OnboardingModal({ onComplete }: Props) {
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, role, visaStatus, jobStage]);
+  }, [step, role, visaStatus, experienceYears, jobStage]);
 
-  const postOnboarding = useCallback(async (r: string | null, v: string | null, s: string | null) => {
+  const postOnboarding = useCallback(async (
+    r: string | null, v: string | null, e: string | null, s: string | null
+  ) => {
     const { data: { session } } = await supabase.auth.getSession();
+    const anzsco = ROLES.find(opt => opt.value === r)?.anzsco || null;
+    const expNum = e === null ? null : Number.parseInt(e, 10);
     await fetch('/api/onboarding', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token ?? ''}` },
-      body: JSON.stringify({ role: r, visaStatus: v, jobStage: s }),
+      body: JSON.stringify({
+        role:            r,
+        visaStatus:      v,
+        jobStage:        s,
+        anzsco,
+        experienceYears: Number.isFinite(expNum as number) ? expNum : null,
+      }),
     });
   }, []);
 
   const submit = useCallback(async () => {
     setSaving(true);
-    await postOnboarding(role, visaStatus, jobStage);
+    await postOnboarding(role, visaStatus, experienceYears, jobStage);
     localStorage.removeItem(PARTIAL_KEY);
     setDone(true);
     setTimeout(() => { onComplete(); router.push('/dashboard'); }, 1200);
-  }, [role, visaStatus, jobStage, postOnboarding, onComplete, router]);
+  }, [role, visaStatus, experienceYears, jobStage, postOnboarding, onComplete, router]);
 
   // "I'll do this later" — marks dismissed so it won't auto-reopen
   const handleSkip = useCallback(() => {
@@ -173,9 +211,9 @@ export default function OnboardingModal({ onComplete }: Props) {
               <h2 style={{ fontFamily: "'Lora', serif", fontSize: '1.5rem', fontWeight: 700, color: 'var(--brown-dark)', margin: '0 0 0.75rem' }}>
                 Welcome! Let&apos;s personalise<br />your experience.
               </h2>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', lineHeight: 1.65, maxWidth: '30ch', margin: '0 auto 2rem' }}>
-                3 quick questions · 90 seconds.<br />
-                We&apos;ll tailor every tool to your situation.
+              <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', lineHeight: 1.65, maxWidth: '32ch', margin: '0 auto 2rem' }}>
+                4 quick questions · 90 seconds.<br />
+                We&apos;ll tailor every tool — including visa pathway and salary checks — to your situation.
               </p>
               <button onClick={() => goTo(1)} style={{ ...primaryBtnStyle, width: '100%', padding: '0.75rem', fontSize: '1rem' }}>
                 Let&apos;s go →
@@ -187,22 +225,22 @@ export default function OnboardingModal({ onComplete }: Props) {
           </div>
         )}
 
-        {/* ── Steps 1-3: Questions ───────────────────────────── */}
+        {/* ── Steps 1-4: Questions ───────────────────────────── */}
         {step >= 1 && (
           <div key={animKey} style={slideIn(dir)}>
             {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
               <div>
                 <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '0 0 0.3rem', fontWeight: 500 }}>
-                  Question {step} of 3
+                  Question {step} of 4
                 </p>
                 <h2 style={{ fontFamily: "'Lora', serif", fontSize: '1.15rem', fontWeight: 700, color: 'var(--brown-dark)', margin: 0 }}>
-                  {QUESTION_TITLES[step as 1 | 2 | 3]}
+                  {QUESTION_TITLES[step as 1 | 2 | 3 | 4]}
                 </h2>
               </div>
               {/* Step dots */}
               <div style={{ display: 'flex', gap: '5px', alignItems: 'center', paddingTop: '2px', flexShrink: 0 }}>
-                {([1, 2, 3] as const).map(s => (
+                {([1, 2, 3, 4] as const).map(s => (
                   <div key={s} style={{
                     width: s === step ? '18px' : '7px', height: '7px',
                     borderRadius: '99px',
@@ -238,8 +276,19 @@ export default function OnboardingModal({ onComplete }: Props) {
               </div>
             )}
 
-            {/* Step 3 — Job stage */}
+            {/* Step 3 — Experience years */}
             {step === 3 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', marginBottom: '1.25rem' }}>
+                {EXPERIENCE_OPTIONS.map(e => (
+                  <button key={e.value} onClick={() => setExperienceYears(e.value)} style={listOptionStyle(experienceYears === e.value)}>
+                    {e.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Step 4 — Job stage */}
+            {step === 4 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', marginBottom: '1.25rem' }}>
                 {STAGE_OPTIONS.map(s => (
                   <button key={s.value} onClick={() => setJobStage(s.value)} style={listOptionStyle(jobStage === s.value)}>
@@ -267,7 +316,7 @@ export default function OnboardingModal({ onComplete }: Props) {
                     ← Back
                   </button>
                 )}
-                {step < 3 ? (
+                {step < 4 ? (
                   <button
                     onClick={() => goTo((step + 1) as Step)}
                     disabled={!canContinue}

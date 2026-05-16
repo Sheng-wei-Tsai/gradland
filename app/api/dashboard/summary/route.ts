@@ -2,15 +2,17 @@ import { NextResponse } from 'next/server';
 import { createSupabaseServer, createSupabaseService } from '@/lib/auth-server';
 
 export interface DashboardSummary {
-  onboardingCompleted:  boolean;
-  onboardingRole:       string | null;
-  onboardingVisaStatus: string | null;
-  onboardingJobStage:   string | null;
-  visaStep:             { step: number; status: string; startedAt: string | null } | null;
-  reviewDue:            { skillId: string; pathId: string } | null;
-  resumeStaleDays:      number | null;  // null = never analysed
-  applicationCount:     number;
-  interviewCount:       number;
+  onboardingCompleted:     boolean;
+  onboardingRole:          string | null;
+  onboardingVisaStatus:    string | null;
+  onboardingJobStage:      string | null;
+  onboardingAnzsco:        string | null;
+  onboardingExperienceYrs: number | null;
+  visaStep:                { step: number; status: string; startedAt: string | null } | null;
+  reviewDue:               { skillId: string; pathId: string } | null;
+  resumeStaleDays:         number | null;  // null = never analysed
+  applicationCount:        number;
+  interviewCount:          number;
 }
 
 export async function GET() {
@@ -25,7 +27,7 @@ export async function GET() {
 
   const [profile, visaRow, reviewRow, resumeRow, apps] = await Promise.all([
     sb.from('profiles')
-      .select('onboarding_completed, onboarding_role, onboarding_visa_status, onboarding_job_stage')
+      .select('onboarding_completed, onboarding_role, onboarding_visa_status, onboarding_job_stage, onboarding_anzsco, onboarding_experience_years')
       .eq('id', uid)
       .maybeSingle(),
 
@@ -75,10 +77,12 @@ export async function GET() {
 
   const applicationList = apps.data ?? [];
   const summary: DashboardSummary = {
-    onboardingCompleted:  profile.data?.onboarding_completed ?? false,
-    onboardingRole:       profile.data?.onboarding_role ?? null,
-    onboardingVisaStatus: profile.data?.onboarding_visa_status ?? null,
-    onboardingJobStage:   profile.data?.onboarding_job_stage ?? null,
+    onboardingCompleted:     profile.data?.onboarding_completed ?? false,
+    onboardingRole:          profile.data?.onboarding_role ?? null,
+    onboardingVisaStatus:    profile.data?.onboarding_visa_status ?? null,
+    onboardingJobStage:      profile.data?.onboarding_job_stage ?? null,
+    onboardingAnzsco:        profile.data?.onboarding_anzsco ?? null,
+    onboardingExperienceYrs: profile.data?.onboarding_experience_years ?? null,
     visaStep,
     reviewDue:           reviewRow.data
       ? { skillId: reviewRow.data.skill_id, pathId: reviewRow.data.path_id }
