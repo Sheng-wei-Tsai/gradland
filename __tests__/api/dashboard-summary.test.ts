@@ -72,6 +72,8 @@ describe('GET /api/dashboard/summary', () => {
     expect(body.onboardingRole).toBeNull();
     expect(body.onboardingVisaStatus).toBeNull();
     expect(body.onboardingJobStage).toBeNull();
+    expect(body.onboardingAnzsco).toBeNull();
+    expect(body.onboardingExperienceYrs).toBeNull();
     expect(body.visaStep).toBeNull();
     expect(body.reviewDue).toBeNull();
     expect(body.resumeStaleDays).toBeNull();
@@ -105,6 +107,28 @@ describe('GET /api/dashboard/summary', () => {
     expect(body.onboardingCompleted).toBe(true);
     expect(body.onboardingRole).toBe('developer');
     expect(body.onboardingVisaStatus).toBe('485');
+  });
+
+  it('forwards onboardingAnzsco and onboardingExperienceYrs from the profiles row', async () => {
+    mockGetUser.mockResolvedValueOnce({ data: { user: TEST_USER }, error: null });
+
+    mockFrom
+      .mockReturnValueOnce(makeChain({
+        onboarding_completed:     true,
+        onboarding_role:          'developer',
+        onboarding_visa_status:   'graduate',
+        onboarding_job_stage:     'searching',
+        onboarding_anzsco:        '261313',
+        onboarding_experience_years: 3,
+      }))                                                                   // profiles
+      .mockReturnValue(makeChain(null));                                    // remaining tables
+
+    const res = await GET();
+    expect(res.status).toBe(200);
+
+    const body = await res.json();
+    expect(body.onboardingAnzsco).toBe('261313');
+    expect(body.onboardingExperienceYrs).toBe(3);
   });
 
   it('counts total applications and interview-status rows correctly', async () => {

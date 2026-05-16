@@ -1322,6 +1322,11 @@
 ### Tests
 - [x] Add Vitest unit tests for `lib/visa-pathway.ts` — `calculatePoints`: correct base/withState/withRegional for a typical profile, each age bracket, English level, education level, experience threshold, salary bonus (CSIT/SSIT), breakdown array entries, salary below CSIT yields 0 bonus with no breakdown entry; `analysePathways`: returns 5 pathways with visa codes 189/190/491/482/186 and a `computedAt` field, 189 eligible when points≥70+CSOL, 189 close in [60,70), 189 blocked when not on CSOL, 190 eligible-with-nomination when available state, 190 blocked when state not in list, 491 eligible-with-nomination with `timeToEligibility`, 482 eligible when CSOL+CSIT+1yr, 482 blocked when salary<CSIT, 482 shows Specialist Skills label when salary≥SSIT, 186 eligible via TRT (currentVisa=working+2yr), 186 eligible via Direct Entry (3yr+CSOL+CSIT), 186 blocked when all gates fail, topPick.verdict='eligible' when any pathway is eligible, summary contains "No subclass open" when all blocked — new file: `__tests__/lib/visa-pathway.test.ts` [tests] ✅ 2026-05-16
 
+## 🛡 Daily Analyst Findings — 2026-05-16 (supplement 7)
+
+### Tests
+- [ ] Add assertions for `onboardingAnzsco` and `onboardingExperienceYrs` in `__tests__/api/dashboard-summary.test.ts` — both fields were added to `DashboardSummary` in commit `69b7d27` to support PathwayPlanner pre-fill (`app/visa-pathway/PathwayPlanner.tsx:116-119`), but none of the existing tests assert them; the zero-data test (line 61) should add `expect(body.onboardingAnzsco).toBeNull()` and `expect(body.onboardingExperienceYrs).toBeNull()`; add one new happy-path test returning `onboarding_anzsco: '261313'` and `onboarding_experience_years: 3` from the profiles mock and verifying they are forwarded in the response; a regression removing either field from the route would go undetected by the current suite [tests]
+
 ---
 
 ## 📊 Priority Rationale
