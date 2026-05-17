@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { Post } from '@/lib/posts';
 import { format } from 'date-fns';
+import { COMPANY_BADGES } from '@/lib/company-badges';
 
 /* Accent colours per source */
 const SOURCE_STRIPE: Record<string, string> = {
@@ -10,12 +11,6 @@ const SOURCE_STRIPE: Record<string, string> = {
   githot:      'linear-gradient(180deg, var(--vermilion) 0%, var(--vermilion) 100%)',
   'ai-news':   'linear-gradient(180deg, var(--jade) 0%, var(--gold) 100%)',
   'visa-news': 'linear-gradient(180deg, var(--jade) 0%, var(--jade) 100%)',
-};
-
-const COMPANY_BADGE: Record<string, { color: string; bg: string; border: string; label: string }> = {
-  anthropic: { color: '#CC785C', bg: 'rgba(204,120,92,0.08)',  border: 'rgba(204,120,92,0.25)',  label: 'Anthropic' },
-  openai:    { color: '#10a37f', bg: 'rgba(16,163,127,0.08)',  border: 'rgba(16,163,127,0.25)',  label: 'OpenAI' },
-  google:    { color: '#4285f4', bg: 'rgba(66,133,244,0.08)',  border: 'rgba(66,133,244,0.25)',  label: 'Google AI' },
 };
 
 export default function PostCard({
@@ -32,7 +27,7 @@ export default function PostCard({
   const isGithot   = post.source === 'githot';
   const isAINews   = post.source === 'ai-news';
   const isVisaNews = post.source === 'visa-news';
-  const companyBadge = isAINews && post.company ? COMPANY_BADGE[post.company] : null;
+  const companyBadge = isAINews && post.company ? COMPANY_BADGES[post.company] : null;
 
   return (
     <Link href={`${basePath}/${post.slug}`} style={{ textDecoration: 'none' }}>

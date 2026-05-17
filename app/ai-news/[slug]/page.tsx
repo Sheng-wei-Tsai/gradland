@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import Link from 'next/link';
 import { Metadata } from 'next';
 import rehypePrettyCode from 'rehype-pretty-code';
+import { COMPANY_BADGES } from '@/lib/company-badges';
 
 const mdxOptions = {
   mdxOptions: {
@@ -16,12 +17,6 @@ const mdxOptions = {
       }],
     ],
   },
-};
-
-const COMPANY_META: Record<string, { label: string; color: string; bg: string; border: string }> = {
-  anthropic: { label: 'Anthropic',  color: '#CC785C', bg: 'rgba(204,120,92,0.08)',  border: 'rgba(204,120,92,0.25)' },
-  openai:    { label: 'OpenAI',     color: '#10a37f', bg: 'rgba(16,163,127,0.08)',  border: 'rgba(16,163,127,0.25)' },
-  google:    { label: 'Google AI',  color: '#4285f4', bg: 'rgba(66,133,244,0.08)',  border: 'rgba(66,133,244,0.25)' },
 };
 
 export async function generateStaticParams() {
@@ -56,7 +51,7 @@ export default async function AINewsPostPage({ params }: { params: Promise<{ slu
   const post = getAINewsBySlug(slug);
   if (!post) notFound();
 
-  const company = COMPANY_META[post.company ?? ''] ?? COMPANY_META.google;
+  const company = COMPANY_BADGES[post.company ?? ''] ?? COMPANY_BADGES.google;
 
   // JSON-LD Article schema — data is server-controlled (our markdown files)
   const jsonLd = JSON.stringify({

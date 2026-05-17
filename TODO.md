@@ -1407,6 +1407,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-17 (supplement 3)
+
+> Supplement scan — `COMPANY_BADGE` in `components/PostCard.tsx:15-19` and `COMPANY_META` in `app/ai-news/[slug]/page.tsx:21-25` are identical vendor-brand colour maps (Anthropic/OpenAI/Google label+color+bg+border) defined separately in two files. A future company addition (e.g. Meta) must be added in both places, and field-ordering already differs between them. Extract to `lib/company-badges.ts` as a single exported constant; update both importers.
+
+### Code Quality
+- [x] Deduplicate `COMPANY_BADGE` / `COMPANY_META` into `lib/company-badges.ts` — same Anthropic/OpenAI/Google vendor-brand data defined identically in `components/PostCard.tsx:15` and `app/ai-news/[slug]/page.tsx:21`; create `lib/company-badges.ts` exporting `COMPANY_BADGES` and `CompanyBadge` type; update `PostCard.tsx` and `app/ai-news/[slug]/page.tsx` to import from the shared lib [quality] ✅ 2026-05-17
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
