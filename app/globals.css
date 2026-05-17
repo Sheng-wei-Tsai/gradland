@@ -2053,6 +2053,35 @@ h3, h4 {
   color: var(--text-secondary);
 }
 
+/* ── Mobile /jobs UX polish ── *
+ * Tighter cards, dominant Apply CTA, single-row search hero,
+ * iOS-zoom-safe input font-size, hide desktop-only inline expand toggle.
+ */
+@media (max-width: 640px) {
+  /* iOS Safari zooms on focus when font-size < 16px. 1rem may compute &lt;16 if root font-size shrank — pin explicitly. */
+  .search-input-hero { font-size: 16px; padding: 0.75rem 0.9rem 0.75rem 2.5rem; }
+
+  /* Sticky search panel had 1.4rem panel padding; reclaim ~12px of vertical space. */
+  .search-panel { padding: 1rem; gap: 0.7rem; }
+
+  /* Compact search hero: keyword input full width on row 1; location + search share row 2. */
+  .search-panel-hero { gap: 0.5rem; }
+  .search-panel-hero > div:first-child { flex: 1 1 100%; min-width: 0; }
+  .search-panel-hero button { flex: 1 1 0; min-width: 0; padding: 0.7rem 0.9rem; font-size: 0.9rem; }
+
+  /* JobCard density — was 1.4rem 1.6rem; ~25% of card width was padding at 375px. */
+  .job-card { padding: 1rem 1.05rem; border-radius: 12px; }
+  .job-card-title { font-size: 1.1rem; line-height: 1.3; margin-bottom: 0.35rem; }
+
+  /* Apply is the primary CTA — push it full-width on its own row. */
+  .job-apply-link { flex: 1 1 100%; justify-content: center; order: 99; min-height: 48px !important; font-size: 0.95rem !important; }
+  /* Save + Cover Letter share row 1; equal-width feels intentional vs ragged pill widths. */
+  .job-btn-save, .job-btn-cover { flex: 1 1 0; min-width: 0; justify-content: center; }
+
+  /* Desktop expand toggle is a duplicate on mobile (View Details modal opens full text). */
+  .job-read-more-btn { display: none !important; }
+}
+
 /* ── Network seeker grid ── */
 .network-seeker-grid {
   display: grid;
