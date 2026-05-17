@@ -2133,9 +2133,21 @@ h3, h4 {
 
   /* Compact search hero: keyword input full width row 1; location alone row 2.
    * Standalone Search button is redundant on mobile — iOS keyboard now has a
-   * "Search" return key via enterKeyHint="search" + inputMode="search". */
-  .search-panel-hero { gap: 0.5rem; }
-  .search-panel-hero > div:first-child { flex: 1 1 100%; min-width: 0; }
+   * "Search" return key via enterKeyHint="search" + inputMode="search".
+   * `!important` needed: the TSX has inline style={{ flex:2, minWidth:'200px' }}
+   * on the keyword wrapper which would otherwise win the cascade. */
+  .search-panel-hero { gap: 0.5rem; align-items: stretch; }
+  .search-panel-hero > div:first-child {
+    flex: 1 1 100% !important;
+    min-width: 0 !important;
+    width: 100%;
+  }
+  /* CitySelector wraps to row 2 and spans full width so it doesn't crash into the input. */
+  .search-panel-hero > div:nth-child(2) {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+  .search-panel-hero > div:nth-child(2) .city-trigger { width: 100%; }
   .search-go-btn { display: none !important; }
   #job-keywords-hint { display: none !important; }
   /* Lighten panel chrome — was 3D card fighting the page surface. */
