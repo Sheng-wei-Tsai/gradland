@@ -2187,32 +2187,106 @@ h3, h4 {
   .city-trigger__icon { flex-shrink: 0; }
   .city-trigger__chevron { margin-left: auto; }
 
-  /* Keep the panel card (border + shadow) per user preference — it's the
-   * gradland visual signature. Just tighten padding for mobile screens. */
+  /* ── Western comic × Chinese ink — mobile search panel ── *
+   * Thick ink borders + chunky offset shadow = the gradland signature
+   * (comic-book brutalism). Vermillion/gold/jade palette + calligraphic
+   * Lora-italic copy = the Chinese ink-painting layer. Identical box for
+   * input + city so both feel like stamped panels in a comic spread. */
+
   .search-panel {
     padding: 0.85rem !important;
-    gap: 0.6rem !important;
+    gap: 0.55rem !important;
   }
 
-  /* Lock input + city chip to identical box: both width:100%, both
-   * box-sizing:border-box, same vertical padding so the visual heights
-   * match. Without this they drift apart since input padding is computed
-   * vs chip min-height. */
+  /* Equal box for input + city chip. */
   .search-input-hero,
   .city-trigger {
     width: 100% !important;
     box-sizing: border-box !important;
-    min-height: 48px !important;
-    padding: 0.7rem 0.9rem !important;
+    min-height: 50px !important;
+    padding: 0.75rem 0.95rem !important;
+    border-radius: 12px !important;
+    border: 2px solid var(--ink) !important;
+    background: var(--warm-white) !important;
+    box-shadow: 3px 3px 0 var(--ink) !important;
+    font-weight: 600 !important;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease !important;
   }
-  .search-input-hero {
-    padding-left: 2.6rem !important; /* room for magnifier icon */
+  .search-input-hero { padding-left: 2.7rem !important; }
+
+  /* "Press-in" comic-strip active state — the element punches the page. */
+  .search-input-hero:focus,
+  .city-trigger:hover,
+  .city-trigger--open {
+    border-color: var(--vermilion) !important;
+    box-shadow: 1px 1px 0 var(--ink) !important;
+    transform: translate(2px, 2px) !important;
   }
 
-  /* Filter row spacing — sits flush under the panel. */
+  /* Magnifier icon — vermillion ink stroke, slightly larger so it reads
+   * as a hand-drawn brush mark, not a flat UI icon. */
+  .search-input-hero + div,
+  .search-panel-hero > div:first-child > div:first-child {
+    color: var(--vermilion) !important;
+  }
+
+  /* City icon — red-chop accent (印章) frame: small square of vermillion
+   * tint behind the city icon, the same way Chinese paintings sign with
+   * a stamped seal. */
+  .city-trigger__icon {
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 4px !important;
+    background: rgba(192,40,28,0.10) !important;
+    border: 1px solid rgba(192,40,28,0.35) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: var(--vermilion) !important;
+    flex-shrink: 0 !important;
+  }
+  .city-trigger__caption { display: none !important; }
+  .city-trigger__value {
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    color: var(--ink) !important;
+    letter-spacing: 0 !important;
+  }
+  .city-trigger__chevron {
+    margin-left: auto !important;
+    color: var(--ink) !important;
+  }
+
+  /* Filter row — give "No filters set" a calligraphic Lora italic so the
+   * empty state feels brushwork, not placeholder. */
   .mobile-filter-row {
-    margin-top: 0.4rem;
-    gap: 0.5rem;
+    margin-top: 0.5rem;
+    gap: 0.55rem;
+    align-items: center;
+  }
+  .mobile-filter-row > span {
+    font-family: 'Lora', serif !important;
+    font-style: italic !important;
+    font-size: 0.85rem !important;
+    color: var(--text-muted) !important;
+  }
+  /* Filter button as comic action chip — ink border + offset shadow. */
+  .mobile-filter-btn {
+    border: 2px solid var(--ink) !important;
+    background: var(--warm-white) !important;
+    box-shadow: 2px 2px 0 var(--ink) !important;
+    font-weight: 700 !important;
+    color: var(--ink) !important;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease !important;
+  }
+  .mobile-filter-btn:active {
+    box-shadow: 0 0 0 var(--ink) !important;
+    transform: translate(2px, 2px) !important;
+  }
+  .mobile-filter-btn .filter-count-badge {
+    background: var(--vermilion) !important;
+    color: white !important;
+    border: 1px solid var(--ink) !important;
   }
   #job-keywords-hint { display: none !important; }
   /* Lighten panel chrome — was 3D card fighting the page surface. */
