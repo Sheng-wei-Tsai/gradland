@@ -1395,6 +1395,11 @@
 ### Tests
 - [x] Add Vitest unit tests for `lib/review-notifications.ts` — pure-JS module (92 lines) with zero coverage; called from `app/learn/[path]/PathTracker.tsx` and likely `PathProgress.tsx`. Same risk pattern that prompted tests for `lib/skill-paths.ts` (✅ 2026-05-16), `lib/sponsor-detect.ts` (✅ 2026-05-16), and `lib/visa-rules.ts` (✅ 2026-05-16). Test: (1) `scheduleReview(pathId, skillId, skillName)` writes a `${pathId}:${skillId}` entry to localStorage with `remindAt` containing 2 ISO strings 3 and 7 days from now (`vi.useFakeTimers()` + `vi.setSystemTime()` for determinism); (2) `clearReview` removes the entry; (3) `getScheduledCount` returns the localStorage entry count; (4) `fireIfDue` does nothing if `Notification.permission !== 'granted'`; (5) with a stub `globalThis.Notification` constructor + `Notification.permission = 'granted'`, `fireIfDue` calls `new Notification` for due entries and removes them from localStorage if all reminders have fired; (6) `fireIfDue` keeps upcoming reminders when only some have fired (i.e. day-3 due but day-7 not yet); use `vi.stubGlobal('Notification', ...)` to mock the constructor + static permission property; new file: `__tests__/lib/review-notifications.test.ts` [tests] ✅ 2026-05-17
 
+## 🛡 Daily Analyst Findings — 2026-05-17 (supplement 1)
+
+### Tests
+- [x] Add Vitest unit tests for `lib/interview-roles.ts` — `getRoleById` and `getLevelFromXp` are pure exported functions with zero test coverage; `getLevelFromXp` contains non-trivial XP-boundary and progress-percentage logic (5 levels, ascending scan, progress formula, `undefined` next at max level) used in every interview session to show the user's current XP tier; a regression in the level boundary or Math.round behaviour would silently show wrong levels to users; test: `getRoleById` returns correct role for known id, undefined for unknown; `getLevelFromXp` at xp=0 → level 1 / progress 0, at mid-level xp → correct progress %, at exact threshold (xp=500 → level 2 / progress 0), at max level (xp≥7000 → level 5 / next undefined / progress 100); new file: `__tests__/lib/interview-roles.test.ts` [tests] ✅ 2026-05-17
+
 ---
 
 ## 📊 Priority Rationale
