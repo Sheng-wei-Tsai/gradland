@@ -2053,10 +2053,40 @@ h3, h4 {
   color: var(--text-secondary);
 }
 
-/* ── Mobile /jobs UX polish ── *
- * Tighter cards, dominant Apply CTA, single-row search hero,
+/* ── Mobile header & /jobs UX polish ── *
+ * Strip toggles + auth pills from top bar (bottom-nav owns nav + auth on mobile),
+ * tighter cards, dominant Apply CTA, single-row search hero,
+ * horizontal-scroll quick-start pills (was 5 rows of vertical soup),
  * iOS-zoom-safe input font-size, hide desktop-only inline expand toggle.
  */
+@media (max-width: 640px) {
+  /* Strip header right-side actions on mobile — bottom-nav has Sign in tab.
+   * LangToggle + ThemeToggle move into the avatar/me sheet (future), for now
+   * accept that mobile users can't switch lang/theme until that sheet ships. */
+  .header-right-actions { display: none !important; }
+  /* Logo gets the full top bar to breathe. */
+  .brand-lockup { font-size: 1.05rem !important; }
+
+  /* Quick-start pills — single horizontal scroll row instead of 5 wrapping rows. */
+  .quick-start-pills {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    /* Bleed to viewport edges so first/last chip clears the page gutter. */
+    margin-left: -1.5rem;
+    margin-right: -1.5rem;
+    padding: 0.25rem 1.5rem;
+    scroll-snap-type: x proximity;
+  }
+  .quick-start-pills::-webkit-scrollbar { display: none; }
+  .quick-start-pills > button {
+    flex-shrink: 0;
+    scroll-snap-align: start;
+  }
+}
+
 @media (max-width: 640px) {
   /* iOS Safari zooms on focus when font-size < 16px. 1rem may compute &lt;16 if root font-size shrank — pin explicitly. */
   .search-input-hero { font-size: 16px; padding: 0.75rem 0.9rem 0.75rem 2.5rem; }

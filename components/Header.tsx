@@ -280,8 +280,10 @@ export default function Header() {
 
           <div style={{ flex: 1 }} />
 
-          <LangToggle />
-          <ThemeToggle />
+          {/* Right-side toggles + auth — hidden on mobile (bottom-nav handles nav + auth). */}
+          <div className="header-right-actions" style={{ display: 'contents' }}>
+            <LangToggle />
+            <ThemeToggle />
 
           {/* Right-side CTAs */}
           {!loading && (
@@ -353,6 +355,7 @@ export default function Header() {
               )}
             </div>
           )}
+          </div>
         </div>
       </header>
 

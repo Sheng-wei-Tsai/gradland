@@ -901,7 +901,7 @@ export default function JobsPage() {
       </div>
 
       {/* Quick-start pills */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem', marginBottom: '1rem' }}>
+      <div className="quick-start-pills" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem', marginBottom: '1rem' }}>
         {QUICK_STARTS.map(q => (
           <button key={q} onClick={() => { setKeywords(q); search(1, true, q); }}
             style={{
