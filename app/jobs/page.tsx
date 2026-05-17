@@ -10,6 +10,7 @@ import GapAnalysisPanel from '@/components/GapAnalysisPanel';
 import EIcon from '@/components/icons/EIcon';
 import CitySelector from '@/components/CitySelector';
 import SponsorBadge from '@/components/SponsorBadge';
+import BackToTop from '@/components/BackToTop';
 
 type JobTab = 'au' | 'remote' | 'freelance';
 
@@ -964,11 +965,43 @@ export default function JobsPage() {
           Press <kbd style={{ padding: '0 0.3em', border: '1px solid var(--parchment)', borderRadius: '3px', fontSize: '0.85em' }}>Enter</kbd> to search
         </span>
 
-        {/* Mobile-only: Filters button — opens bottom drawer */}
+        {/* Mobile-only: inline active-filter chips + Filters button — chips tap to clear */}
         <div className="mobile-filter-row">
-          <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-            {activeFilterCount > 0 ? `${activeFilterCount} filter${activeFilterCount > 1 ? 's' : ''} active` : 'No filters set'}
-          </span>
+          <div className="active-filter-chips">
+            {activeFilterCount === 0 && (
+              <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>No filters set</span>
+            )}
+            {category !== 'All' && (
+              <button className="active-filter-chip" onClick={() => setCategory('All')} aria-label={`Clear ${category} filter`}>
+                {category} <span aria-hidden>×</span>
+              </button>
+            )}
+            {fullTime && (
+              <button className="active-filter-chip" onClick={() => setFullTime(false)} aria-label="Clear full-time filter">
+                Full-time <span aria-hidden>×</span>
+              </button>
+            )}
+            {workingRights && (
+              <button className="active-filter-chip" onClick={() => setWorkingRights(false)} aria-label="Clear working-rights filter">
+                Working rights <span aria-hidden>×</span>
+              </button>
+            )}
+            {sponsorOnly && (
+              <button className="active-filter-chip" onClick={() => setSponsorOnly(false)} aria-label="Clear sponsor-only filter">
+                482 sponsor <span aria-hidden>×</span>
+              </button>
+            )}
+            {salaryMin && (
+              <button className="active-filter-chip" onClick={() => setSalaryMin('')} aria-label="Clear minimum salary filter">
+                ≥ ${salaryMin} <span aria-hidden>×</span>
+              </button>
+            )}
+            {salaryMax && (
+              <button className="active-filter-chip" onClick={() => setSalaryMax('')} aria-label="Clear maximum salary filter">
+                ≤ ${salaryMax} <span aria-hidden>×</span>
+              </button>
+            )}
+          </div>
           <button
             className="mobile-filter-btn"
             onClick={() => setFilterDrawerOpen(true)}
@@ -1384,6 +1417,8 @@ export default function JobsPage() {
           onApply={handleApply}
         />
       )}
+
+      <BackToTop />
     </div>
   );
 }
