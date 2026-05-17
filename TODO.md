@@ -1416,6 +1416,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-17 (supplement 4)
+
+> Supplement scan — `lib/i18n.ts` exports `isValidLocale` (a type-guard used in `components/LangProvider.tsx:35` to validate locale strings read from `localStorage`) with zero unit test coverage. A typo in the `locales` constant or a logic error in the guard would silently accept invalid locale keys and cause broken translations for all users. Same risk pattern that prompted tests for `lib/visa-rules.ts` and `lib/sponsor-detect.ts`.
+
+### Tests
+- [x] Add Vitest unit tests for `lib/i18n.ts` — `isValidLocale`: (1) returns `true` for `'en'`, (2) returns `true` for `'zh-TW'`, (3) returns `false` for unknown string `'fr'`, (4) returns `false` for empty string `''`, (5) returns `false` for `null`, (6) returns `false` for `undefined`, (7) returns `false` for `123` (number), (8) returns `false` for `{}` (object); also assert `defaultLocale === 'en'` and `locales` contains exactly `['en', 'zh-TW']`; new file: `__tests__/lib/i18n.test.ts` [tests] ✅ 2026-05-17
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
