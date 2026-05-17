@@ -11,9 +11,9 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({}, { status: 400 });
 
-  const message = String(body.message ?? '').slice(0, 500);
-  const digest  = String(body.digest  ?? '').slice(0, 100);
-  const url     = String(body.url     ?? '').slice(0, 500);
+  const message = typeof body.message === 'string' ? body.message.slice(0, 500) : '';
+  const digest  = typeof body.digest  === 'string' ? body.digest.slice(0, 100)  : '';
+  const url     = typeof body.url     === 'string' ? body.url.slice(0, 500)     : '';
 
   Sentry.captureMessage(message, { level: 'error', extra: { digest, url } });
 

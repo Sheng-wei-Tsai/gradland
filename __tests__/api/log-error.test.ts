@@ -62,4 +62,13 @@ describe('POST /api/log-error', () => {
     const inserted = mockInsert.mock.calls.at(-1)?.[0] as { message: string };
     expect(inserted.message.length).toBe(500);
   });
+
+  it('coerces non-string message, digest, url to empty string', async () => {
+    const res = await POST(makePost({ message: { foo: 'bar' }, digest: 123, url: ['a', 'b'] }, '5.5.5.1'));
+    expect(res.status).toBe(200);
+    const inserted = mockInsert.mock.calls.at(-1)?.[0] as { message: string; digest: string; url: string };
+    expect(inserted.message).toBe('');
+    expect(inserted.digest).toBe('');
+    expect(inserted.url).toBe('');
+  });
 });
