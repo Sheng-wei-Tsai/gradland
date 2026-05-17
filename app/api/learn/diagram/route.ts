@@ -65,8 +65,7 @@ Rules:
 
     await recordUsage(auth.user.id, 'learn/diagram');
     return NextResponse.json({ mermaidCode, skillId, pathId });
-  } catch (err) {
-    console.error('Diagram generation error:', err);
+  } catch {
     return NextResponse.json({ error: 'Diagram generation failed' }, { status: 502 });
   }
 }

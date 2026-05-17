@@ -85,8 +85,7 @@ Output raw Mermaid only, starting with "flowchart"`;
       mermaidCode,
       cacheKey: `${role}_${visaStatus}_${jobStage}`,
     });
-  } catch (err) {
-    console.error('Roadmap generation error:', err);
+  } catch {
     return NextResponse.json({ error: 'Roadmap generation failed' }, { status: 502 });
   }
 }

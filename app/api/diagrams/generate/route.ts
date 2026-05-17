@@ -90,8 +90,7 @@ Output raw Mermaid only.`;
 
     await recordUsage(auth.user.id, 'diagrams/generate');
     return NextResponse.json({ mermaid: mermaidCode, type, topic });
-  } catch (err) {
-    console.error('Diagram generation error:', err);
+  } catch {
     return NextResponse.json({ error: 'Diagram generation failed' }, { status: 502 });
   }
 }

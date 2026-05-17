@@ -1400,6 +1400,11 @@
 ### Tests
 - [x] Add Vitest unit tests for `lib/interview-roles.ts` — `getRoleById` and `getLevelFromXp` are pure exported functions with zero test coverage; `getLevelFromXp` contains non-trivial XP-boundary and progress-percentage logic (5 levels, ascending scan, progress formula, `undefined` next at max level) used in every interview session to show the user's current XP tier; a regression in the level boundary or Math.round behaviour would silently show wrong levels to users; test: `getRoleById` returns correct role for known id, undefined for unknown; `getLevelFromXp` at xp=0 → level 1 / progress 0, at mid-level xp → correct progress %, at exact threshold (xp=500 → level 2 / progress 0), at max level (xp≥7000 → level 5 / next undefined / progress 100); new file: `__tests__/lib/interview-roles.test.ts` [tests] ✅ 2026-05-17
 
+## 🛡 Daily Analyst Findings — 2026-05-17 (supplement 2)
+
+### Code Quality (bare catch pattern consistency)
+- [x] Drop `console.error` + unused `err` binding in catch blocks in `app/api/diagrams/generate/route.ts:93`, `app/api/learn/diagram/route.ts:68`, and `app/api/learn/roadmap-image/route.ts:88` — supplement 5 of 2026-05-13 established the bare `} catch {` pattern (no console.error, no error variable) for AI-generation routes whose errors are already captured by Sentry global instrumentation; the three diagram/roadmap routes were missed in that sweep; each still has `} catch (err) { console.error('... error:', err); return NextResponse.json({ error: '...' }, { status: 502 }); }` — change to `} catch { return NextResponse.json(...)` (matching pattern in `app/api/learn/videos/route.ts:73` and all four interview routes); no test updates needed [quality] ✅ 2026-05-17
+
 ---
 
 ## 📊 Priority Rationale
