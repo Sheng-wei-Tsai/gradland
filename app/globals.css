@@ -2187,29 +2187,32 @@ h3, h4 {
   .city-trigger__icon { flex-shrink: 0; }
   .city-trigger__chevron { margin-left: auto; }
 
-  /* Strip the 3D card framing off the search panel so it reads as a native
-   * iOS-style group, not an over-decorated widget that fights the page. */
+  /* Keep the panel card (border + shadow) per user preference — it's the
+   * gradland visual signature. Just tighten padding for mobile screens. */
   .search-panel {
-    border: none !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    padding: 0.5rem 0 0 !important;
-    margin-left: 0;
-    margin-right: 0;
+    padding: 0.85rem !important;
+    gap: 0.6rem !important;
   }
 
-  /* Tighter filter row + drop "No filters set" text when zero are active
-   * (active-filter-chips already renders the same fallback span). */
-  .mobile-filter-row {
-    margin-top: 0.3rem;
-    padding: 0;
-    gap: 0.5rem;
+  /* Lock input + city chip to identical box: both width:100%, both
+   * box-sizing:border-box, same vertical padding so the visual heights
+   * match. Without this they drift apart since input padding is computed
+   * vs chip min-height. */
+  .search-input-hero,
+  .city-trigger {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    min-height: 48px !important;
+    padding: 0.7rem 0.9rem !important;
   }
-  .mobile-filter-btn {
-    padding: 0.55rem 1rem !important;
-    background: var(--warm-white) !important;
-    border: 1px solid var(--parchment) !important;
+  .search-input-hero {
+    padding-left: 2.6rem !important; /* room for magnifier icon */
+  }
+
+  /* Filter row spacing — sits flush under the panel. */
+  .mobile-filter-row {
+    margin-top: 0.4rem;
+    gap: 0.5rem;
   }
   #job-keywords-hint { display: none !important; }
   /* Lighten panel chrome — was 3D card fighting the page surface. */
