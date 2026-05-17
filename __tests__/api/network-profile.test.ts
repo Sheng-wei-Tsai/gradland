@@ -9,7 +9,9 @@ const mockSingle = vi.fn().mockResolvedValue({
 });
 const mockSelect = vi.fn().mockReturnValue({ maybeSingle: mockSingle });
 const mockUpsert = vi.fn().mockReturnValue({ select: mockSelect });
-const mockFrom   = vi.fn().mockReturnValue({ upsert: mockUpsert });
+const mockEq     = vi.fn().mockResolvedValue({ error: null });
+const mockDelete = vi.fn().mockReturnValue({ eq: mockEq });
+const mockFrom   = vi.fn().mockReturnValue({ upsert: mockUpsert, delete: mockDelete });
 
 const mockGetUser = vi.fn().mockResolvedValue({ data: { user: null }, error: null });
 
@@ -20,7 +22,7 @@ vi.mock('@/lib/auth-server', () => ({
   }),
 }));
 
-const { POST } = await import('@/app/api/network/profile/route');
+const { POST, DELETE } = await import('@/app/api/network/profile/route');
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function makePost(body: object) {
@@ -49,7 +51,9 @@ describe('POST /api/network/profile', () => {
     });
     mockSelect.mockReturnValue({ maybeSingle: mockSingle });
     mockUpsert.mockReturnValue({ select: mockSelect });
-    mockFrom.mockReturnValue({ upsert: mockUpsert });
+    mockEq.mockResolvedValue({ error: null });
+    mockDelete.mockReturnValue({ eq: mockEq });
+    mockFrom.mockReturnValue({ upsert: mockUpsert, delete: mockDelete });
   });
 
   it('returns 401 when unauthenticated', async () => {
@@ -155,5 +159,37 @@ describe('POST /api/network/profile', () => {
     mockSingle.mockResolvedValueOnce({ data: null, error: { message: 'DB error' } });
     const res = await POST(makePost(validBody));
     expect(res.status).toBe(500);
+  });
+});
+
+describe('DELETE /api/network/profile', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockGetUser.mockResolvedValue({ data: { user: null }, error: null });
+    mockEq.mockResolvedValue({ error: null });
+    mockDelete.mockReturnValue({ eq: mockEq });
+    mockFrom.mockReturnValue({ upsert: mockUpsert, delete: mockDelete });
+  });
+
+  it('returns 401 when unauthenticated', async () => {
+    const res = await DELETE();
+    expect(res.status).toBe(401);
+  });
+
+  it('returns 200 with { ok: true } when delete succeeds', async () => {
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'u1' } }, error: null });
+    const res  = await DELETE();
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.ok).toBe(true);
+  });
+
+  it('returns 500 when Supabase delete fails', async () => {
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'u1' } }, error: null });
+    mockEq.mockResolvedValueOnce({ error: { message: 'RLS blocked delete' } });
+    const res  = await DELETE();
+    expect(res.status).toBe(500);
+    const body = await res.json();
+    expect(body.error).toMatch(/Failed to leave network/i);
   });
 });

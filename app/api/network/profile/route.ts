@@ -95,6 +95,7 @@ export async function DELETE() {
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  await sb.from('anonymous_profiles').delete().eq('user_id', user.id);
+  const { error } = await sb.from('anonymous_profiles').delete().eq('user_id', user.id);
+  if (error) return NextResponse.json({ error: 'Failed to leave network' }, { status: 500 });
   return NextResponse.json({ ok: true });
 }
