@@ -2094,10 +2094,33 @@ h3, h4 {
   /* Sticky search panel had 1.4rem panel padding; reclaim ~12px of vertical space. */
   .search-panel { padding: 1rem; gap: 0.7rem; }
 
-  /* Compact search hero: keyword input full width on row 1; location + search share row 2. */
+  /* Compact search hero: keyword input full width row 1; location alone row 2.
+   * Standalone Search button is redundant on mobile — iOS keyboard now has a
+   * "Search" return key via enterKeyHint="search" + inputMode="search". */
   .search-panel-hero { gap: 0.5rem; }
   .search-panel-hero > div:first-child { flex: 1 1 100%; min-width: 0; }
-  .search-panel-hero button { flex: 1 1 0; min-width: 0; padding: 0.7rem 0.9rem; font-size: 0.9rem; }
+  .search-go-btn { display: none !important; }
+  #job-keywords-hint { display: none !important; }
+  /* Lighten panel chrome — was 3D card fighting the page surface. */
+  .search-panel { box-shadow: none; border-width: 1px; }
+
+  /* Scroll-driven shrink: collapse panel padding once user scrolls past 32px.
+   * Supported in Safari 17.4+ / Chrome 115+. Older browsers see the static
+   * compact-padding state via the @media base rule above — no degradation. */
+  @supports (animation-timeline: scroll()) {
+    .mobile-search-sticky {
+      animation: search-shrink linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 80px;
+    }
+    @keyframes search-shrink {
+      to {
+        padding-top: 0.4rem;
+        padding-bottom: 0.4rem;
+        box-shadow: 0 2px 8px rgba(20,10,5,0.08);
+      }
+    }
+  }
 
   /* JobCard density — was 1.4rem 1.6rem; ~25% of card width was padding at 375px. */
   .job-card { padding: 1rem 1.05rem; border-radius: 12px; }

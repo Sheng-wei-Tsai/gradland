@@ -928,7 +928,10 @@ export default function JobsPage() {
             </div>
             <input
               id="job-keywords"
-              type="text" value={keywords}
+              type="search"
+              inputMode="search"
+              enterKeyHint="search"
+              value={keywords}
               onChange={e => setKeywords(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && search(1)}
               placeholder="e.g. software developer, devops…"
@@ -937,7 +940,7 @@ export default function JobsPage() {
             />
           </div>
           <CitySelector value={location} onChange={setLocation} />
-          <button onClick={() => search(1)} disabled={loading} style={{
+          <button onClick={() => search(1)} disabled={loading} className="search-go-btn" style={{
             background: loading ? 'var(--parchment)' : 'var(--terracotta)',
             color: loading ? 'var(--text-muted)' : 'white',
             border: 'none', borderRadius: '10px',
