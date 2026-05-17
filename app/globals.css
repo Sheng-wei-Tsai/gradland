@@ -2314,10 +2314,63 @@ h3, h4 {
   .job-card { padding: 1rem 1.05rem; border-radius: 12px; }
   .job-card-title { font-size: 1.1rem; line-height: 1.3; margin-bottom: 0.35rem; }
 
-  /* Apply is the primary CTA — push it full-width on its own row. */
-  .job-apply-link { flex: 1 1 100%; justify-content: center; order: 99; min-height: 48px !important; font-size: 0.95rem !important; }
-  /* Save + Cover Letter share row 1; equal-width feels intentional vs ragged pill widths. */
+  /* All action buttons share comic-ink language: 2px ink border + offset
+   * shadow + press-in :active. Same physics as the search panel above so
+   * the card reads as a stamped page in the same comic spread. */
+  .job-btn-save,
+  .job-btn-cover,
+  .job-apply-link,
+  .job-view-details-btn {
+    border: 2px solid var(--ink) !important;
+    border-radius: 999px !important;
+    font-weight: 700 !important;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease !important;
+  }
+  .job-btn-save,
+  .job-btn-cover,
+  .job-view-details-btn {
+    background: var(--warm-white) !important;
+    color: var(--ink) !important;
+    box-shadow: 2px 2px 0 var(--ink) !important;
+  }
+  .job-btn-cover { color: var(--vermilion) !important; }
+  .job-btn-save:active,
+  .job-btn-cover:active,
+  .job-view-details-btn:active {
+    box-shadow: 0 0 0 var(--ink) !important;
+    transform: translate(2px, 2px) !important;
+  }
+
+  /* Apply is primary CTA — solid vermillion + bigger ink shadow. Full-width
+   * on its own row; Save + Cover Letter share row 1 at equal width. */
+  .job-apply-link {
+    flex: 1 1 100%;
+    justify-content: center;
+    order: 99;
+    min-height: 48px !important;
+    font-size: 0.95rem !important;
+    background: var(--vermilion) !important;
+    color: white !important;
+    box-shadow: 3px 3px 0 var(--ink) !important;
+  }
+  .job-apply-link:active {
+    box-shadow: 1px 1px 0 var(--ink) !important;
+    transform: translate(2px, 2px) !important;
+  }
   .job-btn-save, .job-btn-cover { flex: 1 1 0; min-width: 0; justify-content: center; }
+  .job-view-details-btn { width: 100% !important; }
+
+  /* Tags inside the card already wear .tag comic borders — force the
+   * attribution button to inherit them too (the TSX sets inline style
+   * background:'none'/border:'none' which kills the comic look). */
+  .job-card .tag,
+  .job-card .tag[style] {
+    background: var(--parchment) !important;
+    border: 2px solid var(--ink) !important;
+    box-shadow: 2px 2px 0 var(--ink) !important;
+    padding: 0.18em 0.7em !important;
+    border-radius: 6px !important;
+  }
 
   /* Desktop expand toggle is a duplicate on mobile (View Details modal opens full text). */
   .job-read-more-btn { display: none !important; }
