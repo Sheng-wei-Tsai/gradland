@@ -1308,7 +1308,7 @@ I'm very open to discussing the full package — I want to find something that w
               </div>
 
               <p style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.75rem' }}>What's negotiable in Australia</p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginBottom: '1.25rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '0.5rem', marginBottom: '1.25rem' }}>
                 {[
                   { item: 'Base salary', yes: true },
                   { item: 'Superannuation (11.5%)', yes: false },

@@ -41,6 +41,9 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
+  // `cover` lets background bleed into the iPhone notch / Dynamic Island; pair
+  // with `env(safe-area-inset-*)` in components that sit at screen edges.
+  viewportFit: 'cover',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#fdf5e4' },
     { media: '(prefers-color-scheme: dark)',  color: '#07050f' },
@@ -72,6 +75,12 @@ export const metadata: Metadata = {
     images: ['/opengraph-image.png'],
   },
   robots: { index: true, follow: true },
+  appleWebApp: {
+    capable: true,
+    title: 'Gradland',
+    statusBarStyle: 'black-translucent',
+  },
+  formatDetection: { telephone: false },
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

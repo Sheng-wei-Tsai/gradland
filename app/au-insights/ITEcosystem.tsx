@@ -203,7 +203,7 @@ function LayerCard({ layer, index }: { layer: typeof LAYERS[number]; index: numb
       </p>
 
       {/* Companies — split AU vs Global */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.7rem', marginBottom: '0.9rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.7rem', marginBottom: '0.9rem' }}>
         <div>
           <div style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.35rem' }}>
             🇦🇺 AU-native

@@ -109,7 +109,7 @@ export default function PostARoleClient() {
         display: 'flex', flexDirection: 'column', gap: '1.1rem',
       }}>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
           <div>
             <label style={LABEL}>Company name *</label>
             <input
@@ -126,7 +126,7 @@ export default function PostARoleClient() {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
           <div>
             <label style={LABEL}>Location *</label>
             <select required style={FIELD} value={form.location} onChange={set('location')}>
@@ -165,7 +165,7 @@ export default function PostARoleClient() {
           />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
           <div>
             <label style={LABEL}>Salary range <span style={{ fontWeight: 400 }}>(optional)</span></label>
             <input

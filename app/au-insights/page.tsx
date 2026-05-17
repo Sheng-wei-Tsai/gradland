@@ -18,7 +18,7 @@ function TabSkeleton() {
           animationDelay: `${i * 0.08}s`,
         }} />
       ))}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginTop: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1rem', marginTop: '1.5rem' }}>
         {[0,1,2].map(i => (
           <div key={i} style={{ height: '6rem', borderRadius: '10px', background: 'var(--parchment)', animation: 'pulse 1.4s ease-in-out infinite', animationDelay: `${i * 0.12}s` }} />
         ))}

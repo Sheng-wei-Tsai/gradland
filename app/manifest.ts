@@ -23,5 +23,25 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: 'maskable',
       },
     ],
+    shortcuts: [
+      {
+        name:        'Find IT jobs',
+        short_name:  'Jobs',
+        description: 'AU IT job listings with sponsor filter.',
+        url:         '/jobs',
+      },
+      {
+        name:        'Visa pathway',
+        short_name:  'Visa',
+        description: 'Plan your 482 / 189 / 190 / 491 / 186 pathway.',
+        url:         '/visa-pathway',
+      },
+      {
+        name:        'Resume analyser',
+        short_name:  'Resume',
+        description: 'AI score and rewrite suggestions.',
+        url:         '/resume',
+      },
+    ],
   };
 }

@@ -261,7 +261,7 @@ export default function ProfilePage() {
 
         ) : networkProfile && !showNetworkForm ? (
           <>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.45rem 1.5rem', marginBottom: '0.9rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.45rem 1.5rem', marginBottom: '0.9rem' }}>
               <NetworkChip label="Role"   value={networkProfile.role_title} />
               <NetworkChip label="Visa"   value={networkProfile.visa_type.toUpperCase()} />
               <NetworkChip label="City"   value={networkProfile.city} />
@@ -317,7 +317,7 @@ export default function ProfilePage() {
               />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '0.75rem' }}>
               <div>
                 <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   Visa type
