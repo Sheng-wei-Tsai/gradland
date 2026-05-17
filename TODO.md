@@ -1425,6 +1425,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-17 (supplement 5)
+
+> Supplement scan — three `post-a-role` CTA buttons use `color: 'var(--warm-white)'` for text on `var(--vermilion)` backgrounds; supplement 13 sweep (2026-05-07) standardised CTA text to `'white'` (CSS keyword) across `dashboard/profile/page.tsx:208`, `dashboard/account/delete/page.tsx:85`, `jobs/page.tsx:493`, and others, but the three `post-a-role` pages were missed. In dark mode `--warm-white` resolves to `#0f0b1a` (near-black) while `--vermilion` resolves to `#e84040` (bright red) — technically legible but inconsistent with the established `'white'`-on-vermilion pattern. Note: `app/companies/[slug]/research/ResearchClient.tsx:402` uses `var(--warm-white)` on `var(--ink)` background — intentionally correct because the ink/warm-white pair inverts correctly in dark mode (white on near-black → near-black on cream).
+
+### Style (dark-mode / token consistency)
+- [x] Replace `color: 'var(--warm-white)'` with `color: 'white'` on vermilion CTA buttons in `app/post-a-role/page.tsx:75`, `app/post-a-role/PostARoleClient.tsx:198`, and `app/post-a-role/success/page.tsx:75` — all three use the same `background: 'var(--vermilion)', color: 'var(--warm-white)'` pattern; in dark mode this renders near-black text (`#0f0b1a`) on bright-red (`#e84040`) which is an unusual inversion; the established codebase pattern is `color: 'white'` for CTA text on any saturated token background [style] ✅ 2026-05-17
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

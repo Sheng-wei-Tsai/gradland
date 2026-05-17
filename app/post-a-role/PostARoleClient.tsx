@@ -195,7 +195,7 @@ export default function PostARoleClient() {
           style={{
             padding:      '0.85rem',
             background:   'var(--vermilion)',
-            color:        'var(--warm-white)',
+            color:        'white',
             borderRadius: '10px',
             fontWeight:   700,
             fontSize:     '0.95rem',

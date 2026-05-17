@@ -72,7 +72,7 @@ export default function PostARolePage() {
               display: 'inline-block',
               padding: '0.8rem 1.75rem',
               background: 'var(--vermilion)',
-              color: 'var(--warm-white)',
+              color: 'white',
               borderRadius: '10px',
               fontWeight: 700,
               fontSize: '1rem',
