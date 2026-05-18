@@ -1494,6 +1494,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-18 (supplement 6)
+
+> Supplement scan — `lib/resume-data.ts` exports `resume` (a static object with 101 lines) used by `app/api/resume-match/route.ts:3` to power the AI resume-match feature and by `app/resume/page.tsx:4` to render the public resume page. The module has zero unit test coverage. A missing contact field, empty `skills` category, or malformed `projects` entry would silently corrupt the resume-match API response and the visible resume page — same risk pattern that prompted tests for `lib/company-badges.ts` (✅ 2026-05-18) and `lib/skill-content.ts` (✅ 2026-05-18).
+
+### Tests
+- [x] Add Vitest unit tests for `lib/resume-data.ts` — (1) `resume` is defined, (2) contact fields `name`/`title`/`location`/`email` are non-empty strings, (3) `skills` record has ≥4 categories each with a non-empty string array, (4) `projects` array has ≥5 entries, (5) every project has `name`/`description`/`highlights`/`tech` as non-empty string/array, (6) gradland project findable via `demo` URL, (7) `education` has ≥1 entry with `degree`/`institution`/`location`/`period` fields, (8) `languages` is a non-empty string array; new file: `__tests__/lib/resume-data.test.ts` [tests] ✅ 2026-05-18
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
