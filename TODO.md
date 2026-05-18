@@ -1512,6 +1512,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-18 (supplement 8)
+
+> Supplement scan — `__tests__/api/kv.test.ts` tests `lib/kv` but is placed in the API test directory instead of `__tests__/lib/`. The file was created before `__tests__/lib/kv.test.ts` was added in commit `283ba00`; both files test the same `lib/kv` module. `__tests__/lib/kv.test.ts` covers the same paths except one gap: no test for the default TTL (86 400 s) path of `kvSet`. The misplaced file is dead weight in `__tests__/api/` and implies the existence of a non-existent `/api/kv` route.
+
+### Code Quality
+- [x] Delete `__tests__/api/kv.test.ts` (tests `lib/kv` but incorrectly placed in API test directory) and add the one coverage gap to `__tests__/lib/kv.test.ts` — add `it('calls the correct Upstash GET URL with Authorization header')` verifying `fetch` is called with `${KV_URL}/get/${encodeURIComponent(key)}` and `Authorization: Bearer ${KV_TOKEN}` for kvGet; this is the only test unique to the misplaced file (the 8 other tests duplicate what lib/kv.test.ts already covers); files: delete `__tests__/api/kv.test.ts`, amend `__tests__/lib/kv.test.ts` [quality] ✅ 2026-05-18
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

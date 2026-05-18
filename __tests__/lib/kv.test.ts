@@ -56,6 +56,24 @@ describe('kvGet', () => {
     expect(await kvGet('mykey')).toBeNull();
   });
 
+  it('calls the correct Upstash GET URL with Authorization header', async () => {
+    const { kvGet } = await loadKvWithEnv();
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok:   true,
+      json: vi.fn().mockResolvedValue({ result: null }),
+    });
+    vi.stubGlobal('fetch', mockFetch);
+
+    await kvGet('my-key');
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      `${MOCK_URL}/get/${encodeURIComponent('my-key')}`,
+      expect.objectContaining({
+        headers: expect.objectContaining({ Authorization: `Bearer ${MOCK_TOKEN}` }),
+      }),
+    );
+  });
+
   it('returns null when fetch throws', async () => {
     const { kvGet } = await loadKvWithEnv();
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network error')));
