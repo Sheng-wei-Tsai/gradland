@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { requireSubscription, checkEndpointRateLimit, recordUsage, rateLimitResponse } from '@/lib/subscription';
+import { assertSameOrigin } from '@/lib/safety';
 
 const VALID_ROLES = ['frontend', 'fullstack', 'backend', 'data-engineer', 'devops', 'mobile', 'qa', 'other'];
 const VALID_VISA  = ['student-500', 'graduate-485', 'sponsored-482', 'pr', 'citizen', 'other'];
@@ -26,6 +27,9 @@ const STAGE_LABELS: Record<string, string> = {
 };
 
 export async function POST(req: NextRequest) {
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
+
   const auth = await requireSubscription();
   if (auth instanceof NextResponse) return auth;
 

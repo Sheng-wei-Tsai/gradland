@@ -1503,6 +1503,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-18 (supplement 7)
+
+> Supplement scan — `app/api/learn/quiz/route.ts`, `app/api/learn/analyse/route.ts`, and `app/api/learn/roadmap-image/route.ts` all call LLMs (OpenAI / Gemini) but are missing `assertSameOrigin` CSRF protection. The `lib/safety.ts:9` docstring explicitly lists `/api/learn/*` as a planned recipient. The 2026-05-18 supplement 5 sweep added `assertSameOrigin` to `interview/mentor` and `gap-analysis` but omitted these three `learn/` routes. A cross-origin POST to any of these from an attacker-controlled page bills the authenticated user's quota with no CSRF barrier. `learn/diagram` already has the guard (✅ in commit `d52592c`); these three are the only remaining LLM-calling `learn/` routes without it.
+
+### Security
+- [x] Add `assertSameOrigin` to `app/api/learn/quiz/route.ts`, `app/api/learn/analyse/route.ts`, and `app/api/learn/roadmap-image/route.ts` — import `assertSameOrigin` from `@/lib/safety` and add `const csrf = assertSameOrigin(req); if (csrf) return csrf;` immediately after the `requireSubscription()` check in each handler; matches the exact pattern in `app/api/learn/diagram/route.ts:4,7-8`, `app/api/interview/mentor/route.ts:5,76-77`, and `app/api/gap-analysis/route.ts:6,86-87`; `assertSameOrigin` already short-circuits under `NODE_ENV=test` so no test changes are needed [security] ✅ 2026-05-18
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

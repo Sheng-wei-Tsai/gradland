@@ -3,6 +3,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { requireSubscription, recordUsage, checkEndpointRateLimit } from '@/lib/subscription';
 import { rateLimitResponse, createSupabaseService } from '@/lib/auth-server';
 import { kvGet, kvSet } from '@/lib/kv';
+import { assertSameOrigin } from '@/lib/safety';
 
 const SCHEMA_FULL = `{
   "summary": "3-4 sentence plain-English overview of what this video teaches and who it is for",
@@ -45,6 +46,9 @@ const SCHEMA_FULL = `{
 }`;
 
 export async function POST(req: NextRequest) {
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
+
   const auth = await requireSubscription();
   if (auth instanceof NextResponse) return auth;
 
