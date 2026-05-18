@@ -1460,6 +1460,13 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-18 (supplement 2)
+
+> Supplement scan — `lib/nav.ts` exports six navigation constants (`TOOLS_LAND`, `TOOLS_TRACK`, `INSIGHTS_CONTENT`, `INSIGHTS_MARKET`, `ACCOUNT_LINKS`, plus `ALL_TOOLS_HREFS` / `ALL_INSIGHTS_HREFS` derived arrays) with zero unit test coverage. The derived arrays are used by `Header.tsx` for active-link detection across the mega-menu. A duplicate href or missing required field (`href`/`tKey`/`icon`) would silently break navigation highlighting across the entire site — same risk pattern that prompted tests for `lib/learn-channels.ts` (✅ 2026-05-18) and `lib/universal-questions.ts` (✅ 2026-05-18).
+
+### Tests
+- [x] Add Vitest unit tests for `lib/nav.ts` — (1) `TOOLS_LAND` and `TOOLS_TRACK` non-empty, every item has `href`/`tKey`/`icon` fields of correct string types; (2) `INSIGHTS_CONTENT` and `INSIGHTS_MARKET` same shape checks; (3) `ACCOUNT_LINKS` non-empty with same field checks; (4) no duplicate hrefs in `ALL_TOOLS_HREFS`; (5) no duplicate hrefs in `ALL_INSIGHTS_HREFS`; (6) `ALL_TOOLS_HREFS` length equals `TOOLS_LAND.length + TOOLS_TRACK.length`; (7) `ALL_INSIGHTS_HREFS` length equals `INSIGHTS_CONTENT.length + INSIGHTS_MARKET.length`; (8) all hrefs start with `/`; (9) known href `'/resume'` is in `ALL_TOOLS_HREFS`; (10) `TOOLS_MENU.land.items === TOOLS_LAND` and `TOOLS_MENU.track.items === TOOLS_TRACK`; (11) `INSIGHTS_MENU.content.items === INSIGHTS_CONTENT` and `INSIGHTS_MENU.market.items === INSIGHTS_MARKET`; new file: `__tests__/lib/nav.test.ts` [tests] ✅ 2026-05-18
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
