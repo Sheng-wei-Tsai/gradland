@@ -1467,6 +1467,15 @@
 ### Tests
 - [x] Add Vitest unit tests for `lib/nav.ts` — (1) `TOOLS_LAND` and `TOOLS_TRACK` non-empty, every item has `href`/`tKey`/`icon` fields of correct string types; (2) `INSIGHTS_CONTENT` and `INSIGHTS_MARKET` same shape checks; (3) `ACCOUNT_LINKS` non-empty with same field checks; (4) no duplicate hrefs in `ALL_TOOLS_HREFS`; (5) no duplicate hrefs in `ALL_INSIGHTS_HREFS`; (6) `ALL_TOOLS_HREFS` length equals `TOOLS_LAND.length + TOOLS_TRACK.length`; (7) `ALL_INSIGHTS_HREFS` length equals `INSIGHTS_CONTENT.length + INSIGHTS_MARKET.length`; (8) all hrefs start with `/`; (9) known href `'/resume'` is in `ALL_TOOLS_HREFS`; (10) `TOOLS_MENU.land.items === TOOLS_LAND` and `TOOLS_MENU.track.items === TOOLS_TRACK`; (11) `INSIGHTS_MENU.content.items === INSIGHTS_CONTENT` and `INSIGHTS_MENU.market.items === INSIGHTS_MARKET`; new file: `__tests__/lib/nav.test.ts` [tests] ✅ 2026-05-18
 
+## 🛡 Daily Analyst Findings — 2026-05-18 (supplement 3)
+
+> Supplement scan — `lib/company-badges.ts` exports `COMPANY_BADGES` (a 3-entry record used by `components/PostCard.tsx:30` and `app/ai-news/[slug]/page.tsx:54` for vendor-brand label/colour lookups) with zero unit test coverage. The `ai-news` slug page uses a `?? COMPANY_BADGES.google` fallback — if the `google` key were accidentally deleted or renamed, all AI news articles would render without a company badge. Same risk pattern that prompted the `lib/learn-channels.ts` (✅ 2026-05-18) and `lib/github-skills.ts` (✅ 2026-05-18) structural tests.
+
+### Tests
+- [x] Add Vitest unit tests for `lib/company-badges.ts` — (1) `COMPANY_BADGES` non-empty, (2) all three expected keys present (`anthropic`, `openai`, `google`), (3) every entry has required `CompanyBadge` fields (`label`, `color`, `bg`, `border`) as non-empty strings, (4) all labels are unique, (5) `COMPANY_BADGES['anthropic'].label === 'Anthropic'`, (6) `google` key present for the `?? COMPANY_BADGES.google` fallback pattern in `ai-news/[slug]/page.tsx:54`; new file: `__tests__/lib/company-badges.test.ts` [tests] ✅ 2026-05-18
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
