@@ -1451,6 +1451,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-18 (supplement 1)
+
+> Supplement scan — `lib/kv.ts` exports `kvGet` and `kvSet` (used by `app/api/learn/analyse/route.ts`, `app/api/interview/questions/route.ts`, `app/api/cover-letter/route.ts`) with zero unit tests. Every caller mocks `@/lib/kv` entirely, so the implementation is never exercised. The module has meaningful branch logic: both functions no-op when `KV_REST_API_URL`/`KV_REST_API_TOKEN` are absent; `kvGet` returns `null` on non-OK response or fetch exception; `kvSet` silently swallows exceptions (best-effort write). Same risk pattern that prompted `lib/rate-limit-db.ts` tests on 2026-05-12 — a refactor of the Upstash pipeline format or the env-guard logic would silently break caching across three AI routes.
+
+### Tests
+- [x] Add Vitest unit tests for `lib/kv.ts` — mock `fetch` via `vi.stubGlobal`; use `vi.stubEnv` + `vi.resetModules()` + dynamic import to test both the no-env (no-op) and env-present paths; test: (1) `kvGet` returns `null` without calling fetch when env vars absent, (2) `kvGet` returns value on successful fetch (`{ result: 'value' }`), (3) `kvGet` returns `null` when result field is `null`, (4) `kvGet` returns `null` on non-OK response, (5) `kvGet` returns `null` when fetch throws, (6) `kvSet` does not call fetch when env vars absent, (7) `kvSet` calls `${KV_URL}/pipeline` with `method:'POST'`, `Authorization: Bearer ${KV_TOKEN}`, and body `[['SET',key,value,'EX','N']]`, (8) `kvSet` uses default TTL 86400 when none supplied, (9) `kvSet` silently swallows fetch exceptions; new file: `__tests__/lib/kv.test.ts` [tests] ✅ 2026-05-18
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
