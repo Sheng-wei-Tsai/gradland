@@ -5,17 +5,21 @@ name: Daily Posts
 # All jobs authenticate to Claude via CLAUDE_CODE_OAUTH_TOKEN (Claude Code Pro
 # subscription). Scripts shell out to the `claude` CLI through scripts/llm-claude.ts.
 #
-# All four content jobs fire together at 04:30 AEST (18:30 UTC). The blog
-# `post` job lives in idle-posts.yml on the same schedule so the entire daily
-# content batch lands in one quota window (~25 Sonnet calls total).
+# ai-news + visa-news + githot fire at 04:30 AEST (18:30 UTC).
+# digest fires at 21:00 AEST (11:00 UTC) — separate quota window.
+# Blog post lives in idle-posts.yml on its own 06:00 UTC window.
+# Diagrams live in daily-diagrams.yml on its own 12:00 UTC window.
+# Each category gets its own Claude Pro 5-hour quota window so all four
+# user-facing categories (blog, diagram, news, githot) post every day.
 #
 # Fallback: if Claude Pro quota is exhausted mid-run, scripts/llm-claude.ts
 # automatically falls back to the GitHub Models API (Copilot Pro+ rate
-# limit) using GH_MODELS_TOKEN. Requires `permissions: models: read`.
+# limit) using GH_MODELS_TOKEN. Requires permissions: models: read.
 
 on:
   schedule:
-    - cron: '30 18 * * *'   # 04:30 AEST — daily content batch
+    - cron: '30 18 * * *'   # 04:30 AEST — ai-news + visa-news + githot
+    - cron: '0 11 * * *'    # 21:00 AEST — digest (its own quota window)
   workflow_dispatch:
 
 permissions:

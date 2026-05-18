@@ -4,11 +4,14 @@ name: Daily Diagrams
 # Topics from ByteByteGoHq/system-design-101 (MIT) — 30-topic pool cycles.
 # Diagrams land in content/diagrams/ as markdown files.
 #
-# Cron: 23:00 UTC (9am AEST) — own quota window, 6h after visa-news/ai-news.
+# Cron: 12:00 UTC (22:00 AEST) — own quota window, 6h+ before daily-posts batch
+# (was 23:00 UTC which fell inside the 18:30 UTC daily-posts 5-hour quota window
+# and silently hit "5-hour limit" every day for ~17 days, exiting 0 with no
+# diagrams written. content/diagrams/ stopped at 2026-05-01).
 
 on:
   schedule:
-    - cron: '0 23 * * *'   # 9am AEST — own quota window
+    - cron: '0 12 * * *'   # 22:00 AEST — own quota window
   workflow_dispatch:
 
 permissions:

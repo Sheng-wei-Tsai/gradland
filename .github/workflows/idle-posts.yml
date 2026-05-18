@@ -1,7 +1,8 @@
 name: Daily Blog Post
 
-# Fires daily at 04:30 AEST (18:30 UTC) alongside daily-posts.yml so all
-# content categories land in one batch. Also accepts repository_dispatch from
+# Fires daily at 16:00 AEST (06:00 UTC) — own quota window, separated from
+# daily-posts.yml (18:30 UTC) so blog post doesn't fight ai-news/visa-news/githot
+# for Claude Pro quota. Also accepts repository_dispatch from
 # claude-idle-trigger.sh after 60 min idle and manual workflow_dispatch.
 # Uses Claude Code Pro quota — no ANTHROPIC_API_KEY needed.
 #
@@ -11,7 +12,7 @@ name: Daily Blog Post
 
 on:
   schedule:
-    - cron: '30 18 * * *'
+    - cron: '0 6 * * *'   # 16:00 AEST — own quota window
   repository_dispatch:
     types: [idle-posts]
   workflow_dispatch:
