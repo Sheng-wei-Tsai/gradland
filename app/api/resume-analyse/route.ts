@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { requireSubscription, checkEndpointRateLimit, rateLimitResponse } from '@/lib/subscription';
 import { createSupabaseService } from '@/lib/auth-server';
+import { assertSameOrigin } from '@/lib/safety';
 
 const sbService = createSupabaseService();
 
@@ -77,6 +78,9 @@ interface ResumeAnalysis {
 }
 
 export async function POST(req: NextRequest) {
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
+
   const auth = await requireSubscription();
   if (auth instanceof NextResponse) return auth;
 

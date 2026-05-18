@@ -5,11 +5,15 @@ import { getRoleById } from '@/lib/interview-roles';
 import { UNIVERSAL_QUESTIONS } from '@/lib/universal-questions';
 import { requireSubscription, recordUsage, checkEndpointRateLimit, rateLimitResponse } from '@/lib/subscription';
 import { kvGet, kvSet } from '@/lib/kv';
+import { assertSameOrigin } from '@/lib/safety';
 
 // Interview questions are stable — cache for 7 days
 const CACHE_TTL_SECONDS = 7 * 24 * 60 * 60;
 
 export async function POST(req: NextRequest) {
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
+
   const auth = await requireSubscription();
   if (auth instanceof NextResponse) return auth;
 

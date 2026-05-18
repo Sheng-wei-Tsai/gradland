@@ -3,6 +3,7 @@ import OpenAI from 'openai';
 import { resume } from '@/lib/resume-data';
 import { requireSubscription, recordUsage, checkEndpointRateLimit } from '@/lib/subscription';
 import { rateLimitResponse } from '@/lib/auth-server';
+import { assertSameOrigin } from '@/lib/safety';
 
 const resumeText = `
 Name: ${resume.name}
@@ -14,6 +15,9 @@ Education: ${resume.education.map(e => `${e.degree} from ${e.institution}`).join
 `.trim();
 
 export async function POST(req: NextRequest) {
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
+
   const auth = await requireSubscription();
   if (auth instanceof NextResponse) return auth;
 

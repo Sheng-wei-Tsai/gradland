@@ -1,7 +1,8 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/auth-server';
 import OpenAI from 'openai';
 import { checkEndpointRateLimit, recordUsage, rateLimitResponse } from '@/lib/subscription';
+import { assertSameOrigin } from '@/lib/safety';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -19,7 +20,10 @@ interface AnalyticsSummary {
 
 const MAX_PAYLOAD_BYTES = 50 * 1024; // 50KB
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
+
   const admin = await requireAdmin();
   if (!admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 

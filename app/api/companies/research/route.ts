@@ -7,6 +7,7 @@ import {
   recordUsage,
 } from '@/lib/subscription';
 import { COMPANIES } from '@/app/au-insights/companies/data';
+import { assertSameOrigin } from '@/lib/safety';
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -74,6 +75,9 @@ export interface CompanyResearch {
 }
 
 export async function POST(req: NextRequest) {
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
+
   // 1. Auth + global rate limit
   const auth = await requireSubscription();
   if (auth instanceof NextResponse) return auth;

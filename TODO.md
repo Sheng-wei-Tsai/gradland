@@ -1519,6 +1519,13 @@
 ### Code Quality
 - [x] Delete `__tests__/api/kv.test.ts` (tests `lib/kv` but incorrectly placed in API test directory) and add the one coverage gap to `__tests__/lib/kv.test.ts` — add `it('calls the correct Upstash GET URL with Authorization header')` verifying `fetch` is called with `${KV_URL}/get/${encodeURIComponent(key)}` and `Authorization: Bearer ${KV_TOKEN}` for kvGet; this is the only test unique to the misplaced file (the 8 other tests duplicate what lib/kv.test.ts already covers); files: delete `__tests__/api/kv.test.ts`, amend `__tests__/lib/kv.test.ts` [quality] ✅ 2026-05-18
 
+## 🛡 Daily Analyst Findings — 2026-05-18 (supplement 9)
+
+> Supplement scan — five LLM-calling routes missed by the supplement 5 + supplement 7 `assertSameOrigin` rollout: `resume-analyse`, `resume-match`, `interview/questions`, `companies/research`, and `analytics/ai-insights`. All five accept POST bodies and call metered AI APIs without the CSRF guard; a cross-origin POST from an attacker-controlled page can bill the authenticated user's quota without consent. `analytics/ai-insights` uses `req: Request` instead of `NextRequest`; update to `NextRequest` for consistency before adding the guard.
+
+### Security
+- [x] Add `assertSameOrigin` to `app/api/resume-analyse/route.ts`, `app/api/resume-match/route.ts`, `app/api/interview/questions/route.ts`, `app/api/companies/research/route.ts`, and `app/api/analytics/ai-insights/route.ts` — all five are POST handlers calling paid AI APIs without CSRF protection; import `assertSameOrigin` from `@/lib/safety` in each, add `const csrf = assertSameOrigin(req); if (csrf) return csrf;` at the start of each POST handler (before auth is fine — `assertSameOrigin` is stateless); change `analytics/ai-insights` `req: Request` → `req: NextRequest` and add `NextRequest` to its `next/server` import; `assertSameOrigin` already no-ops under `NODE_ENV=test` so no test changes needed [security] ✅ 2026-05-18
+
 ---
 
 ## 📊 Priority Rationale
