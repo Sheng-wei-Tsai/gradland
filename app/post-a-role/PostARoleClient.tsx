@@ -111,15 +111,17 @@ export default function PostARoleClient() {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
           <div>
-            <label style={LABEL}>Company name *</label>
+            <label htmlFor="par-company" style={LABEL}>Company name *</label>
             <input
+              id="par-company"
               required style={FIELD} value={form.company}
               onChange={set('company')} placeholder="Canva" maxLength={100}
             />
           </div>
           <div>
-            <label style={LABEL}>Job title *</label>
+            <label htmlFor="par-title" style={LABEL}>Job title *</label>
             <input
+              id="par-title"
               required style={FIELD} value={form.title}
               onChange={set('title')} placeholder="Senior Data Engineer" maxLength={200}
             />
@@ -128,27 +130,28 @@ export default function PostARoleClient() {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
           <div>
-            <label style={LABEL}>Location *</label>
-            <select required style={FIELD} value={form.location} onChange={set('location')}>
+            <label htmlFor="par-location" style={LABEL}>Location *</label>
+            <select id="par-location" required style={FIELD} value={form.location} onChange={set('location')}>
               {LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
             </select>
           </div>
           <div>
-            <label style={LABEL}>Role type *</label>
-            <select required style={FIELD} value={form.jobType} onChange={set('jobType')}>
+            <label htmlFor="par-job-type" style={LABEL}>Role type *</label>
+            <select id="par-job-type" required style={FIELD} value={form.jobType} onChange={set('jobType')}>
               {JOB_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
           </div>
         </div>
 
         <div>
-          <label style={LABEL}>
+          <label htmlFor="par-description" style={LABEL}>
             Description *{' '}
             <span style={{ fontWeight: 400, color: 'var(--text-muted)' }}>
               ({form.description.length}/2000)
             </span>
           </label>
           <textarea
+            id="par-description"
             required
             style={{ ...FIELD, minHeight: '160px', resize: 'vertical' }}
             value={form.description} maxLength={2000} onChange={set('description')}
@@ -157,8 +160,9 @@ export default function PostARoleClient() {
         </div>
 
         <div>
-          <label style={LABEL}>Application URL *</label>
+          <label htmlFor="par-apply-url" style={LABEL}>Application URL *</label>
           <input
+            id="par-apply-url"
             required type="url" style={FIELD} value={form.applyUrl}
             onChange={set('applyUrl')}
             placeholder="https://company.com/careers/role" maxLength={500}
@@ -167,15 +171,17 @@ export default function PostARoleClient() {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
           <div>
-            <label style={LABEL}>Salary range <span style={{ fontWeight: 400 }}>(optional)</span></label>
+            <label htmlFor="par-salary" style={LABEL}>Salary range <span style={{ fontWeight: 400 }}>(optional)</span></label>
             <input
+              id="par-salary"
               style={FIELD} value={form.salary} onChange={set('salary')}
               placeholder="$80k–$110k AUD" maxLength={100}
             />
           </div>
           <div>
-            <label style={LABEL}>Contact email *</label>
+            <label htmlFor="par-contact-email" style={LABEL}>Contact email *</label>
             <input
+              id="par-contact-email"
               required type="email" style={FIELD} value={form.contactEmail}
               onChange={set('contactEmail')} placeholder="hiring@company.com" maxLength={200}
             />
