@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { COMPANY_INTEL } from '@/lib/interview-roles';
 import { requireSubscription, recordUsage, checkEndpointRateLimit, rateLimitResponse } from '@/lib/subscription';
+import { sanitizeUserText, wrapUserContent, assertSameOrigin } from '@/lib/safety';
 
 type MentorStage = 'scene' | 'why' | 'guide' | 'reality' | 'followup';
 
@@ -64,13 +65,17 @@ You've seen hundreds of candidates answer this question. In 3-4 sentences, share
 
     case 'followup':
       return `Original interview question: "${d.question}"
-Candidate's answer: "${(d.userAnswer ?? '').slice(0, 800)}"
+Candidate's answer:
+${wrapUserContent('userAnswer', d.userAnswer ?? '')}
 
 As an interviewer, generate ONE specific follow-up question you'd ask next. Make it probing and specific to what the candidate actually said — not a generic follow-up. Keep it to one sentence. Don't explain it, just ask the question.`;
   }
 }
 
 export async function POST(req: NextRequest) {
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
+
   const auth = await requireSubscription();
   if (auth instanceof NextResponse) return auth;
 
@@ -93,12 +98,13 @@ export async function POST(req: NextRequest) {
     return new Response(JSON.stringify({ error: 'Invalid stage' }), { status: 400 });
   }
 
-  // Sanitise free-text inputs before interpolation into AI prompts
   const safeBody: MentorData = {
     ...body,
-    roleTitle: String(roleTitle).trim().slice(0, 100),
-    question:  String(question).trim().slice(0, 500),
-    userAnswer: body.userAnswer ? String(body.userAnswer).trim().slice(0, 800) : body.userAnswer,
+    roleTitle:  sanitizeUserText(roleTitle,           { maxLength: 100, allowNewlines: false }).clean,
+    question:   sanitizeUserText(question,            { maxLength: 500 }).clean,
+    userAnswer: body.userAnswer != null
+      ? sanitizeUserText(body.userAnswer, { maxLength: 800 }).clean
+      : body.userAnswer,
   };
 
   const userPrompt = buildPrompt(safeBody);

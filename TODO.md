@@ -1485,6 +1485,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-18 (supplement 5)
+
+> Supplement scan — `app/api/interview/mentor/route.ts` and `app/api/gap-analysis/route.ts` take user-supplied free-text directly into OpenAI prompts but were omitted from the `d52592c` safety-layer rollout. `lib/safety.ts:9` already lists both in the "Used by" comment as planned recipients. `interview/mentor` receives `question` (500 chars), `roleTitle` (100 chars), and `userAnswer` (800 chars); the route applies manual `.trim().slice()` but lacks `sanitizeUserText` role-marker/override-phrase stripping and `wrapUserContent` fencing. `gap-analysis` receives `description` (4000 chars, a pasted job description) that is interpolated raw into the GPT extraction prompt without injection protection or CSRF guard.
+
+### Security (prompt-injection + CSRF — extend safety layer to remaining LLM routes)
+- [x] Apply `assertSameOrigin`, `sanitizeUserText`, and `wrapUserContent` to `app/api/interview/mentor/route.ts` and `app/api/gap-analysis/route.ts` — both were omitted from the `d52592c` safety-layer rollout; `interview/mentor` already has manual `.trim().slice()` (replace with `sanitizeUserText`); `gap-analysis` interpolates `description` raw into the GPT extraction prompt (fence with `wrapUserContent`); add `assertSameOrigin` check at start of both handlers; no test changes needed because `assertSameOrigin` skips under `NODE_ENV=test` [security] ✅ 2026-05-18
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

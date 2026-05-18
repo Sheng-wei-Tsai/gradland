@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
-import { createSupabaseServer } from '@/lib/auth-server';
-import { createSupabaseService } from '@/lib/auth-server';
+import { createSupabaseServer, createSupabaseService } from '@/lib/auth-server';
 import { checkEndpointRateLimit, rateLimitResponse } from '@/lib/subscription';
 import { SKILL_PATHS } from '@/lib/skill-paths';
+import { sanitizeUserText, wrapUserContent, assertSameOrigin } from '@/lib/safety';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -83,6 +83,9 @@ function matchToCatalogue(jdSkill: string): CatalogueEntry | null {
 // ── Route ────────────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
+
   // Auth
   const sb = await createSupabaseServer();
   const { data: { user } } = await sb.auth.getUser();
@@ -98,10 +101,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'jobId and description are required' }, { status: 400 });
   }
 
-  const jobId      = String(body.jobId).slice(0, 100);
-  const jobTitle   = String(body.title   ?? '').slice(0, 200);
-  const company    = String(body.company ?? '').slice(0, 200);
-  const description = String(body.description).slice(0, 4000);
+  const jobId       = sanitizeUserText(body.jobId,        { maxLength: 100,  allowNewlines: false }).clean;
+  const jobTitle    = sanitizeUserText(body.title   ?? '', { maxLength: 200,  allowNewlines: false }).clean;
+  const company     = sanitizeUserText(body.company ?? '', { maxLength: 200,  allowNewlines: false }).clean;
+  const description = sanitizeUserText(body.description,   { maxLength: 4000 }).clean;
 
   // Check cache (same user + job within 7 days)
   const sbSvc = createSupabaseService();
@@ -146,7 +149,8 @@ Return a JSON array of skill strings only — no explanation, no markdown.
 Include: programming languages, frameworks, tools, platforms, methodologies.
 Limit to 20 most important skills.
 Job title: ${jobTitle}
-Description: ${description}`;
+Description:
+${wrapUserContent('description', description)}`;
 
   let jdSkills: string[] = [];
   try {
