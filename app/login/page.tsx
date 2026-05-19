@@ -217,14 +217,14 @@ function LoginPageInner() {
         {tab === 'signin' && (
           <form onSubmit={handleSignIn} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div>
-              <label style={labelStyle}>Email</label>
-              <input type="email" required style={inputStyle} value={email}
+              <label htmlFor="signin-email" style={labelStyle}>Email</label>
+              <input id="signin-email" type="email" required style={inputStyle} value={email}
                 onChange={e => setEmail(e.target.value)} placeholder="you@example.com"
                 autoComplete="email" />
             </div>
             <div>
-              <label style={labelStyle}>Password</label>
-              <input type="password" required style={inputStyle} value={password}
+              <label htmlFor="signin-password" style={labelStyle}>Password</label>
+              <input id="signin-password" type="password" required style={inputStyle} value={password}
                 onChange={e => setPassword(e.target.value)} placeholder="••••••••"
                 autoComplete="current-password" />
             </div>
@@ -246,29 +246,29 @@ function LoginPageInner() {
         {tab === 'register' && (
           <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div>
-              <label style={labelStyle}>Your name</label>
-              <input required style={inputStyle} value={displayName}
+              <label htmlFor="reg-name" style={labelStyle}>Your name</label>
+              <input id="reg-name" required style={inputStyle} value={displayName}
                 onChange={e => setDisplayName(e.target.value)} placeholder="e.g. Henry Tsai"
                 autoComplete="name" />
             </div>
             <div>
-              <label style={labelStyle}>Where are you based?</label>
-              <input style={inputStyle} value={location}
+              <label htmlFor="reg-location" style={labelStyle}>Where are you based?</label>
+              <input id="reg-location" style={inputStyle} value={location}
                 onChange={e => setLocation(e.target.value)} placeholder="e.g. Brisbane, Australia"
                 autoComplete="address-level2" />
             </div>
             <div>
-              <label style={labelStyle}>Email</label>
-              <input type="email" required style={inputStyle} value={email}
+              <label htmlFor="reg-email" style={labelStyle}>Email</label>
+              <input id="reg-email" type="email" required style={inputStyle} value={email}
                 onChange={e => setEmail(e.target.value)} placeholder="you@example.com"
                 autoComplete="email" />
             </div>
             <div>
-              <label style={labelStyle}>
+              <label htmlFor="reg-password" style={labelStyle}>
                 Password{' '}
                 <span style={{ fontWeight: 400, color: 'var(--text-muted)' }}>(min. 8 characters)</span>
               </label>
-              <input type="password" required style={inputStyle} value={password}
+              <input id="reg-password" type="password" required style={inputStyle} value={password}
                 onChange={e => setPassword(e.target.value)} placeholder="••••••••"
                 autoComplete="new-password" />
             </div>

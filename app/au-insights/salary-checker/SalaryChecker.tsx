@@ -188,10 +188,10 @@ export default function SalaryChecker() {
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
           <div>
-            <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--brown-dark)', display: 'block', marginBottom: '0.35rem' }}>
+            <label htmlFor="salary-role" style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--brown-dark)', display: 'block', marginBottom: '0.35rem' }}>
               Role offered
             </label>
-            <select value={role} onChange={e => setRole(e.target.value)} style={inputStyle}>
+            <select id="salary-role" value={role} onChange={e => setRole(e.target.value)} style={inputStyle}>
               <option value="">Select a role…</option>
               {SALARIES_BY_ROLE.map(r => (
                 <option key={r.role} value={r.role}>{r.role}</option>
@@ -230,10 +230,11 @@ export default function SalaryChecker() {
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
           <div>
-            <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--brown-dark)', display: 'block', marginBottom: '0.35rem' }}>
+            <label htmlFor="salary-offer" style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--brown-dark)', display: 'block', marginBottom: '0.35rem' }}>
               Offered base salary (AUD/year)
             </label>
             <input
+              id="salary-offer"
               type="text"
               inputMode="numeric"
               placeholder="e.g. 72000"
@@ -243,10 +244,10 @@ export default function SalaryChecker() {
             />
           </div>
           <div>
-            <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--brown-dark)', display: 'block', marginBottom: '0.35rem' }}>
+            <label htmlFor="salary-company-type" style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--brown-dark)', display: 'block', marginBottom: '0.35rem' }}>
               Company type <span style={{ fontWeight: 400, color: 'var(--text-muted)' }}>(optional — improves accuracy)</span>
             </label>
-            <select value={companyTier} onChange={e => setCompanyTier(e.target.value)} style={inputStyle}>
+            <select id="salary-company-type" value={companyTier} onChange={e => setCompanyTier(e.target.value)} style={inputStyle}>
               <option value="">Any / Unknown</option>
               {Object.entries(COMPANY_TIER_LABELS).map(([k, v]) => (
                 <option key={k} value={k}>{v}</option>
@@ -254,10 +255,10 @@ export default function SalaryChecker() {
             </select>
           </div>
           <div>
-            <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--brown-dark)', display: 'block', marginBottom: '0.35rem' }}>
+            <label htmlFor="salary-visa" style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--brown-dark)', display: 'block', marginBottom: '0.35rem' }}>
               Your visa status <span style={{ fontWeight: 400, color: 'var(--text-muted)' }}>(unlocks visa-pathway compliance check)</span>
             </label>
-            <select value={visa} onChange={e => setVisa(e.target.value as VisaStatus | '')} style={inputStyle}>
+            <select id="salary-visa" value={visa} onChange={e => setVisa(e.target.value as VisaStatus | '')} style={inputStyle}>
               {VISA_OPTIONS.map(o => (
                 <option key={o.value} value={o.value}>{o.label}</option>
               ))}

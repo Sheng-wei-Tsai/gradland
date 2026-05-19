@@ -166,6 +166,9 @@
 - [x] 2026-04-29 Fix async `cookies()` in `alerts/route.ts` (Next.js 16 breaking change)
 - [x] 2026-04-29 Stripe webhook signature validation tests — `app/api/stripe/webhook/route.test.ts`
 
+### A11y — Form label associations (WCAG 2.1 AA)
+- [x] 2026-05-19 Add `htmlFor`/`id` to form labels in `app/login/page.tsx` (sign-in + register forms) and `app/au-insights/salary-checker/SalaryChecker.tsx` (role/salary/company/visa fields) [a11y]
+
 ---
 
 ## 🔴 Priority 1 — Retention Engine
