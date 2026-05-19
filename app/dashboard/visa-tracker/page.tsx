@@ -250,18 +250,18 @@ export default function VisaTrackerPage() {
         </h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem' }}>
           <div>
-            <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem' }}>Employer</label>
-            <input type="text" value={employer} placeholder="Company name"
+            <label htmlFor="vt-employer" style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem' }}>Employer</label>
+            <input id="vt-employer" type="text" value={employer} placeholder="Company name"
               onChange={e => { setEmployer(e.target.value); save({ employer: e.target.value }); }} />
           </div>
           <div>
-            <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem' }}>Occupation (ANZSCO)</label>
-            <input type="text" value={occupation} placeholder="e.g. Software Engineer"
+            <label htmlFor="vt-occupation" style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem' }}>Occupation (ANZSCO)</label>
+            <input id="vt-occupation" type="text" value={occupation} placeholder="e.g. Software Engineer"
               onChange={e => { setOccupation(e.target.value); save({ occupation: e.target.value }); }} />
           </div>
           <div>
-            <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem' }}>Journey start date</label>
-            <input type="date" value={startedAt}
+            <label htmlFor="vt-start-date" style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem' }}>Journey start date</label>
+            <input id="vt-start-date" type="date" value={startedAt}
               onChange={e => { setStartedAt(e.target.value); save({ started_at: e.target.value }); }} />
           </div>
         </div>

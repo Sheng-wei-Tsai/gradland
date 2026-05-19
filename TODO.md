@@ -1553,6 +1553,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-19 (supplement 3)
+
+> Supplement scan — `app/cover-letter/page.tsx`, `app/dashboard/visa-tracker/page.tsx`, and `app/dashboard/profile/page.tsx` all have form labels rendered as siblings of their inputs without `htmlFor`/`id` association. Screen readers don't announce the label when an input receives focus, and clicking the label text doesn't focus the input — WCAG 2.1 SC 1.3.1 (Info and Relationships) and SC 4.1.2 (Name, Role, Value) violations. The `post-a-role` form was fixed in the 2026-05-18 sweep; these three forms were missed. Cover letter has 4 fields (Job Title, Company, Job Description, Your Background); visa-tracker has 3 (Employer, Occupation, Journey start date); profile network form has 7 (Role title, Visa type, City, Skills, hired Company, hired Skills, Message). The checkbox at profile line 377 uses the wrapping pattern which is already accessible.
+
+### Accessibility (WCAG 2.1 AA — §12.4)
+- [x] Add `htmlFor`/`id` to form labels in `app/cover-letter/page.tsx` (4 fields: `cl-job-title`, `cl-company`, `cl-job-description`, `cl-background`), `app/dashboard/visa-tracker/page.tsx` (3 fields: `vt-employer`, `vt-occupation`, `vt-start-date`), and `app/dashboard/profile/page.tsx` network form (7 fields: `np-role`, `np-visa`, `np-city`, `np-skills`, `np-hired-company`, `np-hired-skills`, `np-hired-message`) — matches the pattern in `app/contact/ContactForm.tsx:101-121` [a11y] ✅ 2026-05-19
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

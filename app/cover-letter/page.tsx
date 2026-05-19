@@ -183,8 +183,9 @@ function CoverLetterContent() {
             </h2>
 
             <div>
-              <label style={labelStyle}>Job Title *</label>
+              <label htmlFor="cl-job-title" style={labelStyle}>Job Title *</label>
               <input
+                id="cl-job-title"
                 style={inputStyle} value={jobTitle}
                 onChange={e => setJobTitle(e.target.value)}
                 placeholder="e.g. Junior Software Developer"
@@ -192,8 +193,9 @@ function CoverLetterContent() {
             </div>
 
             <div>
-              <label style={labelStyle}>Company *</label>
+              <label htmlFor="cl-company" style={labelStyle}>Company *</label>
               <input
+                id="cl-company"
                 style={inputStyle} value={company}
                 onChange={e => setCompany(e.target.value)}
                 placeholder="e.g. Atlassian"
@@ -201,8 +203,9 @@ function CoverLetterContent() {
             </div>
 
             <div>
-              <label style={labelStyle}>Job Description * <span style={{ fontWeight: 400, color: 'var(--text-muted)' }}>(paste from job listing)</span></label>
+              <label htmlFor="cl-job-description" style={labelStyle}>Job Description * <span style={{ fontWeight: 400, color: 'var(--text-muted)' }}>(paste from job listing)</span></label>
               <textarea
+                id="cl-job-description"
                 style={{ ...inputStyle, minHeight: '180px', resize: 'vertical', lineHeight: 1.6 }}
                 value={jobDescription}
                 onChange={e => setJobDescription(e.target.value)}
@@ -215,13 +218,14 @@ function CoverLetterContent() {
             background: 'var(--warm-white)', border: '1px solid var(--parchment)',
             borderRadius: '16px', padding: '1.4rem',
           }}>
-            <label style={{ ...labelStyle, fontSize: '1rem', marginBottom: '0.6rem' }}>
+            <label htmlFor="cl-background" style={{ ...labelStyle, fontSize: '1rem', marginBottom: '0.6rem' }}>
               Your Background *
               <span style={{ fontWeight: 400, fontSize: '0.82rem', color: 'var(--text-muted)', marginLeft: '0.5rem' }}>
                 (saved automatically)
               </span>
             </label>
             <textarea
+              id="cl-background"
               style={{ ...inputStyle, minHeight: '160px', resize: 'vertical', lineHeight: 1.6, fontSize: '0.9rem' }}
               value={background}
               onChange={e => setBackground(e.target.value)}

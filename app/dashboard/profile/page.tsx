@@ -302,10 +302,11 @@ export default function ProfilePage() {
         ) : (showNetworkForm || !networkProfile) ? (
           <form onSubmit={handleSaveNetwork} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <div>
-              <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <label htmlFor="np-role" style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 Role title
               </label>
               <input
+                id="np-role"
                 className="search-input"
                 type="text"
                 value={nRole}
@@ -319,10 +320,11 @@ export default function ProfilePage() {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '0.75rem' }}>
               <div>
-                <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <label htmlFor="np-visa" style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   Visa type
                 </label>
                 <select
+                  id="np-visa"
                   className="search-select"
                   value={nVisa}
                   onChange={e => setNVisa(e.target.value)}
@@ -334,10 +336,11 @@ export default function ProfilePage() {
                 </select>
               </div>
               <div>
-                <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <label htmlFor="np-city" style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   City
                 </label>
                 <select
+                  id="np-city"
                   className="search-select"
                   value={nCity}
                   onChange={e => setNCity(e.target.value)}
@@ -351,10 +354,11 @@ export default function ProfilePage() {
             </div>
 
             <div>
-              <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <label htmlFor="np-skills" style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 Skills <span style={{ textTransform: 'none', fontStyle: 'italic' }}>(comma-separated)</span>
               </label>
               <input
+                id="np-skills"
                 className="search-input"
                 type="text"
                 value={nSkills}
@@ -392,10 +396,11 @@ export default function ProfilePage() {
               {nIsHired && (
                 <div style={{ marginTop: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
                   <div>
-                    <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    <label htmlFor="np-hired-company" style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                       Company
                     </label>
                     <input
+                      id="np-hired-company"
                       className="search-input"
                       type="text"
                       value={nHiredCompany}
@@ -406,10 +411,11 @@ export default function ProfilePage() {
                     />
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    <label htmlFor="np-hired-skills" style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                       Skills you look for <span style={{ textTransform: 'none', fontStyle: 'italic' }}>(comma-separated)</span>
                     </label>
                     <input
+                      id="np-hired-skills"
                       className="search-input"
                       type="text"
                       value={nHiredSkills}
@@ -419,10 +425,11 @@ export default function ProfilePage() {
                     />
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    <label htmlFor="np-hired-message" style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                       Message <span style={{ textTransform: 'none', fontStyle: 'italic' }}>(max 280 chars)</span>
                     </label>
                     <textarea
+                      id="np-hired-message"
                       className="search-input"
                       value={nHiredMessage}
                       onChange={e => setNHiredMessage(e.target.value)}
