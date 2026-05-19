@@ -46,9 +46,11 @@ vi.mock('@/lib/auth-server', () => ({
 
 // ── Rate-limit mock ───────────────────────────────────────────────────────────
 const mockCheckEndpointRateLimit = vi.fn().mockResolvedValue(true);
+const mockRecordUsage            = vi.fn().mockResolvedValue(undefined);
 
 vi.mock('@/lib/subscription', () => ({
   checkEndpointRateLimit: mockCheckEndpointRateLimit,
+  recordUsage:            mockRecordUsage,
   rateLimitResponse: () =>
     new Response(
       JSON.stringify({ error: 'Rate limit exceeded.', code: 'RATE_LIMIT_EXCEEDED' }),
@@ -139,5 +141,36 @@ describe('POST /api/gap-analysis', () => {
     expect(typeof body.matchPercent).toBe('number');
     expect(body.matchPercent).toBeGreaterThanOrEqual(0);
     expect(body.matchPercent).toBeLessThanOrEqual(100);
+  });
+
+  it('calls recordUsage on cache miss (AI was invoked)', async () => {
+    mockRecordUsage.mockClear();
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'u1' } }, error: null });
+    mockCheckEndpointRateLimit.mockResolvedValueOnce(true);
+    // cache miss → full OpenAI call → recordUsage should fire
+
+    await POST(makePost({ jobId: 'j-new', description: 'Build React apps' }));
+    expect(mockRecordUsage).toHaveBeenCalledWith('u1', 'gap-analysis');
+  });
+
+  it('does NOT call recordUsage on cache hit (no AI credits consumed)', async () => {
+    mockRecordUsage.mockClear();
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'u1' } }, error: null });
+    mockCheckEndpointRateLimit.mockResolvedValueOnce(true);
+    mockMaybySingle.mockResolvedValueOnce({
+      data: {
+        match_percent:     70,
+        matched_skills:    ['TypeScript'],
+        missing_skills:    [],
+        all_jd_skills:     ['TypeScript'],
+        recommended_paths: ['frontend'],
+      },
+    });
+
+    const res = await POST(makePost({ jobId: 'j-cached', description: 'Build TypeScript apps' }));
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.cached).toBe(true);
+    expect(mockRecordUsage).not.toHaveBeenCalled();
   });
 });

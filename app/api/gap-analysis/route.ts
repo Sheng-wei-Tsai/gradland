@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { createSupabaseServer, createSupabaseService } from '@/lib/auth-server';
-import { checkEndpointRateLimit, rateLimitResponse } from '@/lib/subscription';
+import { checkEndpointRateLimit, rateLimitResponse, recordUsage } from '@/lib/subscription';
 import { SKILL_PATHS } from '@/lib/skill-paths';
 import { sanitizeUserText, wrapUserContent, assertSameOrigin } from '@/lib/safety';
 
@@ -168,6 +168,8 @@ ${wrapUserContent('description', description)}`;
   } catch {
     return NextResponse.json({ error: 'Skill extraction failed' }, { status: 502 });
   }
+
+  void recordUsage(user.id, 'gap-analysis');
 
   // Match JD skills against catalogue and user progress
   const matchedSkills:  string[]      = [];

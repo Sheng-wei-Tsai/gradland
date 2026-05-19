@@ -1537,6 +1537,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-19 (supplement 1)
+
+> Supplement scan — `app/api/resume-analyse/route.ts` and `app/api/gap-analysis/route.ts` both call `checkEndpointRateLimit` but never call `recordUsage` after the AI call. Since `api_usage` is the backing store for both the per-endpoint daily cap (`checkEndpointRateLimit`) and the global 50/day cap (`requireSubscription` → `checkRateLimit`), never writing to it means both limits are silently bypassed: a Pro user can make unlimited `resume-analyse` (Claude claude-sonnet-4-6 PDF vision, ~$0.030/call) and `gap-analysis` (OpenAI gpt-4o-mini, ~$0.002/call) requests per day with no metering. All other 14 LLM routes call `recordUsage` correctly. `gap-analysis` should record usage only on the non-cached path (cache hits consume no AI credits).
+
+### Security (rate-limit bypass — missing `recordUsage`)
+- [x] Add `recordUsage` to `app/api/resume-analyse/route.ts` and `app/api/gap-analysis/route.ts` — import `recordUsage` from `@/lib/subscription` in both files; in `resume-analyse/route.ts` add `void recordUsage(auth.user.id, 'resume-analyse');` after `JSON.parse(raw)` succeeds (line 130); in `gap-analysis/route.ts` add `void recordUsage(user.id, 'gap-analysis');` after the OpenAI call succeeds (after the `} catch {` block at line 168, before catalogue matching) — cache hits should NOT record usage; update `__tests__/api/resume-analyse.test.ts` to add `mockRecordUsage` to the subscription mock and assert it is called on successful 200; update `__tests__/api/gap-analysis.test.ts` similarly, asserting `recordUsage` IS called on cache miss but NOT on cache hit [security] [quality] ✅ 2026-05-19
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |

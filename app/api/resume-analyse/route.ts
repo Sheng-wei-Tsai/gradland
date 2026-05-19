@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
-import { requireSubscription, checkEndpointRateLimit, rateLimitResponse } from '@/lib/subscription';
+import { requireSubscription, checkEndpointRateLimit, rateLimitResponse, recordUsage } from '@/lib/subscription';
 import { createSupabaseService } from '@/lib/auth-server';
 import { assertSameOrigin } from '@/lib/safety';
 
@@ -131,6 +131,8 @@ export async function POST(req: NextRequest) {
   } catch {
     return NextResponse.json({ error: 'Analysis failed. Please try again.' }, { status: 500 });
   }
+
+  void recordUsage(auth.user.id, 'resume-analyse');
 
   // Persist score for readiness tracking (fire-and-forget)
   const a = analysis as ResumeAnalysis;

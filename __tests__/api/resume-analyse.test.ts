@@ -4,10 +4,12 @@ import { NextRequest, NextResponse } from 'next/server';
 // ── Subscription mock ─────────────────────────────────────────────────────────
 const mockRequireSubscription    = vi.fn();
 const mockCheckEndpointRateLimit = vi.fn().mockResolvedValue(true);
+const mockRecordUsage            = vi.fn().mockResolvedValue(undefined);
 
 vi.mock('@/lib/subscription', () => ({
   requireSubscription:    mockRequireSubscription,
   checkEndpointRateLimit: mockCheckEndpointRateLimit,
+  recordUsage:            mockRecordUsage,
   rateLimitResponse: () =>
     new Response(
       JSON.stringify({ error: 'Rate limit exceeded.', code: 'RATE_LIMIT_EXCEEDED' }),
@@ -149,6 +151,24 @@ describe('POST /api/resume-analyse', () => {
       expect(body.overallScore).toBe(78);
       expect(body.scoreLabel).toBe('Strong');
       expect(Array.isArray(body.actionItems)).toBe(true);
+    });
+
+    it('calls recordUsage after successful analysis', async () => {
+      mockRecordUsage.mockClear();
+      mockMessagesCreate.mockResolvedValueOnce({
+        content: [{ type: 'text', text: JSON.stringify(validAnalysis) }],
+      });
+      await POST(makeRequest(makePdfFile()));
+      expect(mockRecordUsage).toHaveBeenCalledWith('u1', 'resume-analyse');
+    });
+
+    it('does not call recordUsage when analysis JSON is malformed', async () => {
+      mockRecordUsage.mockClear();
+      mockMessagesCreate.mockResolvedValueOnce({
+        content: [{ type: 'text', text: 'not-valid-json' }],
+      });
+      await POST(makeRequest(makePdfFile()));
+      expect(mockRecordUsage).not.toHaveBeenCalled();
     });
 
     it('calls Anthropic with claude-sonnet-4-6 and a base64 PDF document', async () => {
