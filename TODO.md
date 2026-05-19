@@ -1544,6 +1544,13 @@
 ### Security (rate-limit bypass — missing `recordUsage`)
 - [x] Add `recordUsage` to `app/api/resume-analyse/route.ts` and `app/api/gap-analysis/route.ts` — import `recordUsage` from `@/lib/subscription` in both files; in `resume-analyse/route.ts` add `void recordUsage(auth.user.id, 'resume-analyse');` after `JSON.parse(raw)` succeeds (line 130); in `gap-analysis/route.ts` add `void recordUsage(user.id, 'gap-analysis');` after the OpenAI call succeeds (after the `} catch {` block at line 168, before catalogue matching) — cache hits should NOT record usage; update `__tests__/api/resume-analyse.test.ts` to add `mockRecordUsage` to the subscription mock and assert it is called on successful 200; update `__tests__/api/gap-analysis.test.ts` similarly, asserting `recordUsage` IS called on cache miss but NOT on cache hit [security] [quality] ✅ 2026-05-19
 
+## 🛡 Daily Analyst Findings — 2026-05-19 (supplement 2)
+
+> Supplement scan — `app/api/analytics/ai-insights/route.ts` is the only AI-calling route in the codebase with no try/catch around its external API call. The 2026-05-13 sweeps (supplements 5–6) added bare `} catch {` to all four interview routes, three diagram/roadmap routes, and the learn/videos + learn/channel-videos routes — but the admin analytics route was missed because it is admin-gated and the scan prioritised user-facing routes. If OpenAI throws (network error, quota exceeded, invalid API key), the unhandled exception propagates to Next.js and produces a raw 500 with Next.js's default error HTML body, inconsistent with the JSON error responses returned by every other route in the codebase.
+
+### Code Quality
+- [x] Wrap `openai.chat.completions.create` in try/catch in `app/api/analytics/ai-insights/route.ts:79` — outer try/catch covering the OpenAI call + `recordUsage` + return; on exception return `NextResponse.json({ error: 'Failed to generate insights' }, { status: 502 })`; add one test to `__tests__/api/analytics.test.ts`: `mockCreate.mockRejectedValue(new Error('OpenAI down'))` → `res.status === 502` and `body.error === 'Failed to generate insights'`; matches the bare-catch pattern established in `app/api/learn/videos/route.ts:65` and all four interview routes [quality] ✅ 2026-05-19
+
 ---
 
 ## 📊 Priority Rationale

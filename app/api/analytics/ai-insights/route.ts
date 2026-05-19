@@ -76,21 +76,25 @@ Format as a JSON array of objects: { "title": "...", "insight": "...", "action":
 Each object: title (5-8 words), insight (one sentence of data-backed reasoning), action (one concrete next step).
 Return ONLY the JSON array, no markdown fences.`;
 
-  const completion = await openai.chat.completions.create({
-    model: 'gpt-4o',
-    messages: [{ role: 'user', content: prompt }],
-    max_tokens: 1200,
-    temperature: 0.7,
-  });
-
-  const text = completion.choices[0]?.message?.content ?? '[]';
-  let suggestions: unknown[] = [];
   try {
-    suggestions = JSON.parse(text);
-  } catch {
-    suggestions = [{ title: 'Parse error', insight: text.slice(0, 200), action: 'Check API response' }];
-  }
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 1200,
+      temperature: 0.7,
+    });
 
-  await recordUsage(admin.id, 'analytics/ai-insights');
-  return NextResponse.json({ suggestions });
+    const text = completion.choices[0]?.message?.content ?? '[]';
+    let suggestions: unknown[] = [];
+    try {
+      suggestions = JSON.parse(text);
+    } catch {
+      suggestions = [{ title: 'Parse error', insight: text.slice(0, 200), action: 'Check API response' }];
+    }
+
+    await recordUsage(admin.id, 'analytics/ai-insights');
+    return NextResponse.json({ suggestions });
+  } catch {
+    return NextResponse.json({ error: 'Failed to generate insights' }, { status: 502 });
+  }
 }

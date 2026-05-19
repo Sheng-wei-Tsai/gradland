@@ -204,4 +204,14 @@ describe('POST /api/analytics/ai-insights', () => {
     expect(Array.isArray(body.suggestions)).toBe(true);
     expect(body.suggestions[0]).toHaveProperty('title');
   });
+
+  it('returns 502 when OpenAI throws', async () => {
+    mockRequireAdmin.mockResolvedValue(ADMIN_USER);
+    mockCreate.mockRejectedValue(new Error('OpenAI down'));
+
+    const res  = await aiInsightsPOST(makePost(validPayload));
+    const body = await res.json();
+    expect(res.status).toBe(502);
+    expect(body.error).toBe('Failed to generate insights');
+  });
 });
