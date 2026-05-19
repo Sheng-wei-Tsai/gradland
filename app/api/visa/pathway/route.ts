@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireSubscription, recordUsage, checkEndpointRateLimit } from '@/lib/subscription';
 import { rateLimitResponse } from '@/lib/auth-server';
+import { assertSameOrigin } from '@/lib/safety';
 import { analysePathways } from '@/lib/visa-pathway';
 import type {
   PathwayInput,
@@ -18,6 +19,9 @@ const VALID_EDU:     EducationLevel[] = ['doctorate','bachelor-or-master','diplo
 const VALID_STATE:   StateCode[]      = ['NSW','VIC','QLD','WA','SA','TAS','ACT','NT'];
 
 export async function POST(req: NextRequest) {
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
+
   const auth = await requireSubscription();
   if (auth instanceof NextResponse) return auth;
 

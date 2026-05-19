@@ -1528,6 +1528,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-19
+
+> Daily scan — `npm audit` = 0 vulns; `tsc --noEmit` = clean. One security gap: `app/api/visa/pathway/route.ts` calls `requireSubscription` but is missing the `assertSameOrigin` CSRF guard added to every other paid POST route in the 2026-05-18 supplement 5/7/9 sweep. A cross-origin POST from an attacker-controlled page can bill the authenticated user's `visa-pathway` quota without consent.
+
+### Security
+- [x] Add `assertSameOrigin` to `app/api/visa/pathway/route.ts` — the route has `requireSubscription` + `checkEndpointRateLimit` but no CSRF guard; import `assertSameOrigin` from `@/lib/safety` and add `const csrf = assertSameOrigin(req); if (csrf) return csrf;` immediately after the `requireSubscription` check; matches the exact pattern in `app/api/interview/mentor/route.ts:76-77`, `app/api/gap-analysis/route.ts:86-87`, and `app/api/resume-analyse/route.ts`; `assertSameOrigin` no-ops under `NODE_ENV=test` so no test changes needed [security] ✅ 2026-05-19
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
