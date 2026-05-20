@@ -168,6 +168,7 @@
 
 ### A11y — Form label associations (WCAG 2.1 AA)
 - [x] 2026-05-19 Add `htmlFor`/`id` to form labels in `app/login/page.tsx` (sign-in + register forms) and `app/au-insights/salary-checker/SalaryChecker.tsx` (role/salary/company/visa fields) [a11y]
+- [x] 2026-05-20 Add `aria-label` to unlabeled `<select>` filter controls in `app/au-insights/grad-programs/page.tsx` — city and role selects at lines 228, 232 (`GradProgramsContent`) and 373, 377 (`GradProgramsPage`) have no label; screen readers can't identify the control's purpose when it has a non-default value; fix: add `aria-label="Filter by city"` and `aria-label="Filter by role"` [a11y] ✅ 2026-05-20
 
 ---
 

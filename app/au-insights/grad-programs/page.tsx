@@ -225,11 +225,11 @@ export function GradProgramsContent() {
 
       {/* Filters */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', marginBottom: '1.5rem', alignItems: 'center' }}>
-        <select value={cityFilter} onChange={e => setCityFilter(e.target.value)} style={selectStyle}>
+        <select aria-label="Filter by city" value={cityFilter} onChange={e => setCityFilter(e.target.value)} style={selectStyle}>
           <option value="">All Cities</option>
           {ALL_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
-        <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)} style={selectStyle}>
+        <select aria-label="Filter by role" value={roleFilter} onChange={e => setRoleFilter(e.target.value)} style={selectStyle}>
           <option value="">All Roles</option>
           {ALL_ROLES.map(r => <option key={r} value={r}>{r}</option>)}
         </select>
@@ -370,11 +370,11 @@ export default function GradProgramsPage() {
 
       {/* Filters */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', marginBottom: '1.5rem', alignItems: 'center' }}>
-        <select value={cityFilter} onChange={e => setCityFilter(e.target.value)} style={selectStyle}>
+        <select aria-label="Filter by city" value={cityFilter} onChange={e => setCityFilter(e.target.value)} style={selectStyle}>
           <option value="">All Cities</option>
           {ALL_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
-        <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)} style={selectStyle}>
+        <select aria-label="Filter by role" value={roleFilter} onChange={e => setRoleFilter(e.target.value)} style={selectStyle}>
           <option value="">All Roles</option>
           {ALL_ROLES.map(r => <option key={r} value={r}>{r}</option>)}
         </select>
