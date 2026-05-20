@@ -1,14 +1,18 @@
 import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { createSupabaseService } from '@/lib/auth-server';
 import StudySession from './StudySession';
 
 type Props = { params: Promise<{ videoId: string }> };
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://gradland.au';
+const YT_ID_RE = /^[A-Za-z0-9_-]{11}$/;
 
 // ── SEO metadata — uses Supabase cache so popular videos get real titles ──────
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { videoId } = await params;
+
+  if (!YT_ID_RE.test(videoId)) return { title: 'Not found' };
 
   const sb = createSupabaseService();
   const { data } = await sb
@@ -35,6 +39,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 // ── Server entry — pre-loads cached guide so the page renders instantly ────────
 export default async function VideoStudyPage({ params }: Props) {
   const { videoId } = await params;
+
+  if (!YT_ID_RE.test(videoId)) notFound();
 
   const sb = createSupabaseService();
 
