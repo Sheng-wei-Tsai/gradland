@@ -1576,6 +1576,11 @@
 ### Security (AGENTS §5.4 — input validation on dynamic route page)
 - [x] Validate `videoId` format in `app/learn/youtube/[videoId]/page.tsx:11,37` ✅ 2026-05-20 — both `generateMetadata` (line 11) and `VideoStudyPage` (line 37) destructure `videoId` from `await params` and pass it directly to `.eq('video_id', videoId)` at lines 17 and 46 without format validation; matches the existing pattern in `app/api/learn/video-meta/route.ts:10` (`if (!/^[A-Za-z0-9_-]{11}$/.test(videoId)) return …400`); add `import { notFound } from 'next/navigation'` to `page.tsx`, define `const YT_ID_RE = /^[A-Za-z0-9_-]{11}$/` at module scope, and `if (!YT_ID_RE.test(videoId)) notFound();` (or for `generateMetadata`, return a default `{ title: 'Not found' }` if the id is malformed) before each Supabase call; today every crawler hit on `/learn/youtube/anything` runs two no-row queries against the `video_content` index for free [security]
 
+## 🛡 Daily Analyst Findings — 2026-05-20 (supplement 2)
+
+### Accessibility (WCAG 2.1 AA — §12.4)
+- [x] Add `aria-label` to the status `<select>` in `app/dashboard/page.tsx:375` — the select inside each job-application card has no accessible name (no `aria-label`, no associated `<label htmlFor>`); screen readers announce it as just "select" with no indication of what it controls; add `aria-label={\`Status for ${app.title} at ${app.company}\`}` so screen-reader users understand the control's purpose in context; matches the pattern used in `app/network/NetworkPageClient.tsx:480,489` where filter selects have `aria-label="Filter by city"` / `aria-label="Filter by visa"` [a11y] ✅ 2026-05-20
+
 ---
 
 ## 📊 Priority Rationale

@@ -372,7 +372,7 @@ export default function DashboardPage() {
                       </p>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                      <select value={app.status} onChange={e => updateStatus(app.id, e.target.value as JobApplication['status'])} style={{
+                      <select value={app.status} onChange={e => updateStatus(app.id, e.target.value as JobApplication['status'])} aria-label={`Status for ${app.title} at ${app.company}`} style={{
                         padding: '0.3rem 0.7rem', borderRadius: '99px',
                         border: `1.5px solid ${STATUS_COLORS[app.status]}`,
                         color: STATUS_COLORS[app.status], fontWeight: 600,
