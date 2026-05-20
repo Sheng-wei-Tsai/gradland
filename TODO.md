@@ -1563,6 +1563,11 @@
 ### Accessibility (WCAG 2.1 AA — §12.4)
 - [x] Add `htmlFor`/`id` to form labels in `app/cover-letter/page.tsx` (4 fields: `cl-job-title`, `cl-company`, `cl-job-description`, `cl-background`), `app/dashboard/visa-tracker/page.tsx` (3 fields: `vt-employer`, `vt-occupation`, `vt-start-date`), and `app/dashboard/profile/page.tsx` network form (7 fields: `np-role`, `np-visa`, `np-city`, `np-skills`, `np-hired-company`, `np-hired-skills`, `np-hired-message`) — matches the pattern in `app/contact/ContactForm.tsx:101-121` [a11y] ✅ 2026-05-19
 
+## 🛡 Daily Analyst Findings — 2026-05-20
+
+### Accessibility (WCAG 2.1 AA — §12.4)
+- [x] Add `htmlFor`/`id` to the "Notes" textarea label in `app/dashboard/visa-tracker/page.tsx:413` — the `<label>Notes</label>` at line 413 is a standalone sibling of its `<textarea>` with no `htmlFor`; the supplement 3 sweep (2026-05-19) fixed the 3 main form fields (`vt-employer`, `vt-occupation`, `vt-start-date`) but missed this step-level notes textarea inside the expansion panel; each step has its own notes textarea rendered only when that step is open (`{isOpen && ...}` at line 345), so step-specific ids like `vt-notes-${step.number}` avoid id collisions [a11y] ✅ 2026-05-20
+
 ---
 
 ## 📊 Priority Rationale

@@ -410,8 +410,9 @@ export default function VisaTrackerPage() {
 
                   {/* Notes */}
                   <div>
-                    <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem' }}>Notes</label>
+                    <label htmlFor={`vt-notes-${step.number}`} style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem' }}>Notes</label>
                     <textarea
+                      id={`vt-notes-${step.number}`}
                       value={state.notes}
                       onChange={e => setNotes(step.number, e.target.value)}
                       placeholder="Add notes, dates, contacts…"
