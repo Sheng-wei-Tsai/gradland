@@ -105,8 +105,9 @@ export function sanitizeUserText(input: unknown, opts: SanitizeOptions): Sanitiz
  */
 export function wrapUserContent(label: string, text: string): string {
   const tag = label.replace(/[^a-z0-9_-]/gi, '').slice(0, 32).toLowerCase() || 'user';
-  // Random nonce makes the closing fence unguessable from inside the payload.
-  const nonce = Math.random().toString(36).slice(2, 10);
+  // Cryptographic nonce — makes the closing fence unguessable from inside the payload.
+  // Math.random() (Mersenne Twister) is predictable from observed outputs; UUID gives ~48 bits.
+  const nonce = globalThis.crypto.randomUUID().replace(/-/g, '').slice(0, 12);
   const fence = `<<<${tag}:${nonce}>>>`;
   const close = `<<</${tag}:${nonce}>>>`;
   // If user payload contains the fence verbatim, replace it inside the

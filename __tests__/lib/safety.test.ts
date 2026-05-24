@@ -65,7 +65,7 @@ describe('sanitizeUserText', () => {
 describe('wrapUserContent', () => {
   it('wraps text in a labeled fence with a random nonce', () => {
     const out = wrapUserContent('jd', 'hello');
-    expect(out).toMatch(/^<<<jd:[a-z0-9]{1,8}>>>\nhello\n<<<\/jd:[a-z0-9]{1,8}>>>$/);
+    expect(out).toMatch(/^<<<jd:[a-f0-9]{12}>>>\nhello\n<<<\/jd:[a-f0-9]{12}>>>$/);
   });
 
   it('strips fence collisions from inside the payload', () => {
