@@ -27,7 +27,10 @@ vi.mock('stripe', () => ({
 const { POST } = await import('@/app/api/account/delete/route');
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-function makeServiceChain(profileData: Record<string, unknown> | null) {
+function makeServiceChain(
+  profileData: Record<string, unknown> | null,
+  opts: { commentsError?: { message: string }; updateError?: { message: string } } = {}
+) {
   // profile select chain
   const profileSelect = {
     select:      vi.fn(),
@@ -38,11 +41,17 @@ function makeServiceChain(profileData: Record<string, unknown> | null) {
   profileSelect.eq.mockReturnValue(profileSelect);
 
   // post_comments delete chain
-  const commentsDelete = { delete: vi.fn(), eq: vi.fn().mockResolvedValue({ error: null }) };
+  const commentsDelete = {
+    delete: vi.fn(),
+    eq: vi.fn().mockResolvedValue({ error: opts.commentsError ?? null }),
+  };
   commentsDelete.delete.mockReturnValue(commentsDelete);
 
   // profile update chain
-  const profileUpdate = { update: vi.fn(), eq: vi.fn().mockResolvedValue({ error: null }) };
+  const profileUpdate = {
+    update: vi.fn(),
+    eq: vi.fn().mockResolvedValue({ error: opts.updateError ?? null }),
+  };
   profileUpdate.update.mockReturnValue(profileUpdate);
 
   // Route calls from('profiles') twice (select then update) and from('post_comments') once
@@ -150,5 +159,37 @@ describe('POST /api/account/delete', () => {
     const res = await POST();
     expect(res.status).toBe(200);
     expect(mockSubsList).not.toHaveBeenCalled();
+  });
+
+  it('returns 500 and does NOT sign out when post_comments delete fails', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'user-cmt-err' } } });
+    makeServiceChain(
+      { stripe_customer_id: null, subscription_tier: 'free' },
+      { commentsError: { message: 'DB error' } }
+    );
+
+    const res  = await POST();
+    const body = await res.json();
+
+    expect(res.status).toBe(500);
+    expect(body.error).toMatch(/failed to delete account/i);
+    // Must not sign out — deletion did not complete
+    expect(mockSignOut).not.toHaveBeenCalled();
+  });
+
+  it('returns 500 and does NOT sign out when profiles soft-delete fails', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'user-upd-err' } } });
+    makeServiceChain(
+      { stripe_customer_id: null, subscription_tier: 'free' },
+      { updateError: { message: 'RLS blocked' } }
+    );
+
+    const res  = await POST();
+    const body = await res.json();
+
+    expect(res.status).toBe(500);
+    expect(body.error).toMatch(/failed to delete account/i);
+    // Must not sign out — profile still exists
+    expect(mockSignOut).not.toHaveBeenCalled();
   });
 });

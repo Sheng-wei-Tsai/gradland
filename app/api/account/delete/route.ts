@@ -38,16 +38,22 @@ export async function POST() {
 
   // Delete comments — user_id is NOT NULL so anonymization requires schema change;
   // deletion is the correct privacy-compliant action under AU Privacy Act APP 13.
-  await service
+  const { error: deleteCommentsError } = await service
     .from('post_comments')
     .delete()
     .eq('user_id', user.id);
+  if (deleteCommentsError) {
+    return NextResponse.json({ error: 'Failed to delete account' }, { status: 500 });
+  }
 
   // Soft-delete the profile
-  await service
+  const { error: softDeleteError } = await service
     .from('profiles')
     .update({ deleted_at: new Date().toISOString() })
     .eq('id', user.id);
+  if (softDeleteError) {
+    return NextResponse.json({ error: 'Failed to delete account' }, { status: 500 });
+  }
 
   // Sign out all sessions
   await sb.auth.signOut();
