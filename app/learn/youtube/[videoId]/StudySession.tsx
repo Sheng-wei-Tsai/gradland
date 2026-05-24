@@ -563,7 +563,16 @@ function AudioTab({ guide, title }: { guide: StudyGuide; title: string }) {
 }
 
 /* ─── Tab 4: Mind Map ────────────────────────────────────────────────── */
-const NODE_COLORS = ['#c2410c','#b45309','#15803d','#1d4ed8','#7c3aed','#be185d','#0e7490','#4d7c0f'];
+const NODE_COLORS = [
+  'var(--vermilion)',
+  'var(--gold)',
+  'var(--jade)',
+  'var(--text-secondary)',
+  'var(--text-muted)',
+  'var(--vermilion)',
+  'var(--gold)',
+  'var(--jade)',
+];
 
 function MindMapTab({ guide, title }: { guide: StudyGuide; title: string }) {
   const [hovered, setHovered] = useState<number | null>(null);
