@@ -67,7 +67,7 @@ export async function GET() {
     const inProgressKey = Object.keys(steps).find(k => steps[k].status === 'in_progress');
     if (inProgressKey) {
       visaStep = {
-        step:      parseInt(inProgressKey),
+        step:      parseInt(inProgressKey, 10),
         status:    'in_progress',
         startedAt: visaRow.data.started_at ?? null,
       };
