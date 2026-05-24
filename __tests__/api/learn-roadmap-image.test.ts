@@ -199,6 +199,21 @@ describe('POST /api/learn/roadmap-image', () => {
 
     const res = await POST(makePost(validBody));
     expect(res.status).toBe(502);
+    const body = await res.json();
+    expect(body.error).toMatch(/safety filter/i);
+  });
+
+  it('returns 502 when OpenAI returns a mermaid click href javascript: payload', async () => {
+    process.env.OPENAI_API_KEY = 'sk-test';
+    mockRequireSubscription.mockResolvedValueOnce(validAuth);
+    mockCreate.mockResolvedValueOnce(
+      makeOpenAIResponse('flowchart TD\nA --> B\nclick A href "javascript:alert(1)"'),
+    );
+
+    const res = await POST(makePost(validBody));
+    expect(res.status).toBe(502);
+    const body = await res.json();
+    expect(body.error).toMatch(/safety filter/i);
   });
 
   it('returns 502 when OpenAI throws', async () => {

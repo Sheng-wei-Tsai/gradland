@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { requireSubscription, checkEndpointRateLimit, recordUsage, rateLimitResponse } from '@/lib/subscription';
-import { assertSameOrigin } from '@/lib/safety';
+import { assertSameOrigin, validateMermaidOutput } from '@/lib/safety';
 
 const VALID_ROLES = ['frontend', 'fullstack', 'backend', 'data-engineer', 'devops', 'mobile', 'qa', 'other'];
 const VALID_VISA  = ['student-500', 'graduate-485', 'sponsored-482', 'pr', 'citizen', 'other'];
@@ -74,19 +74,15 @@ Output raw Mermaid only, starting with "flowchart"`;
       max_tokens:  700,
     });
 
-    let mermaidCode = completion.choices[0]?.message?.content?.trim() ?? '';
-    mermaidCode = mermaidCode
-      .replace(/^```(?:mermaid)?\n?/i, '')
-      .replace(/\n?```$/, '')
-      .trim();
-
-    if (!mermaidCode) {
-      return NextResponse.json({ error: 'No roadmap returned' }, { status: 502 });
+    const raw = completion.choices[0]?.message?.content?.trim() ?? '';
+    const validated = validateMermaidOutput(raw);
+    if (!validated.ok || !validated.code) {
+      return NextResponse.json({ error: 'Roadmap output rejected by safety filter' }, { status: 502 });
     }
 
     await recordUsage(auth.user.id, 'learn/roadmap-image');
     return NextResponse.json({
-      mermaidCode,
+      mermaidCode: validated.code,
       cacheKey: `${role}_${visaStatus}_${jobStage}`,
     });
   } catch {
