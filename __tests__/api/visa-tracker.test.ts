@@ -117,6 +117,15 @@ describe('POST /api/visa-tracker', () => {
     expect((await res.json()).error).toMatch(/keys/i);
   });
 
+  it('does not throw when employer/occupation are non-string truthy values', async () => {
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'u1' } }, error: null });
+    const res = await POST(makePost({ employer: { evil: true }, occupation: [] }));
+    expect(res.status).toBe(200);
+    const upsertArg = (mockUpsert.mock.calls.at(-1) as [Record<string, unknown>])[0];
+    expect(upsertArg.employer).toBeNull();
+    expect(upsertArg.occupation).toBeNull();
+  });
+
   it('accepts a valid steps object', async () => {
     mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'u1' } }, error: null });
     const validSteps = {

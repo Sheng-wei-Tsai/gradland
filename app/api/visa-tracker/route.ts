@@ -46,8 +46,8 @@ export async function POST(req: NextRequest) {
   const { error } = await sb.from('visa_tracker').upsert(
     {
       user_id:    user.id,
-      employer:   body.employer   ? body.employer.trim().slice(0, 100)   : null,
-      occupation: body.occupation ? body.occupation.trim().slice(0, 100) : null,
+      employer:   typeof body.employer   === 'string' ? body.employer.trim().slice(0, 100)   : null,
+      occupation: typeof body.occupation === 'string' ? body.occupation.trim().slice(0, 100) : null,
       started_at: startedAt,
       steps,
       updated_at: new Date().toISOString(),
