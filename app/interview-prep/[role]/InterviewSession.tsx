@@ -798,6 +798,7 @@ export default function InterviewSession({ role }: { role: InterviewRole }) {
                     onKeyDown={e => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); submitAnswer(); } }}
                     rows={10}
                     spellCheck={false}
+                    aria-label="Your code solution"
                     style={{
                       width: '100%', boxSizing: 'border-box',
                       padding: '1rem', margin: 0,
@@ -832,6 +833,7 @@ export default function InterviewSession({ role }: { role: InterviewRole }) {
                   onChange={e => setUserAnswer(e.target.value)}
                   onKeyDown={e => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); submitAnswer(); } }}
                   placeholder="Type your answer here… (Cmd+Enter to submit)"
+                  aria-label="Your answer"
                   rows={6}
                   style={{ width: '100%', boxSizing: 'border-box', padding: '0.9rem 1rem', borderRadius: '10px', border: '1.5px solid var(--parchment)', background: 'var(--cream)', color: 'var(--brown-dark)', fontSize: '0.9rem', lineHeight: 1.7, resize: 'vertical', fontFamily: 'inherit', outline: 'none' }}
                 />
@@ -1029,9 +1031,11 @@ export default function InterviewSession({ role }: { role: InterviewRole }) {
             <input type="text" value={chatInput} onChange={e => setChatInput(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(); } }}
               placeholder="Ask Alex…"
+              aria-label="Ask Alex (AI interview coach)"
               style={{ flex: 1, padding: '0.5rem 0.75rem', borderRadius: '99px', border: '1.5px solid var(--parchment)', background: 'var(--cream)', color: 'var(--brown-dark)', fontSize: '0.83rem', outline: 'none', fontFamily: 'inherit' }}
             />
             <button type="button" onClick={sendChatMessage} disabled={!chatInput.trim() || chatLoading}
+              aria-label="Send message"
               style={{ background: chatInput.trim() && !chatLoading ? 'var(--terracotta)' : 'var(--parchment)', color: chatInput.trim() && !chatLoading ? 'white' : 'var(--text-muted)', border: 'none', borderRadius: '99px', padding: '0.5rem 0.9rem', fontSize: '0.83rem', fontWeight: 600, cursor: chatInput.trim() && !chatLoading ? 'pointer' : 'default' }}>
               {chatLoading ? '…' : '↑'}
             </button>
