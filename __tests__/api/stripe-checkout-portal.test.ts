@@ -316,4 +316,29 @@ describe('POST /api/stripe/portal', () => {
     expect(call.customer).toBe('cus_portal_456');
     expect(call.return_url).toContain('/dashboard');
   });
+
+  it('falls back to NEXT_PUBLIC_APP_URL when Origin header is an untrusted domain (open-redirect prevention)', async () => {
+    mockGetServerUser.mockResolvedValue(AUTHED_USER);
+    mockFrom.mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          maybeSingle: vi.fn().mockResolvedValue({
+            data: { stripe_customer_id: 'cus_portal_789' },
+            error: null,
+          }),
+        }),
+      }),
+    });
+    mockBillingPortalCreate.mockResolvedValue({ url: 'https://billing.stripe.com/session/bps_test_evil' });
+
+    const req = new NextRequest('http://localhost/api/stripe/portal', {
+      method:  'POST',
+      headers: { Origin: 'https://evil.com' },
+    });
+    await portalPOST(req);
+
+    const call = mockBillingPortalCreate.mock.calls[0][0];
+    expect(call.return_url).not.toContain('evil.com');
+    expect(call.return_url).toContain('gradland.au');
+  });
 });

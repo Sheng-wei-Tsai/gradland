@@ -23,7 +23,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'No active subscription found' }, { status: 404 });
   }
 
-  const origin = req.headers.get('origin') ?? process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+  const allowedOrigins = new Set<string>(
+    process.env.ALLOWED_ORIGINS
+      ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim()).filter(Boolean)
+      : [process.env.NEXT_PUBLIC_APP_URL ?? 'https://gradland.au', 'http://localhost:3000'],
+  );
+  const rawOrigin = req.headers.get('origin');
+  const origin    = rawOrigin && allowedOrigins.has(rawOrigin)
+    ? rawOrigin
+    : (process.env.NEXT_PUBLIC_APP_URL ?? 'https://gradland.au');
 
   const session = await stripe.billingPortal.sessions.create({
     customer:   profile.stripe_customer_id,
