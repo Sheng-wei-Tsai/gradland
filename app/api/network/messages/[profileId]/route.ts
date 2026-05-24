@@ -79,12 +79,16 @@ export async function PATCH(
     return NextResponse.json({ error: 'Profile not found' }, { status: 403 });
   }
 
-  await sb
+  const { error: updateError } = await sb
     .from('dm_messages')
     .update({ read_at: new Date().toISOString() })
     .eq('sender_profile_id', profileId)
     .eq('recipient_profile_id', myProfile.id)
     .is('read_at', null);
+
+  if (updateError) {
+    return NextResponse.json({ error: 'Failed to mark as read' }, { status: 500 });
+  }
 
   return NextResponse.json({ ok: true });
 }

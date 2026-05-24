@@ -205,6 +205,15 @@ describe('PATCH /api/network/messages/[profileId]', () => {
     expect(body.ok).toBe(true);
   });
 
+  it('returns 500 when DB update errors', async () => {
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'u1' } }, error: null });
+    mockIs.mockResolvedValueOnce({ error: { message: 'DB error' } });
+    const res = await PATCH(makeRequest('PATCH', OTHER_PROFILE_UUID), makeParams(OTHER_PROFILE_UUID));
+    expect(res.status).toBe(500);
+    const body = await res.json();
+    expect(body.error).toMatch(/failed to mark as read/i);
+  });
+
   it('calls update with sender_profile_id = profileId and recipient = myProfile.id', async () => {
     mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'u1' } }, error: null });
     await PATCH(makeRequest('PATCH', OTHER_PROFILE_UUID), makeParams(OTHER_PROFILE_UUID));
