@@ -64,6 +64,14 @@ describe('POST /api/learn/progress', () => {
     expect(res.status).toBe(400);
   });
 
+  it('returns 400 when videoTitle is a non-string truthy value (object)', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
+    const res = await POST(makePost({ videoId: 'abc12345678', videoTitle: { malicious: true } }));
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/missing/i);
+  });
+
   it('returns 400 when videoId is not 11-char alphanumeric', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
     const res = await POST(makePost({ videoId: 'short', videoTitle: 'Intro' }));
