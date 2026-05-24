@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
   }
 
   const { jobDescription } = body;
-  if (!jobDescription) {
+  if (typeof jobDescription !== 'string' || !jobDescription) {
     return new Response(JSON.stringify({ error: 'Missing job description' }), { status: 400 });
   }
 

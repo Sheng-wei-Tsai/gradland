@@ -115,6 +115,12 @@ describe('POST /api/resume-match', () => {
       expect(res.status).toBe(400);
     });
 
+    it('returns 400 when jobDescription is a non-string truthy value', async () => {
+      process.env.OPENAI_API_KEY = 'sk-test';
+      const res = await POST(makePost({ jobDescription: { malicious: true } }));
+      expect(res.status).toBe(400);
+    });
+
     it('returns 200 with JSON result for a valid request', async () => {
       process.env.OPENAI_API_KEY = 'sk-test';
       mockCreate.mockResolvedValueOnce(mockOpenAIResponse);
