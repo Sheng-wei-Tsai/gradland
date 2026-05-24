@@ -38,6 +38,9 @@ export async function POST(req: NextRequest) {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(contactEmail))) {
     return NextResponse.json({ error: 'Invalid contact email' }, { status: 400 });
   }
+  if (typeof applyUrl !== 'string' || !/^https?:\/\//i.test(applyUrl)) {
+    return NextResponse.json({ error: 'Apply URL must start with http:// or https://' }, { status: 400 });
+  }
 
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: '2025-06-30.basil',

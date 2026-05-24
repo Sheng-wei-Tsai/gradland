@@ -120,6 +120,35 @@ describe('POST /api/stripe/job-listing', () => {
     }
   });
 
+  // ── applyUrl URL scheme validation ──────────────────────────────────────────
+
+  it('returns 400 when applyUrl is a javascript: URI', async () => {
+    const res  = await POST(makePost({ ...VALID_BODY, applyUrl: 'javascript:alert(1)' }));
+    const body = await res.json();
+    expect(res.status).toBe(400);
+    expect(body.error).toMatch(/https?/);
+  });
+
+  it('returns 400 when applyUrl is a data: URI', async () => {
+    const res  = await POST(makePost({ ...VALID_BODY, applyUrl: 'data:text/html,<script>alert(1)</script>' }));
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 400 when applyUrl uses ftp:// scheme', async () => {
+    const res  = await POST(makePost({ ...VALID_BODY, applyUrl: 'ftp://example.com/jobs' }));
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 400 when applyUrl has no scheme', async () => {
+    const res  = await POST(makePost({ ...VALID_BODY, applyUrl: 'example.com/apply' }));
+    expect(res.status).toBe(400);
+  });
+
+  it('accepts applyUrl with http:// scheme', async () => {
+    const res  = await POST(makePost({ ...VALID_BODY, applyUrl: 'http://example.com/apply' }));
+    expect(res.status).toBe(200);
+  });
+
   it('returns 400 on malformed contactEmail', async () => {
     const res  = await POST(makePost({ ...VALID_BODY, contactEmail: 'not-an-email' }));
     const body = await res.json();
