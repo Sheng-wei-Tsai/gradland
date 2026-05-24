@@ -29,14 +29,23 @@ function makeChain(maybeSingleData: unknown = null) {
   return c;
 }
 
-// job_applications ends with .limit(500), not .maybeSingle() — limit must return a Promise.
-function makeAppsChain(rows: { status: string }[] = []) {
+// Head-count query for job_applications total: .select().eq(uid) resolves with { count }.
+function makeCountChain(count: number) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const c: any = {};
   c.select = vi.fn().mockReturnValue(c);
-  c.eq     = vi.fn().mockReturnValue(c);
-  c.order  = vi.fn().mockReturnValue(c);
-  c.limit  = vi.fn().mockResolvedValue({ data: rows, error: null });
+  c.eq     = vi.fn().mockResolvedValue({ count, data: null, error: null });
+  return c;
+}
+
+// Head-count query for interview subset: .select().eq(uid).eq('interview') — two eq calls.
+function makeInterviewCountChain(count: number) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const c: any = {};
+  c.select = vi.fn().mockReturnValue(c);
+  c.eq     = vi.fn()
+    .mockReturnValueOnce(c)
+    .mockResolvedValue({ count, data: null, error: null });
   return c;
 }
 
@@ -84,8 +93,9 @@ describe('GET /api/dashboard/summary', () => {
   it('extracts an in-progress visa step and returns the correct visaStep shape', async () => {
     mockGetUser.mockResolvedValueOnce({ data: { user: TEST_USER }, error: null });
 
-    // Route queries 5 tables in parallel via Promise.all in this order:
-    // profiles, visa_tracker, skill_progress, resume_analyses, job_applications
+    // Route runs 6 queries in parallel via Promise.all in this order:
+    // profiles, visa_tracker, skill_progress, resume_analyses,
+    // job_applications (total count), job_applications (interview count)
     mockFrom
       .mockReturnValueOnce(makeChain({
         onboarding_completed:  true,
@@ -135,16 +145,12 @@ describe('GET /api/dashboard/summary', () => {
     mockGetUser.mockResolvedValueOnce({ data: { user: TEST_USER }, error: null });
 
     mockFrom
-      .mockReturnValueOnce(makeChain(null))  // profiles
-      .mockReturnValueOnce(makeChain(null))  // visa_tracker
-      .mockReturnValueOnce(makeChain(null))  // skill_progress
-      .mockReturnValueOnce(makeChain(null))  // resume_analyses
-      .mockReturnValueOnce(makeAppsChain([   // job_applications
-        { status: 'applied' },
-        { status: 'interview' },
-        { status: 'interview' },
-        { status: 'rejected' },
-      ]));
+      .mockReturnValueOnce(makeChain(null))              // profiles
+      .mockReturnValueOnce(makeChain(null))              // visa_tracker
+      .mockReturnValueOnce(makeChain(null))              // skill_progress
+      .mockReturnValueOnce(makeChain(null))              // resume_analyses
+      .mockReturnValueOnce(makeCountChain(4))            // job_applications total
+      .mockReturnValueOnce(makeInterviewCountChain(2));  // job_applications interview
 
     const res = await GET();
     expect(res.status).toBe(200);
@@ -152,5 +158,24 @@ describe('GET /api/dashboard/summary', () => {
     const body = await res.json();
     expect(body.applicationCount).toBe(4);
     expect(body.interviewCount).toBe(2);
+  });
+
+  it('reports correct counts when a user has over 500 applications', async () => {
+    mockGetUser.mockResolvedValueOnce({ data: { user: TEST_USER }, error: null });
+
+    mockFrom
+      .mockReturnValueOnce(makeChain(null))               // profiles
+      .mockReturnValueOnce(makeChain(null))               // visa_tracker
+      .mockReturnValueOnce(makeChain(null))               // skill_progress
+      .mockReturnValueOnce(makeChain(null))               // resume_analyses
+      .mockReturnValueOnce(makeCountChain(600))           // job_applications total
+      .mockReturnValueOnce(makeInterviewCountChain(45));  // job_applications interview
+
+    const res = await GET();
+    expect(res.status).toBe(200);
+
+    const body = await res.json();
+    expect(body.applicationCount).toBe(600);
+    expect(body.interviewCount).toBe(45);
   });
 });

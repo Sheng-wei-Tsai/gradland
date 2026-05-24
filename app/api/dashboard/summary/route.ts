@@ -25,7 +25,7 @@ export async function GET() {
   // Service role for cross-table reads — all queries scoped to uid
   const sb = createSupabaseService();
 
-  const [profile, visaRow, reviewRow, resumeRow, apps] = await Promise.all([
+  const [profile, visaRow, reviewRow, resumeRow, appCount, interviewCount] = await Promise.all([
     sb.from('profiles')
       .select('onboarding_completed, onboarding_role, onboarding_visa_status, onboarding_job_stage, onboarding_anzsco, onboarding_experience_years')
       .eq('id', uid)
@@ -51,10 +51,13 @@ export async function GET() {
       .maybeSingle(),
 
     sb.from('job_applications')
-      .select('status')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', uid),
+
+    sb.from('job_applications')
+      .select('id', { count: 'exact', head: true })
       .eq('user_id', uid)
-      .order('applied_at', { ascending: false })
-      .limit(500),
+      .eq('status', 'interview'),
   ]);
 
   // Find current in-progress visa step
@@ -75,7 +78,6 @@ export async function GET() {
     ? Math.floor((Date.now() - new Date(resumeRow.data.analysed_at).getTime()) / 86_400_000)
     : null;
 
-  const applicationList = apps.data ?? [];
   const summary: DashboardSummary = {
     onboardingCompleted:     profile.data?.onboarding_completed ?? false,
     onboardingRole:          profile.data?.onboarding_role ?? null,
@@ -88,8 +90,8 @@ export async function GET() {
       ? { skillId: reviewRow.data.skill_id, pathId: reviewRow.data.path_id }
       : null,
     resumeStaleDays,
-    applicationCount:    applicationList.length,
-    interviewCount:      applicationList.filter(a => a.status === 'interview').length,
+    applicationCount:    appCount.count ?? 0,
+    interviewCount:      interviewCount.count ?? 0,
   };
 
   return NextResponse.json(summary);
