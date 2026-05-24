@@ -21,7 +21,10 @@ async function getUploadsPlaylistId(channelId: string, apiKey: string): Promise<
   );
   const data = await res.json();
   const id: string = data.items?.[0]?.contentDetails?.relatedPlaylists?.uploads ?? '';
-  if (id) playlistIdCache.set(channelId, id);
+  if (id) {
+    if (playlistIdCache.size >= 1000) playlistIdCache.delete(playlistIdCache.keys().next().value!);
+    playlistIdCache.set(channelId, id);
+  }
   return id;
 }
 
