@@ -171,6 +171,22 @@ describe('POST /api/resume-analyse', () => {
       expect(mockRecordUsage).not.toHaveBeenCalled();
     });
 
+    it('logs console.error when insert returns a Supabase error', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      mockInsertThen.mockImplementationOnce((cb: (r: { error: { message: string } }) => void) =>
+        cb({ error: { message: 'unique constraint violation' } }),
+      );
+      mockMessagesCreate.mockResolvedValueOnce({
+        content: [{ type: 'text', text: JSON.stringify(validAnalysis) }],
+      });
+      await POST(makeRequest(makePdfFile()));
+      expect(errorSpy).toHaveBeenCalledWith(
+        '[resume-analyse] insert failed:',
+        'unique constraint violation',
+      );
+      errorSpy.mockRestore();
+    });
+
     it('calls Anthropic with claude-sonnet-4-6 and a base64 PDF document', async () => {
       mockMessagesCreate.mockResolvedValueOnce({
         content: [{ type: 'text', text: JSON.stringify(validAnalysis) }],

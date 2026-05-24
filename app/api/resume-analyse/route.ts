@@ -143,7 +143,7 @@ export async function POST(req: NextRequest) {
       format_score:     a.auFormatting?.score ?? null,
       content_score:    a.contentQuality?.score ?? null,
       market_fit_score: a.auMarketFit?.score ?? null,
-    }).then(() => {});
+    }).then(({ error }) => { if (error) console.error('[resume-analyse] insert failed:', error.message); });
   }
 
   return NextResponse.json(analysis);
