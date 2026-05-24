@@ -59,7 +59,7 @@ const validStudyGuide = {
 };
 
 const validBody = {
-  videoId:    'abc123',
+  videoId:    'abc12345678',
   videoTitle: 'Async JavaScript Explained',
   studyGuide: validStudyGuide,
 };
@@ -128,6 +128,18 @@ describe('POST /api/learn/quiz', () => {
   it('returns 400 when studyGuide is missing', async () => {
     mockRequireSubscription.mockResolvedValueOnce(validAuth);
     const res = await POST(makePost({ videoId: 'abc123', videoTitle: 'Title' }));
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 400 when videoTitle is a non-string (object)', async () => {
+    mockRequireSubscription.mockResolvedValueOnce(validAuth);
+    const res = await POST(makePost({ videoId: 'abc12345678', videoTitle: { malicious: true }, studyGuide: validStudyGuide }));
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 400 when videoId does not match 11-char alphanumeric format', async () => {
+    mockRequireSubscription.mockResolvedValueOnce(validAuth);
+    const res = await POST(makePost({ videoId: 'bad-id', videoTitle: 'Title', studyGuide: validStudyGuide }));
     expect(res.status).toBe(400);
   });
 
