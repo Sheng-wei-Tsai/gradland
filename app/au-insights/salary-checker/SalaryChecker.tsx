@@ -199,13 +199,14 @@ export default function SalaryChecker() {
             </select>
           </div>
           <div>
-            <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--brown-dark)', display: 'block', marginBottom: '0.35rem' }}>
+            <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--brown-dark)', display: 'block', marginBottom: '0.35rem', margin: '0 0 0.35rem' }}>
               Your experience level
-            </label>
+            </p>
             <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
               {EXPERIENCE_BANDS.map(band => (
                 <button
                   key={band.id}
+                  aria-pressed={experience === band.key}
                   onClick={() => setExperience(band.key)}
                   style={{
                     padding: '0.4rem 0.9rem', borderRadius: '99px', fontSize: '0.8rem', fontWeight: 600,

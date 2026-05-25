@@ -1696,6 +1696,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-25 (supplement 5)
+
+> Supplement scan — `app/au-insights/salary-checker/SalaryChecker.tsx:202` uses a bare `<label>` element to head the "Your experience level" toggle-button group, but the label is NOT associated with any form control (there is no `htmlFor` / `id` pair, and the buttons are siblings not children of the label). Screen readers announce the label text but cannot associate it with the button group. Additionally, the toggle buttons at lines 207-222 have no `aria-pressed` attribute — screen readers cannot determine which experience band is currently selected. The WCAG 2.1 AA pattern for a button group with a visible heading is `role="group"` + `aria-labelledby` on the container, or simply changing the misused `<label>` to a `<p>` / `<span>` and adding `aria-pressed={experience === band.key}` on each button (matching the approach used by `app/interview-prep/[role]/InterviewSession.tsx:795,830` for the textarea labels fixed 2026-05-24). The `<label>` style is identical to the sibling `htmlFor`-associated labels in the same form, so a one-line element-type swap preserves the visual design while correcting the semantic role.
+
+### Accessibility (AGENTS §12.4 — WCAG 2.1 AA)
+- [x] Fix misused `<label>` and add `aria-pressed` to experience-band buttons in `app/au-insights/salary-checker/SalaryChecker.tsx:202-222` — the `<label>Your experience level</label>` at line 202 has no `htmlFor` and labels no form control (sibling `<div>` of buttons); change to `<p>` keeping identical inline styles; add `aria-pressed={experience === band.key}` to each `<button>` in the `EXPERIENCE_BANDS.map` at line 207; no test changes required (SalaryChecker is a client component with no API test file) [a11y] ✅ 2026-05-25
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
