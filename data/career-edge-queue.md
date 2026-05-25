@@ -8,7 +8,7 @@ Format: `- [ ] [pillar] Title — pathway:485|482|186|190 — cross_link:/path`
 
 ## Queue (in priority order)
 
-- [ ] [ai-screening] AI Screening Defence — what HireVue + Sapia actually score for non-native English speakers — pathway:485 — cross_link:/interview-prep
+- [x] 2026-05-25 [ai-screening] AI Screening Defence — what HireVue + Sapia actually score for non-native English speakers — pathway:485 — cross_link:/interview-prep
 - [ ] [fluency-without-debt] AI Fluency Without Tech Debt — week-by-week plan to pass the new junior bar — pathway:485 — cross_link:/learn
 - [ ] [eval-driven-projects] Eval-Driven Side Projects — LangSmith / Braintrust / Phoenix in a weekend — pathway:485 — cross_link:/learn
 - [ ] [pr-pathway] AI Engineering on the 2026 Core Skills Occupation List — verify the 485→186 path — pathway:485 — cross_link:/au-insights
