@@ -49,7 +49,7 @@ function Dashboard() {
         Overview · <Link href="/admin/users" style={{ color: 'var(--terracotta)' }}>Manage users</Link> · <Link href="/admin/comments" style={{ color: 'var(--terracotta)' }}>Manage comments</Link> · <Link href="/admin/job-listings" style={{ color: 'var(--terracotta)' }}>Job listings</Link> · <Link href="/admin/analytics" style={{ color: 'var(--terracotta)' }}>Analytics</Link>
       </p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '3rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1rem', marginBottom: '3rem' }}>
         {card('Total users',        stats.counts.users,        '/admin/users')}
         {card('Total comments',     stats.counts.comments,     '/admin/comments')}
         {card('Job applications',   stats.counts.applications, '/dashboard')}

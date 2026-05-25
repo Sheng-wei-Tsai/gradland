@@ -145,7 +145,7 @@ function Dashboard() {
       </div>
 
       {/* Overview cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
         {card('Page views (30d)', totalViews.toLocaleString())}
         {card('Unique sessions', overview.uniqueSessions.toLocaleString())}
         {card('Best day', overview.topDay?.views ?? 0, overview.topDay?.date ?? '')}

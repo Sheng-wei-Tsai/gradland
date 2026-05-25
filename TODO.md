@@ -1664,6 +1664,13 @@
 ### Style / Responsive (AGENTS §7.4 — hardcoded 3-column grid with no mobile override)
 - [x] Replace `gridTemplateColumns: 'repeat(3, 1fr)'` with `repeat(auto-fit, minmax(140px, 1fr))` in `app/dashboard/visa-tracker/page.tsx:233` ✅ 2026-05-25 — the overview row holds three stat cards (Steps completed, Weeks remaining, Est. grant) that get forced to ~103px each on a 360px viewport after page padding, wrapping the longer label "Weeks remaining (est.)" awkwardly across three lines and pushing the numeric value off-balance. AGENTS.md §15 explicitly names this exact pattern as an anti-pattern: "Do NOT hardcode column counts like `gridTemplateColumns: 'repeat(3, 1fr)'` without a mobile override". The same file already uses the correct responsive pattern at line 251 (`repeat(auto-fit, minmax(180px, 1fr))` for the profile-inputs row) and line 264 (`repeat(auto-fit, minmax(150px, 1fr))` for the deadlines row), so this is a one-line copy of an established pattern. 140px floor was chosen to allow two-up wrapping on iPhone SE (375px viewport → ~330px content area → 2×~155px cards) rather than three-up cramping. No test changes required; visa-tracker is logged-in only so no Storybook/visual-regression coverage exists [style]
 
+## 🛡 Daily Analyst Findings — 2026-05-25 (supplement 1)
+
+> Supplement scan — `app/admin/page.tsx:52` and `app/admin/analytics/page.tsx:148` both use `gridTemplateColumns: 'repeat(3, 1fr)'` for 3-stat-card overview rows without any mobile override — the same AGENTS §7.4 violation fixed in `app/dashboard/visa-tracker/page.tsx:233` (commit `3ff0575`). Admin pages are desktop-first but an operator checking the admin panel on a phone would see the cards cramped to ~103px each on a 375px viewport. The fix is identical: `repeat(auto-fit, minmax(140px, 1fr))` allows two-up wrapping on small screens.
+
+### Style / Responsive (AGENTS §7.4 — hardcoded 3-column grids in admin pages)
+- [x] Replace `gridTemplateColumns: 'repeat(3, 1fr)'` with `repeat(auto-fit, minmax(140px, 1fr))` in `app/admin/page.tsx:52` (Total users / Total comments / Job applications stat row) and `app/admin/analytics/page.tsx:148` (Page views / Unique sessions / Best day stat row) — same AGENTS §15 anti-pattern fixed in `visa-tracker/page.tsx:233`; 140px floor matches the established pattern from that fix [style] ✅ 2026-05-25
+
 ---
 
 ## 📊 Priority Rationale
