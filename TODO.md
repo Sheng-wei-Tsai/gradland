@@ -1657,6 +1657,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-25
+
+> Daily Opus scan — `npm audit` = 0 vulns; `tsc --noEmit` = clean; 48 API routes; 40 Vitest files in `__tests__/api/`. All paid AI routes audited carry `assertSameOrigin` + `requireSubscription` + `checkEndpointRateLimit`; all `body.*.slice` / `body.*.trim` calls across `app/api/**` are guarded by `typeof === 'string'` (verified against the open patterns from 2026-05-21 → 2026-05-24); CSP/RLS/cron-bearer/`sanitizeJobHtml` all intact; the previously-flagged silent-failure routes (`account/delete`, `network/messages/[profileId]`, `resume-analyse` insert, `dashboard/summary` parseInt) are all fixed in current code. **One real finding today** — a single AGENTS §7.4 violation in the dashboard visa-tracker overview row. The `(i: any)` annotations in `app/learn/claude-code/ClaudeCodeGuide.tsx:1941-1942` are inside a template-literal code example shown to learners (not executable TypeScript) and the hardcoded macOS-terminal palette in `InterviewSession.tsx:789-807` is intentional decorative chrome — both are non-issues. Larger items (CSP `unsafe-inline` removal, Vercel KV cache, network/messages real-time presence) remain L/XL effort and are out of scope for daily small-diff tasks.
+
+### Style / Responsive (AGENTS §7.4 — hardcoded 3-column grid with no mobile override)
+- [ ] Replace `gridTemplateColumns: 'repeat(3, 1fr)'` with `repeat(auto-fit, minmax(140px, 1fr))` in `app/dashboard/visa-tracker/page.tsx:233` — the overview row holds three stat cards (Steps completed, Weeks remaining, Est. grant) that get forced to ~103px each on a 360px viewport after page padding, wrapping the longer label "Weeks remaining (est.)" awkwardly across three lines and pushing the numeric value off-balance. AGENTS.md §15 explicitly names this exact pattern as an anti-pattern: "Do NOT hardcode column counts like `gridTemplateColumns: 'repeat(3, 1fr)'` without a mobile override". The same file already uses the correct responsive pattern at line 251 (`repeat(auto-fit, minmax(180px, 1fr))` for the profile-inputs row) and line 264 (`repeat(auto-fit, minmax(150px, 1fr))` for the deadlines row), so this is a one-line copy of an established pattern. 140px floor was chosen to allow two-up wrapping on iPhone SE (375px viewport → ~330px content area → 2×~155px cards) rather than three-up cramping. No test changes required; visa-tracker is logged-in only so no Storybook/visual-regression coverage exists [style]
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
