@@ -230,7 +230,7 @@ export default function VisaTrackerPage() {
       </div>
 
       {/* Overview cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', marginBottom: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem', marginBottom: '2rem' }}>
         {[
           { label: 'Steps completed', value: `${completedCount} / ${STEPS.length}`, color: 'var(--jade)' },
           { label: 'Weeks remaining (est.)', value: weeksLeft > 0 ? `~${weeksLeft}w` : 'Done!', color: 'var(--terracotta)' },
