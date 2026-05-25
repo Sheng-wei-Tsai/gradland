@@ -55,7 +55,7 @@ function Dashboard() {
         {card('Job applications',   stats.counts.applications, '/dashboard')}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
         {/* Recent comments */}
         <div>
           <h2 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--brown-dark)', marginBottom: '1rem' }}>Recent comments</h2>

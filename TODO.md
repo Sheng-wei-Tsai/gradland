@@ -1680,6 +1680,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-25 (supplement 3)
+
+> Supplement scan — `app/admin/analytics/page.tsx:165,187` and `app/admin/page.tsx:58` use `gridTemplateColumns: '1fr 1fr'` for 2-column content grids without any mobile override. The 2026-05-25 sweep fixed the 3-stat-card row (`repeat(3, 1fr)` → `repeat(auto-fit, minmax(140px, 1fr))`) in the same files at lines 52 and 148, but the adjacent 2-column grids for analytics panels (Top pages / Traffic sources, Countries / Devices) and the admin overview (Recent comments / New members) were missed. On a 375px viewport (327px content after padding) each column is ~148px — too narrow for the `BarRow` bar charts with label + percentage text, and for comment/user list items that need 280px+ for readable text. Fix: `repeat(auto-fit, minmax(280px, 1fr))` collapses to single column below ~600px (same pattern as `visa-tracker/page.tsx:251,264`).
+
+### Style / Responsive (AGENTS §7.4 — hardcoded 2-column grids in admin pages)
+- [x] Replace `gridTemplateColumns: '1fr 1fr'` with `repeat(auto-fit, minmax(280px, 1fr))` in `app/admin/analytics/page.tsx:165` (Top pages + Traffic sources), `app/admin/analytics/page.tsx:187` (Countries + Devices), and `app/admin/page.tsx:58` (Recent comments + New members) — same AGENTS §15 anti-pattern fixed in the same files today; 280px floor matches `visa-tracker/page.tsx:264` (`minmax(150px,…)` used for narrower deadline cards) scaled up for wider text-heavy bar-chart panels [style] ✅ 2026-05-25
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
