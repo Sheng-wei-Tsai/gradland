@@ -487,7 +487,7 @@ export function ResearchClient({ company }: { company: CompanyData }) {
             <p style={{ color: 'var(--text-primary)', fontSize: '0.9rem', lineHeight: 1.6, margin: '0 0 1rem' }}>
               {research.candidateProfile.ideal}
             </p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
               <div>
                 <div style={{
                   fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '0.5rem',

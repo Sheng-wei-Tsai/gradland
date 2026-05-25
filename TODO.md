@@ -1687,6 +1687,13 @@
 ### Style / Responsive (AGENTS §7.4 — hardcoded 2-column grids in admin pages)
 - [x] Replace `gridTemplateColumns: '1fr 1fr'` with `repeat(auto-fit, minmax(280px, 1fr))` in `app/admin/analytics/page.tsx:165` (Top pages + Traffic sources), `app/admin/analytics/page.tsx:187` (Countries + Devices), and `app/admin/page.tsx:58` (Recent comments + New members) — same AGENTS §15 anti-pattern fixed in the same files today; 280px floor matches `visa-tracker/page.tsx:264` (`minmax(150px,…)` used for narrower deadline cards) scaled up for wider text-heavy bar-chart panels [style] ✅ 2026-05-25
 
+## 🛡 Daily Analyst Findings — 2026-05-25 (supplement 4)
+
+> Supplement scan — `app/dashboard/visa-tracker/page.tsx:392` and `app/companies/[slug]/research/ResearchClient.tsx:490` both use `gridTemplateColumns: '1fr 1fr'` for 2-column content grids without any mobile override — the same AGENTS §7.4 violation fixed in `admin/analytics`, `admin/page`, `OnboardingModal`, and `visa-tracker:233` in today's earlier commits. The visa-tracker Tips + Watch-outs grid renders ~140px columns inside the step expansion panel on a 375px phone (panel content ~295px after `0 1.1rem` padding); the research client Must-haves / Nice-to-haves grid renders similarly narrow text-heavy checklist columns. Fix: `repeat(auto-fit, minmax(200px, 1fr))` for the compact bullet-list tips grid; `repeat(auto-fit, minmax(280px, 1fr))` for the wider text-checklist columns, matching today's admin and the `visa-tracker/page.tsx:264` (`minmax(150px,…)`) pattern scaled up.
+
+### Style / Responsive (AGENTS §7.4 — hardcoded 2-column grids in visa-tracker and research pages)
+- [x] Replace `gridTemplateColumns: '1fr 1fr'` with `repeat(auto-fit, minmax(200px, 1fr))` in `app/dashboard/visa-tracker/page.tsx:392` (Tips + Watch-outs grid inside step expansion panel) and `repeat(auto-fit, minmax(280px, 1fr))` in `app/companies/[slug]/research/ResearchClient.tsx:490` (Must-haves / Nice-to-haves checklist columns) — same AGENTS §15 anti-pattern fixed in today's commits; 200px floor allows 2-up on tablets (600px+ panel) and collapses to 1 column on phones (~295px content); 280px floor matches today's admin fix pattern [style] ✅ 2026-05-25
+
 ---
 
 ## 📊 Priority Rationale

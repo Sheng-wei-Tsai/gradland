@@ -389,7 +389,7 @@ export default function VisaTrackerPage() {
                   </div>
 
                   {/* Tips + watch-outs */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem', marginBottom: '1rem' }}>
                     <div style={{ background: 'rgba(30,122,82,0.08)', borderRadius: '8px', padding: '0.75rem' }}>
                       <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--jade)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.4rem' }}>💡 Tips</div>
                       <ul style={{ margin: 0, paddingLeft: '1.1rem' }}>
