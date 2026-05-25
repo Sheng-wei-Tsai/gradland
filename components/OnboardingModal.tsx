@@ -253,7 +253,7 @@ export default function OnboardingModal({ onComplete }: Props) {
 
             {/* Step 1 — Role grid */}
             {step === 1 && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem', marginBottom: '1.25rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))', gap: '0.5rem', marginBottom: '1.25rem' }}>
                 {ROLES.map(r => (
                   <button key={r.value} onClick={() => setRole(r.value)} style={optionCardStyle(role === r.value)}>
                     <span style={{ fontSize: '1.3rem', display: 'block', marginBottom: '0.2rem' }}>{r.emoji}</span>

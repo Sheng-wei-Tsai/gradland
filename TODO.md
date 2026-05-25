@@ -1671,6 +1671,13 @@
 ### Style / Responsive (AGENTS §7.4 — hardcoded 3-column grids in admin pages)
 - [x] Replace `gridTemplateColumns: 'repeat(3, 1fr)'` with `repeat(auto-fit, minmax(140px, 1fr))` in `app/admin/page.tsx:52` (Total users / Total comments / Job applications stat row) and `app/admin/analytics/page.tsx:148` (Page views / Unique sessions / Best day stat row) — same AGENTS §15 anti-pattern fixed in `visa-tracker/page.tsx:233`; 140px floor matches the established pattern from that fix [style] ✅ 2026-05-25
 
+## 🛡 Daily Analyst Findings — 2026-05-25 (supplement 2)
+
+> Supplement scan — `components/OnboardingModal.tsx:256` uses `gridTemplateColumns: 'repeat(4, 1fr)'` for the 8-role selection grid without any mobile override — the same AGENTS §7.4 violation fixed in `app/dashboard/visa-tracker/page.tsx:233` (commit `3ff0575`) and admin pages today. On a 375px iPhone, the modal content width is ~279px and 4 columns produce ~64px-wide buttons that force "DevOps / Cloud" and "Data Engineer" labels onto two lines and are uncomfortably cramped. Unlike `PublicHero.tsx` (which pairs the inline style with `className="tools-grid"` carrying a `!important` mobile override in `globals.css:1337`), the onboarding modal has no such class. The fix is identical to today's prior fixes: `repeat(auto-fit, minmax(80px, 1fr))` — chosen over 140px because these are compact emoji + short-label cards; on the widest modal (480px − 64px padding = 416px content) it still caps at 4 columns, and on a 375px phone it gracefully reduces to 3 columns.
+
+### Style / Responsive (AGENTS §7.4 — hardcoded 4-column grid in onboarding modal)
+- [x] Replace `gridTemplateColumns: 'repeat(4, 1fr)'` with `repeat(auto-fit, minmax(80px, 1fr))` in `components/OnboardingModal.tsx:256` (role selection step grid) — same AGENTS §15 anti-pattern fixed in `visa-tracker/page.tsx:233` and admin pages (commit `77a9f6a`); 80px floor is correct for compact emoji+label role cards vs 140px used for wider stat cards [style] ✅ 2026-05-25
+
 ---
 
 ## 📊 Priority Rationale
