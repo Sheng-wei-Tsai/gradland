@@ -64,7 +64,7 @@ export async function GET() {
   let visaStep: DashboardSummary['visaStep'] = null;
   if (visaRow.data?.steps) {
     const steps = visaRow.data.steps as Record<string, { status: string }>;
-    const inProgressKey = Object.keys(steps).find(k => steps[k].status === 'in_progress');
+    const inProgressKey = Object.keys(steps).find(k => steps[k]?.status === 'in_progress');
     if (inProgressKey) {
       visaStep = {
         step:      parseInt(inProgressKey, 10),

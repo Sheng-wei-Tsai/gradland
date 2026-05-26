@@ -53,7 +53,7 @@ async function skillsScore(userId: string, role: string | null): Promise<{ score
   for (const r of rows) pathCounts[r.path_id] = (pathCounts[r.path_id] ?? 0) + 1;
 
   const targetPath = role
-    ? (Object.keys(pathCounts).find(p => p.includes(role.replace('fullstack', 'fullstack').replace('data-engineer', 'data'))) ?? Object.keys(pathCounts)[0])
+    ? (Object.keys(pathCounts).find(p => p.includes(role === 'data-engineer' ? 'data' : role)) ?? Object.keys(pathCounts)[0])
     : Object.entries(pathCounts).sort((a, b) => b[1] - a[1])[0]?.[0];
 
   const pathRows = rows.filter(r => r.path_id === targetPath);
