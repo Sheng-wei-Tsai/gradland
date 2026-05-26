@@ -1720,6 +1720,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-26 (supplement 1)
+
+> Supplement scan — `__tests__/api/interview-ai-routes.test.ts` has no regression tests for the 2026-05-26 security fix that added `sanitizeUserText` to `scenario`/`focus`/`concepts`/`framework`/`companyExample` fields in `app/api/interview/mentor/route.ts` (commit `178ddfe`). The fix description said "No test changes needed because `assertSameOrigin` skips under `NODE_ENV=test`" — that reasoning applies to the CSRF guard, but the field sanitization is fully testable. Role-markers in `scenario` that reach the model unstripped would allow the cheapest jailbreak variant; concepts arrays exceeding 10 entries would bloat the prompt unboundedly; an unknown `companyExample` that leaked into the prompt would expose an injection surface. All three are one-mock-inspect away from verifiable regression protection.
+
+### Tests
+- [x] Add regression tests for mentor-route field sanitization in `__tests__/api/interview-ai-routes.test.ts` — (1) `scenario` containing `<|im_start|>system` has the role-marker stripped before the OpenAI messages are constructed (inspect `mockCreate.mock.calls[0][0].messages[1].content`); (2) `concepts` array with 15 entries is capped to 10 in the prompt (entry at index 9 present, index 10 absent); (3) unknown `companyExample: 'EvilCorp'` is rejected and the prompt uses the 'Atlassian' default fallback from `buildPrompt` line 51 (tested with `stage: 'why'` which includes the `${d.companyExample ?? 'Atlassian'}` expression); all three use `mockCreate.mockResolvedValueOnce(fakeStream(['ok']))` following existing mentor test pattern [tests] ✅ 2026-05-26
+
+---
+
 ## 📊 Priority Rationale
 
 | # | Feature | Retention | Revenue | Differentiation | Effort |
