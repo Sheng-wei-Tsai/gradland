@@ -98,13 +98,30 @@ export async function POST(req: NextRequest) {
     return new Response(JSON.stringify({ error: 'Invalid stage' }), { status: 400 });
   }
 
+  const knownCompanies = new Set(Object.keys(COMPANY_INTEL));
+
   const safeBody: MentorData = {
     ...body,
-    roleTitle:  sanitizeUserText(roleTitle,           { maxLength: 100, allowNewlines: false }).clean,
-    question:   sanitizeUserText(question,            { maxLength: 500 }).clean,
-    userAnswer: body.userAnswer != null
+    roleTitle:      sanitizeUserText(roleTitle, { maxLength: 100, allowNewlines: false }).clean,
+    question:       sanitizeUserText(question,  { maxLength: 500, allowNewlines: false }).clean,
+    userAnswer:     body.userAnswer != null
       ? sanitizeUserText(body.userAnswer, { maxLength: 800 }).clean
       : body.userAnswer,
+    scenario:       body.scenario != null
+      ? sanitizeUserText(body.scenario, { maxLength: 200, allowNewlines: false }).clean
+      : undefined,
+    focus:          body.focus != null
+      ? sanitizeUserText(body.focus, { maxLength: 200, allowNewlines: false }).clean
+      : undefined,
+    framework:      body.framework != null
+      ? sanitizeUserText(body.framework, { maxLength: 200, allowNewlines: false }).clean
+      : undefined,
+    concepts:       Array.isArray(body.concepts)
+      ? body.concepts.slice(0, 10).map(c => sanitizeUserText(c, { maxLength: 60, allowNewlines: false }).clean)
+      : undefined,
+    companyExample: typeof body.companyExample === 'string' && knownCompanies.has(body.companyExample)
+      ? body.companyExample
+      : undefined,
   };
 
   const userPrompt = buildPrompt(safeBody);
