@@ -23,19 +23,19 @@ const ROLE_TO_PREP: Record<string, string> = {
   'frontend':      'junior-frontend',
   'fullstack':     'junior-fullstack',
   'backend':       'junior-backend',
-  'data-engineer': 'junior-data',
-  'devops':        'junior-devops',
-  'mobile':        'junior-mobile',
-  'qa':            'junior-qa',
+  'data-engineer': 'data-engineer',
+  'devops':        'devops-cloud',
+  'mobile':        'react-native',
+  'qa':            'qa-engineer',
 };
 
 // Maps job title keywords → nearest interview prep role
 function inferPrepRole(title: string): string {
   const t = title.toLowerCase();
-  if (t.includes('devops') || t.includes('cloud') || t.includes('infrastructure')) return 'junior-devops';
-  if (t.includes('data') && (t.includes('engineer') || t.includes('analyst')))    return 'junior-data';
-  if (t.includes('mobile') || t.includes('ios') || t.includes('android'))         return 'junior-mobile';
-  if (t.includes('qa') || t.includes('test') || t.includes('quality'))            return 'junior-qa';
+  if (t.includes('devops') || t.includes('cloud') || t.includes('infrastructure')) return 'devops-cloud';
+  if (t.includes('data') && (t.includes('engineer') || t.includes('analyst')))    return 'data-engineer';
+  if (t.includes('mobile') || t.includes('ios') || t.includes('android'))         return 'react-native';
+  if (t.includes('qa') || t.includes('test') || t.includes('quality'))            return 'qa-engineer';
   if (t.includes('back') || t.includes('node') || t.includes('python') || t.includes('java')) return 'junior-backend';
   return 'junior-fullstack';
 }
