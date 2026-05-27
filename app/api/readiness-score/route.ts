@@ -109,7 +109,8 @@ function boostAction(components: Record<string, { score: number; detail: string 
   const sorted = Object.entries(components).sort((a, b) => a[1].score - b[1].score);
   const lowest = sorted[0][0];
 
-  const path = role ? `junior-${role}` : 'junior-fullstack';
+  const VALID_PATH_ROLES = new Set(['frontend', 'fullstack', 'backend', 'data-engineer', 'devops']);
+  const path = role && VALID_PATH_ROLES.has(role) ? `junior-${role}` : 'junior-fullstack';
   const map: Record<string, { label: string; href: string; gain: string }> = {
     resume:    { label: 'Analyse your resume',          href: '/dashboard/resume-analyser', gain: '+8 pts' },
     skills:    { label: 'Complete next skill topic',    href: `/learn/${path}`,             gain: '+6 pts' },
