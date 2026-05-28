@@ -1,10 +1,10 @@
-import { getAllPosts, getAllDigests, getAllGithot, getAllAINews, getAllVisaNews, getAllCareerEdge, getAllTags } from '@/lib/posts';
+import { getAllPosts, getAllDigests, getAllGithot, getAllAINews, getAllVisaNews, getAllCareerEdge, getAllClaudeCode, getAllTags } from '@/lib/posts';
 import BlogList from '@/components/BlogList';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'All Posts — Gradland',
-  description: 'Blog posts, AI research digest, GitHub trending, and daily AI company news — all in one place.',
+  description: 'Blog posts, AI research digest, GitHub trending, Claude Code daily, and AI company news — all in one place.',
 };
 
 export default function PostsPage() {
@@ -14,9 +14,10 @@ export default function PostsPage() {
   const ainews     = getAllAINews();
   const visanews   = getAllVisaNews();
   const careerEdge = getAllCareerEdge();
+  const claudeCode = getAllClaudeCode();
   const tags       = getAllTags();
 
-  const all = [...posts, ...digests, ...githot, ...ainews, ...visanews, ...careerEdge].sort(
+  const all = [...posts, ...digests, ...githot, ...ainews, ...visanews, ...careerEdge, ...claudeCode].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 

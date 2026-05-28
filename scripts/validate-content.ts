@@ -20,7 +20,7 @@ import matter from 'gray-matter';
 import { validateMermaidSyntax } from './mermaid-validate';
 
 const ROOT = path.resolve(process.cwd(), 'content');
-const SOURCES = ['posts', 'digests', 'githot', 'ai-news', 'visa-news', 'career-edge', 'diagrams'] as const;
+const SOURCES = ['posts', 'digests', 'githot', 'ai-news', 'visa-news', 'career-edge', 'diagrams', 'claude-code', 'claude-skills'] as const;
 
 interface Issue {
   file:    string;
@@ -109,6 +109,57 @@ function checkMermaid(file: string, data: Record<string, unknown>) {
   }
 }
 
+/**
+ * Validate the structured frontmatter on claude-code lessons:
+ *   - terminal_scenario must have prompt, match, expectedInput, successOutput
+ *   - quiz must be an array; each item must have q, options[≥2], answer (0..n-1), explanation
+ */
+function checkClaudeCodeShape(file: string, data: Record<string, unknown>) {
+  const ts = data.terminal_scenario as Record<string, unknown> | undefined;
+  if (ts) {
+    if (typeof ts.prompt !== 'string' || !ts.prompt.trim()) {
+      issues.push({ file, rule: 'claudeCode.terminal.prompt', message: 'terminal_scenario.prompt is missing or empty.' });
+    }
+    if (ts.match !== 'exact' && ts.match !== 'regex') {
+      issues.push({ file, rule: 'claudeCode.terminal.match', message: 'terminal_scenario.match must be "exact" or "regex".' });
+    }
+    if (typeof ts.expectedInput !== 'string' || !ts.expectedInput.trim()) {
+      issues.push({ file, rule: 'claudeCode.terminal.expectedInput', message: 'terminal_scenario.expectedInput is missing or empty.' });
+    }
+    if (typeof ts.successOutput !== 'string' || !ts.successOutput.trim()) {
+      issues.push({ file, rule: 'claudeCode.terminal.successOutput', message: 'terminal_scenario.successOutput is missing or empty.' });
+    }
+    if (ts.match === 'regex' && typeof ts.expectedInput === 'string') {
+      try { new RegExp(ts.expectedInput); }
+      catch { issues.push({ file, rule: 'claudeCode.terminal.regex', message: `terminal_scenario.expectedInput is not a valid regex: ${ts.expectedInput}` }); }
+    }
+  }
+
+  const quiz = data.quiz as Array<Record<string, unknown>> | undefined;
+  if (quiz) {
+    if (!Array.isArray(quiz)) {
+      issues.push({ file, rule: 'claudeCode.quiz.shape', message: 'quiz must be an array of questions.' });
+      return;
+    }
+    quiz.forEach((q, i) => {
+      if (typeof q.q !== 'string' || !q.q.trim()) {
+        issues.push({ file, rule: 'claudeCode.quiz.q', message: `quiz[${i}].q is missing or empty.` });
+      }
+      if (!Array.isArray(q.options) || q.options.length < 2) {
+        issues.push({ file, rule: 'claudeCode.quiz.options', message: `quiz[${i}].options must be an array with at least 2 items.` });
+        return;
+      }
+      const opts = q.options as unknown[];
+      if (typeof q.answer !== 'number' || q.answer < 0 || q.answer >= opts.length) {
+        issues.push({ file, rule: 'claudeCode.quiz.answer', message: `quiz[${i}].answer must be a 0-based index into options (got ${String(q.answer)}, options length ${opts.length}).` });
+      }
+      if (typeof q.explanation !== 'string' || !q.explanation.trim()) {
+        issues.push({ file, rule: 'claudeCode.quiz.explanation', message: `quiz[${i}].explanation is missing or empty.` });
+      }
+    });
+  }
+}
+
 function walk(dir: string): string[] {
   if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir)
@@ -134,6 +185,7 @@ async function main() {
       }
       checkFrontmatter(file, parsed.data);
       checkMermaid(file, parsed.data);
+      if (src === 'claude-skills') checkClaudeCodeShape(file, parsed.data);
       checkBareJsxTags(file, parsed.content);
       if (typeof parsed.data.mermaid === 'string') {
         diagramTargets.push({ file, code: parsed.data.mermaid });

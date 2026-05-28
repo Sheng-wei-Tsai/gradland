@@ -21,6 +21,18 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  // Redirect the old single-lesson URL to the new /learn/claude-skills surface.
+  // Old /posts/claude-code used to host interactive lessons; it's now news-only.
+  async redirects() {
+    return [
+      {
+        source: '/claude-code/2026-05-29-ultrathink-deep-reasoning',
+        destination: '/learn/claude-skills/2026-05-29-ultrathink-deep-reasoning',
+        permanent: true,
+      },
+    ];
+  },
+
   // ── Security headers ────────────────────────────────────────────────────────
   // CSP is handled by proxy.ts (per-request nonce generation).
   // Only static, non-nonce headers live here.

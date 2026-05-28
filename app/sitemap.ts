@@ -25,6 +25,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/posts/ai-news`,   lastModified: now, priority: 0.7 },
     { url: `${BASE_URL}/posts/visa-news`, lastModified: now, priority: 0.7 },
     { url: `${BASE_URL}/posts/career-edge`, lastModified: now, priority: 0.8 },
+    { url: `${BASE_URL}/posts/claude-code`, lastModified: now, priority: 0.8 },
+    { url: `${BASE_URL}/learn/claude-skills`, lastModified: now, priority: 0.9 },
     { url: `${BASE_URL}/jobs`,            lastModified: now, priority: 0.8 },
     { url: `${BASE_URL}/interview-prep`,  lastModified: now, priority: 0.8 },
     { url: `${BASE_URL}/cover-letter`,    lastModified: now, priority: 0.7 },
@@ -68,5 +70,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority:     0.7 as const,
   }));
 
-  return [...staticRoutes, ...postRoutes, ...digestRoutes, ...githubRoutes, ...aiNewsRoutes, ...visaNewsRoutes, ...careerEdgeRoutes];
+  const claudeCodeRoutes = slugsFrom('claude-code').map(slug => ({
+    url:          `${BASE_URL}/claude-code/${slug}`,
+    lastModified: now,
+    priority:     0.6 as const,
+  }));
+
+  const claudeSkillRoutes = slugsFrom('claude-skills').map(slug => ({
+    url:          `${BASE_URL}/learn/claude-skills/${slug}`,
+    lastModified: now,
+    priority:     0.7 as const,
+  }));
+
+  return [...staticRoutes, ...postRoutes, ...digestRoutes, ...githubRoutes, ...aiNewsRoutes, ...visaNewsRoutes, ...careerEdgeRoutes, ...claudeCodeRoutes, ...claudeSkillRoutes];
 }

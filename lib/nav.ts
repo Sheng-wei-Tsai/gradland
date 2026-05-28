@@ -40,6 +40,7 @@ export const TOOLS_LAND: NavItem[] = [
   { href: '/interview-prep', tKey: 'tools_interview',   tDesc: 'tools_interview_desc',   icon: 'target'        },
   { href: '/jobs',           tKey: 'tools_jobs',        tDesc: 'tools_jobs_desc',        icon: 'briefcase'     },
   { href: '/learn',          tKey: 'tools_learn',       tDesc: 'tools_learn_desc',       icon: 'books'         },
+  { href: '/learn/claude-skills', tKey: 'tools_claudeSkills', tDesc: 'tools_claudeSkills_desc', icon: 'sparkles', isNew: true },
 ];
 
 export const TOOLS_TRACK: NavItem[] = [
@@ -58,6 +59,7 @@ export const TOOLS_MENU: { land: NavSection; track: NavSection } = {
 
 export const INSIGHTS_CONTENT: NavItem[] = [
   { href: '/posts/career-edge', tKey: 'insights_careerEdge', tDesc: 'insights_careerEdge_desc', icon: 'target',    isDaily: true },
+  { href: '/posts/claude-code', tKey: 'insights_claudeCode', tDesc: 'insights_claudeCode_desc', icon: 'newspaper', isDaily: true },
   { href: '/posts/blog',        tKey: 'insights_blog',       tDesc: 'insights_blog_desc',       icon: 'brush'    },
   { href: '/posts/ai-news',     tKey: 'insights_aiNews',     tDesc: 'insights_aiNews_desc',     icon: 'newspaper' },
   { href: '/digest',            tKey: 'insights_digest',     tDesc: 'insights_digest_desc',     icon: 'newspaper' },
