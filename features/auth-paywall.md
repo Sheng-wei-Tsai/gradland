@@ -109,7 +109,7 @@ supabase/008_subscription.sql
 ---
 
 ## Stripe Plan
-- Product: "Henry Blog Pro"
+- Product: "Gradland Pro"
 - Price: $9.99 USD / month (recurring)
 - On `checkout.session.completed`: set `subscription_tier = 'pro'`, set expiry to period end
 - On `customer.subscription.deleted`: set `subscription_tier = 'free'`

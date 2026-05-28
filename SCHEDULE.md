@@ -1,4 +1,4 @@
-# Henry Blog — Product Roadmap & Daily Schedule
+# Gradland — Product Roadmap & Daily Schedule
 
 **PM:** Claude (Senior PM mode)
 **Developer:** Henry Tsai (solo)

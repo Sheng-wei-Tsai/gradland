@@ -1,5 +1,5 @@
 -- ─────────────────────────────────────────────────────────────
--- Henry Blog — Supabase Schema
+-- Gradland — Supabase Schema
 -- Run this in: Supabase Dashboard → SQL Editor → New Query
 -- ─────────────────────────────────────────────────────────────
 

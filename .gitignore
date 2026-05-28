@@ -4,7 +4,6 @@ out/
 .env
 .env.local
 .DS_Store
-henry-blog/
 .obsidian/
 context/screenshots/
 context/.DS_Store

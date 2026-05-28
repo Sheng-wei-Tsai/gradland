@@ -111,7 +111,7 @@ See `docs/feature-ai-news.md` for full spec.
       - uses: actions/setup-node@v4
         with: { node-version: '20', cache: 'npm' }
       - run: npm ci
-      - run: git config user.name "henry-blog-bot" && git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - run: git config user.name "gradland-bot" && git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - run: npx tsx scripts/fetch-ai-news.ts
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

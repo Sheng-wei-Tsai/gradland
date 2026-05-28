@@ -1,4 +1,4 @@
-# Copilot Instructions — Gradland / Henry's Blog
+# Copilot Instructions — Gradland
 
 > **Read `AGENTS.md` first.** This file is a condensed summary for GitHub Copilot's PR
 > suggestions and code review. `AGENTS.md` is the full source of truth — when there is any
