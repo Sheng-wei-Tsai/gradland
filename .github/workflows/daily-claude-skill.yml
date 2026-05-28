@@ -1,0 +1,65 @@
+name: Daily Claude Code Skill
+
+# Generates one interactive Claude Code skill lesson per day:
+#   - body (markdown) via Claude Haiku
+#   - 3-question quiz (JSON-in-frontmatter)
+#   - terminal scenario built deterministically from the topic pool
+# Topic pool: data/claude-skills-topics.json
+# Output:     content/claude-skills/YYYY-MM-DD-<slug>.mdx
+# Surface:    /learn/claude-skills/<slug>
+#
+# Cron: 21:30 UTC — own quota window, 1.5h before daily-diagrams (23:00).
+
+on:
+  schedule:
+    - cron: '30 21 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  claude-skill:
+    name: Generate Daily Claude Code Tip
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Configure git
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "gradland-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+
+      - name: Generate daily tip
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          GH_MODELS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          export CLAUDE_CODE_OAUTH_TOKEN=$(printf '%s' "${CLAUDE_CODE_OAUTH_TOKEN}" | tr -d '\r\n')
+          set +e
+          npx tsx scripts/fetch-claude-skill.ts 2>&1 | tee claude-skill.log
+          EXIT=${PIPESTATUS[0]}
+          sed -i 's/\x1b\[[0-9;]*[mGKHFJSTsu]//g' claude-skill.log
+          if grep -qiE "hit your limit|quota.*exceeded|rate limit|5-hour limit|usage limit" claude-skill.log; then
+            echo "::warning::Claude quota hit — daily tip will retry in next window"
+            exit 0
+          fi
+          exit $EXIT

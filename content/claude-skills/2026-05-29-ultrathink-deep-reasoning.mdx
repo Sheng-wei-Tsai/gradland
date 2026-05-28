@@ -1,0 +1,80 @@
+---
+title: "/ultrathink — Force deeper reasoning on hard problems"
+date: "2026-05-29"
+excerpt: "Extended thinking trades tokens for better answers on hard problems. Learn when it pays off and when it just burns budget."
+tags: ["Claude Code", "AI Workflow", "Slash Commands"]
+topics: ["/ultrathink", "extended-thinking"]
+coverEmoji: "🧠"
+category: "slash-commands"
+short_label: "/ultrathink"
+tier: 3
+position:
+  x: 120
+  y: 600
+prerequisites:
+  - model-switch
+docs_url: "https://code.claude.com/docs/en/slash-commands"
+xp_reward: 50
+video_ids: []
+auto_generated: false
+terminal_scenario:
+  prompt: "You're stuck on a tricky concurrency bug. Trigger extended thinking before describing the problem."
+  hint: "It's a slash command. Starts with /ultra…"
+  match: "exact"
+  expectedInput: "/ultrathink"
+  successOutput: "✓ Extended thinking mode active for next turn.\nClaude will reason longer before responding.\nUse sparingly — costs more tokens per turn."
+quiz:
+  - q: "When does /ultrathink earn its token cost?"
+    options:
+      - "Every prompt — always use it for best answers"
+      - "Hard problems with non-obvious reasoning chains (race conditions, algorithm trade-offs, architecture)"
+      - "Boilerplate code generation"
+      - "Renaming variables across files"
+    answer: 1
+    explanation: "Extended thinking helps when the bottleneck is reasoning depth, not knowledge recall. For boilerplate or refactors the model already nails it without spending extra tokens on a thinking pass."
+  - q: "What persists when you switch to /ultrathink mid-conversation?"
+    options:
+      - "Only the file tree"
+      - "Nothing — context resets"
+      - "The full conversation context, just the next turn uses extended thinking"
+      - "Conversation but file edits revert"
+    answer: 2
+    explanation: "/ultrathink is per-turn reasoning depth, not a context-reset operation. Your conversation and project state are untouched."
+  - q: "Best signal that you should NOT use /ultrathink?"
+    options:
+      - "You're going to ask a question with one obvious right answer"
+      - "You're stuck on an architectural decision"
+      - "You need to weigh trade-offs between two designs"
+      - "You're root-causing an intermittent test failure"
+    answer: 0
+    explanation: "If the answer is obvious, extended thinking adds tokens with no quality gain. Save it for cases where you'd benefit from a slow second pass."
+---
+
+## What it does
+
+`/ultrathink` switches Claude into **extended thinking** mode for the next response. The model spends more tokens reasoning internally before it streams the answer back to you. You see a brief thinking-block summary, then the answer — same conversation, deeper pass.
+
+Think of it as the "give it a minute" button. Default mode is fast but shallower; ultrathink is slower but more deliberate.
+
+## When to use it
+
+- **Architecture decisions** — weighing two designs with non-obvious trade-offs.
+- **Concurrency bugs** — race conditions, deadlocks, memory model questions.
+- **Algorithmic problems** — picking the right data structure, complexity analysis.
+- **Code review of subtle PRs** — security-adjacent diffs, refactors that touch invariants.
+
+Skip it for: boilerplate, renames, "what does this function do" questions, looking up syntax.
+
+## Try it in your terminal
+
+The simulator below shows the prompt a teammate posts. Type the command that triggers extended thinking and hit Enter.
+
+## Gotchas
+
+- It only applies to the **next** turn. If you forget and type something else first, the slow mode is wasted.
+- Token cost can go up 3–5x for that turn. Worth it for hard problems, burns budget on easy ones.
+- Some hosted setups limit extended thinking on smaller models — check your model with `/model` before relying on it.
+
+## Read more
+
+[Slash commands reference →](https://code.claude.com/docs/en/slash-commands)
