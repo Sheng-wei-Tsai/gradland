@@ -32,8 +32,11 @@ export interface ClaudeMessageOpts {
   timeoutMs?: number;
 }
 
+// "rate limit" intentionally NOT here — diagram content commonly says it.
+// Sonnet/Opus/Haiku/Pro variants are matched explicitly because the CLI now
+// writes messages like "You've hit your Sonnet limit · resets May 31, 11am (UTC)".
 const QUOTA_PATTERN =
-  /hit your limit|credit balance is too low|quota.*exceeded|rate limit|5-hour limit|usage limit reached|claude ai usage limit|try again.{0,30}(hour|later)/i;
+  /hit your (?:[A-Za-z]+\s+)?limit|credit balance is too low|quota.*exceeded|5-hour limit|usage limit reached|claude ai usage limit|weekly limit|try again.{0,30}(hour|later)|resets [0-9]{1,2}:[0-9]{2} ?(am|pm)|resets [A-Z][a-z]+ \d{1,2}/i;
 
 const TRANSIENT_PATTERN =
   /overloaded|529|500 internal|502 bad gateway|timeout|ETIMEDOUT|ECONNRESET/i;
@@ -88,9 +91,16 @@ function runOnce(opts: ClaudeMessageOpts): Promise<string> {
         reject(new Error(`claude CLI timed out after ${opts.timeoutMs ?? 120_000}ms`));
         return;
       }
-      const combined = `${stdout}\n${stderr}`;
-      if (QUOTA_PATTERN.test(combined)) {
-        reject(new ClaudeQuotaError(`Claude quota hit: ${stderr.trim() || stdout.trim()}`));
+      // Quota messages from the Claude CLI go to stderr OR are printed when
+      // the CLI exits with a non-zero code. Checking stdout matches diagram
+      // content like `node["Rate Limit"]` and falsely fails legitimate runs
+      // — diagrams pipeline was dead for 27 days because of this. Only
+      // treat as quota when (a) stderr contains a quota phrase OR (b) the
+      // CLI exited non-zero AND its combined output contains one.
+      const quotaInStderr = QUOTA_PATTERN.test(stderr);
+      const quotaOnFailure = code !== 0 && QUOTA_PATTERN.test(`${stdout}\n${stderr}`);
+      if (quotaInStderr || quotaOnFailure) {
+        reject(new ClaudeQuotaError(`Claude quota hit: ${(stderr.trim() || stdout.trim()).slice(0, 300)}`));
         return;
       }
       if (code !== 0) {

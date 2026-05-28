@@ -73,7 +73,7 @@ jobs:
             --allowedTools "Bash,Read,Write,Edit,Glob,Grep,WebFetch" \
             -p "$(cat .github/prompts/career-edge.md)" 2>&1 | tee career-edge.log
           EXIT=${PIPESTATUS[0]}
-          if grep -qiE "hit your limit|quota.*exceeded|rate limit|5-hour limit|usage limit" career-edge.log; then
+          if grep -qiE "hit your (Sonnet |Opus |Haiku |Pro )?limit|quota.*exceeded|5-hour limit|usage limit" career-edge.log; then
             echo "::warning::Claude quota hit, career-edge will retry in next window"
             exit 0
           fi

@@ -57,7 +57,7 @@ jobs:
           npx tsx scripts/fetch-diagrams.ts 2>&1 | tee diagrams.log
           EXIT=${PIPESTATUS[0]}
           sed -i 's/\x1b\[[0-9;]*[mGKHFJSTsu]//g' diagrams.log
-          if grep -qiE "hit your limit|quota.*exceeded|rate limit|5-hour limit|usage limit" diagrams.log; then
+          if grep -qiE "hit your (Sonnet |Opus |Haiku |Pro )?limit|quota.*exceeded|5-hour limit|usage limit" diagrams.log; then
             echo "::warning::Claude quota hit — diagrams will retry in next window"
             exit 0
           fi

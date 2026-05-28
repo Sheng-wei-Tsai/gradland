@@ -23,18 +23,23 @@ const ENDPOINT = 'https://models.github.ai/inference/chat/completions';
 /**
  * Maps a Claude model id to an equivalent on GitHub Models.
  *
- * The Anthropic Claude offerings on GitHub Models trail the latest
- * Anthropic API by a few months, so we fall back to the highest-grade
- * substitute for each tier:
- *   - claude-haiku-*   → openai/gpt-4o-mini   (cheap, fast, classification)
- *   - claude-sonnet-*  → openai/gpt-4o        (balanced, summarisation)
- *   - claude-opus-*    → openai/gpt-4o        (best widely-available)
+ * OpenAI models in the GitHub Models catalog return
+ *   403 { code: "no_access" }
+ * for the default GITHUB_TOKEN — they require explicit org/user
+ * acceptance of the OpenAI terms in the marketplace. The Mistral and Meta
+ * models work with the default token + `permissions: models: read`, which
+ * is what every workflow already passes.
+ *
+ *   - claude-haiku-*   → mistral-ai/Ministral-3B           (cheap, fast)
+ *   - claude-sonnet-*  → mistral-ai/Mistral-large-2411     (balanced)
+ *   - claude-opus-*    → meta/Llama-3.3-70B-Instruct       (best free-tier)
  */
 function mapToGithubModel(claudeModel?: ClaudeModel): string {
-  if (!claudeModel) return 'openai/gpt-4o-mini';
-  if (claudeModel.includes('haiku')) return 'openai/gpt-4o-mini';
-  if (claudeModel.includes('sonnet') || claudeModel.includes('opus')) return 'openai/gpt-4o';
-  return 'openai/gpt-4o-mini';
+  if (!claudeModel) return 'mistral-ai/Ministral-3B';
+  if (claudeModel.includes('haiku')) return 'mistral-ai/Ministral-3B';
+  if (claudeModel.includes('sonnet')) return 'mistral-ai/Mistral-large-2411';
+  if (claudeModel.includes('opus')) return 'meta/Llama-3.3-70B-Instruct';
+  return 'mistral-ai/Ministral-3B';
 }
 
 export class GithubModelsQuotaError extends Error {

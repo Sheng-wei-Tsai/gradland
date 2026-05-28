@@ -77,7 +77,7 @@ jobs:
             --allowedTools "Bash,Read,Write,Edit" \
             -p "$(cat .github/prompts/daily-post.md)" 2>&1 | tee post.log
           EXIT=${PIPESTATUS[0]}
-          if grep -qiE "hit your limit|quota.*exceeded|rate limit|5-hour limit|usage limit" post.log; then
+          if grep -qiE "hit your (Sonnet |Opus |Haiku |Pro )?limit|quota.*exceeded|5-hour limit|usage limit" post.log; then
             echo "::warning::Claude quota hit — post will retry in next window"
             exit 0
           fi

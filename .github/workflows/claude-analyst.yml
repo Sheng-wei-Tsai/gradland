@@ -79,7 +79,7 @@ jobs:
           OPUS_EXIT=${PIPESTATUS[0]}
 
           sed -i 's/\x1b\[[0-9;]*[mGKHFJSTsu]//g' opus.log
-          if grep -qiE "hit your limit|resets.*utc|credit balance is too low|quota.*exceeded|rate limit|5-hour limit|usage limit reached|claude ai usage limit|try again.{0,30}(hour|later)" opus.log; then
+          if grep -qiE "hit your (Sonnet |Opus |Haiku |Pro )?limit|resets.*utc|credit balance is too low|quota.*exceeded|rate limit|5-hour limit|usage limit reached|claude ai usage limit|try again.{0,30}(hour|later)" opus.log; then
             echo "quota_hit=true" >> "$GITHUB_OUTPUT"
             # Parse reset time for step summary
             RAW=$(grep -oiE "resets [0-9]{1,2}:[0-9]{2} ?(am|pm)" opus.log 2>/dev/null | head -1)

@@ -184,7 +184,7 @@ jobs:
             --allowedTools "Bash,Read,Write,Edit,Glob,Grep" \
             -p "$(cat .github/prompts/analyst.md)" 2>&1 | tee opus.log
           sed -i 's/\x1b\[[0-9;]*[mGKHFJSTsu]//g' opus.log
-          if grep -qiE "hit your limit|resets.*utc|credit balance is too low|insufficient credits?|quota.*exceeded|billing.*hard limit|usage limit reached|rate limit(ed)?|5-hour limit|claude ai usage limit|try again.{0,30}(hour|later)" opus.log; then
+          if grep -qiE "hit your (Sonnet |Opus |Haiku |Pro )?limit|resets.*utc|credit balance is too low|insufficient credits?|quota.*exceeded|billing.*hard limit|usage limit reached|rate limit(ed)?|5-hour limit|claude ai usage limit|try again.{0,30}(hour|later)" opus.log; then
             echo "quota_exhausted=true" >> "$GITHUB_OUTPUT"
             echo "::warning::Opus quota exhausted during analysis."
           else
@@ -331,7 +331,7 @@ jobs:
           echo "exit_code=${SONNET_EXIT}" >> "$GITHUB_OUTPUT"
 
           sed -i 's/\x1b\[[0-9;]*[mGKHFJSTsu]//g' sonnet.log
-          if grep -qiE "hit your limit|resets.*utc|credit balance is too low|insufficient credits?|quota.*exceeded|billing.*hard limit|usage limit reached|rate limit(ed)?|5-hour limit|claude ai usage limit|try again.{0,30}(hour|later)" sonnet.log; then
+          if grep -qiE "hit your (Sonnet |Opus |Haiku |Pro )?limit|resets.*utc|credit balance is too low|insufficient credits?|quota.*exceeded|billing.*hard limit|usage limit reached|rate limit(ed)?|5-hour limit|claude ai usage limit|try again.{0,30}(hour|later)" sonnet.log; then
             echo "quota_exhausted=true"  >> "$GITHUB_OUTPUT"
             echo "succeeded=false"       >> "$GITHUB_OUTPUT"
             echo "::warning::Sonnet quota exhausted."
