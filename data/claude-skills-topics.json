@@ -5,12 +5,18 @@
     "shortLabel": "/help",
     "category": "slash-commands",
     "tier": 1,
-    "position": { "x": 120, "y": 80 },
+    "position": {
+      "x": 120,
+      "y": 80
+    },
     "prerequisites": [],
     "docsUrl": "https://code.claude.com/docs/en/slash-commands",
     "terminalExpected": "/help",
     "xpReward": 20,
-    "videoIds": [],
+    "videoIds": [
+      "ntDIxaeo3Wg",
+      "yS7X6MT5UVw"
+    ],
     "prompt": "Explain /help: every slash command listed inline, when to use it before searching docs."
   },
   {
@@ -19,12 +25,20 @@
     "shortLabel": "/init",
     "category": "memory",
     "tier": 1,
-    "position": { "x": 320, "y": 80 },
-    "prerequisites": ["help-command"],
+    "position": {
+      "x": 320,
+      "y": 80
+    },
+    "prerequisites": [
+      "help-command"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/memory",
     "terminalExpected": "/init",
     "xpReward": 30,
-    "videoIds": [],
+    "videoIds": [
+      "i_OHQH4-M2Y",
+      "ntDIxaeo3Wg"
+    ],
     "prompt": "Explain /init: what files it scans, what gets written to CLAUDE.md, how to refine."
   },
   {
@@ -33,12 +47,20 @@
     "shortLabel": "/clear",
     "category": "slash-commands",
     "tier": 1,
-    "position": { "x": 520, "y": 80 },
-    "prerequisites": ["help-command"],
+    "position": {
+      "x": 520,
+      "y": 80
+    },
+    "prerequisites": [
+      "help-command"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/slash-commands",
     "terminalExpected": "/clear",
     "xpReward": 20,
-    "videoIds": [],
+    "videoIds": [
+      "zxMjOqM7DFs",
+      "ntDIxaeo3Wg"
+    ],
     "prompt": "Explain /clear: when to start fresh vs continue, what state persists vs resets."
   },
   {
@@ -47,12 +69,20 @@
     "shortLabel": "/login",
     "category": "slash-commands",
     "tier": 1,
-    "position": { "x": 720, "y": 80 },
-    "prerequisites": ["help-command"],
+    "position": {
+      "x": 720,
+      "y": 80
+    },
+    "prerequisites": [
+      "help-command"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/overview",
     "terminalExpected": "/login",
     "xpReward": 20,
-    "videoIds": [],
+    "videoIds": [
+      "ntDIxaeo3Wg",
+      "eMZmDH3T2bY"
+    ],
     "prompt": "Explain /login: OAuth flow, switching accounts, troubleshooting auth issues."
   },
   {
@@ -61,12 +91,20 @@
     "shortLabel": "/cost",
     "category": "slash-commands",
     "tier": 1,
-    "position": { "x": 920, "y": 80 },
-    "prerequisites": ["help-command"],
+    "position": {
+      "x": 920,
+      "y": 80
+    },
+    "prerequisites": [
+      "help-command"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/slash-commands",
     "terminalExpected": "/cost",
     "xpReward": 20,
-    "videoIds": [],
+    "videoIds": [
+      "ntDIxaeo3Wg",
+      "qYqIhX9hTQk"
+    ],
     "prompt": "Explain /cost: input/output tokens, cache reads, reading the breakdown, cost-down tips."
   },
   {
@@ -75,12 +113,20 @@
     "shortLabel": "/model",
     "category": "slash-commands",
     "tier": 2,
-    "position": { "x": 120, "y": 320 },
-    "prerequisites": ["cost-token-spend"],
+    "position": {
+      "x": 120,
+      "y": 320
+    },
+    "prerequisites": [
+      "cost-token-spend"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/slash-commands",
     "terminalExpected": "/model",
     "xpReward": 30,
-    "videoIds": [],
+    "videoIds": [
+      "ujHXnlSVheI",
+      "ntDIxaeo3Wg"
+    ],
     "prompt": "Explain /model: when to switch up to Opus, down to Haiku, caching interaction."
   },
   {
@@ -89,12 +135,20 @@
     "shortLabel": "/compact",
     "category": "slash-commands",
     "tier": 2,
-    "position": { "x": 320, "y": 320 },
-    "prerequisites": ["clear-fresh-context"],
+    "position": {
+      "x": 320,
+      "y": 320
+    },
+    "prerequisites": [
+      "clear-fresh-context"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/slash-commands",
     "terminalExpected": "/compact",
     "xpReward": 30,
-    "videoIds": [],
+    "videoIds": [
+      "ntDIxaeo3Wg",
+      "eMZmDH3T2bY"
+    ],
     "prompt": "Explain /compact: summarisation, auto-compact trigger, manual use case."
   },
   {
@@ -103,12 +157,20 @@
     "shortLabel": "/resume",
     "category": "slash-commands",
     "tier": 2,
-    "position": { "x": 520, "y": 320 },
-    "prerequisites": ["clear-fresh-context"],
+    "position": {
+      "x": 520,
+      "y": 320
+    },
+    "prerequisites": [
+      "clear-fresh-context"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/slash-commands",
     "terminalExpected": "/resume",
     "xpReward": 20,
-    "videoIds": [],
+    "videoIds": [
+      "z9rdrNrkvDY",
+      "ntDIxaeo3Wg"
+    ],
     "prompt": "Explain /resume: session storage, picking from list, when --resume beats re-priming."
   },
   {
@@ -117,12 +179,20 @@
     "shortLabel": "/config",
     "category": "settings",
     "tier": 2,
-    "position": { "x": 720, "y": 320 },
-    "prerequisites": ["model-switch"],
+    "position": {
+      "x": 720,
+      "y": 320
+    },
+    "prerequisites": [
+      "model-switch"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/settings",
     "terminalExpected": "/config",
     "xpReward": 30,
-    "videoIds": [],
+    "videoIds": [
+      "ujHXnlSVheI",
+      "ntDIxaeo3Wg"
+    ],
     "prompt": "Explain /config: theme, model, autoCompactThreshold, statusLine, what matters most."
   },
   {
@@ -131,12 +201,20 @@
     "shortLabel": "Styles",
     "category": "settings",
     "tier": 2,
-    "position": { "x": 920, "y": 320 },
-    "prerequisites": ["config-tune-claude-code"],
+    "position": {
+      "x": 920,
+      "y": 320
+    },
+    "prerequisites": [
+      "config-tune-claude-code"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/settings",
     "terminalExpected": "outputStyle",
     "xpReward": 30,
-    "videoIds": [],
+    "videoIds": [
+      "ntDIxaeo3Wg",
+      "uogzSxOw4LU"
+    ],
     "prompt": "Explain output styles: presets, custom styles, switching mid-session."
   },
   {
@@ -145,12 +223,20 @@
     "shortLabel": "Status",
     "category": "settings",
     "tier": 2,
-    "position": { "x": 1120, "y": 320 },
-    "prerequisites": ["config-tune-claude-code"],
+    "position": {
+      "x": 1120,
+      "y": 320
+    },
+    "prerequisites": [
+      "config-tune-claude-code"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/settings",
     "terminalExpected": "statusLine",
     "xpReward": 40,
-    "videoIds": [],
+    "videoIds": [
+      "O_z9vDLgvoY",
+      "eMZmDH3T2bY"
+    ],
     "prompt": "Explain statusLine in settings.json: shell command shape, useful info, /statusline-setup."
   },
   {
@@ -159,12 +245,20 @@
     "shortLabel": "Plan",
     "category": "shortcuts",
     "tier": 2,
-    "position": { "x": 1320, "y": 320 },
-    "prerequisites": ["help-command"],
+    "position": {
+      "x": 1320,
+      "y": 320
+    },
+    "prerequisites": [
+      "help-command"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/overview",
     "terminalExpected": "Shift+Tab",
     "xpReward": 30,
-    "videoIds": [],
+    "videoIds": [
+      "FoRIj5qcslg",
+      "ntDIxaeo3Wg"
+    ],
     "prompt": "Explain plan mode: what it blocks, when to enter, ExitPlanMode, plan-review-implement workflow."
   },
   {
@@ -173,12 +267,20 @@
     "shortLabel": "Esc Esc",
     "category": "shortcuts",
     "tier": 2,
-    "position": { "x": 1520, "y": 320 },
-    "prerequisites": ["help-command"],
+    "position": {
+      "x": 1520,
+      "y": 320
+    },
+    "prerequisites": [
+      "help-command"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/overview",
     "terminalExpected": "Esc Esc",
     "xpReward": 20,
-    "videoIds": [],
+    "videoIds": [
+      "3nnw06bY4mM",
+      "ntDIxaeo3Wg"
+    ],
     "prompt": "Explain double-Esc, single Esc, Ctrl+C — interrupt semantics."
   },
   {
@@ -187,12 +289,20 @@
     "shortLabel": "/ultrathink",
     "category": "slash-commands",
     "tier": 3,
-    "position": { "x": 120, "y": 600 },
-    "prerequisites": ["model-switch"],
+    "position": {
+      "x": 120,
+      "y": 600
+    },
+    "prerequisites": [
+      "model-switch"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/slash-commands",
     "terminalExpected": "/ultrathink",
     "xpReward": 50,
-    "videoIds": [],
+    "videoIds": [
+      "36WNkTSFKQw",
+      "bqJzIWAEn40"
+    ],
     "prompt": "Explain /ultrathink (extended thinking): when it pays off vs wastes tokens, concrete workflow."
   },
   {
@@ -201,12 +311,20 @@
     "shortLabel": "/loop",
     "category": "slash-commands",
     "tier": 3,
-    "position": { "x": 320, "y": 600 },
-    "prerequisites": ["resume-conversation"],
+    "position": {
+      "x": 320,
+      "y": 600
+    },
+    "prerequisites": [
+      "resume-conversation"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/slash-commands",
     "terminalExpected": "/loop 5m /check-deploy",
     "xpReward": 50,
-    "videoIds": [],
+    "videoIds": [
+      "pWZh37iRnDA",
+      "7JKTLLW856I"
+    ],
     "prompt": "Explain /loop: scheduling, fixed vs dynamic modes, polling-loop example."
   },
   {
@@ -215,12 +333,20 @@
     "shortLabel": "/schedule",
     "category": "slash-commands",
     "tier": 3,
-    "position": { "x": 520, "y": 600 },
-    "prerequisites": ["loop-recurring-prompts"],
+    "position": {
+      "x": 520,
+      "y": 600
+    },
+    "prerequisites": [
+      "loop-recurring-prompts"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/slash-commands",
     "terminalExpected": "/schedule",
     "xpReward": 50,
-    "videoIds": [],
+    "videoIds": [
+      "qYqIhX9hTQk",
+      "eMZmDH3T2bY"
+    ],
     "prompt": "Explain /schedule: cron syntax for routines, vs /loop, nightly PR triage example."
   },
   {
@@ -229,12 +355,20 @@
     "shortLabel": "/agent",
     "category": "slash-commands",
     "tier": 3,
-    "position": { "x": 720, "y": 600 },
-    "prerequisites": ["compact-conversation"],
+    "position": {
+      "x": 720,
+      "y": 600
+    },
+    "prerequisites": [
+      "compact-conversation"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/subagents",
     "terminalExpected": "/agent",
     "xpReward": 50,
-    "videoIds": [],
+    "videoIds": [
+      "gHB4JFG9i3k",
+      "XTWb5oEfqdY"
+    ],
     "prompt": "Explain subagents: when to fan out, parallel calls, isolation, Explore vs Plan agents."
   },
   {
@@ -243,12 +377,20 @@
     "shortLabel": "PreHook",
     "category": "hooks",
     "tier": 3,
-    "position": { "x": 920, "y": 600 },
-    "prerequisites": ["config-tune-claude-code"],
+    "position": {
+      "x": 920,
+      "y": 600
+    },
+    "prerequisites": [
+      "config-tune-claude-code"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/hooks",
     "terminalExpected": "PreToolUse",
     "xpReward": 60,
-    "videoIds": [],
+    "videoIds": [
+      "-CHa30dlGvI",
+      "wADob457JXk"
+    ],
     "prompt": "Explain PreToolUse hooks: blocking destructive Bash, adding env vars, JSON contract."
   },
   {
@@ -257,12 +399,20 @@
     "shortLabel": "PostHook",
     "category": "hooks",
     "tier": 3,
-    "position": { "x": 1120, "y": 600 },
-    "prerequisites": ["hooks-pretool-block"],
+    "position": {
+      "x": 1120,
+      "y": 600
+    },
+    "prerequisites": [
+      "hooks-pretool-block"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/hooks",
     "terminalExpected": "PostToolUse",
     "xpReward": 60,
-    "videoIds": [],
+    "videoIds": [
+      "ntDIxaeo3Wg",
+      "qYqIhX9hTQk"
+    ],
     "prompt": "Explain PostToolUse hooks: format-on-save, lint after Edit, feed warnings back."
   },
   {
@@ -271,12 +421,20 @@
     "shortLabel": "UPHook",
     "category": "hooks",
     "tier": 3,
-    "position": { "x": 1320, "y": 600 },
-    "prerequisites": ["hooks-pretool-block"],
+    "position": {
+      "x": 1320,
+      "y": 600
+    },
+    "prerequisites": [
+      "hooks-pretool-block"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/hooks",
     "terminalExpected": "UserPromptSubmit",
     "xpReward": 60,
-    "videoIds": [],
+    "videoIds": [
+      "ujHXnlSVheI",
+      "ntDIxaeo3Wg"
+    ],
     "prompt": "Explain UserPromptSubmit: when it fires, attaching context, not bloating prompts."
   },
   {
@@ -285,12 +443,20 @@
     "shortLabel": "@imports",
     "category": "memory",
     "tier": 3,
-    "position": { "x": 1520, "y": 600 },
-    "prerequisites": ["init-claudemd"],
+    "position": {
+      "x": 1520,
+      "y": 600
+    },
+    "prerequisites": [
+      "init-claudemd"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/memory",
     "terminalExpected": "@AGENTS.md",
     "xpReward": 40,
-    "videoIds": [],
+    "videoIds": [
+      "ntDIxaeo3Wg",
+      "qYqIhX9hTQk"
+    ],
     "prompt": "Explain CLAUDE.md tiers (project/user/parent), @imports, keeping memory tight."
   },
   {
@@ -299,12 +465,20 @@
     "shortLabel": "Perms",
     "category": "settings",
     "tier": 3,
-    "position": { "x": 1720, "y": 600 },
-    "prerequisites": ["config-tune-claude-code"],
+    "position": {
+      "x": 1720,
+      "y": 600
+    },
+    "prerequisites": [
+      "config-tune-claude-code"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/settings",
     "terminalExpected": "settings.json",
     "xpReward": 50,
-    "videoIds": [],
+    "videoIds": [
+      "ntDIxaeo3Wg",
+      "bqJzIWAEn40"
+    ],
     "prompt": "Explain settings.json permissions: allow/deny lists, scoping, /fewer-permission-prompts."
   },
   {
@@ -313,12 +487,20 @@
     "shortLabel": "MCP",
     "category": "mcp",
     "tier": 4,
-    "position": { "x": 120, "y": 880 },
-    "prerequisites": ["settings-permissions-allowlist"],
+    "position": {
+      "x": 120,
+      "y": 880
+    },
+    "prerequisites": [
+      "settings-permissions-allowlist"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/mcp",
     "terminalExpected": "claude mcp add",
     "xpReward": 70,
-    "videoIds": [],
+    "videoIds": [
+      "X7lgIa6guKg",
+      "uogzSxOw4LU"
+    ],
     "prompt": "Explain MCP: server concept, claude mcp add, .mcp.json, real example."
   },
   {
@@ -327,12 +509,20 @@
     "shortLabel": "Agents",
     "category": "subagents",
     "tier": 4,
-    "position": { "x": 320, "y": 880 },
-    "prerequisites": ["agent-subagent-dispatch"],
+    "position": {
+      "x": 320,
+      "y": 880
+    },
+    "prerequisites": [
+      "agent-subagent-dispatch"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/subagents",
     "terminalExpected": "Agent",
     "xpReward": 60,
-    "videoIds": [],
+    "videoIds": [
+      "DNGxMX7ym44",
+      "uogzSxOw4LU"
+    ],
     "prompt": "When to spawn parallel subagents, agent frontmatter, Explore agent specifics."
   },
   {
@@ -341,12 +531,20 @@
     "shortLabel": "Skills",
     "category": "skills",
     "tier": 4,
-    "position": { "x": 520, "y": 880 },
-    "prerequisites": ["claudemd-memory-imports"],
+    "position": {
+      "x": 520,
+      "y": 880
+    },
+    "prerequisites": [
+      "claudemd-memory-imports"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/skills",
     "terminalExpected": "Skill",
     "xpReward": 60,
-    "videoIds": [],
+    "videoIds": [
+      "O_z9vDLgvoY",
+      "thxXGxYIwUI"
+    ],
     "prompt": "Explain skills: SKILL.md frontmatter, allowed-tools, skill vs CLAUDE.md note."
   },
   {
@@ -355,12 +553,20 @@
     "shortLabel": "Plugins",
     "category": "plugins",
     "tier": 4,
-    "position": { "x": 720, "y": 880 },
-    "prerequisites": ["mcp-add-server"],
+    "position": {
+      "x": 720,
+      "y": 880
+    },
+    "prerequisites": [
+      "mcp-add-server"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/plugins",
     "terminalExpected": "/plugin",
     "xpReward": 50,
-    "videoIds": [],
+    "videoIds": [
+      "sBF3UumkL4Y",
+      "_lBG5h3AY50"
+    ],
     "prompt": "Explain plugins: /plugin marketplace add, scopes, bundle contents, real example."
   },
   {
@@ -369,12 +575,20 @@
     "shortLabel": "SDK",
     "category": "sdk",
     "tier": 4,
-    "position": { "x": 920, "y": 880 },
-    "prerequisites": ["agent-subagent-dispatch"],
+    "position": {
+      "x": 920,
+      "y": 880
+    },
+    "prerequisites": [
+      "agent-subagent-dispatch"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/sdk",
     "terminalExpected": "ClaudeCode",
     "xpReward": 50,
-    "videoIds": [],
+    "videoIds": [
+      "ChaQ_tZDBFg",
+      "TqC1qOfiVcQ"
+    ],
     "prompt": "Explain Claude Code SDK: install, Query API, streaming, vs Anthropic SDK."
   },
   {
@@ -383,12 +597,20 @@
     "shortLabel": "-p",
     "category": "cli",
     "tier": 4,
-    "position": { "x": 1120, "y": 880 },
-    "prerequisites": ["sdk-basics"],
+    "position": {
+      "x": 1120,
+      "y": 880
+    },
+    "prerequisites": [
+      "sdk-basics"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/headless",
     "terminalExpected": "claude -p",
     "xpReward": 50,
-    "videoIds": [],
+    "videoIds": [
+      "ujHXnlSVheI",
+      "3HVH2Iuplqo"
+    ],
     "prompt": "Explain headless: claude -p, --output-format json, scripting, --append-system-prompt."
   },
   {
@@ -397,12 +619,20 @@
     "shortLabel": "Worktree",
     "category": "workflow",
     "tier": 4,
-    "position": { "x": 1320, "y": 880 },
-    "prerequisites": ["resume-conversation"],
+    "position": {
+      "x": 1320,
+      "y": 880
+    },
+    "prerequisites": [
+      "resume-conversation"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/overview",
     "terminalExpected": "git worktree add",
     "xpReward": 50,
-    "videoIds": [],
+    "videoIds": [
+      "_bTawUNpWcI",
+      "yv8VZpov8bk"
+    ],
     "prompt": "Explain git worktrees for Claude Code: isolating sessions, avoiding step-on, real flow."
   },
   {
@@ -411,12 +641,20 @@
     "shortLabel": "Image",
     "category": "workflow",
     "tier": 4,
-    "position": { "x": 1520, "y": 880 },
-    "prerequisites": ["help-command"],
+    "position": {
+      "x": 1520,
+      "y": 880
+    },
+    "prerequisites": [
+      "help-command"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/overview",
     "terminalExpected": "Cmd+V",
     "xpReward": 30,
-    "videoIds": [],
+    "videoIds": [
+      "M4cmrdoUKxI",
+      "3HVH2Iuplqo"
+    ],
     "prompt": "Explain image input: paste/attach, when vision pays off, limits."
   },
   {
@@ -425,12 +663,20 @@
     "shortLabel": "AutoCompact",
     "category": "settings",
     "tier": 4,
-    "position": { "x": 1720, "y": 880 },
-    "prerequisites": ["compact-conversation"],
+    "position": {
+      "x": 1720,
+      "y": 880
+    },
+    "prerequisites": [
+      "compact-conversation"
+    ],
     "docsUrl": "https://code.claude.com/docs/en/settings",
     "terminalExpected": "autoCompactThreshold",
     "xpReward": 40,
-    "videoIds": [],
+    "videoIds": [
+      "QzEck41pueY",
+      "I1EGbrH5Xdk"
+    ],
     "prompt": "Explain autoCompactThreshold: default, when to lower, interaction with /compact."
   }
 ]

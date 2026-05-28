@@ -111,3 +111,10 @@ drop trigger if exists claude_code_lesson_progress_after_write on claude_code_le
 create trigger claude_code_lesson_progress_after_write
   after insert or update on claude_code_lesson_progress
   for each row execute function update_claude_code_user_stats();
+
+-- The trigger function is SECURITY DEFINER but should NOT be callable as a
+-- PostgREST RPC by anon or authenticated. Revoke direct EXECUTE — triggers
+-- continue to fire because they run as the table owner regardless of grants.
+revoke execute on function public.update_claude_code_user_stats() from public;
+revoke execute on function public.update_claude_code_user_stats() from anon;
+revoke execute on function public.update_claude_code_user_stats() from authenticated;
