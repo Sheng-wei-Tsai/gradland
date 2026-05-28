@@ -17,6 +17,7 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
+import { validateMermaidSyntax } from './mermaid-validate';
 
 const ROOT = path.resolve(process.cwd(), 'content');
 const SOURCES = ['posts', 'digests', 'githot', 'ai-news', 'visa-news', 'career-edge', 'diagrams'] as const;
@@ -115,7 +116,9 @@ function walk(dir: string): string[] {
     .map(f => path.join(dir, f));
 }
 
-function main() {
+async function main() {
+  // First pass: cheap checks.
+  const diagramTargets: Array<{ file: string; code: string }> = [];
   for (const src of SOURCES) {
     const dir = path.join(ROOT, src);
     const files = walk(dir);
@@ -132,6 +135,19 @@ function main() {
       checkFrontmatter(file, parsed.data);
       checkMermaid(file, parsed.data);
       checkBareJsxTags(file, parsed.content);
+      if (typeof parsed.data.mermaid === 'string') {
+        diagramTargets.push({ file, code: parsed.data.mermaid });
+      }
+    }
+  }
+
+  // Second pass: actually parse each Mermaid block through the same parser
+  // the browser uses. Slower (boots jsdom + mermaid once) but catches real
+  // syntax errors before they reach /learn/diagrams as red error boxes.
+  for (const { file, code } of diagramTargets) {
+    const check = await validateMermaidSyntax(code);
+    if (!check.ok) {
+      issues.push({ file, rule: 'mermaid.parse', message: `Mermaid won't render: ${check.error}` });
     }
   }
 
@@ -158,4 +174,7 @@ function main() {
   process.exit(1);
 }
 
-main();
+main().catch(err => {
+  console.error('Content validator crashed:', err);
+  process.exit(2);
+});

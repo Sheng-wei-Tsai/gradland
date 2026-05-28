@@ -5,11 +5,11 @@ topic: "Databases"
 difficulty: "intermediate"
 mermaid: |
   flowchart TD
-    App[Application]
-    R[Shard Router\nhash(user_id) % 3]
-    S0[(Shard 0\nuser_id 0–33%)]
-    S1[(Shard 1\nuser_id 33–66%)]
-    S2[(Shard 2\nuser_id 66–100%)]
+    App["Application"]
+    R["Shard Router<br/>hash(user_id) mod 3"]
+    S0[("Shard 0<br/>user_id 0–33")]
+    S1[("Shard 1<br/>user_id 33–66")]
+    S2[("Shard 2<br/>user_id 66–100")]
     App --> R
     R --> S0
     R --> S1

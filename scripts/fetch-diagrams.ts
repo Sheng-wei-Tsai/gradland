@@ -7,6 +7,7 @@ import fs from 'fs';
 import path from 'path';
 import { execFileSync } from 'child_process';
 import { claudeMessage, ClaudeQuotaError } from './llm-claude';
+import { validateMermaidSyntax } from './mermaid-validate';
 
 const OUT_DIR = path.join(process.cwd(), 'content', 'diagrams');
 const COUNT   = 4;
@@ -103,9 +104,30 @@ async function generateExcerpt(t: typeof TOPIC_POOL[0]): Promise<string> {
   });
 }
 
-function validateMermaid(code: string): boolean {
+function startsWithKnownType(code: string): boolean {
   const t = code.trim();
   return t.startsWith('flowchart') || t.startsWith('sequenceDiagram') || t.startsWith('graph ');
+}
+
+/**
+ * Replace the most common LLM mistakes the parser would otherwise reject:
+ *   - "\n" inside labels → "<br/>" (renderer turns "\n" into literal text)
+ *   - bare parens inside square-bracket labels → wrap label in double quotes
+ *     (e.g. `A[hash(user_id)]` → `A["hash(user_id)"]`)
+ *   - bare "%" inside square-bracket labels → wrap label in double quotes
+ *     (Mermaid treats lines starting with "%%" as comments; safe to quote)
+ */
+function autoFixMermaid(code: string): string {
+  // Don't touch text inside already-quoted labels.
+  return code
+    // \n → <br/> only when between square brackets (label region)
+    .replace(/\[([^\]\n]*)\\n([^\]\n]*)\]/g, '[$1<br/>$2]')
+    // Wrap unquoted labels containing ( ) or % in double quotes
+    .replace(/(\b[A-Za-z][A-Za-z0-9]*)\[([^\]"][^\]]*[()%][^\]]*)\]/g, (_m, id, label) => {
+      const trimmed = label.trim();
+      if (trimmed.startsWith('"')) return `${id}[${label}]`;
+      return `${id}["${trimmed.replace(/"/g, '\\"')}"]`;
+    });
 }
 
 async function run() {
@@ -128,10 +150,16 @@ async function run() {
     try {
       console.log(`  generating: ${t.title}`);
       const raw     = await generateMermaid(t);
-      const mermaid = raw.trim().replace(/^```[a-z]*\n?/i, '').replace(/\n?```$/, '').trim();
+      const stripped = raw.trim().replace(/^```[a-z]*\n?/i, '').replace(/\n?```$/, '').trim();
+      const mermaid = autoFixMermaid(stripped);
 
-      if (!validateMermaid(mermaid)) {
-        console.warn(`  invalid Mermaid for "${t.title}" — skip`);
+      if (!startsWithKnownType(mermaid)) {
+        console.warn(`  ${t.title}: doesn't start with a known diagram type — skip`);
+        continue;
+      }
+      const check = await validateMermaidSyntax(mermaid);
+      if (!check.ok) {
+        console.warn(`  ${t.title}: mermaid.parse rejected — ${check.error} — skip`);
         continue;
       }
 
