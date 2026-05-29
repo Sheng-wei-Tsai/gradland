@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 
 interface VideoMeta {
@@ -85,9 +86,7 @@ export default function VideoDeepDive({ videoIds }: Props) {
             >
               <div style={{ position: 'relative', width: '100%', paddingTop: '56.25%', background: '#1a1a1a' }}>
                 {v.thumbnail ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={v.thumbnail} alt={v.title ?? v.id}
-                    style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <Image src={v.thumbnail} alt={v.title ?? v.id} fill sizes="(max-width: 640px) 50vw, 25vw" style={{ objectFit: 'cover' }} />
                 ) : (
                   <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888' }}>
                     📺
