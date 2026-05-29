@@ -44,7 +44,7 @@ jobs:
     timeout-minutes: 60
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           # Works for both triggers — falls back to main if base_branch not provided
           ref: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.base_branch || inputs.base_branch || 'main' }}
@@ -88,7 +88,7 @@ jobs:
             echo "tg_msg="                       >> "$GITHUB_OUTPUT"
           fi
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
 
