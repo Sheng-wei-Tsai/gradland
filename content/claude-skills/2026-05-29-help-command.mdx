@@ -1,0 +1,53 @@
+---
+title: "/help — See every slash command in one place"
+date: "2026-05-29"
+excerpt: "You'll learn how to discover and use every slash command available in Claude Code, from /fast for speed to /loop for automation. This matters because knowing your tools helps you structure complex tasks more efficiently and lets you customize your workflow to match how you think."
+tags: ["Claude Code", "AI Workflow", "slash-commands"]
+topics: ["/help", "slash-commands"]
+coverEmoji: "🌳"
+category: "slash-commands"
+short_label: "/help"
+tier: 1
+position:
+  x: 120
+  y: 80
+prerequisites: []
+docs_url: "https://code.claude.com/docs/en/slash-commands"
+xp_reward: 20
+video_ids:
+  - ntDIxaeo3Wg
+  - yS7X6MT5UVw
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: /help — See every slash command in one place'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: '/help'
+  successOutput: '✓ Recognised: /help
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"What is the primary purpose of the /help command in Claude Code?","options":["A) Display all available slash commands and their descriptions inline","B) Open the Claude Code documentation website in your browser","C) Generate documentation for your project's codebase","D) Create a troubleshooting guide for common errors"],"answer":0,"explanation":"/help is a built-in command that lists every slash command available in one place with descriptions of when to use each, eliminating the need to search external docs. It's your quick reference for the full command palette."},{"q":"When should you use /schedule instead of /loop?","options":["A) When you need a task to run multiple times in quick succession","B) When you want a recurring remote agent to execute on a fixed cron schedule, persisting across sessions","C) When you want to pause and resume a long-running operation","D) When you need to repeat a command until a condition is met"],"answer":1,"explanation":"/schedule creates durable remote agents that run on a cron schedule and survive session restarts, while /loop runs a prompt on an interval within the current session only. Use /schedule for production automation that needs to persist."},{"q":"What is the key difference between /loop with an interval versus /loop without one?","options":["A) With an interval repeats on a fixed schedule; without repeats only once","B) With an interval waits for completion before repeating; without repeats in parallel threads","C) With an interval repeats on a fixed schedule; without lets Claude self-pace iterations dynamically","D) With an interval requires explicit user approval; without runs fully autonomous"],"answer":2,"explanation":"/loop with an interval (e.g., /loop 5m) repeats on a fixed schedule; /loop without an interval lets Claude self-pace the iterations, sleeping only as long as needed between runs. Self-paced is better for variable-duration tasks."}]
+---
+## What it does
+
+`/help` displays every available slash command and skill in one compact list, right in your Claude Code terminal. Each command shows its short description and what it does, so you can quickly find the right tool without hunting through documentation. This includes all the built-in slash commands (like `/loop`, `/fast`, `/config`) plus any project-specific skills (like `/run`, `/verify`, `/code-review`).
+
+## When to use it
+
+Use `/help` when you're onboarding to a new codebase and want to see what automation or verification tools are already wired up. Use it when you half-remember a command but can't quite recall its name — it's faster than digging through docs. Use it to explore what's available before asking Claude what it can do. The list is searchable by name and description, so you can mentally scan it while you're thinking about your next move.
+
+It's especially useful in projects with custom skills — the list will show you domain-specific commands that the team has built (resume analyzer, visa tracker, etc.). That context matters: once you see `/verify` is available, you know you can ask "let's verify this works" and Claude will use the right tool without you having to explain what verification means in your codebase.
+
+## Try it yourself
+
+Open the Claude Code terminal and type `/help` to see the full list. Scan it for any command you weren't aware of, then try running one that sounds relevant to your current task. You'll see the output appear inline, so you don't lose context while exploring.
+
+## Gotchas
+
+**The list is specific to your setup.** If a skill requires special permissions or configuration (like database access), it may not appear unless you've enabled it. Similarly, if your project hasn't wired up `/run` or `/verify`, those won't show up — they're only available if the project has defined them in its configuration.
+
+**Skills depend on available tools.** Some commands may show in `/help` but error if the underlying tool isn't accessible — this usually means permissions, not a broken command. For example, `/security-review` needs `git` access to diff the current branch; `/loop` needs permission to schedule background tasks. Check the permission prompt if a command you saw in `/help` doesn't work.
+
+**Custom skills vary by project.** `/help` shows you what *this* project has, not all skills available across Claude Code. When you move between projects, re-run `/help` to see what's new. This is a feature: the list stays short because it only shows relevant tools.
+
+**The list can be long.** If your project has many skills or you have many built-in commands available, `/help` output might be a few screens. Use your terminal's search (Ctrl+F or Cmd+F) to find what you need by keyword.
