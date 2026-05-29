@@ -1,0 +1,57 @@
+---
+title: "/init — Generate CLAUDE.md in one command"
+date: "2026-05-29"
+excerpt: "You'll learn how to instantly generate a comprehensive CLAUDE.md with codebase documentation, project rules, and AI-friendly guidelines. This matters because having clear, centralized instructions lets Claude Code agents and your team collaborate faster while staying aligned on architecture, security, and development practices."
+tags: ["Claude Code", "AI Workflow", "memory"]
+topics: ["/init", "memory"]
+coverEmoji: "🌳"
+category: "memory"
+short_label: "/init"
+tier: 1
+position:
+  x: 320
+  y: 80
+prerequisites:
+  - help-command
+docs_url: "https://code.claude.com/docs/en/memory"
+xp_reward: 30
+video_ids:
+  - i_OHQH4-M2Y
+  - ntDIxaeo3Wg
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: /init — Generate CLAUDE.md in one command'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: '/init'
+  successOutput: '✓ Recognised: /init
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"When you run /init, what codebase artifacts does it scan to auto-generate CLAUDE.md?","options":["package.json, tsconfig.json, project directory structure, and existing README/docs","Only git commit history from the past 30 days","All .ts and .tsx files to extract inline JSDoc comments","The Vercel deployment config and environment variables"],"answer":0,"explanation":"The /init command analyzes project metadata files and structure to understand the tech stack, language settings, and directory layout. It does not parse commit history or code comments, nor does it extract deployment config."},{"q":"What is the primary value of CLAUDE.md once /init creates it?","options":["It provides binding instructions for all AI agents and developers working on the codebase, eliminating the need to repeat guidance","It automatically runs linting and formatting on every file save","It replaces the need for a README.md and serves as the only project documentation","It tracks all team members and enforces code review approvals before commits"],"answer":0,"explanation":"CLAUDE.md is a single source of truth that tells all AI agents and humans the codebase conventions, security rules, and tech decisions. It is not an automation tool, documentation replacement, or access control system."},{"q":"After /init generates CLAUDE.md, how should you treat the file?","options":["Lock it and never edit it—run /init again whenever the project changes","Use the generated scaffold as a starting point, then add project-specific rules, team conventions, and keep it in sync with real architecture changes","Delete it immediately and write CLAUDE.md from scratch without using /init","Run /init daily to auto-update it, similar to a package-lock.json refresh"],"answer":1,"explanation":"The /init output is a foundation, not a finished product. You refine it with team-specific security rules, decision justifications, and architecture notes. It is not auto-refreshed and should not be re-generated routinely unless the project fundamentally changes."}]
+---
+## What it does
+
+`/init` scans your codebase and generates a `CLAUDE.md` file — a living instruction manual for every developer (and every AI agent) who touches your project. It reads your project structure, package dependencies, ESLint/TypeScript config, environment variables, GitHub Actions workflows, database schemas, and git history to reverse-engineer your tech stack and established conventions. It then writes a structured guide covering your architecture, non-negotiable rules (auth patterns, security checks, rate limiting), styling rules, commit conventions, and anti-patterns to avoid.
+
+The resulting `CLAUDE.md` lives in your repo root and becomes the canonical source of truth. When you (or an AI) run Claude Code in that directory, the entire guide is automatically loaded into context, so every decision respects your project's rules without needing to ask or explain them each time.
+
+## When to use it
+
+Run `/init` when:
+- **Starting a new project** — lets you document your stack and conventions before you write a single line of feature code
+- **Onboarding a new developer or AI agent** — they can read the entire ruleset in one place instead of piecing together patterns from code review feedback
+- **Refreshing stale docs** — your codebase has drifted from old README notes; `/init` re-scans and regenerates
+- **Standardizing across a team** — you want consistency in how all your projects document themselves
+
+You don't need to run it every day. Once per quarter is typical, or whenever your stack or conventions shift significantly (new framework version, new security rule, new design system).
+
+## Try it yourself
+
+Move to your project directory and invoke `/init`, then review the generated `CLAUDE.md`. The file will be quite long — skim the section headings first to understand the structure, then dive into the areas most relevant to your work (auth patterns, database rules, component architecture). If the generated output misses something important or gets something wrong, edit the file directly; it's just Markdown. CI can enforce that it stays current by comparing it against git history.
+
+## Gotchas
+
+- **The output is a starting point, not finished docs.** It reverse-engineers conventions from code, but it can't know your reasoning, priorities, or non-obvious constraints. Read it and flesh it out with sections like "Why we chose X over Y" or "Known limitations we accept."
+- **Secrets in your codebase will be read.** If you have `.env` files or comments that reference API keys, make sure they're `.gitignore`d before running `/init`. The generated `CLAUDE.md` is meant to be committed, so never let it contain real secrets.
+- **It reflects what you do, not what you *should* do.** If your code violates your own stated rules, `/init` might codify the violation. Before committing the output, sanity-check that the rules match your intent.
+- **It doesn't generate tests or examples.** It documents structure and rules, not how to build features. Pair it with a `DESIGN.md` (component inventory, design tokens, interaction patterns) for a complete onboarding package.
