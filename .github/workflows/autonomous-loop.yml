@@ -46,7 +46,7 @@ jobs:
     timeout-minutes: 90
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -124,7 +124,7 @@ jobs:
           git config user.name "Gradland Autonomous Agent"
           git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         if: |
           steps.quota_guard.outputs.skip == 'false' &&
           steps.pr_guard.outputs.skip == 'false' &&

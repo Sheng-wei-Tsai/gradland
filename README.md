@@ -111,7 +111,7 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
 STRIPE_PRICE_ID=                     # recurring price ID for the Pro plan
 
 # App
-NEXT_PUBLIC_APP_URL=https://yourapp.vercel.app
+NEXT_PUBLIC_APP_URL=https://gradland.au   # production canonical URL (localhost for dev)
 ```
 
 ### Apply Database Migrations
