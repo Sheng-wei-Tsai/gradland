@@ -1893,3 +1893,12 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 
 ### Accessibility (WCAG 2.1 AA — §12.4)
 - [x] Fix four a11y violations in petcho components: (1) remove `outline: 'none'` from `TamaBtn` inline style at `components/petcho/PetchoSection.tsx:73` so the global `*:focus-visible` rule applies; (2) add `aria-label={label}` to the `<button>` in `TamaBtn` (line 57) — currently labelled only by "A"/"B"/"C" key code; (3) add `aria-label` and `aria-pressed={soundOn}` to sound toggle button at line 326; (4) add `role="button"`, `tabIndex={0}`, and `onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handlePet(); } }}` to the CLI screen `<div>` at line 294; (5) add `aria-label="Your pet's name"` to the `<input>` at `components/petcho/PetCreator.tsx:85` [a11y] ✅ 2026-05-29
+
+---
+
+## 🛡 Daily Analyst Findings — 2026-05-29 (supplement 10)
+
+> Supplement scan — `components/claude-skills/SkillTree.tsx` SVG lesson nodes have `onClick` for mouse navigation but zero keyboard accessibility, violating WCAG 2.1 SC 2.1.1 (Keyboard) and SC 4.1.2 (Name, Role, Value). The `<svg role="img">` wrapper also suppresses all children from the accessibility tree, so screen readers cannot discover any individual nodes. The fix: remove `role="img"` from the SVG (keep `aria-label`), add `aria-hidden="true"` to decorative tier-guide rows and prerequisite lines, and give each lesson `<g>` `role="button"`, `tabIndex`, `aria-label`, `aria-disabled`, `onKeyDown`, and a focus-ring `<circle>` shown via `globals.css` `.skill-node:focus-visible .focus-ring { visibility: visible }`.
+
+### Accessibility (WCAG 2.1 AA — §12.4)
+- [x] Make SkillTree SVG lesson nodes keyboard and screen-reader accessible in `components/claude-skills/SkillTree.tsx` — (1) remove `role="img"` from `<svg>` so interactive children are exposed to the accessibility tree; (2) add `aria-hidden="true"` to tier-guide `<g>` elements and prerequisite `<line>` elements (decorative); (3) add `role="button"`, `tabIndex={isInteractive ? 0 : -1}`, `aria-label` (lesson name + XP + state), `aria-disabled` for locked nodes, and `onKeyDown` Enter/Space handler to each lesson `<g>`; (4) add a `<circle className="focus-ring">` inside each node rendered via `.skill-node:focus-visible .focus-ring { visibility: visible }` in `globals.css` — same WCAG SC 2.1.1 + SC 4.1.2 pattern as PetchoSection CLI screen div (supplement 9, commit 5b419eb) [a11y] ✅ 2026-05-29

@@ -105,12 +105,11 @@ export default function SkillTree({ lessons }: Props) {
       <svg
         viewBox={`0 0 ${CANVAS_WIDTH} ${maxY}`}
         style={{ display: 'block', width: '100%', minWidth: '900px', height: maxY * 0.55 }}
-        role="img"
         aria-label="Claude Code skill tree"
       >
-        {/* Tier guide rows */}
+        {/* Tier guide rows — decorative */}
         {TIER_Y.map((y, i) => (
-          <g key={y}>
+          <g key={y} aria-hidden="true">
             <line x1={0} y1={y + NODE_RADIUS + 60} x2={CANVAS_WIDTH} y2={y + NODE_RADIUS + 60} stroke="var(--parchment)" strokeDasharray="4 8" strokeWidth={1} />
             <text x={16} y={y + 6} fontSize={13} fontWeight={700} fill="var(--text-muted)" style={{ letterSpacing: '0.08em', textTransform: 'uppercase' }}>
               {TIER_LABELS[i]}
@@ -134,6 +133,7 @@ export default function SkillTree({ lessons }: Props) {
                 stroke={done ? 'var(--jade)' : 'var(--parchment)'}
                 strokeWidth={done ? 2.5 : 1.6}
                 strokeDasharray={done ? '0' : '6 6'}
+                aria-hidden="true"
               />
             );
           });
@@ -144,13 +144,27 @@ export default function SkillTree({ lessons }: Props) {
           const pos = positions.get(lesson.slug)!;
           const state = nodeState(lesson);
           const colors = stateColors(state);
+          const isInteractive = state !== 'locked';
+          const nodeLabel = `${lesson.shortLabel ?? lesson.title}${typeof lesson.xpReward === 'number' ? `, ${lesson.xpReward} XP` : ''}${state === 'done' ? ', completed' : state === 'locked' ? ', locked' : ''}`;
           return (
             <g
               key={lesson.slug}
               transform={`translate(${pos.x}, ${pos.y})`}
-              onClick={() => state !== 'locked' && router.push(`/learn/claude-skills/${lesson.slug}`)}
+              onClick={() => isInteractive && router.push(`/learn/claude-skills/${lesson.slug}`)}
+              onKeyDown={(e) => {
+                if ((e.key === 'Enter' || e.key === ' ') && isInteractive) {
+                  e.preventDefault();
+                  router.push(`/learn/claude-skills/${lesson.slug}`);
+                }
+              }}
+              tabIndex={isInteractive ? 0 : -1}
+              role="button"
+              aria-label={nodeLabel}
+              aria-disabled={state === 'locked' ? true : undefined}
+              className="skill-node"
               style={{ cursor: state === 'locked' ? 'not-allowed' : 'pointer' }}
             >
+              <circle className="focus-ring" r={NODE_RADIUS + 6} fill="none" stroke="var(--terracotta)" strokeWidth={3} style={{ visibility: 'hidden' }} />
               <circle r={NODE_RADIUS} fill={colors.fill} stroke={colors.stroke} strokeWidth={3} />
               <text x={0} y={-4} textAnchor="middle" fontSize={11} fontWeight={700} fill={colors.text}>
                 {(lesson.shortLabel ?? lesson.title).slice(0, 12)}
