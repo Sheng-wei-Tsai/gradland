@@ -109,7 +109,7 @@ function LoginPageInner() {
             onClick={() => handleOAuth('github')}
             disabled={anyOauthLoading}
             style={{
-              width: '100%', background: oauthLoading === 'github' ? '#555' : '#24292e',
+              width: '100%', background: oauthLoading === 'github' ? 'var(--parchment)' : '#24292e',
               color: 'white', border: 'none', borderRadius: '12px',
               padding: '0.75rem 1.5rem', fontSize: '0.92rem', fontWeight: 600,
               cursor: anyOauthLoading ? 'not-allowed' : 'pointer',
