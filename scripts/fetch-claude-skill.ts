@@ -106,28 +106,35 @@ async function generateExcerpt(t: PoolEntry): Promise<string> {
 }
 
 async function generateQuiz(t: PoolEntry): Promise<QuizQuestion[]> {
+  // The shared claudeJSON helper looks for a single balanced {...} object,
+  // so we wrap the array in `{ "quiz": [...] }` instead of returning a bare
+  // array. This survives any preamble/postscript the model adds.
   const system = `You write multi-choice quiz questions for software developers learning Claude Code.
-Output ONLY valid JSON — an array of exactly 3 objects with this exact shape:
-[
-  { "q": "...", "options": ["A","B","C","D"], "answer": 0, "explanation": "..." }
-]
+Output ONLY a valid JSON object with this exact shape:
+{
+  "quiz": [
+    { "q": "...", "options": ["A","B","C","D"], "answer": 0, "explanation": "..." },
+    { "q": "...", "options": ["A","B","C","D"], "answer": 0, "explanation": "..." },
+    { "q": "...", "options": ["A","B","C","D"], "answer": 0, "explanation": "..." }
+  ]
+}
 Rules:
-- 4 options per question.
+- Exactly 3 questions, 4 options each.
 - "answer" is the 0-based index of the correct option.
 - Distractors must be plausible — no joke options.
 - Explanations 1–2 sentences. No markdown.
 - Cover different angles per question (mechanics, when-to-use, common mistakes).`;
 
-  const fallback: QuizQuestion[] = [];
-  const result = await claudeJSON<{ quiz: QuizQuestion[] } | QuizQuestion[]>({
+  const fallback: { quiz: QuizQuestion[] } = { quiz: [] };
+  const result = await claudeJSON<{ quiz: QuizQuestion[] }>({
     model: 'claude-haiku-4-5-20251001',
     system,
-    prompt: `Topic: ${t.title}\nContext: ${t.prompt}\nReturn the JSON array now (no surrounding prose).`,
-    fallback: { quiz: fallback },
-    retries: 2,
+    prompt: `Topic: ${t.title}\nContext: ${t.prompt}\nReturn the JSON object now (no surrounding prose, no code fences).`,
+    fallback,
+    retries: 3,
   });
 
-  const arr = Array.isArray(result) ? result : (result as { quiz: QuizQuestion[] }).quiz;
+  const arr = result.quiz;
   if (!Array.isArray(arr) || arr.length === 0) {
     throw new Error('Quiz generator returned empty/invalid JSON.');
   }
