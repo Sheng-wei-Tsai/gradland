@@ -1829,3 +1829,12 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 
 ### Style (dark-mode breakage — SkillTree.tsx hardcoded hex)
 - [x] Replace hardcoded light-mode hex in `components/claude-skills/SkillTree.tsx` — gradient background `linear-gradient(180deg, #fffef6 0%, #fdf5e4 100%)` at line 99 uses `--warm-white`/`--cream` light-mode literals that stay light in dark mode; locked-node colours `fill:'#e8e0d0'`/`stroke:'#b8a988'`/`text:'#888272'` at line 33 don't adapt; tier-guide line `stroke="#e8d5a8"` at line 113 is `--parchment` hex literal; prerequisite dashed line `stroke:'#c9b794'` at line 133 doesn't adapt; locked badge `fill="#b8a988"` at line 168; Legend locked item `fill="#e8e0d0" stroke="#b8a988"` at line 191 — replace all with `var(--warm-white)`, `var(--cream)`, `var(--parchment)`, `var(--text-muted)` tokens following the established pattern from prior sweeps [style] ✅ 2026-05-29
+
+---
+
+## 🛡 Daily Analyst Findings — 2026-05-29 (supplement 4)
+
+> Supplement scan — `components/claude-skills/LessonShell.tsx` (added in commit `bb7c6ab`) contains two quality issues in the `persist()` function: (1) dead-code ternary at line 90 `attempts: (progress?.xp_earned ?? 0) > 0 ? 1 : 1` — both branches return `1`, making the condition completely dead; the `attempts` column always receives `1` on every upsert regardless of whether the user is retrying; (2) raw Supabase error message surfaced to users at line 94 `setSaveError(error.message)` — common Supabase client errors include "duplicate key value violates unique constraint" and similar internal strings; replace with a generic user-friendly message matching the pattern used in the API error-message sweeps of 2026-05-13.
+
+### Code Quality
+- [x] Fix dead-code ternary and raw error message in `components/claude-skills/LessonShell.tsx` — (1) replace `attempts: (progress?.xp_earned ?? 0) > 0 ? 1 : 1` at line 90 with `attempts: 1` (both branches are identical; removing dead code); (2) replace `setSaveError(error.message)` at line 94 with `setSaveError('Failed to save progress. Please try again.')` so users see a friendly message instead of raw Supabase internals (e.g. "duplicate key value violates unique constraint") [quality] ✅ 2026-05-29

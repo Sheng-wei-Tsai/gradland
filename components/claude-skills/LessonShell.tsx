@@ -87,11 +87,11 @@ export default function LessonShell({ slug, xpReward, terminalScenario, quiz, ch
         quiz_score:      quizScoreVal,
         quiz_total:      quizTotalVal,
         xp_earned:       xpEarned,
-        attempts:        (progress?.xp_earned ?? 0) > 0 ? 1 : 1,
+        attempts:        1,
       }, { onConflict: 'user_id,lesson_slug' });
 
     setSaving(false);
-    if (error) { setSaveError(error.message); return; }
+    if (error) { setSaveError('Failed to save progress. Please try again.'); return; }
 
     setProgress({
       terminal_passed: nextTerminal,
