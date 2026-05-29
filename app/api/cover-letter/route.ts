@@ -147,7 +147,7 @@ Write the cover letter now. 3-4 paragraphs, plain text only, no headers or bulle
         void sb.from('cover_letter_fragments_cache').upsert(
           { cache_key: cacheKey, cover_letter_text: fullText, updated_at: new Date().toISOString() },
           { onConflict: 'cache_key' },
-        );
+        ).then(({ error }) => { if (error) console.error('[cover-letter] cache upsert failed:', error.message); });
       }
     },
   });
