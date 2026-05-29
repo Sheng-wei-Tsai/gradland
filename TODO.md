@@ -358,6 +358,13 @@
 
 ## 🟢 Priority 5 — Polish
 
+### Mobile job-search consistency pass — `app/globals.css` + `app/jobs/page.tsx`
+- **What:** The mobile `/jobs` search panel accumulated TWO conflicting CSS systems in the same `@media (max-width:640px)` blocks — an early "soft search field" (1px border, no shadow, soft focus ring) and the final comic-ink panel (2px ink border, 3px offset shadow, press-in). Both `!important`, so they fight; `.search-panel` was redefined 3×, `.city-trigger__value`/`__caption` 2× each. Result: inconsistent, hard-to-maintain mobile search.
+- **Why:** AGENTS.md §1 — career tools are the core product; the job search is the flagship tool and must read as one coherent comic-ink system on mobile.
+- **Fix:** Collapse to ONE comic-ink system (remove dead soft rules), merge duplicate `.search-panel`/`.city-trigger__*` defs, keep iOS ≥16px zoom guard, + 3 real bugs: job-detail modal long-text/URL horizontal overflow (`overflow-wrap`), pagination buttons not full-width on mobile, font-size guard on the comic input box.
+- **Files:** `app/globals.css` (mobile job-search section ~2127–2405), no JSX change required.
+- **Effort:** S — ✅ Done 2026-05-29
+
 ### Traditional Chinese (zh-TW) — `features/i18n-zh-tw.md`
 - [x] `next-intl` installed, ~80 strings: nav, CTAs, onboarding, AU Insights key labels ✅ 2026-05-02
 - [x] Language toggle in Header (persists to localStorage) ✅ 2026-05-02

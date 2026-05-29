@@ -871,7 +871,7 @@ h3, h4 {
     position: sticky;
     top: 64px;            /* clears the sticky header (~60px) */
     z-index: 40;
-    border-radius: 0 0 14px 14px;
+    border-radius: 14px;
     margin-left: -1.5rem;
     margin-right: -1.5rem;
     padding-left: 1.5rem;
@@ -1997,6 +1997,10 @@ h3, h4 {
     overflow-y: auto;
     padding: 1.25rem 1.25rem 0.5rem;
     -webkit-overflow-scrolling: touch;
+    /* Long URLs / unbroken tokens in job descriptions must wrap, not push
+     * the modal sideways. */
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
   .job-detail-modal-actions {
@@ -2125,25 +2129,6 @@ h3, h4 {
 }
 
 @media (max-width: 640px) {
-  /* iOS Safari zooms on focus when font-size < 16px. Pin to 16px.
-   * Kill the brutalist 3px-3px-0 ink shadow + 2px parchment border —
-   * mobile reads as soft search field, not desktop card. */
-  .search-input-hero {
-    font-size: 16px !important;
-    padding: 0.8rem 0.9rem 0.8rem 2.5rem !important;
-    box-shadow: none !important;
-    border: 1px solid var(--parchment) !important;
-    background: var(--warm-white) !important;
-    border-radius: 12px !important;
-  }
-  .search-input-hero:focus {
-    border-color: var(--terracotta) !important;
-    box-shadow: 0 0 0 3px rgba(192,40,28,0.12) !important;
-  }
-
-  /* Sticky search panel had 1.4rem panel padding; reclaim ~12px of vertical space. */
-  .search-panel { padding: 1rem; gap: 0.7rem; }
-
   /* Vertical-stack mobile search hero (column-direction beats inline TSX flex
    * styles regardless of cascade). Standalone Search button hidden — iOS
    * keyboard handles search via enterKeyHint="search" + inputMode="search". */
@@ -2161,31 +2146,16 @@ h3, h4 {
   .search-go-btn { display: none !important; }
 
   /* CitySelector mobile: compact chip — icon + city + chevron only.
-   * The "LOCATION" caption is hidden so the chip reads as data, not a form
-   * label. Matches the visual weight of the keyword input above. */
+   * The visual box (border / shadow / radius / fill) is shared with the
+   * keyword input below via the single comic-ink rule; here we own only the
+   * internal flex layout. Caption + value + chevron + icon styling all live
+   * in the comic-ink block — no competing "soft" definition. */
   .city-trigger {
-    width: 100% !important;
-    min-width: 0 !important;
-    padding: 0.7rem 0.9rem !important;
-    border-radius: 12px !important;
-    background: var(--warm-white) !important;
-    border: 1px solid var(--parchment) !important;
     display: flex !important;
     align-items: center !important;
     gap: 0.55rem !important;
-    box-shadow: none !important;
   }
-  .city-trigger__caption { display: none !important; }
   .city-trigger__label { gap: 0 !important; }
-  .city-trigger__value {
-    font-size: 0.95rem !important;
-    font-weight: 600 !important;
-    color: var(--text-primary) !important;
-    letter-spacing: 0 !important;
-    margin: 0 !important;
-  }
-  .city-trigger__icon { flex-shrink: 0; }
-  .city-trigger__chevron { margin-left: auto; }
 
   /* ── Western comic × Chinese ink — mobile search panel ── *
    * Thick ink borders + chunky offset shadow = the gradland signature
@@ -2196,9 +2166,13 @@ h3, h4 {
   .search-panel {
     padding: 0.85rem !important;
     gap: 0.55rem !important;
+    box-shadow: none;
+    border-width: 1px;
   }
 
-  /* Equal box for input + city chip. */
+  /* Equal stamped-panel box for keyword input + city chip — the single
+   * source of truth for their mobile look. font-size:16px also defuses iOS
+   * Safari focus-zoom (triggers below 16px). */
   .search-input-hero,
   .city-trigger {
     width: 100% !important;
@@ -2209,6 +2183,7 @@ h3, h4 {
     border: 2px solid var(--ink) !important;
     background: var(--warm-white) !important;
     box-shadow: 3px 3px 0 var(--ink) !important;
+    font-size: 16px !important;
     font-weight: 600 !important;
     transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease !important;
   }
@@ -2289,8 +2264,6 @@ h3, h4 {
     border: 1px solid var(--ink) !important;
   }
   #job-keywords-hint { display: none !important; }
-  /* Lighten panel chrome — was 3D card fighting the page surface. */
-  .search-panel { box-shadow: none; border-width: 1px; }
 
   /* Scroll-driven shrink: collapse panel padding once user scrolls past 32px.
    * Supported in Safari 17.4+ / Chrome 115+. Older browsers see the static
@@ -2374,6 +2347,10 @@ h3, h4 {
 
   /* Desktop expand toggle is a duplicate on mobile (View Details modal opens full text). */
   .job-read-more-btn { display: none !important; }
+
+  /* Prev/Next split the row equally instead of two small centred pills with
+   * dead space between — comfortable 44px+ thumb targets. */
+  .job-pagination-btn { flex: 1; }
 
   /* Back-to-top floating button — sits above bottom-nav (which lives at bottom 1.2rem + ~64px tall). */
   .back-to-top {
