@@ -88,6 +88,7 @@ export default function PetCreator({ onDone }: Props) {
             maxLength={16}
             onChange={e => setName(e.target.value)}
             placeholder="Hopper"
+            aria-label="Your pet's name"
             style={{
               border: '2px solid var(--ink)',
               borderRadius: '4px',

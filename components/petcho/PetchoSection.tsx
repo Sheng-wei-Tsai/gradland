@@ -58,6 +58,7 @@ function TamaBtn({
         onMouseDown={down} onMouseUp={up}
         onTouchStart={down} onTouchEnd={up}
         disabled={disabled}
+        aria-label={label}
         style={{
           width: '46px', height: '46px', borderRadius: '50%',
           background: disabled
@@ -70,7 +71,6 @@ function TamaBtn({
           border:     `2.5px solid ${urgent ? '#8A1010' : '#7A2210'}`,
           boxShadow:  pressed || disabled ? '0 1px 0 #4A1005' : `0 5px 0 #5A1808, inset 0 1px 0 rgba(255,200,150,0.22)`,
           cursor:     disabled ? 'not-allowed' : 'pointer',
-          outline:    'none',
           transform:  pressed ? 'translateY(4px)' : 'none',
           transition: 'transform 0.05s, box-shadow 0.05s',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -292,7 +292,11 @@ export default function PetchoSection() {
 
         {/* CLI screen */}
         <div
+          role="button"
+          tabIndex={0}
           onClick={handlePet}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handlePet(); } }}
+          aria-label={`Interact with ${pet.name}`}
           style={{
             outline:      pulseBorder
               ? `2px solid ${isCritical ? '#FF3333' : habitatTheme.primary}`
@@ -325,7 +329,8 @@ export default function PetchoSection() {
           </div>
           <button
             onClick={() => setSoundOn(s => !s)}
-            title={soundOn ? 'Mute sounds' : 'Enable sounds'}
+            aria-label={soundOn ? 'Mute sounds' : 'Enable sounds'}
+            aria-pressed={!soundOn}
             style={{
               background: 'none', border: 'none', cursor: 'pointer',
               fontSize: '0.7rem', opacity: 0.5, padding: '0 2px',
