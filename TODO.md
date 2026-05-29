@@ -1857,3 +1857,12 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 
 ### Style (dark-mode breakage)
 - [x] Replace `color: '#888'` with `var(--text-muted)` in `components/claude-skills/VideoDeepDive.tsx:91` — the emoji placeholder rendered when a video has no thumbnail uses hardcoded grey that is invisible on the dark `#1a1a1a` placeholder background in dark mode; `var(--text-muted)` resolves to `#a09080` in dark mode (4.5:1+ contrast against `#1a1a1a`) and `#7a5030` in light mode; same substitution pattern as `StudySession.tsx` `#9ca3af` → `var(--text-muted)` (2026-05-08 supplement) [style] ✅ 2026-05-29
+
+---
+
+## 🛡 Daily Analyst Findings — 2026-05-29 (supplement 6)
+
+> Supplement scan — `lib/posts.ts` exports `getAllClaudeSkills()` and `getClaudeSkillBySlug()` for the new claude-skills feature with zero unit test coverage. `__tests__/lib/posts.test.ts` only tests `getAllPosts`/`getPostBySlug` (blog source). The claude-skills source type has additional frontmatter fields (`tier`, `xpReward`, `category`, `position`, `prerequisites`, `videoIds`, `shortLabel`, `terminalScenario`, `quiz`) parsed in `buildPost()` — a typo or wrong key mapping (e.g. `data.xp_reward` vs `data.xpReward`) would silently return `undefined` for every skill card's XP display and SkillTree node rendering. Same risk pattern that prompted `lib/diagrams.ts` tests (supplement 13 of 2026-05-16).
+
+### Tests
+- [x] Add Vitest tests for `getAllClaudeSkills()` and `getClaudeSkillBySlug()` in `__tests__/lib/posts.test.ts` — `getAllClaudeSkills()`: returns a non-empty array, every item has `source === 'claude-skills'` and required Post fields (`slug`/`title`/`date`/`excerpt`/`readingTime`/`content`), is sorted newest-first by date; claude-skills specific fields: at least one item has numeric `tier`, numeric `xpReward`, and non-empty `category`; `getClaudeSkillBySlug('2026-05-29-help-command')`: returns a Post with correct slug, source, `tier === 1`, `xpReward === 20`, `category === 'slash-commands'`, non-empty `terminalScenario`, non-empty `quiz` array with `q`/`options`/`answer`/`explanation` fields; `getClaudeSkillBySlug('nonexistent-slug')`: returns null; path traversal `getClaudeSkillBySlug('../../etc/passwd')`: returns null — mirrors the exact pattern from `lib/diagrams.test.ts` [tests] ✅ 2026-05-29
