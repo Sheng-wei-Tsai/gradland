@@ -87,6 +87,7 @@ export default function Quiz({ questions, onSubmit, locked, previousScore }: Pro
                   key={j}
                   onClick={() => !submitted && setSelected(prev => ({ ...prev, [i]: j }))}
                   disabled={submitted}
+                  aria-pressed={isSelected}
                   style={{
                     textAlign: 'left',
                     padding: '0.7rem 0.9rem',
