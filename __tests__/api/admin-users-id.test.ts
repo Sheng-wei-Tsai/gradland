@@ -3,7 +3,9 @@ import { NextRequest } from 'next/server';
 
 // ── Auth mock ──────────────────────────────────────────────────────────────────
 const mockRequireAdmin = vi.fn();
-const mockFrom = vi.fn();
+const mockServerFrom = vi.fn();
+const mockServiceFrom = vi.fn();
+const mockCreateSupabaseService = vi.fn();
 
 // Makes a thenable chain — every node can be awaited directly or chained further.
 // This mirrors Supabase's query builder where any step can be the final await.
@@ -24,7 +26,8 @@ function makeChain(resolved: unknown): Record<string, unknown> {
 
 vi.mock('@/lib/auth-server', () => ({
   requireAdmin:          mockRequireAdmin,
-  createSupabaseServer:  vi.fn().mockResolvedValue({ from: mockFrom }),
+  createSupabaseServer:  vi.fn().mockResolvedValue({ from: mockServerFrom }),
+  createSupabaseService: mockCreateSupabaseService,
 }));
 
 const { PATCH, DELETE } = await import('@/app/api/admin/users/[id]/route');
@@ -60,8 +63,10 @@ const PATCH_RESPONSE = {
 describe('PATCH /api/admin/users/[id]', () => {
   beforeEach(() => {
     mockRequireAdmin.mockReset();
-    mockFrom.mockReset();
-    mockFrom.mockImplementation(() => makeChain(PATCH_RESPONSE));
+    mockServiceFrom.mockReset();
+    mockCreateSupabaseService.mockReset();
+    mockCreateSupabaseService.mockReturnValue({ from: mockServiceFrom });
+    mockServiceFrom.mockImplementation(() => makeChain(PATCH_RESPONSE));
   });
 
   it('returns 400 when id is not a valid UUID', async () => {
@@ -116,14 +121,22 @@ describe('PATCH /api/admin/users/[id]', () => {
     const body = await res.json();
     expect(body.user).toBeDefined();
   });
+
+  it('uses service-role client (not cookie client) for the profiles UPDATE', async () => {
+    mockRequireAdmin.mockResolvedValue(ADMIN_USER);
+    await PATCH(makePatch(VALID_USER_UUID, { role: 'admin' }), makeParams(VALID_USER_UUID));
+    expect(mockCreateSupabaseService).toHaveBeenCalled();
+  });
 });
 
 // ── DELETE ─────────────────────────────────────────────────────────────────────
 describe('DELETE /api/admin/users/[id]', () => {
   beforeEach(() => {
     mockRequireAdmin.mockReset();
-    mockFrom.mockReset();
-    mockFrom.mockImplementation(() => makeChain({ error: null }));
+    mockServiceFrom.mockReset();
+    mockCreateSupabaseService.mockReset();
+    mockCreateSupabaseService.mockReturnValue({ from: mockServiceFrom });
+    mockServiceFrom.mockImplementation(() => makeChain({ error: null }));
   });
 
   it('returns 400 when id is not a valid UUID', async () => {
@@ -156,5 +169,11 @@ describe('DELETE /api/admin/users/[id]', () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.ok).toBe(true);
+  });
+
+  it('uses service-role client (not cookie client) for the profiles UPDATE', async () => {
+    mockRequireAdmin.mockResolvedValue({ id: VALID_ADMIN_UUID });
+    await DELETE(makeDelete(VALID_USER_UUID), makeParams(VALID_USER_UUID));
+    expect(mockCreateSupabaseService).toHaveBeenCalled();
   });
 });

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServer, requireAdmin } from '@/lib/auth-server';
+import { createSupabaseService, requireAdmin } from '@/lib/auth-server';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -16,7 +16,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
   }
 
-  const sb = await createSupabaseServer();
+  // Service role required — admin's session uid ≠ target user's id, so the
+  // cookie-based client is blocked by RLS ("Users can update own profile").
+  const sb = createSupabaseService();
   const { data, error } = await sb
     .from('profiles')
     .update({ role })
@@ -39,7 +41,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({ error: 'Cannot ban yourself' }, { status: 400 });
   }
 
-  const sb = await createSupabaseServer();
+  const sb = createSupabaseService();
   const { error: deleteError } = await sb.from('post_comments').delete().eq('user_id', id);
   if (deleteError) return NextResponse.json({ error: 'Failed to delete comments' }, { status: 500 });
 
