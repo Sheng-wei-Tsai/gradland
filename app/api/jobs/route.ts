@@ -10,6 +10,18 @@ function getIp(req: NextRequest): string {
       ?? 'unknown';
 }
 
+// Escape PostgreSQL ILIKE wildcards and strip PostgREST .or() syntax characters
+// (comma, parens) from user-supplied strings before interpolating into .or() clauses.
+// Commas and parens break out of the PostgREST OR parser, letting callers inject
+// arbitrary filter expressions (e.g. ?location=foo,id.is.null).
+function escapeOrSegment(s: string): string {
+  return s
+    .replace(/\\/g, '\\\\')
+    .replace(/%/g, '\\%')
+    .replace(/_/g, '\\_')
+    .replace(/[,()]/g, '');
+}
+
 const APP_ID          = process.env.ADZUNA_APP_ID;
 const APP_KEY         = process.env.ADZUNA_APP_KEY;
 const RAPIDAPI_KEY    = process.env.RAPIDAPI_KEY;
@@ -391,9 +403,10 @@ async function fetchScrapedJobs(location: string): Promise<AdzunaJob[]> {
     return [];
   }
   try {
-    const sb    = await createSupabaseServer();
-    const loc   = location.slice(0, 40);
-    const state = CITY_STATE[loc.toLowerCase()];
+    const sb     = await createSupabaseServer();
+    const rawLoc = location.slice(0, 40);
+    const state  = CITY_STATE[rawLoc.toLowerCase()];
+    const loc    = escapeOrSegment(rawLoc);
 
     // Match the selected city/state + catch-alls (remote + australia-wide).
     // Do NOT include other states — "Brisbane" must not return NSW/VIC/WA jobs.

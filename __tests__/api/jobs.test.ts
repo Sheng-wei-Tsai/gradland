@@ -165,4 +165,23 @@ describe('GET /api/jobs — AU tab', () => {
     expect(body.sources).toHaveProperty('scraped');
     expect(body.sources).toHaveProperty('jsearch');
   });
+
+  it('strips PostgREST .or() injection characters from location param before building filter', async () => {
+    resetChain([]);
+    await GET(makeReq({ location: 'Sydney,id.eq.foo' }));
+
+    // The .or() call must not contain the raw injection payload
+    const orArg: string = mockOr.mock.calls[0][0];
+    expect(orArg).not.toContain(',id.eq.foo');
+    expect(orArg).toContain('Sydney');
+  });
+
+  it('strips parentheses injection from location param', async () => {
+    resetChain([]);
+    await GET(makeReq({ location: 'Sydney(or(id.is.null))' }));
+
+    const orArg: string = mockOr.mock.calls[0][0];
+    expect(orArg).not.toContain('(or(');
+    expect(orArg).toContain('Sydney');
+  });
 });
