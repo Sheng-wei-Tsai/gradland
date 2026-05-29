@@ -121,6 +121,8 @@ export default function PetCreator({ onDone }: Props) {
               <button
                 key={i}
                 onClick={() => setColor(i)}
+                aria-label={PALETTE_LABELS[i]}
+                aria-pressed={color === i}
                 style={{
                   width: '56px', height: '56px',
                   background: hex,
@@ -132,7 +134,6 @@ export default function PetCreator({ onDone }: Props) {
                   outlineOffset: '2px',
                   transition: 'all 0.15s',
                 }}
-                title={PALETTE_LABELS[i]}
               />
             ))}
           </div>
@@ -160,6 +161,7 @@ export default function PetCreator({ onDone }: Props) {
               <button
                 key={p.id}
                 onClick={() => setPersonality(p.id)}
+                aria-pressed={personality === p.id}
                 style={{
                   display: 'flex', alignItems: 'center', gap: '0.75rem',
                   background: personality === p.id ? 'var(--parchment)' : 'var(--warm-white)',

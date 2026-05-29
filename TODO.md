@@ -1875,3 +1875,12 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 
 ### Accessibility (WCAG 2.1 AA — §12.4)
 - [x] Add `aria-pressed={isSelected}` to quiz option buttons in `components/claude-skills/Quiz.tsx` — the answer-option `<button>` elements in the `q.options.map` block at line ~107 have no `aria-pressed`; screen readers cannot determine which option is currently selected; add `aria-pressed={isSelected}` to each button, matching the `SalaryChecker.tsx:207-222` precedent; `disabled={submitted}` already handles the locked post-submit state, so no additional changes needed for the revealed correct/incorrect state (the ✓ and ✗ characters in the button text are announced by screen readers as "check mark" and "ballot x") [a11y] ✅ 2026-05-29
+
+---
+
+## 🛡 Daily Analyst Findings — 2026-05-29 (supplement 8)
+
+> Supplement scan — `components/petcho/PetCreator.tsx` has two WCAG 2.1 AA violations in its radio-style toggle buttons: (1) colour-swatch buttons at lines 120-136 have only a `title` attribute for their accessible name — `title` is not reliably announced by all screen readers and is not equivalent to `aria-label`; additionally, swatch buttons have no `aria-pressed` so the currently-selected colour is not programmatically determinable (SC 4.1.2). (2) Personality selection buttons at lines 159-182 act as mutually exclusive radio options but have no `aria-pressed` attribute — identical to the issue fixed in `Quiz.tsx` (supplement 7) and `SalaryChecker.tsx` (2026-05-25). Both fixes follow the same pattern: `aria-label={PALETTE_LABELS[i]}` + `aria-pressed={color === i}` for swatches; `aria-pressed={personality === p.id}` for personality buttons.
+
+### Accessibility (WCAG 2.1 AA — §12.4)
+- [x] Add `aria-label={PALETTE_LABELS[i]}` and `aria-pressed={color === i}` to colour-swatch buttons in `components/petcho/PetCreator.tsx:120-136`, and add `aria-pressed={personality === p.id}` to personality selection buttons at lines 159-182 — swatch buttons currently use only `title` (not reliable across all screen readers) with no pressed state; personality buttons have no state indicator; both match the radio-toggle pattern fixed in `SalaryChecker.tsx:207-222` and `Quiz.tsx:107` [a11y] ✅ 2026-05-29
