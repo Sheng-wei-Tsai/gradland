@@ -30,7 +30,7 @@ function stateColors(state: NodeState) {
   if (state === 'available') {
     return { fill: 'var(--warm-white)', stroke: 'var(--terracotta)', text: 'var(--brown-dark)', shadow: '0 4px 12px rgba(192,40,28,0.18)' };
   }
-  return { fill: '#e8e0d0', stroke: '#b8a988', text: '#888272', shadow: 'none' };
+  return { fill: 'var(--parchment)', stroke: 'var(--text-muted)', text: 'var(--text-muted)', shadow: 'none' };
 }
 
 export default function SkillTree({ lessons }: Props) {
@@ -96,7 +96,7 @@ export default function SkillTree({ lessons }: Props) {
       width: '100%',
       overflowX: 'auto',
       overflowY: 'hidden',
-      background: 'linear-gradient(180deg, #fffef6 0%, #fdf5e4 100%)',
+      background: 'linear-gradient(180deg, var(--warm-white) 0%, var(--cream) 100%)',
       border: 'var(--panel-border)',
       borderRadius: '14px',
       boxShadow: 'var(--panel-shadow)',
@@ -110,7 +110,7 @@ export default function SkillTree({ lessons }: Props) {
         {/* Tier guide rows */}
         {TIER_Y.map((y, i) => (
           <g key={y}>
-            <line x1={0} y1={y + NODE_RADIUS + 60} x2={CANVAS_WIDTH} y2={y + NODE_RADIUS + 60} stroke="#e8d5a8" strokeDasharray="4 8" strokeWidth={1} />
+            <line x1={0} y1={y + NODE_RADIUS + 60} x2={CANVAS_WIDTH} y2={y + NODE_RADIUS + 60} stroke="var(--parchment)" strokeDasharray="4 8" strokeWidth={1} />
             <text x={16} y={y + 6} fontSize={13} fontWeight={700} fill="var(--text-muted)" style={{ letterSpacing: '0.08em', textTransform: 'uppercase' }}>
               {TIER_LABELS[i]}
             </text>
@@ -130,7 +130,7 @@ export default function SkillTree({ lessons }: Props) {
                 key={`${prereqSlug}-${lesson.slug}`}
                 x1={from.x} y1={from.y + NODE_RADIUS / 2}
                 x2={to.x}   y2={to.y - NODE_RADIUS / 2}
-                stroke={done ? 'var(--jade)' : '#c9b794'}
+                stroke={done ? 'var(--jade)' : 'var(--parchment)'}
                 strokeWidth={done ? 2.5 : 1.6}
                 strokeDasharray={done ? '0' : '6 6'}
               />
@@ -165,7 +165,7 @@ export default function SkillTree({ lessons }: Props) {
               )}
               {state === 'locked' && (
                 <g transform={`translate(${NODE_RADIUS - 12}, ${-NODE_RADIUS + 12})`}>
-                  <circle r={11} fill="#b8a988" stroke="white" strokeWidth={2} />
+                  <circle r={11} fill="var(--text-muted)" stroke="white" strokeWidth={2} />
                   <text x={0} y={4} textAnchor="middle" fontSize={11} fill="white">🔒</text>
                 </g>
               )}
@@ -188,7 +188,7 @@ function Legend() {
       fontSize: '0.78rem', color: 'var(--text-muted)',
     }}>
       <LegendItem fill="var(--warm-white)" stroke="var(--terracotta)" label="Available" />
-      <LegendItem fill="#e8e0d0" stroke="#b8a988" label="Locked — finish prerequisite" />
+      <LegendItem fill="var(--parchment)" stroke="var(--text-muted)" label="Locked — finish prerequisite" />
       <LegendItem fill="var(--jade)" stroke="var(--brown-dark)" label="Done" />
       <span style={{ marginLeft: 'auto', fontStyle: 'italic' }}>
         Solid lines = path completed. Dashed = next step.

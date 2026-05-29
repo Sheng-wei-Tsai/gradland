@@ -129,10 +129,10 @@ function Skeleton() {
       borderRadius: '12px',
       overflow: 'hidden',
     }}>
-      <div style={{ width: '100%', paddingTop: '56.25%', background: '#e8d5a8' }} />
+      <div style={{ width: '100%', paddingTop: '56.25%', background: 'var(--parchment)' }} />
       <div style={{ padding: '0.7rem 0.85rem' }}>
-        <div style={{ height: '0.9rem', width: '80%', background: '#e8d5a8', borderRadius: '4px', marginBottom: '0.4rem' }} />
-        <div style={{ height: '0.7rem', width: '50%', background: '#e8d5a8', borderRadius: '4px' }} />
+        <div style={{ height: '0.9rem', width: '80%', background: 'var(--parchment)', borderRadius: '4px', marginBottom: '0.4rem' }} />
+        <div style={{ height: '0.7rem', width: '50%', background: 'var(--parchment)', borderRadius: '4px' }} />
       </div>
     </div>
   );

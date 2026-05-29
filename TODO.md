@@ -1820,3 +1820,12 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 - [x] Core Web Vitals green (Lighthouse ≥ 90) ✅ 2026-05-06
 - [x] TypeScript strict mode — no `any` without justification ✅ 2026-05-06
 - [x] Error boundary on every page ✅ 2026-05-02
+
+---
+
+## 🛡 Daily Analyst Findings — 2026-05-29 (supplement 3)
+
+> New claude-skills SkillTree component uses hardcoded light-mode hex in gradient background and locked-node colours — breaks dark mode.
+
+### Style (dark-mode breakage — SkillTree.tsx hardcoded hex)
+- [x] Replace hardcoded light-mode hex in `components/claude-skills/SkillTree.tsx` — gradient background `linear-gradient(180deg, #fffef6 0%, #fdf5e4 100%)` at line 99 uses `--warm-white`/`--cream` light-mode literals that stay light in dark mode; locked-node colours `fill:'#e8e0d0'`/`stroke:'#b8a988'`/`text:'#888272'` at line 33 don't adapt; tier-guide line `stroke="#e8d5a8"` at line 113 is `--parchment` hex literal; prerequisite dashed line `stroke:'#c9b794'` at line 133 doesn't adapt; locked badge `fill="#b8a988"` at line 168; Legend locked item `fill="#e8e0d0" stroke="#b8a988"` at line 191 — replace all with `var(--warm-white)`, `var(--cream)`, `var(--parchment)`, `var(--text-muted)` tokens following the established pattern from prior sweeps [style] ✅ 2026-05-29
