@@ -1779,6 +1779,13 @@
 ### Performance (raw `<img>` for allowlisted CDN host bypasses next/image)
 - [x] Replace the raw `<img src={v.thumbnail} alt={v.title ?? v.id} ...>` at `components/claude-skills/VideoDeepDive.tsx:88-90` with `<Image src={v.thumbnail} alt={v.title ?? v.id} fill style={{ objectFit: 'cover' }} sizes="(max-width: 640px) 50vw, 25vw" unoptimized={false} />` — the `// eslint-disable-next-line @next/next/no-img-element` is unnecessary because `i.ytimg.com` and `*.ytimg.com` are already in `next.config.ts:14-16` `remotePatterns`, so `<Image>` from `next/image` will work correctly. Currently each card eagerly downloads the full-resolution thumbnail JPEG (no lazy loading, no WebP conversion, no width/height reservation), and the grid renders 5-12 cards per topic page so this is the dominant LCP contributor on `/learn/claude-skills/*` lessons. The parent `<div>` at line 86 already has `position: relative; padding-top: 56.25%` so `<Image fill>` slots in cleanly. Same swap pattern as the `components/CompanyLogo.tsx` migration. Don't forget to add `import Image from 'next/image'` at the top alongside the existing `next/link` import [perf] ✅ 2026-05-29
 
+## 🛡 Daily Analyst Findings — 2026-05-29 (supplement 2)
+
+> Supplement scan — `app/api/cover-letter/route.ts:147-150` received a `.then(({ error }) => { if (error) console.error('[cover-letter] cache upsert failed:', error.message); })` guard in commit `...` (2026-05-28 quality fix) but `__tests__/api/cover-letter.test.ts` was never updated to assert the error path. The parallel fix in `resume-analyse` (commit `d2d794e`) DID add `it('logs console.error when insert returns a Supabase error')` using `mockInsertThen.mockImplementationOnce(cb => cb({ error: ... }))`. Without a regression test, a future refactor that drops or swallows the `.then()` handler would go undetected and silently break cache-failure observability for every paid user.
+
+### Tests (missing regression for cover-letter upsert error logging)
+- [x] Add `it('logs console.error when cover_letter_fragments_cache upsert errors')` to `__tests__/api/cover-letter.test.ts` — mock `mockUpsert` with a synchronous thenable `{ then: cb => cb({ error: { message: 'Schema mismatch' } }) }`, produce >100 chars via `makeStreamChunks(['A'.repeat(101)])` (the upsert branch is gated on `fullText.length > 100` at line 145), spy on `console.error`, call `await res.text()` to drain the stream, assert `errorSpy.toHaveBeenCalledWith('[cover-letter] cache upsert failed:', 'Schema mismatch')`; mirrors pattern from `__tests__/api/resume-analyse.test.ts:174-188` [tests] ✅ 2026-05-29
+
 ---
 
 ## 📊 Priority Rationale

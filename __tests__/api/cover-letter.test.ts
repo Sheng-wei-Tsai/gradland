@@ -217,5 +217,23 @@ describe('POST /api/cover-letter', () => {
         expect.stringMatching(/^cover-letter-fragment:atlassian:software-engineer$/),
       );
     });
+
+    it('logs console.error when cover_letter_fragments_cache upsert errors', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      // Synchronous thenable so the callback runs before res.text() returns
+      mockUpsert.mockImplementationOnce(() => ({
+        then: (cb: (r: { error: { message: string } }) => void) =>
+          cb({ error: { message: 'Schema mismatch' } }),
+      }));
+      // Must produce >100 chars to satisfy the `if (fullText.length > 100)` gate at line 145
+      mockCreate.mockResolvedValueOnce(makeStreamChunks(['A'.repeat(101)]));
+      const res = await POST(makePost(validBody));
+      await res.text();
+      expect(errorSpy).toHaveBeenCalledWith(
+        '[cover-letter] cache upsert failed:',
+        'Schema mismatch',
+      );
+      errorSpy.mockRestore();
+    });
   });
 });
