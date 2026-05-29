@@ -30,10 +30,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
   }
 
-  const name    = String(body.name    ?? '').slice(0, 80).trim();
-  const email   = String(body.email   ?? '').slice(0, 120).trim();
-  const topic   = String(body.topic   ?? 'general');
-  const message = String(body.message ?? '').slice(0, 4000).trim();
+  const name    = typeof body.name    === 'string' ? body.name.trim().slice(0, 80)     : '';
+  const email   = typeof body.email   === 'string' ? body.email.trim().slice(0, 120)   : '';
+  const topic   = typeof body.topic   === 'string' ? body.topic.trim()                 : 'general';
+  const message = typeof body.message === 'string' ? body.message.trim().slice(0, 4000) : '';
 
   if (!email || !EMAIL_RE.test(email)) {
     return NextResponse.json({ error: 'Please provide a valid email address.' }, { status: 400 });

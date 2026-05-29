@@ -12,7 +12,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
-  const content = String(body.content ?? '').trim();
+  const content = typeof body.content === 'string' ? body.content.trim().slice(0, 2000) : '';
   if (!content || content.length > 2000) {
     return NextResponse.json({ error: 'Invalid content' }, { status: 400 });
   }

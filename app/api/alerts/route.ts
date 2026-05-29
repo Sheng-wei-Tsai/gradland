@@ -25,8 +25,8 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
 
-  const keywords  = String(body.keywords  ?? '').trim().slice(0, 200);
-  const location  = String(body.location  ?? 'Brisbane').trim().slice(0, 100);
+  const keywords  = typeof body.keywords === 'string' ? body.keywords.trim().slice(0, 200)        : '';
+  const location  = typeof body.location === 'string' ? body.location.trim().slice(0, 100)        : 'Brisbane';
   const full_time = Boolean(body.full_time);
   const frequency = ['daily', 'weekly'].includes(body.frequency) ? body.frequency : 'weekly';
 

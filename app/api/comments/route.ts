@@ -32,8 +32,8 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
-  const slug      = String(body.post_slug ?? '').trim();
-  const content   = String(body.content   ?? '').trim();
+  const slug      = typeof body.post_slug === 'string' ? body.post_slug.trim().slice(0, 200)  : '';
+  const content   = typeof body.content   === 'string' ? body.content.trim().slice(0, 2000)  : '';
   const parent_id = body.parent_id ?? null;
 
   if (parent_id !== null && (typeof parent_id !== 'string' || !UUID_RE.test(parent_id))) {
