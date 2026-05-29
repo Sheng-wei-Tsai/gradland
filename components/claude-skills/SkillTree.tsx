@@ -44,6 +44,7 @@ export default function SkillTree({ lessons }: Props) {
       .from('claude_code_lesson_progress')
       .select('lesson_slug, terminal_passed, quiz_score, quiz_total')
       .eq('user_id', user.id)
+      .limit(200)
       .then(({ data }) => {
         const map: Record<string, ProgressRow> = {};
         (data ?? []).forEach(row => { map[row.lesson_slug] = row; });

@@ -88,7 +88,7 @@ export default function VideoDeepDive({ videoIds }: Props) {
                 {v.thumbnail ? (
                   <Image src={v.thumbnail} alt={v.title ?? v.id} fill sizes="(max-width: 640px) 50vw, 25vw" style={{ objectFit: 'cover' }} />
                 ) : (
-                  <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888' }}>
+                  <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
                     📺
                   </div>
                 )}

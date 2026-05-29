@@ -1838,3 +1838,15 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 
 ### Code Quality
 - [x] Fix dead-code ternary and raw error message in `components/claude-skills/LessonShell.tsx` — (1) replace `attempts: (progress?.xp_earned ?? 0) > 0 ? 1 : 1` at line 90 with `attempts: 1` (both branches are identical; removing dead code); (2) replace `setSaveError(error.message)` at line 94 with `setSaveError('Failed to save progress. Please try again.')` so users see a friendly message instead of raw Supabase internals (e.g. "duplicate key value violates unique constraint") [quality] ✅ 2026-05-29
+
+---
+
+## 🛡 Daily Analyst Findings — 2026-05-29 (supplement 5)
+
+> Supplement scan — two issues in the newly-added claude-skills components missed by the 2026-05-29 sweeps: (1) `components/claude-skills/SkillTree.tsx:44` fetches all `claude_code_lesson_progress` rows for a user with no `.limit()`, violating AGENTS §10.3 ("Always add `.limit(N)` — never run unbounded queries"); the supplement 17 sweep (2026-05-10) fixed identical unbounded `skill_progress` queries in `PathTracker.tsx`, `PathProgress.tsx`, and `dashboard/learn/page.tsx`, but SkillTree was added after those fixes; (2) `components/claude-skills/VideoDeepDive.tsx:91` uses `color: '#888'` (hardcoded grey) for the fallback emoji placeholder inside a thumbnail slot — `var(--text-muted)` adapts to dark mode while `#888` stays light-grey against the dark `#1a1a1a` thumbnail background, making the placeholder invisible in dark mode; the same `#888` → `var(--text-muted)` pattern was standardised across `StudySession.tsx` and `ClaudeCodeGuide.tsx` in prior sweeps.
+
+### Code Quality (AGENTS §10.3 — query hygiene)
+- [x] Add `.limit(200)` to unbounded `claude_code_lesson_progress` query in `components/claude-skills/SkillTree.tsx:44` — `.from('claude_code_lesson_progress').select(...).eq('user_id', user.id)` has no row cap; consistent with `.limit(100)` added to `skill_progress` in `PathTracker.tsx` and `PathProgress.tsx` (supplement 17); 200 is a generous ceiling for the skill tree (current lesson count is small; even at scale 200 covers multi-year activity) [quality] ✅ 2026-05-29
+
+### Style (dark-mode breakage)
+- [x] Replace `color: '#888'` with `var(--text-muted)` in `components/claude-skills/VideoDeepDive.tsx:91` — the emoji placeholder rendered when a video has no thumbnail uses hardcoded grey that is invisible on the dark `#1a1a1a` placeholder background in dark mode; `var(--text-muted)` resolves to `#a09080` in dark mode (4.5:1+ contrast against `#1a1a1a`) and `#7a5030` in light mode; same substitution pattern as `StudySession.tsx` `#9ca3af` → `var(--text-muted)` (2026-05-08 supplement) [style] ✅ 2026-05-29
