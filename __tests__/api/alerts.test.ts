@@ -86,6 +86,14 @@ describe('POST /api/alerts', () => {
     expect(body.error).toMatch(/keywords/i);
   });
 
+  it('returns 400 when keywords is an object (non-string typeof guard)', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
+    const res  = await POST(makeReq('POST', 'http://localhost/api/alerts', { keywords: {} }));
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/keywords/i);
+  });
+
   it('returns 201 with alert on success', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
     const res  = await POST(makeReq('POST', 'http://localhost/api/alerts', { keywords: 'software engineer', location: 'Melbourne' }));

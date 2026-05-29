@@ -1760,6 +1760,15 @@
 
 ---
 
+## 🛡 Daily Analyst Findings — 2026-05-29 (supplement 1)
+
+> Supplement scan — the 2026-05-28 quality fix that replaced `String(body.X ?? '')` with `typeof X === 'string' ? X.trim().slice(...) : ''` in `comments`, `comments/[id]`, `alerts`, and `contact` routes has no regression tests. A future refactor that reverts to `String()` coercion would silently store `'[object Object]'` in `post_comments.content`, `job_alerts.keywords`, and the admin contact email body. The guard is a one-line type check; the regression boundary is a one-assertion test per affected field.
+
+### Tests (non-string body field regression — typeof guard)
+- [x] Add non-string body field regression tests to `__tests__/api/comments.test.ts`, `__tests__/api/alerts.test.ts`, and `__tests__/api/contact.test.ts` — (1) `POST /api/comments` with `post_slug: {}` returns 400 (slug becomes `''`, fails `SLUG_RE`); (2) `POST /api/comments` with `content: {}` returns 400 (content becomes `''`, fails `!content`); (3) `PATCH /api/comments/[id]` with `content: {}` returns 400; (4) `POST /api/alerts` with `keywords: {}` returns 400 with `keywords` in error; (5) `POST /api/contact` with `email: {}` returns 400; (6) `POST /api/contact` with `message: {}` returns 400 — all six verify that a non-string value does NOT slip through as a truthy `'[object Object]'` string the way `String(body.X ?? '')` would have allowed [tests] ✅ 2026-05-29 — also fixed pre-existing broken tests: (a) `comments.test.ts` "returns 400 when content exceeds 2000 chars" × 2 (POST + PATCH) — `slice(0, 2000)` ran before `> 2000` check making it dead code; fixed route to validate raw content length before assignment; (b) `track.test.ts` "returns 200 ok:false when Supabase upsert throws" — route changed to return 500 (commit 63ad168) but test expected old 200 behavior; updated test description and assertion
+
+---
+
 ## 🛡 Daily Analyst Findings — 2026-05-29
 
 > Daily Opus scan — `npm audit` = 0 vulns; `tsc --noEmit` = clean; 48 API routes; 78 Vitest files. After yesterday's surface was already minimal, today's pass surfaced a critical correctness bug that has been hiding in plain sight behind mocked tests: the `/api/admin/users/[id]` PATCH + DELETE endpoints use the cookie-bound anon-key client (`createSupabaseServer`) to UPDATE the `profiles` table, but `supabase/schema.sql:profiles for update using (auth.uid() = id)` only allows users to update their OWN profile — there is no admin override RLS policy. Net effect in production: admin role promotions and bans on the `/admin/users` console silently no-op, returning 404 to the admin UI while leaving the row untouched. The Vitest suite mocks the Supabase client, so the bug never surfaces in CI. Secondary finding: the YouTube thumbnail `<img>` in `VideoDeepDive` was left with an `eslint-disable` for `no-img-element` even though `i.ytimg.com` is already allowlisted in `next.config.ts` `remotePatterns` — straightforward `<Image>` swap unlocks lazy loading + WebP + CLS reservation.

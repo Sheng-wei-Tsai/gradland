@@ -127,6 +127,22 @@ describe('POST /api/comments', () => {
     expect(res.status).toBe(400);
   });
 
+  it('returns 400 when post_slug is an object (non-string typeof guard)', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
+    const res = await POST(makeReq('POST', 'http://localhost/api/comments', {
+      post_slug: {}, content: 'hello world',
+    }));
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 400 when content is an object (non-string typeof guard)', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
+    const res = await POST(makeReq('POST', 'http://localhost/api/comments', {
+      post_slug: 'my-post', content: {},
+    }));
+    expect(res.status).toBe(400);
+  });
+
   it('returns 400 for unparseable request body', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
     const res = await POST(new NextRequest('http://localhost/api/comments', {
@@ -199,6 +215,12 @@ describe('PATCH /api/comments/[id]', () => {
   it('returns 400 when content exceeds 2000 chars', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
     const res = await PATCH(makePatch(CID, { content: 'a'.repeat(2001) }), makeParams(CID));
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 400 when content is an object (non-string typeof guard)', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'u1' } } });
+    const res = await PATCH(makePatch(CID, { content: {} }), makeParams(CID));
     expect(res.status).toBe(400);
   });
 

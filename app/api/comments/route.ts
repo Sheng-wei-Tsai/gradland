@@ -33,15 +33,16 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   const slug      = typeof body.post_slug === 'string' ? body.post_slug.trim().slice(0, 200)  : '';
-  const content   = typeof body.content   === 'string' ? body.content.trim().slice(0, 2000)  : '';
-  const parent_id = body.parent_id ?? null;
+  const rawContent = typeof body.content  === 'string' ? body.content.trim() : '';
+  const parent_id  = body.parent_id ?? null;
 
   if (parent_id !== null && (typeof parent_id !== 'string' || !UUID_RE.test(parent_id))) {
     return NextResponse.json({ error: 'Invalid parent_id' }, { status: 400 });
   }
 
-  if (!SLUG_RE.test(slug))            return NextResponse.json({ error: 'Invalid slug' },    { status: 400 });
-  if (!content || content.length > 2000) return NextResponse.json({ error: 'Invalid content' }, { status: 400 });
+  if (!SLUG_RE.test(slug))                        return NextResponse.json({ error: 'Invalid slug' },    { status: 400 });
+  if (!rawContent || rawContent.length > 2000)    return NextResponse.json({ error: 'Invalid content' }, { status: 400 });
+  const content = rawContent;
 
   const { data, error } = await sb
     .from('post_comments')

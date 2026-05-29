@@ -66,11 +66,21 @@ describe('POST /api/contact', () => {
     expect(res.status).toBe(400);
   });
 
+  it('returns 400 when email is an object (non-string typeof guard)', async () => {
+    const res = await POST(makePost({ ...VALID_BODY, email: {} }));
+    expect(res.status).toBe(400);
+  });
+
   it('returns 400 when message is too short (< 10 chars)', async () => {
     const res  = await POST(makePost({ ...VALID_BODY, message: 'Short' }));
     expect(res.status).toBe(400);
     const body = await res.json();
     expect(body.error).toMatch(/short/i);
+  });
+
+  it('returns 400 when message is an object (non-string typeof guard)', async () => {
+    const res = await POST(makePost({ ...VALID_BODY, message: {} }));
+    expect(res.status).toBe(400);
   });
 
   it('falls back to topic "general" for an unknown topic value', async () => {

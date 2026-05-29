@@ -81,14 +81,12 @@ describe('POST /api/track', () => {
     expect(res.status).toBe(429);
   });
 
-  it('returns 200 ok:false when Supabase upsert throws (silent error swallowing)', async () => {
+  it('returns 500 when Supabase upsert throws (surfaces to observability)', async () => {
     mockUpsert.mockRejectedValueOnce(new Error('connection refused'));
     const res = await POST(makeRequest({
       path: '/blog',
       sessionId: 'abcdef1234567890abcdef1234567891',
     }, '8.8.8.8'));
-    expect(res.status).toBe(200);
-    const body = await res.json();
-    expect(body.ok).toBe(false);
+    expect(res.status).toBe(500);
   });
 });
