@@ -68,7 +68,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true });
   } catch {
-    // Never surface errors to the client — tracking failures are silent
-    return NextResponse.json({ ok: false }, { status: 200 });
+    // Return 500 so Sentry/Vercel observability can surface the failure;
+    // the client fires-and-forgets so this is safe to ignore on the frontend.
+    return new NextResponse(null, { status: 500 });
   }
 }
