@@ -1,0 +1,63 @@
+---
+title: "/clear — Drop conversation context"
+date: "2026-05-30"
+excerpt: "You'll learn how to use /clear to reset your conversation context when starting independent work. This matters because it prevents token waste, ensures Claude approaches each task with a clean state, and isolates unrelated work within the same session."
+tags: ["Claude Code", "AI Workflow", "slash-commands"]
+topics: ["/clear", "slash-commands"]
+coverEmoji: "🌳"
+category: "slash-commands"
+short_label: "/clear"
+tier: 1
+position:
+  x: 520
+  y: 80
+prerequisites:
+  - help-command
+docs_url: "https://code.claude.com/docs/en/slash-commands"
+xp_reward: 20
+video_ids:
+  - zxMjOqM7DFs
+  - ntDIxaeo3Wg
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: /clear — Drop conversation context'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: '/clear'
+  successOutput: '✓ Recognised: /clear
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"Which of the following persists in your project after running `/clear`?","options":["The entire conversation history and Claude's memory of previous messages","Your uncommitted changes, git history, and environment variables","Session-specific caches and in-memory model state from prior tool calls","Previous agent results and command outputs from earlier in the conversation"],"answer":1,"explanation":"/clear` drops only the conversation context—your files, git state, and environment remain untouched. You're starting a fresh conversation about the same project."},{"q":"When should you use `/clear` instead of just continuing the conversation?","options":["After every completed feature to force the model to re-read the entire codebase","Before running `npm run check` to ensure no debug statements are present","When starting work on an unrelated task or when context feels stale and confusing","To clean up or discard uncommitted changes before pushing to git"],"answer":2,"explanation":"`/clear` resets conversation context when prior work is no longer relevant or creating confusion. It's not a project cleanup tool—files stay untouched."},{"q":"What is the main risk users should avoid after running `/clear`?","options":["Mistakenly thinking `/clear` deleted or reset their uncommitted work on disk","Assuming they must re-read the CLAUDE.md file and project docs before continuing","Running `/clear` twice in a row, which causes undefined behavior in the model","Using `/clear` on feature branches instead of main, which breaks git history"],"answer":0,"explanation":"A common misconception is that `/clear` clears the file system or git. It only drops the conversation history—all your code changes remain safely on disk."}]
+---
+## What it does
+
+`/clear` drops your conversation history from the current session. It wipes the transcript — all prior messages, tool results, and inline context — so the next turn starts fresh. The agent can no longer see what was discussed five messages ago or earlier in the turn.
+
+## When to use it
+
+Clear context when the conversation grows long and you're switching gears: moving from debugging a bug to building a feature, or from research to implementation. Each context window has limits (usually unconscious to you, handled automatically), but the agent's understanding of *what* you're trying to accomplish can drift or bloat after 20+ turns of back-and-forth. Starting fresh keeps reasoning sharp.
+
+Use `/clear` also when you realize the agent misunderstood your intent from an early message, and that misunderstanding has contaminated the whole conversation — a clean slate is faster than trying to correct stale context in-place.
+
+Clearing is NOT necessary for per-file isolation (that's the agent's job) or when you want the agent to remember patterns (use memory for that — `/clear` only drops the conversation, not your saved memories).
+
+## Try it yourself
+
+Type `/clear` right now and hit enter. Then ask a simple question unrelated to your prior work — "tell me the date" or "what's the current directory?" — and notice that the agent answers without referencing anything you discussed before. Now start a new task and see how the agent treats it as a fresh context, not a continuation.
+
+## Gotchas
+
+**What persists after `/clear`:**
+- Environment: working directory, shell state, env vars you've set, `node_modules`, git branches
+- Project context: CLAUDE.md, project instructions, design tokens, local configuration
+- Memory: your saved `.claude/memory/` notes — the agent can still recall them
+- Session: you're still in the same terminal session; git history, file timestamps, uncommitted changes are all still there
+
+**What resets:**
+- Conversation history: every prior turn, every message, every tool result
+- Inline context: anything the agent was tracking from earlier messages ("you said X was a blocker" — gone)
+- Agent state: assumptions about what you're doing, half-finished solutions, debugging trails
+
+**Can't undo:** `/clear` is destructive. There's no undo; the history is gone. If you need a record of prior discussion, take a note or save a plan before clearing.
+
+**Silent loss of nuance:** The agent won't know constraints you mentioned three turns ago unless you restate them. If a design decision was motivated by an earlier discussion ("we chose React hooks because Vue would break our build"), that reasoning context is erased. Be explicit in your next request if context matters.
