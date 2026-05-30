@@ -17,13 +17,8 @@ export async function POST(req: NextRequest) {
 
   Sentry.captureMessage(message, { level: 'error', extra: { digest, url } });
 
-  // Log to Supabase — best effort, don't surface failures to the client
-  try {
-    const sb = createSupabaseService();
-    await sb.from('error_logs').insert({ message, digest, url, created_at: new Date().toISOString() });
-  } catch {
-    // Table may not exist yet — fail silently until migration runs
-  }
+  const sb = createSupabaseService();
+  await sb.from('error_logs').insert({ message, digest, url, created_at: new Date().toISOString() });
 
   return NextResponse.json({ ok: true });
 }

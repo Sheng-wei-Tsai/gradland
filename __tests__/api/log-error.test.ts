@@ -48,12 +48,9 @@ describe('POST /api/log-error', () => {
     expect(res.status).toBe(429);
   });
 
-  it('returns 200 even when the Supabase insert throws', async () => {
+  it('propagates Supabase insert error when the table is unavailable', async () => {
     mockInsert.mockRejectedValueOnce(new Error('relation "error_logs" does not exist'));
-    const res = await POST(makePost({ message: 'db fail', url: '/crash' }, '3.3.3.1'));
-    expect(res.status).toBe(200);
-    const body = await res.json();
-    expect(body.ok).toBe(true);
+    await expect(POST(makePost({ message: 'db fail', url: '/crash' }, '3.3.3.1'))).rejects.toThrow();
   });
 
   it('truncates message to 500 chars before inserting', async () => {
