@@ -143,6 +143,14 @@ describe('POST /api/resume-analyse', () => {
       expect(body.error).toContain('5 MB');
     });
 
+    it('returns 502 when Anthropic API throws', async () => {
+      mockRecordUsage.mockClear();
+      mockMessagesCreate.mockRejectedValueOnce(new Error('Service unavailable'));
+      const res = await POST(makeRequest(makePdfFile()));
+      expect(res.status).toBe(502);
+      expect(mockRecordUsage).not.toHaveBeenCalled();
+    });
+
     it('returns 500 when Anthropic returns malformed JSON', async () => {
       mockMessagesCreate.mockResolvedValueOnce({
         content: [{ type: 'text', text: 'not-valid-json' }],

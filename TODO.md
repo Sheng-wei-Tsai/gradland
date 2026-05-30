@@ -1980,3 +1980,12 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 
 ### Code Quality (AGENTS §9 — HTTP status semantics)
 - [x] Add `!process.env.ANTHROPIC_API_KEY` guard (503) and per-request client creation to `app/api/resume-analyse/route.ts` and `app/api/companies/research/route.ts`; wrap the SDK call in `resume-analyse` in a try/catch returning 502 (it previously had none); add `it('returns 503 when ANTHROPIC_API_KEY is missing')` to `__tests__/api/resume-analyse.test.ts` and `__tests__/api/companies-research.test.ts` [quality] ✅ 2026-05-30
+
+---
+
+## 🛡 Daily Analyst Findings — 2026-05-30 (supplement 8)
+
+> Supplement scan — `__tests__/api/resume-analyse.test.ts` is missing a regression test for the 502 path introduced in the supplement 7 fix (commit `ada69a3`). The route's outer `try/catch` around `client.messages.create()` returns 502 when the Anthropic SDK throws (network error, upstream 5xx), but the test suite only asserts 503 (missing key) and 500 (malformed JSON). Without a 502 test, a future refactor that drops the try/catch or catches-and-swallows would go undetected — the same pattern that motivated the supplement 2 cover-letter upsert test (commit on 2026-05-29). The 502 case also verifies that `recordUsage` is NOT called on API failure, since `void recordUsage(...)` is called after the second parse-try-block on the success path only.
+
+### Tests (missing 502 regression for resume-analyse Anthropic API failure)
+- [x] Add `it('returns 502 when Anthropic API throws')` to `__tests__/api/resume-analyse.test.ts` — `mockMessagesCreate.mockRejectedValueOnce(new Error('Service unavailable'))`, expect `res.status` to be 502 and `mockRecordUsage` not to have been called; mirrors the pattern from `__tests__/api/companies-research.test.ts` which lacks this test too (the companies-research route swallows all errors in one catch returning 500, so no distinct 502 case exists there) [tests] ✅ 2026-05-30
