@@ -2025,3 +2025,12 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 
 ### Security (CSRF — missing assertSameOrigin on account/delete)
 - [x] Add `assertSameOrigin` CSRF guard to `app/api/account/delete/route.ts` — add `req: NextRequest` param, import `assertSameOrigin` from `lib/safety`, call `const csrf = assertSameOrigin(req); if (csrf) return csrf;` after the `!user` check; update `__tests__/api/account-delete.test.ts` to pass `new NextRequest(...)` to every `POST()` call (check is a no-op in test env per `lib/safety.ts:229`) [security] ✅ 2026-05-30
+
+---
+
+## 🛡 Daily Analyst Findings — 2026-05-30 (supplement 13)
+
+> Supplement scan — `__tests__/api/gap-analysis.test.ts` has no regression test for the 502 path in `app/api/gap-analysis/route.ts:156-170`. The route wraps the `client.chat.completions.create()` call in a try/catch returning 502 on any OpenAI error (network failure, quota exhaustion, upstream 5xx), but the test suite never exercises that path. The OpenAI mock was constructed inline (`vi.fn().mockResolvedValue(...)` inside `new OpenAI()`) with no module-scope reference, so individual tests could not override it. Same coverage gap fixed for `resume-analyse` (supplement 8, 2026-05-30) and `resume-match` (supplement 10, 2026-05-30).
+
+### Tests (missing 502 regression for gap-analysis OpenAI failure)
+- [x] Add `it('returns 502 when OpenAI throws')` to `__tests__/api/gap-analysis.test.ts` — extract `mockCreate` to module scope and refactor `vi.mock('openai', ...)` to use it; `mockCreate.mockRejectedValueOnce(new Error('Service unavailable'))`, expect `res.status === 502`, `body.error` truthy, `mockRecordUsage` not called; mirrors the pattern from `__tests__/api/resume-match.test.ts:138-143` [tests] ✅ 2026-05-30

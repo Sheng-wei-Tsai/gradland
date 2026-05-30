@@ -59,18 +59,14 @@ vi.mock('@/lib/subscription', () => ({
 }));
 
 // ── OpenAI mock ───────────────────────────────────────────────────────────────
+const mockCreate = vi.fn().mockResolvedValue({
+  choices: [{ message: { content: '["React","TypeScript"]' } }],
+});
+
 vi.mock('openai', () => ({
   // Must use regular function (not arrow) so `new OpenAI()` works as constructor
   default: vi.fn(function() {
-    return {
-      chat: {
-        completions: {
-          create: vi.fn().mockResolvedValue({
-            choices: [{ message: { content: '["React","TypeScript"]' } }],
-          }),
-        },
-      },
-    };
+    return { chat: { completions: { create: mockCreate } } };
   }),
 }));
 
@@ -137,6 +133,18 @@ describe('POST /api/gap-analysis', () => {
     expect(res.status).toBe(503);
     const body = await res.json();
     expect(body.error).toMatch(/not configured/i);
+  });
+
+  it('returns 502 when OpenAI throws', async () => {
+    mockRecordUsage.mockClear();
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'u1' } }, error: null });
+    mockCheckEndpointRateLimit.mockResolvedValueOnce(true);
+    mockCreate.mockRejectedValueOnce(new Error('Service unavailable'));
+    const res = await POST(makePost({ jobId: 'j-fail', description: 'Build React apps' }));
+    expect(res.status).toBe(502);
+    const body = await res.json();
+    expect(body.error).toBeTruthy();
+    expect(mockRecordUsage).not.toHaveBeenCalled();
   });
 
   it('performs full analysis and returns non-cached result with computed matchPercent', async () => {
