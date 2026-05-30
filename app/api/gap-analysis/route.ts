@@ -204,7 +204,7 @@ ${wrapUserContent('description', description)}`;
     .map(([pathId]) => pathId);
 
   // Cache result in Supabase
-  await sbSvc.from('job_gap_analyses').upsert({
+  const { error: cacheError } = await sbSvc.from('job_gap_analyses').upsert({
     user_id:           user.id,
     job_id:            jobId,
     job_title:         jobTitle,
@@ -216,6 +216,7 @@ ${wrapUserContent('description', description)}`;
     recommended_paths: recommendedPaths,
     expires_at:        expiresAt(7),
   }, { onConflict: 'user_id,job_id' });
+  if (cacheError) console.error('[gap-analysis] cache upsert failed:', cacheError.message);
 
   return NextResponse.json({
     jobId,

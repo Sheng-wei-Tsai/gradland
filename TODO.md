@@ -2034,3 +2034,12 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 
 ### Tests (missing 502 regression for gap-analysis OpenAI failure)
 - [x] Add `it('returns 502 when OpenAI throws')` to `__tests__/api/gap-analysis.test.ts` — extract `mockCreate` to module scope and refactor `vi.mock('openai', ...)` to use it; `mockCreate.mockRejectedValueOnce(new Error('Service unavailable'))`, expect `res.status === 502`, `body.error` truthy, `mockRecordUsage` not called; mirrors the pattern from `__tests__/api/resume-match.test.ts:138-143` [tests] ✅ 2026-05-30
+
+---
+
+## 🛡 Daily Analyst Findings — 2026-05-30 (supplement 14)
+
+> Supplement scan — `app/api/gap-analysis/route.ts:207` awaits a `job_gap_analyses` upsert without checking the returned `error` field. A schema drift on `job_gap_analyses` (column rename, type mismatch, RLS denial) would silently break per-user gap-analysis caching with no Sentry breadcrumb or log entry. The result is still returned correctly (Supabase client returns `{ data, error }` rather than throwing), but the failure is invisible to the operator. Same class as the fire-and-forget fixes landed for `cover-letter/route.ts:154` (2026-05-28), `resume-analyse/route.ts:151` (2026-05-24), `readiness-score/route.ts:167` (2026-05-30), and `interview/questions/route.ts:138` (2026-05-30). Fix: destructure `{ error: cacheError }` from the upsert call and `console.error` when set. Add a regression test using `mockUpsert.mockResolvedValueOnce({ error: { message: 'Schema mismatch' } })` asserting the route still returns 200 AND `console.error` was called.
+
+### Code Quality (silent failure — cache upsert error not logged)
+- [x] Destructure `{ error: cacheError }` from `app/api/gap-analysis/route.ts:207` upsert and add `if (cacheError) console.error('[gap-analysis] cache upsert failed:', cacheError.message);` — same pattern as `resume-analyse`, `cover-letter`, `readiness-score`, `interview/questions`; add `it('logs console.error when cache upsert errors')` to `__tests__/api/gap-analysis.test.ts` using `mockUpsert.mockResolvedValueOnce({ error: { message: 'Schema mismatch' } })` and a `console.error` spy [quality] ✅ 2026-05-30

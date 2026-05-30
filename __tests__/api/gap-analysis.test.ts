@@ -173,6 +173,18 @@ describe('POST /api/gap-analysis', () => {
     expect(mockRecordUsage).toHaveBeenCalledWith('u1', 'gap-analysis');
   });
 
+  it('logs console.error when cache upsert errors', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'u1' } }, error: null });
+    mockCheckEndpointRateLimit.mockResolvedValueOnce(true);
+    mockUpsert.mockResolvedValueOnce({ error: { message: 'Schema mismatch' } });
+
+    const res = await POST(makePost({ jobId: 'j-upsert-err', description: 'Build React apps' }));
+    expect(res.status).toBe(200); // result still returned despite upsert failure
+    expect(errorSpy).toHaveBeenCalledWith('[gap-analysis] cache upsert failed:', 'Schema mismatch');
+    errorSpy.mockRestore();
+  });
+
   it('does NOT call recordUsage on cache hit (no AI credits consumed)', async () => {
     mockRecordUsage.mockClear();
     mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'u1' } }, error: null });
