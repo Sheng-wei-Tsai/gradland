@@ -214,4 +214,15 @@ describe('POST /api/analytics/ai-insights', () => {
     expect(res.status).toBe(502);
     expect(body.error).toBe('Failed to generate insights');
   });
+
+  it('returns 503 when OPENAI_API_KEY is missing', async () => {
+    mockRequireAdmin.mockResolvedValue(ADMIN_USER);
+    const savedKey = process.env.OPENAI_API_KEY;
+    delete process.env.OPENAI_API_KEY;
+    const res  = await aiInsightsPOST(makePost(validPayload));
+    const body = await res.json();
+    expect(res.status).toBe(503);
+    expect(body.error).toBe('OpenAI API not configured');
+    process.env.OPENAI_API_KEY = savedKey;
+  });
 });

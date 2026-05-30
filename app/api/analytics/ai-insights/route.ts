@@ -4,8 +4,6 @@ import OpenAI from 'openai';
 import { checkEndpointRateLimit, recordUsage, rateLimitResponse } from '@/lib/subscription';
 import { assertSameOrigin } from '@/lib/safety';
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
 interface AnalyticsSummary {
   overview: {
     totalViews: number;
@@ -29,6 +27,11 @@ export async function POST(req: NextRequest) {
 
   const withinLimit = await checkEndpointRateLimit(admin.id, 'analytics/ai-insights');
   if (!withinLimit) return rateLimitResponse();
+
+  if (!process.env.OPENAI_API_KEY) {
+    return NextResponse.json({ error: 'OpenAI API not configured' }, { status: 503 });
+  }
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
   const rawText = await req.text();
   if (rawText.length > MAX_PAYLOAD_BYTES) {

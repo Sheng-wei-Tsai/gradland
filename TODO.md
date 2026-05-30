@@ -1962,3 +1962,12 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 
 ### Code Quality (AGENTS §9 — HTTP status semantics)
 - [x] Add `if (!process.env.OPENAI_API_KEY) return new Response(JSON.stringify({ error: 'OpenAI API not configured' }), { status: 503 });` before the `try {` block (or client creation) in `app/api/interview/chat/route.ts:54`, `app/api/interview/evaluate/route.ts:74`, `app/api/interview/mentor/route.ts:129`, `app/api/interview/questions/route.ts:118`, and `app/api/cover-letter/route.ts:91`; add one `it('returns 503 when OPENAI_API_KEY is missing')` test to `__tests__/api/interview-ai-routes.test.ts` (for chat, evaluate, mentor), `__tests__/api/interview-questions.test.ts`, and `__tests__/api/cover-letter.test.ts` following the `delete process.env.OPENAI_API_KEY` / restore pattern from `__tests__/api/diagrams-generate.test.ts:113-120` [quality] ✅ 2026-05-30
+
+---
+
+## 🛡 Daily Analyst Findings — 2026-05-30 (supplement 6)
+
+> Supplement scan — `app/api/analytics/ai-insights/route.ts:7` creates the OpenAI client at module scope without a `!process.env.OPENAI_API_KEY` guard. When the key is absent, the try/catch at line 97 catches the SDK's auth error and returns 502 instead of the correct 503. All five routes fixed in commit `fd13f64` (supplement 5 today) guard the key before client instantiation; this admin-only route was missed because it uses module-scope instantiation rather than per-request creation. `learn/quiz`, `diagrams/generate`, `learn/roadmap-image`, and `gap-analysis` all return 503 for the same condition.
+
+### Code Quality (AGENTS §9 — HTTP status semantics)
+- [x] Move OpenAI client instantiation inside `POST` handler in `app/api/analytics/ai-insights/route.ts` and add `if (!process.env.OPENAI_API_KEY) return NextResponse.json({ error: 'OpenAI API not configured' }, { status: 503 });` guard before the `try {` block — same misclassification fixed in five interview + cover-letter routes (commit `fd13f64`, today); add one `it('returns 503 when OPENAI_API_KEY is missing')` test to `__tests__/api/analytics.test.ts` using the `delete process.env.OPENAI_API_KEY` / restore pattern from `__tests__/api/diagrams-generate.test.ts:113-120` [quality] ✅ 2026-05-30
