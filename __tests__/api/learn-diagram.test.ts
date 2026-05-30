@@ -133,11 +133,11 @@ describe('POST /api/learn/diagram', () => {
 
   // ── API key check ─────────────────────────────────────────────────────────
 
-  it('returns 500 when OPENAI_API_KEY is not configured', async () => {
+  it('returns 503 when OPENAI_API_KEY is not configured', async () => {
     mockRequireSubscription.mockResolvedValueOnce(validAuth);
     // env var not set — deleted in afterEach
     const res = await POST(makePost(validBody));
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(503);
     const body = await res.json();
     expect(body.error).toMatch(/not configured/i);
   });
