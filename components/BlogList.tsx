@@ -267,14 +267,13 @@ export default function BlogList({ posts, tags }: { posts: Post[]; tags: string[
                   key={t}
                   role="option"
                   onClick={() => onPickTag(t)}
+                  className="tag-suggestion-btn"
                   style={{
                     textAlign: 'left', background: 'transparent', border: 'none', cursor: 'pointer',
                     padding: '0.45rem 0.6rem', borderRadius: '6px',
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                     fontFamily: 'inherit', fontSize: '0.85rem', color: 'var(--text-primary)',
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.background = 'var(--parchment)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                 >
                   <span>{t}</span>
                   <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontVariantNumeric: 'tabular-nums' }}>
