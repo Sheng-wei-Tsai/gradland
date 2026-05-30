@@ -85,6 +85,16 @@ describe('POST /api/companies/research', () => {
       expect(res.status).toBe(429);
     });
 
+    it('returns 503 when ANTHROPIC_API_KEY is missing', async () => {
+      const saved = process.env.ANTHROPIC_API_KEY;
+      delete process.env.ANTHROPIC_API_KEY;
+      const res  = await POST(makePost({ slug: 'atlassian' }));
+      process.env.ANTHROPIC_API_KEY = saved;
+      expect(res.status).toBe(503);
+      const body = await res.json();
+      expect(body.error).toContain('not configured');
+    });
+
     it('returns 400 when slug contains uppercase letters', async () => {
       const res  = await POST(makePost({ slug: 'Atlassian' }));
       expect(res.status).toBe(400);

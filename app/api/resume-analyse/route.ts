@@ -6,8 +6,6 @@ import { assertSameOrigin } from '@/lib/safety';
 
 const sbService = createSupabaseService();
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
 const SYSTEM_PROMPT = `You are a senior Australian IT recruiter and career coach with 15+ years of experience hiring for companies like Atlassian, Canva, CBA, and Accenture. You review resumes specifically for the Australian IT job market.
 
 Analyse the provided resume PDF and return a JSON response with this exact structure:
@@ -87,6 +85,11 @@ export async function POST(req: NextRequest) {
   const withinLimit = await checkEndpointRateLimit(auth.user.id, 'resume-analyse');
   if (!withinLimit) return rateLimitResponse();
 
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return NextResponse.json({ error: 'Anthropic API not configured' }, { status: 503 });
+  }
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
   const formData = await req.formData().catch(() => null);
   if (!formData) return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   const file = formData.get('resume') as File | null;
@@ -102,28 +105,32 @@ export async function POST(req: NextRequest) {
   const buffer = await file.arrayBuffer();
   const base64 = Buffer.from(buffer).toString('base64');
 
-  const message = await client.messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 2048,
-    system: SYSTEM_PROMPT,
-    messages: [
-      {
-        role: 'user',
-        content: [
-          {
-            type: 'document' as const,
-            source: { type: 'base64' as const, media_type: 'application/pdf' as const, data: base64 },
-          },
-          {
-            type: 'text',
-            text: 'Analyse this resume for the Australian IT job market. Return the JSON analysis as instructed.',
-          },
-        ],
-      },
-    ],
-  });
-
-  const raw = (message.content[0] as { type: string; text: string }).text.trim();
+  let raw: string;
+  try {
+    const message = await client.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 2048,
+      system: SYSTEM_PROMPT,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'document' as const,
+              source: { type: 'base64' as const, media_type: 'application/pdf' as const, data: base64 },
+            },
+            {
+              type: 'text',
+              text: 'Analyse this resume for the Australian IT job market. Return the JSON analysis as instructed.',
+            },
+          ],
+        },
+      ],
+    });
+    raw = (message.content[0] as { type: string; text: string }).text.trim();
+  } catch {
+    return NextResponse.json({ error: 'Analysis failed. Please try again.' }, { status: 502 });
+  }
 
   let analysis: unknown;
   try {

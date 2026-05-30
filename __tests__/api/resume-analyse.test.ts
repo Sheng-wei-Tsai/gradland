@@ -100,6 +100,16 @@ describe('POST /api/resume-analyse', () => {
       expect(res.status).toBe(429);
     });
 
+    it('returns 503 when ANTHROPIC_API_KEY is missing', async () => {
+      const saved = process.env.ANTHROPIC_API_KEY;
+      delete process.env.ANTHROPIC_API_KEY;
+      const res  = await POST(makeRequest(makePdfFile()));
+      process.env.ANTHROPIC_API_KEY = saved;
+      expect(res.status).toBe(503);
+      const body = await res.json();
+      expect(body.error).toContain('not configured');
+    });
+
     it('returns 400 when request body is not multipart/form-data', async () => {
       const req = new NextRequest('http://localhost/api/resume-analyse', { method: 'POST' });
       vi.spyOn(req, 'formData').mockRejectedValue(new TypeError('invalid form data'));

@@ -9,8 +9,6 @@ import {
 import { COMPANIES } from '@/app/au-insights/companies/data';
 import { assertSameOrigin } from '@/lib/safety';
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
 const SYSTEM_PROMPT = `You are a senior career intelligence analyst specialising in the Australian IT job market. You have deep insider knowledge of tech company cultures, hiring practices, and what it takes to succeed as an international tech graduate in Australia.
 
 Analyse the provided company profile data and generate a concise, practical career research brief for a job seeker preparing to apply or interview.
@@ -85,6 +83,11 @@ export async function POST(req: NextRequest) {
   // 2. Per-endpoint rate limit
   const withinLimit = await checkEndpointRateLimit(auth.user.id, 'companies/research');
   if (!withinLimit) return rateLimitResponse();
+
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return NextResponse.json({ error: 'Anthropic API not configured' }, { status: 503 });
+  }
+  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
   // 3. Parse + validate input
   const body = await req.json().catch(() => null);
