@@ -1944,3 +1944,12 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 
 ### Code Quality (AGENTS §9 — HTTP status semantics)
 - [x] Change OPENAI_API_KEY missing status from 500 to 503 in `app/api/gap-analysis/route.ts:143` — same misclassification fixed in three other routes today; add `it('returns 503 when OPENAI_API_KEY is missing')` to `__tests__/api/gap-analysis.test.ts` following the `delete process.env.OPENAI_API_KEY` / restore pattern from `__tests__/api/diagrams-generate.test.ts:113-120` [quality] ✅ 2026-05-30
+
+---
+
+## 🛡 Daily Analyst Findings — 2026-05-30 (supplement 4)
+
+> Supplement scan — `components/claude-skills/TerminalSim.tsx:168` applies `outline: 'none'` as an inline style on the terminal `<input>`, overriding the global `:focus-visible` rule in `globals.css:430` (`*:focus-visible { outline: 2px solid var(--terracotta) }`). Inline styles have higher CSS specificity than any selector-based rule, so keyboard users who tab to the terminal input see NO visible focus indicator — a WCAG 2.4.7 (Focus Visible) violation. The same fix was applied to `components/petcho/PetchoSection.tsx:73` (`TamaBtn`) in supplement 9 of 2026-05-29 (commit `5b419eb`) using the exact same pattern: removing `outline: 'none'` so the global `:focus-visible` rule applies. The TerminalSim component was added after that fix and was not covered by the a11y sweep.
+
+### Accessibility (WCAG 2.1 AA — §12.4 focus indicator)
+- [x] Remove `outline: 'none'` from the terminal input inline style in `components/claude-skills/TerminalSim.tsx:168` — the inline style `{ ..., outline: 'none', ... }` overrides the global `*:focus-visible { outline: 2px solid var(--terracotta) }` rule in `globals.css:430`; keyboard users tabbing to the input see no visible focus ring; removing the property lets the global rule apply (same fix as `PetchoSection.tsx:73` in commit `5b419eb`); no test changes needed [a11y] ✅ 2026-05-30

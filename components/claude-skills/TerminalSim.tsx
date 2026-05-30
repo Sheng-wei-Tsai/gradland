@@ -165,7 +165,7 @@ export default function TerminalSim({ scenario, onPass, passed }: Props) {
               autoComplete="off"
               autoCapitalize="off"
               style={{
-                flex: 1, background: 'transparent', border: 'none', outline: 'none',
+                flex: 1, background: 'transparent', border: 'none',
                 color: '#c9d1d9', fontFamily: 'inherit', fontSize: 'inherit',
               }}
               aria-label="terminal input"
