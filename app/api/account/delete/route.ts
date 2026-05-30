@@ -1,11 +1,15 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createSupabaseServer, createSupabaseService } from '@/lib/auth-server';
+import { assertSameOrigin } from '@/lib/safety';
 
-export async function POST() {
+export async function POST(req: NextRequest) {
   const sb = await createSupabaseServer();
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
 
   const service = createSupabaseService();
 

@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { NextRequest } from 'next/server';
 
 // ── Auth / DB mocks ───────────────────────────────────────────────────────────
 const mockGetUser  = vi.fn();
@@ -27,6 +28,13 @@ vi.mock('stripe', () => ({
 const { POST } = await import('@/app/api/account/delete/route');
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
+function makeReq() {
+  return new NextRequest('http://localhost/api/account/delete', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+  });
+}
+
 function makeServiceChain(
   profileData: Record<string, unknown> | null,
   opts: { commentsError?: { message: string }; updateError?: { message: string } } = {}
@@ -74,7 +82,7 @@ beforeEach(() => {
 describe('POST /api/account/delete', () => {
   it('returns 401 when no session', async () => {
     mockGetUser.mockResolvedValue({ data: { user: null } });
-    const res = await POST();
+    const res = await POST(makeReq());
     expect(res.status).toBe(401);
     const body = await res.json();
     expect(body.error).toMatch(/unauthorized/i);
@@ -87,7 +95,7 @@ describe('POST /api/account/delete', () => {
       subscription_tier:  'free',
     });
 
-    const res  = await POST();
+    const res  = await POST(makeReq());
     const body = await res.json();
 
     expect(res.status).toBe(200);
@@ -116,7 +124,7 @@ describe('POST /api/account/delete', () => {
     mockSubsList.mockResolvedValue({ data: [{ id: 'sub_active_456' }] });
     mockSubsCancel.mockResolvedValue({});
 
-    const res  = await POST();
+    const res  = await POST(makeReq());
     const body = await res.json();
 
     expect(res.status).toBe(200);
@@ -133,7 +141,7 @@ describe('POST /api/account/delete', () => {
 
     mockSubsList.mockResolvedValue({ data: [] });
 
-    const res = await POST();
+    const res = await POST(makeReq());
     expect(res.status).toBe(200);
     expect(mockSubsCancel).not.toHaveBeenCalled();
   });
@@ -144,7 +152,7 @@ describe('POST /api/account/delete', () => {
 
     mockSubsList.mockRejectedValue(new Error('Stripe API down'));
 
-    const res  = await POST();
+    const res  = await POST(makeReq());
     const body = await res.json();
     expect(res.status).toBe(200);
     expect(body.ok).toBe(true);
@@ -156,7 +164,7 @@ describe('POST /api/account/delete', () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: 'user-norow' } } });
     makeServiceChain(null);
 
-    const res = await POST();
+    const res = await POST(makeReq());
     expect(res.status).toBe(200);
     expect(mockSubsList).not.toHaveBeenCalled();
   });
@@ -168,7 +176,7 @@ describe('POST /api/account/delete', () => {
       { commentsError: { message: 'DB error' } }
     );
 
-    const res  = await POST();
+    const res  = await POST(makeReq());
     const body = await res.json();
 
     expect(res.status).toBe(500);
@@ -184,7 +192,7 @@ describe('POST /api/account/delete', () => {
       { updateError: { message: 'RLS blocked' } }
     );
 
-    const res  = await POST();
+    const res  = await POST(makeReq());
     const body = await res.json();
 
     expect(res.status).toBe(500);

@@ -2016,3 +2016,12 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 
 ### Code Quality (silent failure — fire-and-forget cache upsert)
 - [x] Add `.then(({ error }) => { if (error) console.error('[interview/questions] cache upsert failed:', error.message); })` to the fire-and-forget upsert in `app/api/interview/questions/route.ts:138-141` — same error-logging pattern as `cover-letter/route.ts:154`, `resume-analyse/route.ts:151`, `readiness-score/route.ts:167`; add `it('logs console.error when interview_questions_cache upsert errors')` to `__tests__/api/interview-questions.test.ts` using a synchronous thenable mock on `sbChain.upsert` [quality] ✅ 2026-05-30
+
+---
+
+## 🛡 Daily Analyst Findings — 2026-05-30 (supplement 12)
+
+> Supplement scan — `app/api/account/delete/route.ts` has no CSRF guard (`assertSameOrigin`). This is the most destructive route in the app: it cancels the user's active Stripe subscription, deletes all comments, soft-deletes the profile, and signs out all sessions. All 32 other state-changing routes that were audited use `assertSameOrigin` from `lib/safety.ts`; this route was written with `POST()` (no `req` param) so it never received the check. A CSRF attack could trick a logged-in user's browser into self-deleting their account via a forged cross-origin POST. The fix: add `req: NextRequest` to the handler signature, call `assertSameOrigin(req)` after the auth check, and update all `POST()` call-sites in the test to pass a dummy `NextRequest` (the check is a no-op under `NODE_ENV=test` so no existing assertions change).
+
+### Security (CSRF — missing assertSameOrigin on account/delete)
+- [x] Add `assertSameOrigin` CSRF guard to `app/api/account/delete/route.ts` — add `req: NextRequest` param, import `assertSameOrigin` from `lib/safety`, call `const csrf = assertSameOrigin(req); if (csrf) return csrf;` after the `!user` check; update `__tests__/api/account-delete.test.ts` to pass `new NextRequest(...)` to every `POST()` call (check is a no-op in test env per `lib/safety.ts:229`) [security] ✅ 2026-05-30
