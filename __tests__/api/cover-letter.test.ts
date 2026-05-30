@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // ── Subscription mock ─────────────────────────────────────────────────────────
 const mockRequireSubscription = vi.fn();
 const mockCheckEndpointRateLimit = vi.fn().mockResolvedValue(true);
+const mockRecordUsage = vi.fn();
 
 vi.mock('@/lib/subscription', () => ({
   requireSubscription:     mockRequireSubscription,
@@ -13,7 +14,7 @@ vi.mock('@/lib/subscription', () => ({
       JSON.stringify({ error: 'Rate limit exceeded.', code: 'RATE_LIMIT_EXCEEDED' }),
       { status: 429, headers: { 'content-type': 'application/json' } },
     ),
-  recordUsage: vi.fn(),
+  recordUsage: (...args: unknown[]) => mockRecordUsage(...args),
 }));
 
 // ── KV mock ───────────────────────────────────────────────────────────────────
@@ -107,6 +108,7 @@ describe('POST /api/cover-letter', () => {
       mockCheckEndpointRateLimit.mockResolvedValue(true);
       mockKvGet.mockResolvedValue(null);
       mockMaybeSingle.mockResolvedValue({ data: null, error: null });
+      mockRecordUsage.mockReset();
     });
 
     it('returns 429 when endpoint rate limit is reached', async () => {
@@ -242,6 +244,15 @@ describe('POST /api/cover-letter', () => {
         'Schema mismatch',
       );
       errorSpy.mockRestore();
+    });
+
+    it('returns 502 when OpenAI streaming throws — recordUsage not called', async () => {
+      mockCreate.mockRejectedValueOnce(new Error('Service unavailable'));
+      const res = await POST(makePost(validBody));
+      expect(res.status).toBe(502);
+      const body = await res.json();
+      expect(body.error).toBeTruthy();
+      expect(mockRecordUsage).not.toHaveBeenCalled();
     });
   });
 });

@@ -117,15 +117,20 @@ ${wrapUserContent('background', background)}
 
 Write the cover letter now. 3-4 paragraphs, plain text only, no headers or bullet points.`;
 
-  const stream = await client.chat.completions.create({
-    model: 'gpt-4o',
-    messages: [
-      { role: 'system', content: SYSTEM_PROMPT },
-      { role: 'user',   content: userPrompt },
-    ],
-    max_tokens: 800,
-    stream: true,
-  }, { signal: AbortSignal.timeout(45000) });
+  let stream: AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk>;
+  try {
+    stream = await client.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user',   content: userPrompt },
+      ],
+      max_tokens: 800,
+      stream: true,
+    }, { signal: AbortSignal.timeout(45000) });
+  } catch {
+    return new Response(JSON.stringify({ error: 'Failed to generate cover letter' }), { status: 502 });
+  }
 
   const encoder = new TextEncoder();
   const chunks: string[] = [];

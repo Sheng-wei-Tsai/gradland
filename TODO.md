@@ -2043,3 +2043,10 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 
 ### Code Quality (silent failure — cache upsert error not logged)
 - [x] Destructure `{ error: cacheError }` from `app/api/gap-analysis/route.ts:207` upsert and add `if (cacheError) console.error('[gap-analysis] cache upsert failed:', cacheError.message);` — same pattern as `resume-analyse`, `cover-letter`, `readiness-score`, `interview/questions`; add `it('logs console.error when cache upsert errors')` to `__tests__/api/gap-analysis.test.ts` using `mockUpsert.mockResolvedValueOnce({ error: { message: 'Schema mismatch' } })` and a `console.error` spy [quality] ✅ 2026-05-30
+
+## 🛡 Daily Analyst Findings — 2026-05-30 (supplement 15)
+
+> Supplement scan — `app/api/cover-letter/route.ts` calls `await client.chat.completions.create(... stream: true ...)` at the end of the POST handler without a surrounding try/catch. If OpenAI throws before the stream is established (network error, quota exhausted, upstream 5xx), the unhandled exception propagates to Next.js and produces an unstructured 500. The same pattern was fixed in `gap-analysis/route.ts` (try/catch returning 502) and `resume-match/route.ts`. The stream's internal `for await` is guarded inside the ReadableStream `start()` callback, but that guard only covers mid-stream errors — not the initial `await create()` call. The cover-letter test suite has 503 (missing key), streaming 200, and cache-hit paths, but no 502 regression for a pre-stream OpenAI failure.
+
+### Tests (missing 502 regression) + Quality (unguarded async call)
+- [x] Wrap `const stream = await client.chat.completions.create(...)` in `app/api/cover-letter/route.ts` with a try/catch that returns 502 on failure; add `it('returns 502 when OpenAI streaming throws')` to `__tests__/api/cover-letter.test.ts` using `mockCreate.mockRejectedValueOnce(new Error('Service unavailable'))` and asserting `res.status === 502` and `mockRecordUsage` not called [tests] [quality] ✅ 2026-05-30
