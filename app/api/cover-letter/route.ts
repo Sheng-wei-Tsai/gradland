@@ -89,6 +89,10 @@ export async function POST(req: NextRequest) {
   }
 
   // ── 3. Generate fresh ──────────────────────────────────────────────────────
+  if (!process.env.OPENAI_API_KEY) {
+    return new Response(JSON.stringify({ error: 'OpenAI API not configured' }), { status: 503 });
+  }
+
   const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
   // All four fields are user-supplied. Wrap each in a nonce fence so the

@@ -1953,3 +1953,12 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 
 ### Accessibility (WCAG 2.1 AA — §12.4 focus indicator)
 - [x] Remove `outline: 'none'` from the terminal input inline style in `components/claude-skills/TerminalSim.tsx:168` — the inline style `{ ..., outline: 'none', ... }` overrides the global `*:focus-visible { outline: 2px solid var(--terracotta) }` rule in `globals.css:430`; keyboard users tabbing to the input see no visible focus ring; removing the property lets the global rule apply (same fix as `PetchoSection.tsx:73` in commit `5b419eb`); no test changes needed [a11y] ✅ 2026-05-30
+
+---
+
+## 🛡 Daily Analyst Findings — 2026-05-30 (supplement 5)
+
+> Supplement scan — five OpenAI-calling routes have no explicit `!process.env.OPENAI_API_KEY` guard: `app/api/interview/chat/route.ts:55`, `app/api/interview/evaluate/route.ts:75`, `app/api/interview/mentor/route.ts:130`, `app/api/interview/questions/route.ts:119`, and `app/api/cover-letter/route.ts:92`. All five create `new OpenAI({ apiKey: process.env.OPENAI_API_KEY })` without first checking the key — if the env var is absent, the OpenAI SDK throws at API-call time and the outer `} catch {` returns a 502 instead of the correct 503. Same misclassification fixed in `learn/diagram`, `diagrams/generate`, `learn/roadmap-image`, and `gap-analysis` today. The cover-letter route also has no outer try/catch, so a missing key there causes an unhandled exception rather than a 502.
+
+### Code Quality (AGENTS §9 — HTTP status semantics)
+- [x] Add `if (!process.env.OPENAI_API_KEY) return new Response(JSON.stringify({ error: 'OpenAI API not configured' }), { status: 503 });` before the `try {` block (or client creation) in `app/api/interview/chat/route.ts:54`, `app/api/interview/evaluate/route.ts:74`, `app/api/interview/mentor/route.ts:129`, `app/api/interview/questions/route.ts:118`, and `app/api/cover-letter/route.ts:91`; add one `it('returns 503 when OPENAI_API_KEY is missing')` test to `__tests__/api/interview-ai-routes.test.ts` (for chat, evaluate, mentor), `__tests__/api/interview-questions.test.ts`, and `__tests__/api/cover-letter.test.ts` following the `delete process.env.OPENAI_API_KEY` / restore pattern from `__tests__/api/diagrams-generate.test.ts:113-120` [quality] ✅ 2026-05-30

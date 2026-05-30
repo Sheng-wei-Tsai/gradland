@@ -71,6 +71,10 @@ ${wrapUserContent('answer', answer)}
 
 Evaluate now using the required format.`;
 
+  if (!process.env.OPENAI_API_KEY) {
+    return new Response(JSON.stringify({ error: 'OpenAI API not configured' }), { status: 503 });
+  }
+
   try {
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     const stream = await client.chat.completions.create({

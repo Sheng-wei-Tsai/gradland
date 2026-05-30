@@ -185,6 +185,15 @@ describe('POST /api/interview/questions', () => {
     expect(body.error).toBe('Failed to generate questions');
   });
 
+  it('returns 503 when OPENAI_API_KEY is missing', async () => {
+    mockRequireSubscription.mockResolvedValueOnce(validAuth);
+    const savedKey = process.env.OPENAI_API_KEY;
+    delete process.env.OPENAI_API_KEY;
+    const res = await POST(makePost({ roleId: 'junior-frontend' }));
+    expect(res.status).toBe(503);
+    process.env.OPENAI_API_KEY = savedKey;
+  });
+
   it('falls through corrupt KV entry to Supabase', async () => {
     mockRequireSubscription.mockResolvedValueOnce(validAuth);
     mockKvGet.mockResolvedValueOnce('not-valid-json{{{');

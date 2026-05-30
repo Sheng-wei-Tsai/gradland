@@ -131,6 +131,14 @@ describe('POST /api/interview/chat', () => {
     const body = await res.json();
     expect(body.error).toBe('Chat failed');
   });
+
+  it('returns 503 when OPENAI_API_KEY is missing', async () => {
+    const savedKey = process.env.OPENAI_API_KEY;
+    delete process.env.OPENAI_API_KEY;
+    const res = await chatPOST(makePost(url, { messages: msgs }));
+    expect(res.status).toBe(503);
+    process.env.OPENAI_API_KEY = savedKey;
+  });
 });
 
 // =============================================================================
@@ -215,6 +223,14 @@ describe('POST /api/interview/evaluate', () => {
     expect(res.status).toBe(502);
     const body = await res.json();
     expect(body.error).toBe('Evaluation failed');
+  });
+
+  it('returns 503 when OPENAI_API_KEY is missing', async () => {
+    const savedKey = process.env.OPENAI_API_KEY;
+    delete process.env.OPENAI_API_KEY;
+    const res = await evaluatePOST(makePost(url, validBody));
+    expect(res.status).toBe(503);
+    process.env.OPENAI_API_KEY = savedKey;
   });
 });
 
@@ -304,6 +320,14 @@ describe('POST /api/interview/mentor', () => {
     expect(res.status).toBe(502);
     const body = await res.json();
     expect(body.error).toBe('Failed to generate narration');
+  });
+
+  it('returns 503 when OPENAI_API_KEY is missing', async () => {
+    const savedKey = process.env.OPENAI_API_KEY;
+    delete process.env.OPENAI_API_KEY;
+    const res = await mentorPOST(makePost(url, validBody));
+    expect(res.status).toBe(503);
+    process.env.OPENAI_API_KEY = savedKey;
   });
 
   it('strips role-markers from scenario before sending to OpenAI', async () => {

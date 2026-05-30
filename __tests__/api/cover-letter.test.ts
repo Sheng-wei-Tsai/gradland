@@ -115,6 +115,14 @@ describe('POST /api/cover-letter', () => {
       expect(res.status).toBe(429);
     });
 
+    it('returns 503 when OPENAI_API_KEY is missing', async () => {
+      const savedKey = process.env.OPENAI_API_KEY;
+      delete process.env.OPENAI_API_KEY;
+      const res = await POST(makePost(validBody));
+      expect(res.status).toBe(503);
+      process.env.OPENAI_API_KEY = savedKey;
+    });
+
     it('returns 400 when required fields are missing', async () => {
       const res = await POST(makePost({ jobTitle: 'Engineer' }));
       expect(res.status).toBe(400);

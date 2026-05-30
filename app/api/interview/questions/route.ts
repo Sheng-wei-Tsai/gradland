@@ -77,6 +77,10 @@ export async function POST(req: NextRequest) {
   }
 
   // ── 3. Generate fresh questions ─────────────────────────────────────
+  if (!process.env.OPENAI_API_KEY) {
+    return new Response(JSON.stringify({ error: 'OpenAI API not configured' }), { status: 503 });
+  }
+
   const prompt = `Generate the 10 most commonly asked interview questions for a ${role.title} role in Australia at companies like ${role.companies.slice(0, 3).join(', ')}.
 
 Topics to cover: ${role.topics.join(', ')}.

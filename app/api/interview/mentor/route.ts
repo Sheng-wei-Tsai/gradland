@@ -126,6 +126,10 @@ export async function POST(req: NextRequest) {
 
   const userPrompt = buildPrompt(safeBody);
 
+  if (!process.env.OPENAI_API_KEY) {
+    return new Response(JSON.stringify({ error: 'OpenAI API not configured' }), { status: 503 });
+  }
+
   try {
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     const stream = await client.chat.completions.create({
