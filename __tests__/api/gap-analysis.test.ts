@@ -127,6 +127,18 @@ describe('POST /api/gap-analysis', () => {
     expect(body.error).toBeTruthy();
   });
 
+  it('returns 503 when OPENAI_API_KEY is missing', async () => {
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'u1' } }, error: null });
+    mockCheckEndpointRateLimit.mockResolvedValueOnce(true);
+    const saved = process.env.OPENAI_API_KEY;
+    delete process.env.OPENAI_API_KEY;
+    const res = await POST(makePost({ jobId: 'j-nokey', description: 'Build React apps' }));
+    process.env.OPENAI_API_KEY = saved;
+    expect(res.status).toBe(503);
+    const body = await res.json();
+    expect(body.error).toMatch(/not configured/i);
+  });
+
   it('performs full analysis and returns non-cached result with computed matchPercent', async () => {
     mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'u1' } }, error: null });
     mockCheckEndpointRateLimit.mockResolvedValueOnce(true);

@@ -1935,3 +1935,12 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 
 ### Code Quality (AGENTS §9 — HTTP status semantics)
 - [x] Change OPENAI_API_KEY missing status from 500 to 503 in `app/api/diagrams/generate/route.ts:53` and `app/api/learn/roadmap-image/route.ts:47` — same misclassification fixed in `learn/diagram/route.ts` today; 503 Service Unavailable correctly signals a missing-config gap; update test assertions in `__tests__/api/diagrams-generate.test.ts:117` and `__tests__/api/learn-roadmap-image.test.ts:99` from `toBe(500)` to `toBe(503)` [quality] ✅ 2026-05-30
+
+---
+
+## 🛡 Daily Analyst Findings — 2026-05-30 (supplement 3)
+
+> Supplement scan — `app/api/gap-analysis/route.ts:143` returns status 500 for a missing `OPENAI_API_KEY`, the same misclassification fixed in `learn/diagram/route.ts` (commit `f9af9a0`), `diagrams/generate/route.ts`, and `learn/roadmap-image/route.ts` (commit `16b6058`) today. The supplement 2 scan caught both Mermaid-emitting routes but missed the gap-analysis route. `learn/quiz/route.ts:44` and `learn/analyse/route.ts:78` already return 503; `gap-analysis` is the only remaining outlier.
+
+### Code Quality (AGENTS §9 — HTTP status semantics)
+- [x] Change OPENAI_API_KEY missing status from 500 to 503 in `app/api/gap-analysis/route.ts:143` — same misclassification fixed in three other routes today; add `it('returns 503 when OPENAI_API_KEY is missing')` to `__tests__/api/gap-analysis.test.ts` following the `delete process.env.OPENAI_API_KEY` / restore pattern from `__tests__/api/diagrams-generate.test.ts:113-120` [quality] ✅ 2026-05-30
