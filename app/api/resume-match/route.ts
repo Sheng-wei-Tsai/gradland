@@ -73,12 +73,17 @@ Rules:
 - Use AU English: organised, recognised, behaviour
 - Return valid JSON only — no markdown, no prose outside the JSON`;
 
-  const response = await client.chat.completions.create({
-    model: 'gpt-4o',
-    messages: [{ role: 'user', content: prompt }],
-    response_format: { type: 'json_object' },
-    max_tokens: 1000,
-  });
+  let response;
+  try {
+    response = await client.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [{ role: 'user', content: prompt }],
+      response_format: { type: 'json_object' },
+      max_tokens: 1000,
+    });
+  } catch {
+    return new Response(JSON.stringify({ error: 'AI service temporarily unavailable' }), { status: 502 });
+  }
 
   void recordUsage(auth.user.id, 'resume-match');
   const raw = response.choices[0].message.content ?? '{}';

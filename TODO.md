@@ -1998,3 +1998,12 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 
 ### Code Quality (silent failure — fire-and-forget snapshot upsert)
 - [x] Add `.then(({ error }) => { if (error) console.error('[readiness-score] snapshot upsert failed:', error.message); })` to the fire-and-forget upsert in `app/api/readiness-score/route.ts:167` — replaces silent `.then(() => {})` with the same error-logging pattern used in `resume-analyse/route.ts:151` and `cover-letter/route.ts:152`; add `it('logs console.error when readiness_snapshots upsert errors')` to `__tests__/api/readiness-score.test.ts` mocking the upsert to call back with `{ error: { message: 'Schema mismatch' } }` and asserting `console.error` was called via spy [quality] ✅ 2026-05-30
+
+---
+
+## 🛡 Daily Analyst Findings — 2026-05-30 (supplement 10)
+
+> Supplement scan — `app/api/resume-match/route.ts:76` calls `client.chat.completions.create()` without any try/catch. If OpenAI throws (network error, upstream 5xx, quota exhausted), the unhandled exception produces an unstructured 500 rather than a clean 502. The same pattern was fixed in `resume-analyse/route.ts` (supplement 7, commit `ada69a3`) and `cover-letter/route.ts`. `recordUsage` is placed after the SDK call (line 83) so it would not fire on error — which is correct behaviour, but the route needs explicit error handling to surface a proper 502. The test suite covers 401/403/429/503/400/200 but has no 502 regression.
+
+### Tests (missing 502 regression for resume-match OpenAI failure)
+- [x] Wrap `client.chat.completions.create()` in `app/api/resume-match/route.ts:76` with a try/catch returning 502 on throw; add `it('returns 502 when OpenAI API throws')` to `__tests__/api/resume-match.test.ts` — `mockCreate.mockRejectedValueOnce(new Error('Service unavailable'))`, expect `res.status` to be 502 and `mockRecordUsage` not to have been called; mirrors the pattern from `__tests__/api/resume-analyse.test.ts` [tests] ✅ 2026-05-30

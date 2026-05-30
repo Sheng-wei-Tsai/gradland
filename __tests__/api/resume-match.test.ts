@@ -4,11 +4,12 @@ import { NextRequest, NextResponse } from 'next/server';
 // ── Subscription mock ─────────────────────────────────────────────────────────
 const mockRequireSubscription = vi.fn();
 const mockCheckEndpointRateLimit = vi.fn().mockResolvedValue(true);
+const mockRecordUsage = vi.fn();
 
 vi.mock('@/lib/subscription', () => ({
   requireSubscription:    mockRequireSubscription,
   checkEndpointRateLimit: mockCheckEndpointRateLimit,
-  recordUsage:            vi.fn(),
+  recordUsage:            mockRecordUsage,
 }));
 
 // ── Auth-server mock (rateLimitResponse lives here) ───────────────────────────
@@ -79,6 +80,7 @@ describe('POST /api/resume-match', () => {
     beforeEach(() => {
       mockRequireSubscription.mockResolvedValue(validAuth);
       mockCheckEndpointRateLimit.mockResolvedValue(true);
+      mockRecordUsage.mockClear();
     });
 
     it('returns 429 when endpoint rate limit is reached', async () => {
@@ -131,6 +133,14 @@ describe('POST /api/resume-match', () => {
       expect(body).toHaveProperty('score');
       expect(body).toHaveProperty('matched');
       expect(body).toHaveProperty('missing');
+    });
+
+    it('returns 502 when OpenAI API throws', async () => {
+      process.env.OPENAI_API_KEY = 'sk-test';
+      mockCreate.mockRejectedValueOnce(new Error('Service unavailable'));
+      const res = await POST(makePost(validBody));
+      expect(res.status).toBe(502);
+      expect(mockRecordUsage).not.toHaveBeenCalled();
     });
 
     it('truncates jobDescription to 3000 chars in the OpenAI prompt', async () => {
