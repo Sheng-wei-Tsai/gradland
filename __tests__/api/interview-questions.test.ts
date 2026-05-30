@@ -204,4 +204,26 @@ describe('POST /api/interview/questions', () => {
     const body = await res.json();
     expect(body.questions).toEqual(fakeQuestions);
   });
+
+  it('logs console.error when interview_questions_cache upsert errors', async () => {
+    mockRequireSubscription.mockResolvedValueOnce(validAuth);
+    mockKvGet.mockResolvedValueOnce(null);
+    sbChain.maybeSingle.mockResolvedValueOnce({ data: null, error: null });
+    mockCreate.mockResolvedValueOnce({
+      choices: [{ message: { content: fakePayload } }],
+    });
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    sbChain.upsert.mockImplementationOnce(() => ({
+      then: (cb: (r: { error: { message: string } }) => void) =>
+        cb({ error: { message: 'Schema mismatch' } }),
+    }));
+
+    const res = await POST(makePost({ roleId: 'junior-frontend' }));
+    expect(res.status).toBe(200);
+    expect(errorSpy).toHaveBeenCalledWith(
+      '[interview/questions] cache upsert failed:',
+      'Schema mismatch',
+    );
+    errorSpy.mockRestore();
+  });
 });

@@ -2007,3 +2007,12 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 
 ### Tests (missing 502 regression for resume-match OpenAI failure)
 - [x] Wrap `client.chat.completions.create()` in `app/api/resume-match/route.ts:76` with a try/catch returning 502 on throw; add `it('returns 502 when OpenAI API throws')` to `__tests__/api/resume-match.test.ts` — `mockCreate.mockRejectedValueOnce(new Error('Service unavailable'))`, expect `res.status` to be 502 and `mockRecordUsage` not to have been called; mirrors the pattern from `__tests__/api/resume-analyse.test.ts` [tests] ✅ 2026-05-30
+
+---
+
+## 🛡 Daily Analyst Findings — 2026-05-30 (supplement 11)
+
+> Supplement scan — `app/api/interview/questions/route.ts:138-141` has a bare `void sb.from('interview_questions_cache').upsert(...)` with no `.then()` error handler. A schema drift on `interview_questions_cache` (column rename, type mismatch, RLS denial) would silently break shared question caching for every paid user with no Sentry breadcrumb or log entry. Same class as `readiness-score` supplement 9, `cover-letter` (2026-05-28), and `resume-analyse` (2026-05-24). The test's `sbChain.upsert` mock returns `{ error: null }` but never exercises the failure path.
+
+### Code Quality (silent failure — fire-and-forget cache upsert)
+- [x] Add `.then(({ error }) => { if (error) console.error('[interview/questions] cache upsert failed:', error.message); })` to the fire-and-forget upsert in `app/api/interview/questions/route.ts:138-141` — same error-logging pattern as `cover-letter/route.ts:154`, `resume-analyse/route.ts:151`, `readiness-score/route.ts:167`; add `it('logs console.error when interview_questions_cache upsert errors')` to `__tests__/api/interview-questions.test.ts` using a synchronous thenable mock on `sbChain.upsert` [quality] ✅ 2026-05-30

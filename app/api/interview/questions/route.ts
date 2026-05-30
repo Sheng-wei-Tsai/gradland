@@ -138,7 +138,7 @@ Requirements:
         void sb.from('interview_questions_cache').upsert(
           { role_id: roleId, questions: parsed.questions, updated_at: new Date().toISOString() },
           { onConflict: 'role_id' },
-        );
+        ).then(({ error }) => { if (error) console.error('[interview/questions] cache upsert failed:', error.message); });
       }
     } catch { /* ignore JSON parse errors for caching */ }
 
