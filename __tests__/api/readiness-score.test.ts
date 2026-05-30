@@ -2,6 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockGetUser = vi.fn().mockResolvedValue({ data: { user: null }, error: null });
 
+// Expose mockUpsert so the error-path test can override the .then() behaviour
+const mockUpsert = vi.fn().mockResolvedValue({ error: null });
+
 vi.mock('@/lib/auth-server', () => ({
   createSupabaseServer: vi.fn().mockResolvedValue({
     auth: { getUser: mockGetUser },
@@ -14,7 +17,7 @@ vi.mock('@/lib/auth-server', () => ({
       lte:         vi.fn().mockReturnThis(),
       limit:       vi.fn().mockReturnThis(),
       maybeSingle: vi.fn().mockResolvedValue({ data: null }),
-      upsert:      vi.fn().mockResolvedValue({ error: null }),
+      upsert:      mockUpsert,
     }),
   }),
 }));
@@ -71,5 +74,23 @@ describe('GET /api/readiness-score', () => {
       href:  expect.any(String),
       gain:  expect.any(String),
     });
+  });
+
+  it('logs console.error when readiness_snapshots upsert errors', async () => {
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'test-user-id' } }, error: null });
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    // Synchronous thenable so the callback runs before the response is checked
+    mockUpsert.mockImplementationOnce(() => ({
+      then: (cb: (r: { error: { message: string } }) => void) =>
+        cb({ error: { message: 'Schema mismatch' } }),
+    }));
+
+    const res = await GET();
+    expect(res.status).toBe(200);
+    expect(errorSpy).toHaveBeenCalledWith(
+      '[readiness-score] snapshot upsert failed:',
+      'Schema mismatch',
+    );
+    errorSpy.mockRestore();
   });
 });

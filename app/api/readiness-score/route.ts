@@ -164,7 +164,7 @@ export async function GET() {
       recorded_at:     new Date().toISOString().slice(0, 10),
     },
     { onConflict: 'user_id,recorded_at', ignoreDuplicates: false },
-  ).then(() => {});
+  ).then(({ error }) => { if (error) console.error('[readiness-score] snapshot upsert failed:', error.message); });
 
   return NextResponse.json({ score, components, band: band.label, bandColor: band.color, boostAction: boost });
 }

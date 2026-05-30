@@ -1989,3 +1989,12 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 
 ### Tests (missing 502 regression for resume-analyse Anthropic API failure)
 - [x] Add `it('returns 502 when Anthropic API throws')` to `__tests__/api/resume-analyse.test.ts` — `mockMessagesCreate.mockRejectedValueOnce(new Error('Service unavailable'))`, expect `res.status` to be 502 and `mockRecordUsage` not to have been called; mirrors the pattern from `__tests__/api/companies-research.test.ts` which lacks this test too (the companies-research route swallows all errors in one catch returning 500, so no distinct 502 case exists there) [tests] ✅ 2026-05-30
+
+---
+
+## 🛡 Daily Analyst Findings — 2026-05-30 (supplement 9)
+
+> Supplement scan — `app/api/readiness-score/route.ts:167` uses `.then(() => {})` on the `readiness_snapshots.upsert()` call, the same silent-failure pattern fixed in `resume-analyse/route.ts` (commit `d2d794e`, 2026-05-24) and `cover-letter/route.ts` (commit on 2026-05-28). A schema drift on `readiness_snapshots` (column rename, type mismatch, RLS denial) would silently break snapshot recording for every user on every dashboard load, making the readiness trend data invisible to the operator with no Sentry breadcrumb or log entry. The test's `upsert` mock returns `{ error: null }` but never exercises the failure path.
+
+### Code Quality (silent failure — fire-and-forget snapshot upsert)
+- [x] Add `.then(({ error }) => { if (error) console.error('[readiness-score] snapshot upsert failed:', error.message); })` to the fire-and-forget upsert in `app/api/readiness-score/route.ts:167` — replaces silent `.then(() => {})` with the same error-logging pattern used in `resume-analyse/route.ts:151` and `cover-letter/route.ts:152`; add `it('logs console.error when readiness_snapshots upsert errors')` to `__tests__/api/readiness-score.test.ts` mocking the upsert to call back with `{ error: { message: 'Schema mismatch' } }` and asserting `console.error` was called via spy [quality] ✅ 2026-05-30
