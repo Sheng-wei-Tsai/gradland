@@ -71,12 +71,18 @@ export default function LessonShell({ slug, xpReward, terminalScenario, quiz, ch
     setSaving(true);
     setSaveError(null);
 
-    const quizScoreVal = nextQuiz?.score ?? 0;
-    const quizTotalVal = nextQuiz?.total ?? 0;
-    const perfectQuiz  = nextQuiz && nextQuiz.score === nextQuiz.total;
-    const xpEarned =
+    // Use DB-loaded progress as fallback for quiz values so a terminal-only
+    // re-attempt doesn't erase a previously earned quiz score from the DB row.
+    const effectiveQuiz = nextQuiz ?? (progress ? { score: progress.quiz_score, total: progress.quiz_total } : null);
+    const quizScoreVal  = effectiveQuiz?.score ?? 0;
+    const quizTotalVal  = effectiveQuiz?.total ?? 0;
+    const perfectQuiz   = quizTotalVal > 0 && quizScoreVal === quizTotalVal;
+    // Math.max ensures XP never decreases on re-attempts (e.g. lower quiz score on retry).
+    const xpEarned      = Math.max(
+      progress?.xp_earned ?? 0,
       (nextTerminal ? Math.round(xpReward * 0.4) : 0) +
-      (perfectQuiz   ? Math.round(xpReward * 0.6) : 0);
+      (perfectQuiz  ? Math.round(xpReward * 0.6) : 0),
+    );
 
     const { error } = await supabase
       .from('claude_code_lesson_progress')
