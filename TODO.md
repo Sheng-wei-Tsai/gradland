@@ -1926,3 +1926,12 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 
 ### Code Quality (stale fail-silent — Sentry blind spot)
 - [x] Remove the stale try/catch around the `error_logs` insert in `app/api/log-error/route.ts:21-26` ✅ 2026-05-30 — the inline comment says "Table may not exist yet — fail silently until migration runs", but the migration shipped ✅ 2026-05-09 (TODO line 149: "Verify `error_logs` table exists in prod — route.ts inserts to `error_logs` table; apply migration if missing"); the swallowed catch now hides real DB write failures from both the caller and Sentry, defeating the whole point of the route (which exists to surface client-side errors to observability); fix: drop the `try`/`catch` wrapper and let the `await sb.from('error_logs').insert(...)` error propagate — the route already returns `{ ok: true }` regardless (route returns synchronously before the insert resolves only because there is no `await`-then-`return` mismatch; the current `await` is inside the try, so removing the try only changes the failure path from silent-200 to visible-500, which is correct for an observability endpoint that the client fires-and-forgets) [quality]
+
+---
+
+## 🛡 Daily Analyst Findings — 2026-05-30 (supplement 2)
+
+> Supplement scan — `app/api/diagrams/generate/route.ts:53` and `app/api/learn/roadmap-image/route.ts:47` both return status 500 for a missing `OPENAI_API_KEY`, the same misclassification fixed in `app/api/learn/diagram/route.ts` today (commit `f9af9a0`). The pattern was identified in the 2026-05-30 supplement 1 analysis but the fix was applied only to `learn/diagram`; the two sibling Mermaid-emitting routes were missed. `learn/quiz/route.ts:44` and `learn/analyse/route.ts:78` already return 503, so these two are the only outliers.
+
+### Code Quality (AGENTS §9 — HTTP status semantics)
+- [x] Change OPENAI_API_KEY missing status from 500 to 503 in `app/api/diagrams/generate/route.ts:53` and `app/api/learn/roadmap-image/route.ts:47` — same misclassification fixed in `learn/diagram/route.ts` today; 503 Service Unavailable correctly signals a missing-config gap; update test assertions in `__tests__/api/diagrams-generate.test.ts:117` and `__tests__/api/learn-roadmap-image.test.ts:99` from `toBe(500)` to `toBe(503)` [quality] ✅ 2026-05-30

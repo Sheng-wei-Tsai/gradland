@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
   const jobStage   = VALID_STAGE.includes(body.jobStage)    ? String(body.jobStage)   : 'exploring';
 
   const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) return NextResponse.json({ error: 'OpenAI API not configured' }, { status: 500 });
+  if (!apiKey) return NextResponse.json({ error: 'OpenAI API not configured' }, { status: 503 });
 
   const client     = new OpenAI({ apiKey });
   const roleLabel  = ROLE_LABELS[role]  ?? 'IT Professional';
