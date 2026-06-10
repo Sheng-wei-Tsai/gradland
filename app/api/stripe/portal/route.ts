@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { getServerUser, createSupabaseService } from '@/lib/auth-server';
+import { assertSameOrigin } from '@/lib/safety';
 
 export async function POST(req: NextRequest) {
   const user = await getServerUser();
   if (!user) {
     return NextResponse.json({ error: 'Authentication required', code: 'UNAUTHENTICATED' }, { status: 401 });
   }
+
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
 
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: '2025-06-30.basil',

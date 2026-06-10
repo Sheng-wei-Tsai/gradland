@@ -2094,3 +2094,10 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 
 ### Tests (two missing cases from supplement 4 safety.ts TODO)
 - [x] Add two missing test cases to `__tests__/lib/safety.test.ts` — (1) in `describe('validateMermaidOutput')`: `it('rejects click A href pattern')` with input `'flowchart TD\n  click A href "https://evil.com"'` asserting `r.ok === false` and `r.reason` matches `/blocked pattern/`; (2) in `describe('filterMarkdownForPublicRender')`: `it('keeps ytimg.com thumbnails')` with input `'![thumb](https://i.ytimg.com/vi/abc123/hq720.jpg)'` asserting the output contains `ytimg.com` — verifies `lib/safety.ts:187` ALLOWED_IMAGE_HOSTS entry is exercised; amend `__tests__/lib/safety.test.ts` (no new file) [tests] ✅ 2026-06-10
+
+## 🛡 Daily Analyst Findings — 2026-06-10 (supplement 6)
+
+> Supplement scan — the 2026-06-10 CSRF sweeps (main + supplements 1–5) fixed `assertSameOrigin` guards on all known auth-gated routes except the two Stripe billing routes. `app/api/stripe/checkout/route.ts` (POST — creates a Stripe checkout session tied to the authenticated user's Stripe customer ID, charges the user's payment method) and `app/api/stripe/portal/route.ts` (POST — creates a Stripe billing portal session allowing subscription management/cancellation) are both auth-gated with `getServerUser()` but missing the CSRF guard. A logged-in user visiting a malicious page could be tricked into initiating a checkout or portal session they did not intend, potentially triggering billing-related side effects. `assertSameOrigin` is a no-op under `NODE_ENV=test`.
+
+### Security (CSRF — missing assertSameOrigin on Stripe checkout and portal routes)
+- [x] Add `assertSameOrigin` CSRF guard to `app/api/stripe/checkout/route.ts` (POST) and `app/api/stripe/portal/route.ts` (POST) — import `assertSameOrigin` from `@/lib/safety`, call `const csrf = assertSameOrigin(req); if (csrf) return csrf;` immediately after the `if (!user) return 401` check in each handler; no test changes needed (check is a no-op under NODE_ENV=test) [security] ✅ 2026-06-10
