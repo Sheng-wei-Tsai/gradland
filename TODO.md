@@ -2059,3 +2059,10 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 
 ### Security (CSRF — missing assertSameOrigin on four state-modifying routes)
 - [x] Add `assertSameOrigin` CSRF guard to `app/api/alerts/route.ts` (POST + DELETE), `app/api/comments/route.ts` (POST), `app/api/visa-tracker/route.ts` (POST), and `app/api/onboarding/route.ts` (POST) — import `assertSameOrigin` from `@/lib/safety`, call `const csrf = assertSameOrigin(req); if (csrf) return csrf;` immediately after the `if (!user) return 401` check in each handler; no test changes needed (check is a no-op under NODE_ENV=test per `lib/safety.ts:229`) [security] ✅ 2026-06-10
+
+## 🛡 Daily Analyst Findings — 2026-06-10 (supplement 1)
+
+> Supplement scan — the 2026-06-10 sweep fixed CSRF guards on `alerts`, `comments`, `visa-tracker`, and `onboarding` but missed three more auth-gated state-modifying routes found by auditing all POST handlers without `assertSameOrigin`: `app/api/network/profile/route.ts` (POST upserts anonymous profile, DELETE leaves network), `app/api/network/messages/route.ts` (POST sends DM), and `app/api/learn/progress/route.ts` (POST records video progress + quiz score). All three carry session cookies, so a logged-in user's browser can be tricked into a cross-origin POST that modifies their network identity, sends unsolicited DMs, or fake-completes learning progress. `assertSameOrigin` is a no-op under `NODE_ENV=test`.
+
+### Security (CSRF — missing assertSameOrigin on three remaining auth-gated routes)
+- [x] Add `assertSameOrigin` CSRF guard to `app/api/network/profile/route.ts` (POST + DELETE), `app/api/network/messages/route.ts` (POST), and `app/api/learn/progress/route.ts` (POST) — add `req: NextRequest` to the `DELETE` signature in `network/profile/route.ts` (was parameterless); import `assertSameOrigin` from `@/lib/safety`; call `const csrf = assertSameOrigin(req); if (csrf) return csrf;` immediately after each function opens, before the auth check; no test changes needed [security] ✅ 2026-06-10

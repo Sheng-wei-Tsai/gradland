@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServer } from '@/lib/auth-server';
+import { assertSameOrigin } from '@/lib/safety';
 
 const VALID_VISA_TYPES = ['485', '482', 'student', 'pr', 'citizen', 'other'] as const;
 const VALID_CITIES = ['Sydney', 'Melbourne', 'Brisbane', 'Perth', 'Adelaide', 'Canberra', 'Other'] as const;
@@ -22,6 +23,9 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
+
   const sb = await createSupabaseServer();
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -90,7 +94,10 @@ export async function POST(req: NextRequest) {
   return NextResponse.json(data);
 }
 
-export async function DELETE() {
+export async function DELETE(req: NextRequest) {
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
+
   const sb = await createSupabaseServer();
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

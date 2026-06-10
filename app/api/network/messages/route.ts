@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServer, unauthorizedResponse } from '@/lib/auth-server';
+import { assertSameOrigin } from '@/lib/safety';
 
 export const dynamic = 'force-dynamic';
 
@@ -112,6 +113,9 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 
 // POST /api/network/messages — send a message (auth-gated, rate-limited 20/day)
 export async function POST(req: NextRequest) {
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
+
   const sb = await createSupabaseServer();
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return unauthorizedResponse();
