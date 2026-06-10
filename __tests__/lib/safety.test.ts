@@ -132,12 +132,23 @@ describe('validateMermaidOutput', () => {
     expect(r.ok).toBe(false);
     expect(r.reason).toMatch(/blocked pattern/);
   });
+
+  it('rejects click A href pattern', () => {
+    const r = validateMermaidOutput('flowchart TD\n  click A href "https://evil.com"');
+    expect(r.ok).toBe(false);
+    expect(r.reason).toMatch(/blocked pattern/);
+  });
 });
 
 describe('filterMarkdownForPublicRender', () => {
   it('keeps allowlisted image hosts', () => {
     const md = '![ok](https://avatars.githubusercontent.com/u/1)';
     expect(filterMarkdownForPublicRender(md)).toContain('githubusercontent.com');
+  });
+
+  it('keeps ytimg.com thumbnails', () => {
+    const md = '![thumb](https://i.ytimg.com/vi/abc123/hq720.jpg)';
+    expect(filterMarkdownForPublicRender(md)).toContain('ytimg.com');
   });
 
   it('strips non-allowlisted image hosts', () => {
