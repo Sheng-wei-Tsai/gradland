@@ -1,0 +1,63 @@
+---
+title: "/login — Authenticate Claude Code"
+date: "2026-06-10"
+excerpt: "You'll learn how to authenticate Claude Code with your Anthropic account and manage API credentials securely. This is essential for AI workflows that need to access Claude models reliably while preventing unauthorized usage that could drain your quota."
+tags: ["Claude Code", "AI Workflow", "slash-commands"]
+topics: ["/login", "slash-commands"]
+coverEmoji: "🌳"
+category: "slash-commands"
+short_label: "/login"
+tier: 1
+position:
+  x: 720
+  y: 80
+prerequisites:
+  - help-command
+docs_url: "https://code.claude.com/docs/en/overview"
+xp_reward: 20
+video_ids:
+  - ntDIxaeo3Wg
+  - eMZmDH3T2bY
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: /login — Authenticate Claude Code'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: '/login'
+  successOutput: '✓ Recognised: /login
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"What happens when you run `/login` in Claude Code?","options":["Prompts you to paste an API key into the terminal","Displays a QR code to scan on your mobile device","Opens your default browser to authenticate with Claude, then stores the session token locally","Creates a new Claude account if you don't have one yet"],"answer":2,"explanation":"/login initiates an OAuth flow—it opens your browser for authentication, then saves the resulting session token locally in ~/.claude/. You don't manually paste keys or create accounts via the CLI."},{"q":"You want to switch Claude Code to a different Claude account. What's the correct approach?","options":["Simply run /login again and authenticate with the new account in the browser","Run /logout first, then manually delete ~/.claude/credentials.json, then run /login","Edit ~/.claude/credentials.json manually to swap the session token","Create a new project directory and run /login inside it"],"answer":0,"explanation":"Running /login again automatically overwrites the previous session—no manual cleanup needed. The old token is replaced by the new one when the OAuth flow completes."},{"q":"You run `/login` but your browser never opens. What's the most likely cause?","options":["Your Claude account is locked or suspended","Too many Claude Code instances are running simultaneously","Your system's default browser is not set or the browser path is misconfigured","Your internet connection is down"],"answer":2,"explanation":"If the browser doesn't launch, it's usually a system configuration issue—no default browser registered or broken PATH. Network outages and account locks would produce explicit error messages instead."}]
+---
+## What it does
+
+`/login` authenticates Claude Code with your Anthropic account via OAuth. It opens your browser to the Anthropic auth page, where you sign in and grant Claude Code permission to act on your behalf. On success, Claude Code stores a session token locally—the agent uses this token to call the Claude API and bill your account (for pay-as-you-go API keys) or your Claude Code Pro subscription.
+
+The token is stored in `~/.claude/auth/session.json` and is valid indefinitely *until Anthropic revokes it*. If you revoke Claude Code's OAuth grant from your Anthropic account settings, the token becomes invalid and you'll need to re-run `/login`.
+
+## When to use it
+
+Run `/login` when:
+- You're setting up Claude Code for the first time
+- You see an auth error like "not authenticated" or "invalid token"
+- You want to switch to a different Anthropic account (log out, then re-run `/login`)
+- Your session token has been revoked (you removed Claude Code access from Anthropic settings)
+- You're troubleshooting a "permission denied" error from the API
+
+If you're using Claude Code Pro, `/login` authenticates with the same Anthropic account that owns your subscription—this is how the agent's usage is billed against your Pro quota instead of API credits.
+
+## Try it yourself
+
+Open your terminal and run `/login` without arguments. Watch Claude Code launch your browser to the Anthropic OAuth page. Sign in with your Anthropic account, review the permissions Claude Code is requesting, and click approve. Your terminal should confirm the auth succeeded and return control back to you.
+
+## Gotchas
+
+**Token expiry and revocation.** OAuth tokens don't have a fixed expiry—they're valid until you revoke them. However, Anthropic reserves the right to revoke tokens. If you see errors like "invalid OAuth token" days after a successful `/login`, your token may have been revoked. Fix: re-run `/login`.
+
+**Browser fallback.** If `/login` can't open your default browser (e.g., in a headless SSH session), it will print an auth URL for you to paste into a browser on another machine. Do that, then return to the terminal—Claude Code polls for the OAuth callback.
+
+**Account switching.** There is only one active session per Claude Code installation. If you need to switch accounts, run `/login` again with a different Anthropic user—it overwrites the stored token. There's no "logout" command; re-authenticating is how you change accounts.
+
+**Network and proxy.** OAuth requires HTTPS to Anthropic's servers. If you're behind a corporate proxy, configure it in your terminal or Claude Code settings before running `/login`.
+
+**Claude Code Pro vs API billing.** If you're using Claude Code Pro, `/login` links your session to the Pro subscription. If you later downgrade to a free tier, your agent usage will bill against pay-as-you-go API credits instead. Check your Anthropic account settings to confirm which plan is active.
