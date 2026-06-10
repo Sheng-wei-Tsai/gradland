@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin, createSupabaseService } from '@/lib/auth-server';
 import { sendJobListingApproved } from '@/lib/email';
+import { assertSameOrigin } from '@/lib/safety';
 
 export interface AdminJobListing {
   id:                string;
@@ -37,6 +38,8 @@ export async function GET() {
 
 // PATCH — approve / reject / extend a listing
 export async function PATCH(req: NextRequest) {
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
   const admin = await requireAdmin();
   if (!admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
@@ -113,6 +116,8 @@ export async function PATCH(req: NextRequest) {
 
 // DELETE — hard-delete a listing
 export async function DELETE(req: NextRequest) {
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
   const admin = await requireAdmin();
   if (!admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 

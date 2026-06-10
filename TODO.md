@@ -2066,3 +2066,10 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 
 ### Security (CSRF — missing assertSameOrigin on three remaining auth-gated routes)
 - [x] Add `assertSameOrigin` CSRF guard to `app/api/network/profile/route.ts` (POST + DELETE), `app/api/network/messages/route.ts` (POST), and `app/api/learn/progress/route.ts` (POST) — add `req: NextRequest` to the `DELETE` signature in `network/profile/route.ts` (was parameterless); import `assertSameOrigin` from `@/lib/safety`; call `const csrf = assertSameOrigin(req); if (csrf) return csrf;` immediately after each function opens, before the auth check; no test changes needed [security] ✅ 2026-06-10
+
+## 🛡 Daily Analyst Findings — 2026-06-10 (supplement 2)
+
+> Supplement scan — the 2026-06-10 sweeps fixed CSRF guards on user-facing auth-gated routes but missed two admin-only state-modifying routes: `app/api/admin/job-listings/route.ts` (PATCH approve/reject/extend, GET list) and `app/api/admin/users/[id]/route.ts` (PATCH role change, DELETE ban). Both are guarded by `requireAdmin()` so unauthenticated CSRF is blocked, but a compromised admin browser session or a malicious site open in the same browser could still forge requests that approve fraudulent job listings, promote arbitrary users to admin, or permanently ban legitimate users. The `assertSameOrigin` guard is a no-op under `NODE_ENV=test`.
+
+### Security (CSRF — missing assertSameOrigin on two admin state-modifying routes)
+- [x] Add `assertSameOrigin` CSRF guard to `app/api/admin/job-listings/route.ts` (PATCH + DELETE) and `app/api/admin/users/[id]/route.ts` (PATCH + DELETE) — import `assertSameOrigin` from `@/lib/safety`, call `const csrf = assertSameOrigin(req); if (csrf) return csrf;` immediately after the `requireAdmin()` check in each handler; no test changes needed (check is a no-op under NODE_ENV=test per `lib/safety.ts:229`) [security] ✅ 2026-06-10

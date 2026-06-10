@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseService, requireAdmin } from '@/lib/auth-server';
+import { assertSameOrigin } from '@/lib/safety';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // PATCH /api/admin/users/[id] — update role
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
   const { id } = await params;
   if (!UUID_RE.test(id)) return NextResponse.json({ error: 'Invalid id' }, { status: 400 });
   const admin = await requireAdmin();
@@ -31,7 +34,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 }
 
 // DELETE /api/admin/users/[id] — ban: delete all comments, set role to banned
-export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
   const { id } = await params;
   if (!UUID_RE.test(id)) return NextResponse.json({ error: 'Invalid id' }, { status: 400 });
   const admin = await requireAdmin();
