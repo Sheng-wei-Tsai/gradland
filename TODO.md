@@ -2101,3 +2101,10 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 
 ### Security (CSRF — missing assertSameOrigin on Stripe checkout and portal routes)
 - [x] Add `assertSameOrigin` CSRF guard to `app/api/stripe/checkout/route.ts` (POST) and `app/api/stripe/portal/route.ts` (POST) — import `assertSameOrigin` from `@/lib/safety`, call `const csrf = assertSameOrigin(req); if (csrf) return csrf;` immediately after the `if (!user) return 401` check in each handler; no test changes needed (check is a no-op under NODE_ENV=test) [security] ✅ 2026-06-10
+
+## 🛡 Daily Analyst Findings — 2026-06-10 (supplement 7)
+
+> Supplement scan — `lib/ia-feed.ts` exports `fetchIAFeed` (the RSS parser used on the career-edge page) but `__tests__/lib/ia-feed.test.ts` only tests `formatRelativeDate`. The four internal helpers (`stripHtml`, `extractTag`, `extractAllTags`, `isRelevant`) and the network-calling `fetchIAFeed` function are completely untested. `fetchIAFeed` has three distinct failure paths (network throw → `[]`, non-OK response → `[]`, no matching items → `[]`) and several correctness invariants (CDATA stripping, HTML entity decoding, category allowlist filter, `limit` slicing, items without title/link discarded). The same risk pattern that prompted `ia-feed.ts` `formatRelativeDate` tests — a regex typo or wrong branch in `isRelevant` would silently return an empty career-edge feed.
+
+### Tests (zero coverage on fetchIAFeed)
+- [x] Add Vitest tests for `fetchIAFeed` in `__tests__/lib/ia-feed.test.ts` — mock `fetch` globally; test: (1) network throw → returns `[]`; (2) non-OK response (status 500) → returns `[]`; (3) valid RSS XML with a tech-category item → returns parsed item with correct `title`/`link`/`description`/`category`; (4) item with non-tech category → filtered out (returns `[]`); (5) item with empty `category` array → passes `isRelevant` (returns item — empty categories = allow all); (6) `limit=1` with 2 valid items → returns only 1 item; (7) item missing `title` → filtered out; (8) CDATA-wrapped title is unwrapped correctly; (9) HTML entities in description (`&amp;` → `&`) are decoded; no new file needed [tests] ✅ 2026-06-10
