@@ -183,13 +183,14 @@ Rules:
           const guide = JSON.parse(match[0]) as { error?: string; essay?: string; summary?: string };
           if (!guide.error && (guide.essay || guide.summary)) {
             void kvSet(cacheKey, match[0]);
-            await sb.from('video_content').upsert({
+            const { error: cacheError } = await sb.from('video_content').upsert({
               video_id: videoId,
               video_title: videoTitle || videoId,
               channel_title: channelTitle ?? null,
               study_guide: guide,
               updated_at: new Date().toISOString(),
             }, { onConflict: 'video_id' });
+            if (cacheError) console.error('[learn/analyse] cache upsert failed:', cacheError.message);
           }
         } catch { /* skip cache write on parse error */ }
       }

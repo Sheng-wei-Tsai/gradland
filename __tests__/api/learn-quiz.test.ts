@@ -230,4 +230,19 @@ describe('POST /api/learn/quiz', () => {
     const res = await POST(makePost(validBody));
     expect(res.status).toBe(500);
   });
+
+  it('logs console.error when cache upsert returns an error', async () => {
+    process.env.OPENAI_API_KEY = 'sk-test';
+    mockRequireSubscription.mockResolvedValueOnce(validAuth);
+    mockCreate.mockResolvedValueOnce(
+      makeOpenAIResponse(JSON.stringify({ questions: mockQuestions })),
+    );
+    mockUpsert.mockResolvedValueOnce({ error: { message: 'Schema mismatch' } });
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const res = await POST(makePost(validBody));
+    expect(res.status).toBe(200);
+    expect(errorSpy).toHaveBeenCalledWith('[learn/quiz] cache upsert failed:', 'Schema mismatch');
+    errorSpy.mockRestore();
+  });
 });

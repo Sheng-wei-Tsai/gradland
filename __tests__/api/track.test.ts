@@ -89,4 +89,17 @@ describe('POST /api/track', () => {
     }, '8.8.8.8'));
     expect(res.status).toBe(500);
   });
+
+  it('logs console.error when Supabase upsert returns an error object', async () => {
+    mockUpsert.mockResolvedValueOnce({ error: { message: 'DB constraint violation' } });
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const res = await POST(makeRequest({
+      path: '/blog',
+      sessionId: 'abcdef1234567890abcdef1234567892',
+    }));
+    expect(res.status).toBe(200);
+    expect(errorSpy).toHaveBeenCalledWith('[track] page_views upsert failed:', 'DB constraint violation');
+    errorSpy.mockRestore();
+  });
 });

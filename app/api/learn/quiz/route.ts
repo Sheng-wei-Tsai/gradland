@@ -105,12 +105,13 @@ Rules:
 
     // ── Save to global cache ──────────────────────────────────────────
     if (questions.length) {
-      await sb.from('video_content').upsert({
+      const { error: cacheError } = await sb.from('video_content').upsert({
         video_id: videoId,
         video_title: safeTitle,
         quiz_questions: questions,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'video_id' });
+      if (cacheError) console.error('[learn/quiz] cache upsert failed:', cacheError.message);
     }
 
     void recordUsage(auth.user.id, 'learn/quiz');

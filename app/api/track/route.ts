@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    await sb.from('page_views').upsert(
+    const { error: upsertError } = await sb.from('page_views').upsert(
       {
         path:       cleanPath,
         referrer:   cleanReferrer,
@@ -69,6 +69,7 @@ export async function POST(req: NextRequest) {
       },
       { onConflict: 'session_id,path', ignoreDuplicates: true },
     );
+    if (upsertError) console.error('[track] page_views upsert failed:', upsertError.message);
 
     return NextResponse.json({ ok: true });
   } catch {
