@@ -2,8 +2,12 @@ import * as Sentry from '@sentry/nextjs';
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseService } from '@/lib/auth-server';
 import { checkRateLimit } from '@/lib/rate-limit-db';
+import { assertSameOrigin } from '@/lib/safety';
 
 export async function POST(req: NextRequest) {
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
+
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
   const limited = await checkRateLimit(`log-error:${ip}`, 60, 10);
   if (limited) return NextResponse.json({}, { status: 429 });

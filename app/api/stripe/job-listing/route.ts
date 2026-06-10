@@ -4,11 +4,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { getServerUser } from '@/lib/auth-server';
 import { checkRateLimit } from '@/lib/rate-limit-db';
+import { assertSameOrigin } from '@/lib/safety';
 
 const VALID_LOCATIONS = new Set(['Sydney', 'Melbourne', 'Brisbane', 'Remote', 'Hybrid']);
 const VALID_JOB_TYPES = new Set(['Full-time', 'Contract', 'Graduate']);
 
 export async function POST(req: NextRequest) {
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
+
   // IP-based rate limit — 5 Checkout sessions per IP per hour.
   // Authenticated users get a more permissive per-user limit (10/hr).
   const ip  = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';

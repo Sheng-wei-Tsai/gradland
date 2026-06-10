@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { checkRateLimit } from '@/lib/rate-limit-db';
+import { assertSameOrigin } from '@/lib/safety';
 
 const SUPPORT_INBOX = 'admin@gradland.au';
 const FROM          = 'Gradland <noreply@gradland.au>';
@@ -14,6 +15,9 @@ function escapeHtml(s: string): string {
 }
 
 export async function POST(req: NextRequest) {
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
+
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
       ?? req.headers.get('x-real-ip')
       ?? 'unknown';
