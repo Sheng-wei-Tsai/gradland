@@ -35,11 +35,11 @@ describe('GET /api/cron/expire-job-listings', () => {
 
   // ── Auth guard ───────────────────────────────────────────────────────────────
 
-  it('returns 500 when CRON_SECRET env var is not set', async () => {
+  it('returns 503 when CRON_SECRET env var is not set', async () => {
     delete process.env.CRON_SECRET;
     const res  = await GET(makeReq(`Bearer ${CRON_SECRET}`));
     const body = await res.json();
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(503);
     expect(body.error).toMatch(/CRON_SECRET/);
   });
 
