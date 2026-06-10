@@ -2073,3 +2073,10 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 
 ### Security (CSRF — missing assertSameOrigin on two admin state-modifying routes)
 - [x] Add `assertSameOrigin` CSRF guard to `app/api/admin/job-listings/route.ts` (PATCH + DELETE) and `app/api/admin/users/[id]/route.ts` (PATCH + DELETE) — import `assertSameOrigin` from `@/lib/safety`, call `const csrf = assertSameOrigin(req); if (csrf) return csrf;` immediately after the `requireAdmin()` check in each handler; no test changes needed (check is a no-op under NODE_ENV=test per `lib/safety.ts:229`) [security] ✅ 2026-06-10
+
+## 🛡 Daily Analyst Findings — 2026-06-10 (supplement 3)
+
+> Supplement scan — the 2026-06-10 sweeps (main + supplements 1–2) fixed CSRF guards on all known auth-gated routes, but `app/api/comments/[id]/route.ts` (PATCH edit + DELETE delete a comment) and `app/api/network/messages/[profileId]/route.ts` (PATCH marks a thread as read) were missed. Both are auth-gated (`if (!user) return 401`) so unauthenticated CSRF is blocked, but a logged-in user visiting a malicious page can be tricked into editing/deleting their own comments or silently marking their DM threads as read. `assertSameOrigin` is a no-op under `NODE_ENV=test` so no test updates are needed. The DELETE handler currently names its first param `_req` (unused); it must be renamed to `req` to pass it to `assertSameOrigin`.
+
+### Security (CSRF — missing assertSameOrigin on comments/[id] and network/messages/[profileId])
+- [x] Add `assertSameOrigin` CSRF guard to `app/api/comments/[id]/route.ts` (PATCH + DELETE) and `app/api/network/messages/[profileId]/route.ts` (PATCH) — import `assertSameOrigin` from `@/lib/safety`; in `comments/[id]` PATCH call `const csrf = assertSameOrigin(req); if (csrf) return csrf;` after the `if (!user) return 401` line; in `comments/[id]` DELETE rename `_req` to `req` and add the same guard after `if (!user) return 401`; in `network/messages/[profileId]` PATCH rename `_req` to `req` and add the guard after `if (!user) return unauthorizedResponse()`; no test changes needed [security] ✅ 2026-06-10

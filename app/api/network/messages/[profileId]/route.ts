@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServer, unauthorizedResponse } from '@/lib/auth-server';
+import { assertSameOrigin } from '@/lib/safety';
 
 export const dynamic = 'force-dynamic';
 
@@ -57,13 +58,16 @@ export async function GET(
 
 // PATCH /api/network/messages/[profileId] — mark all messages from that profile as read
 export async function PATCH(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ profileId: string }> },
 ) {
   const { profileId } = await params;
   if (!UUID_RE.test(profileId ?? '')) {
     return NextResponse.json({ error: 'Invalid profileId' }, { status: 400 });
   }
+
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
 
   const sb = await createSupabaseServer();
   const { data: { user } } = await sb.auth.getUser();
