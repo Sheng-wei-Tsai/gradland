@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseService } from '@/lib/auth-server';
 import { checkRateLimit } from '@/lib/rate-limit-db';
+import { assertSameOrigin } from '@/lib/safety';
 
 const sb = createSupabaseService();
 
@@ -8,6 +9,9 @@ const sb = createSupabaseService();
 const SESSION_RE = /^[a-f0-9-]{32,64}$/i;
 
 export async function POST(req: NextRequest) {
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
+
   try {
     // Server-side consent gate — defence in depth alongside the client check.
     // Required by AU Privacy Act + GDPR: no analytics processing without opt-in.

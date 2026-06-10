@@ -2115,3 +2115,10 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 
 ### Security (missing CSRF guards on non-auth POST routes)
 - [x] Add `assertSameOrigin` CSRF guard to `app/api/stripe/job-listing/route.ts`, `app/api/contact/route.ts`, and `app/api/log-error/route.ts` — import `assertSameOrigin` from `@/lib/safety`, call `const csrf = assertSameOrigin(req); if (csrf) return csrf;` as the first statement inside each POST handler; no test changes needed (check is a no-op under NODE_ENV=test per `lib/safety.ts:229`) [security] ✅ 2026-06-10
+
+## 🛡 Daily Analyst Findings — 2026-06-10 (supplement 9)
+
+> Supplement scan — `app/api/track/route.ts` (POST — upserts page-view analytics into `page_views`) was explicitly omitted from the supplement 8 sweep but is still a non-GET state-changing endpoint that writes to Supabase. A CSRF attack could pollute the analytics dataset with fake page-view events tied to a victim user's consent cookie and IP. The route is only called from `components/Analytics.tsx` (same-origin browser fetch); adding `assertSameOrigin` as the first statement is a safe drop-in. The check is a no-op under `NODE_ENV=test` so no test changes are needed. `app/api/stripe/webhook/route.ts` is correctly excluded — it is a Stripe-to-server call authenticated via `stripe.webhooks.constructEvent` signature verification, not a browser-originated request.
+
+### Security (CSRF — missing assertSameOrigin on analytics track route)
+- [x] Add `assertSameOrigin` CSRF guard to `app/api/track/route.ts` (POST) — import `assertSameOrigin` from `@/lib/safety`, call `const csrf = assertSameOrigin(req); if (csrf) return csrf;` as the first statement inside the POST handler (before the consent cookie check); no test changes needed (check is a no-op under NODE_ENV=test per `lib/safety.ts:229`) [security] ✅ 2026-06-10
