@@ -2050,3 +2050,12 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 
 ### Tests (missing 502 regression) + Quality (unguarded async call)
 - [x] Wrap `const stream = await client.chat.completions.create(...)` in `app/api/cover-letter/route.ts` with a try/catch that returns 502 on failure; add `it('returns 502 when OpenAI streaming throws')` to `__tests__/api/cover-letter.test.ts` using `mockCreate.mockRejectedValueOnce(new Error('Service unavailable'))` and asserting `res.status === 502` and `mockRecordUsage` not called [tests] [quality] ✅ 2026-05-30
+
+---
+
+## 🛡 Daily Analyst Findings — 2026-06-10
+
+> Fresh scan — four state-modifying POST routes are missing `assertSameOrigin` CSRF guards: `app/api/alerts/route.ts` (POST creates job alerts, DELETE removes them), `app/api/comments/route.ts` (POST creates comments), `app/api/visa-tracker/route.ts` (POST upserts visa progress data), and `app/api/onboarding/route.ts` (POST writes role/visa/jobStage to user profile). The `account/delete` sweep (commit `746158e`, 2026-05-30) claimed "all 32 other state-changing routes use `assertSameOrigin`" but missed these four. All four are auth-gated (`if (!user) return 401`) so a pure unauthenticated CSRF is blocked by the cookie auth check — but a logged-in user's browser can still be tricked into submitting a cross-origin form POST that carries session cookies. `assertSameOrigin` is already imported in `lib/safety.ts` and is a no-op in `NODE_ENV=test`, so no test updates are needed.
+
+### Security (CSRF — missing assertSameOrigin on four state-modifying routes)
+- [x] Add `assertSameOrigin` CSRF guard to `app/api/alerts/route.ts` (POST + DELETE), `app/api/comments/route.ts` (POST), `app/api/visa-tracker/route.ts` (POST), and `app/api/onboarding/route.ts` (POST) — import `assertSameOrigin` from `@/lib/safety`, call `const csrf = assertSameOrigin(req); if (csrf) return csrf;` immediately after the `if (!user) return 401` check in each handler; no test changes needed (check is a no-op under NODE_ENV=test per `lib/safety.ts:229`) [security] ✅ 2026-06-10

@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServer, createSupabaseService } from '@/lib/auth-server';
+import { assertSameOrigin } from '@/lib/safety';
 
 const VALID_ROLES = ['frontend', 'fullstack', 'backend', 'data-engineer', 'devops', 'mobile', 'qa', 'other'];
 const VALID_VISA  = ['outside', 'student', 'graduate', 'working', 'resident', 'unsure'];
 const VALID_STAGE = ['building', 'applying', 'interviews', 'offer'];
 
 export async function POST(req: NextRequest) {
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
+
   // Auth via SSR cookie session (not Bearer token — tokens can leak in logs/referrers)
   const authSb = await createSupabaseServer();
   const { data: { user } } = await authSb.auth.getUser();
