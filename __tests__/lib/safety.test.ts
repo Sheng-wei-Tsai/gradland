@@ -119,6 +119,19 @@ describe('validateMermaidOutput', () => {
     expect(r.ok).toBe(false);
     expect(r.reason).toMatch(/too large/);
   });
+
+  it('rejects non-string input', () => {
+    // @ts-expect-error testing runtime type guard
+    expect(validateMermaidOutput(null)).toEqual({ ok: false, reason: 'not a string' });
+    // @ts-expect-error testing runtime type guard
+    expect(validateMermaidOutput(42)).toEqual({ ok: false, reason: 'not a string' });
+  });
+
+  it('rejects onclick= event handler (XSS via on* attribute)', () => {
+    const r = validateMermaidOutput('flowchart TD\n  A onclick=alert(1)');
+    expect(r.ok).toBe(false);
+    expect(r.reason).toMatch(/blocked pattern/);
+  });
 });
 
 describe('filterMarkdownForPublicRender', () => {
@@ -149,6 +162,14 @@ describe('assertSameOrigin', () => {
   const original = process.env.NODE_ENV;
   beforeAll(() => { process.env.NODE_ENV = 'production'; });
   afterAll(() => { process.env.NODE_ENV = original; });
+
+  it('returns null immediately when NODE_ENV=test (no header check performed)', () => {
+    // Temporarily restore test env to exercise the short-circuit branch
+    process.env.NODE_ENV = 'test';
+    const req = buildReq('POST', { host: 'example.com', origin: 'https://evil.com' });
+    expect(assertSameOrigin(req)).toBeNull();
+    process.env.NODE_ENV = 'production'; // restore for subsequent tests
+  });
 
   function buildReq(method: string, headers: Record<string, string>) {
     return new NextRequest('https://example.com/api/x', {
