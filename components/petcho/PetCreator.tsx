@@ -130,7 +130,7 @@ export default function PetCreator({ onDone }: Props) {
                   borderRadius: '6px',
                   cursor: 'pointer',
                   boxShadow: color === i ? '3px 3px 0 var(--ink)' : '1px 1px 0 rgba(0,0,0,0.2)',
-                  outline: color === i ? '2px solid var(--vermilion)' : 'none',
+                  outline: color === i ? '2px solid var(--vermilion)' : undefined,
                   outlineOffset: '2px',
                   transition: 'all 0.15s',
                 }}

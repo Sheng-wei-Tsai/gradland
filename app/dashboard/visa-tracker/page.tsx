@@ -212,6 +212,9 @@ export default function VisaTrackerPage() {
         input[type=text]:focus, input[type=date]:focus, textarea:focus {
           border-color: var(--terracotta);
         }
+        input[type=text]:focus-visible, input[type=date]:focus-visible, textarea:focus-visible {
+          outline: 2px solid var(--terracotta); outline-offset: 1px;
+        }
       `}</style>
 
       {/* Header */}

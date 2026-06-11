@@ -266,7 +266,7 @@ export default function TamaDevice({
               <span style={{color:C.prompt,fontSize:'0.65rem',flexShrink:0}}>{pet.name.toLowerCase()}@buddy ~$</span>
               <input ref={inpRef} value={inp} onChange={e=>setInp(e.target.value)} onKeyDown={onKey}
                 placeholder="command…" autoComplete="off" autoCorrect="off" spellCheck={false}
-                style={{flex:1,background:'transparent',border:'none',outline:'none',color:C.text,fontSize:'0.65rem',fontFamily:mono,caretColor:C.prompt}}
+                style={{flex:1,background:'transparent',border:'none',color:C.text,fontSize:'0.65rem',fontFamily:mono,caretColor:C.prompt}}
               />
             </div>
           </div>
