@@ -35,10 +35,11 @@ export async function POST(req: NextRequest) {
       metadata: { supabase_user_id: user.id },
     });
     customerId = customer.id;
-    await sb
+    const { error } = await sb
       .from('profiles')
       .update({ stripe_customer_id: customerId })
       .eq('id', user.id);
+    if (error) console.error('[stripe/checkout] profiles.update stripe_customer_id failed:', error.message);
   }
 
   // Validate origin against allowlist so user-controlled input can't redirect

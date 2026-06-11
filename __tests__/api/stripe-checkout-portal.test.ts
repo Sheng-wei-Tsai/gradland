@@ -203,6 +203,34 @@ describe('POST /api/stripe/checkout', () => {
     expect(call.cancel_url).toContain('gradland.au/pricing');
   });
 
+  it('logs console.error when stripe_customer_id update fails', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    mockGetServerUser.mockResolvedValue(AUTHED_USER);
+    mockFrom.mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          maybeSingle: vi.fn().mockResolvedValue({
+            data: { stripe_customer_id: null, email: 'user@example.com', full_name: 'Test User' },
+            error: null,
+          }),
+        }),
+      }),
+      update: vi.fn().mockReturnValue({
+        eq: vi.fn().mockResolvedValue({ error: { message: 'RLS denied' } }),
+      }),
+    });
+    mockCustomersCreate.mockResolvedValue({ id: 'cus_err_test' });
+    mockCheckoutCreate.mockResolvedValue({ url: 'https://checkout.stripe.com/pay/cs_err' });
+
+    const res = await checkoutPOST(makePost('http://localhost/api/stripe/checkout'));
+    expect(res.status).toBe(200);
+    expect(errorSpy).toHaveBeenCalledWith(
+      '[stripe/checkout] profiles.update stripe_customer_id failed:',
+      'RLS denied',
+    );
+    errorSpy.mockRestore();
+  });
+
   it('falls back to NEXT_PUBLIC_APP_URL when Origin header is not in the allowlist', async () => {
     mockGetServerUser.mockResolvedValue(AUTHED_USER);
     mockFrom.mockReturnValue({
