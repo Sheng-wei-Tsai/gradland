@@ -18,14 +18,14 @@ vi.mock('@/lib/rate-limit-db', () => ({
 // Import after mocking
 const { POST } = await import('@/app/api/track/route');
 
-function makeRequest(body: object, ip = '1.2.3.4') {
+function makeRequest(body: object, ip = '1.2.3.4', consentCookie = 'cookies-consent=accepted') {
   return new NextRequest('http://localhost/api/track', {
     method: 'POST',
     body: JSON.stringify(body),
     headers: {
       'content-type': 'application/json',
       'x-forwarded-for': ip,
-      'cookie': 'cookies-consent=accepted',
+      ...(consentCookie ? { 'cookie': consentCookie } : {}),
     },
   });
 }
@@ -33,6 +33,18 @@ function makeRequest(body: object, ip = '1.2.3.4') {
 describe('POST /api/track', () => {
   beforeEach(() => {
     mockUpsert.mockResolvedValue({ error: null });
+  });
+
+  it('returns 204 when cookies-consent cookie is absent', async () => {
+    const req = makeRequest({ path: '/blog', sessionId: 'abcdef1234567890abcdef1234567890' }, '1.2.3.4', '');
+    const res = await POST(req);
+    expect(res.status).toBe(204);
+  });
+
+  it('returns 204 when cookies-consent cookie has a non-accepted value', async () => {
+    const req = makeRequest({ path: '/blog', sessionId: 'abcdef1234567890abcdef1234567890' }, '1.2.3.4', 'cookies-consent=denied');
+    const res = await POST(req);
+    expect(res.status).toBe(204);
   });
 
   it('returns 400 when sessionId is missing', async () => {

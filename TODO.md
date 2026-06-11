@@ -151,7 +151,7 @@
 **Day 5 — Smoke + go-live**
 - [x] `npm run check` clean ✅ 2026-05-08
 - [ ] Deploy to Vercel preview; verify headers via `curl -I` (CSP, HSTS, frame-ancestors, form-action, Referrer-Policy, Permissions-Policy)
-- [ ] Verify cookie banner blocks `/api/track` until consent
+- [x] Verify cookie banner blocks `/api/track` until consent ✅ 2026-06-11
 - [ ] Verify `/privacy`, `/terms`, `/contact`, `/cookies` return 200 + linked from footer + Stripe Checkout
 - [ ] Stripe webhook replay test (`stripe events resend evt_…`) → confirm no duplicate `job_listings` row
 - [ ] Anon-key SELECT on `job_listings` → fails RLS; SELECT on `public_job_listings` → returns rows minus `contact_email`
