@@ -143,6 +143,6 @@ Requirements:
     void recordUsage(auth.user.id, 'interview/questions');
     return new Response(raw, { headers: { 'Content-Type': 'application/json' } });
   } catch {
-    return new Response(JSON.stringify({ error: 'Failed to generate questions' }), { status: 502 });
+    return NextResponse.json({ error: 'Failed to generate questions' }, { status: 502 });
   }
 }
