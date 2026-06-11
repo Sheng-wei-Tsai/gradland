@@ -83,16 +83,20 @@ describe('POST /api/learn/analyse', () => {
     expect(res.status).toBe(401);
   });
 
-  it('returns 400 when videoId is missing', async () => {
+  it('returns 400 JSON when videoId is missing', async () => {
     mockRequireSubscription.mockResolvedValueOnce(validAuth);
     const res = await POST(makePost({ videoTitle: 'Test Video' }));
     expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBeTruthy();
   });
 
-  it('returns 400 when videoId is not a valid 11-char YouTube ID', async () => {
+  it('returns 400 JSON when videoId is not a valid 11-char YouTube ID', async () => {
     mockRequireSubscription.mockResolvedValueOnce(validAuth);
     const res = await POST(makePost({ videoId: 'not-valid!!', videoTitle: 'Test' }));
     expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/videoId/i);
   });
 
   it('truncates videoTitle and channelTitle to 200 chars before using them', async () => {
@@ -131,10 +135,12 @@ describe('POST /api/learn/analyse', () => {
     expect(res.status).not.toBe(422);
   });
 
-  it('returns 503 when Gemini API key is not configured', async () => {
+  it('returns 503 JSON when Gemini API key is not configured', async () => {
     mockRequireSubscription.mockResolvedValueOnce(validAuth);
     const res = await POST(makePost({ videoId: 'abc1234defg', videoTitle: 'Test Video' }));
     expect(res.status).toBe(503);
+    const body = await res.json();
+    expect(body.error).toMatch(/Gemini/i);
   });
 
   it('returns 429 when endpoint rate limit is exceeded', async () => {

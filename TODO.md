@@ -2187,3 +2187,12 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 ### Accessibility (WCAG 2.1 AA — §12.4 focus indicator)
 - [x] Remove remaining `outline: none` from 4 locations — (1) add `:focus-visible` rule `input[type=text]:focus-visible, input[type=date]:focus-visible, textarea:focus-visible { outline: 2px solid var(--terracotta); outline-offset: 1px; }` to the `<style>` block in `app/dashboard/visa-tracker/page.tsx:212-214`; (2) remove `outline:'none'` from inline style at `components/tama/TamaDevice.tsx:269`; (3) remove `outline: 'none'` from inline style at `components/tama/TamaHatch.tsx:122`; (4) change `'none'` to `undefined` in the colour-swatch `outline` ternary at `components/petcho/PetCreator.tsx:133` — lets global `*:focus-visible` rule apply to un-selected swatches while preserving the `'2px solid var(--vermilion)'` selection indicator; no test changes needed [a11y] ✅ 2026-06-11
 
+---
+
+## 🛡 Daily Analyst Findings — 2026-06-12
+
+> Fresh scan — `app/api/learn/analyse/route.ts` uses `new Response('text', { status: N })` for three early-exit error paths (lines 60, 68, 78) while every other API route in the project uses `NextResponse.json({ error: '...' }, { status: N })`. This inconsistency is a real UX bug: `StudySession.tsx:1093-1098` calls `await res.json()` on any non-ok response and then reads `errData.error`; when the body is plain text (not JSON), `res.json()` throws and the catch block falls back to the generic 'Could not analyse this video.' string — the specific error message ('Missing or invalid videoId', 'Bad request', 'Gemini API not configured') is silently discarded. The 422 path (line 71-75) and all success/streaming paths already use the correct `NextResponse.json` / `new Response(..., { headers: { 'Content-Type': 'application/json' } })` patterns.
+
+### Code Quality (inconsistent error response format — plain text vs JSON)
+- [x] Replace three `new Response('text', { status: N })` with `NextResponse.json({ error: 'text' }, { status: N })` in `app/api/learn/analyse/route.ts` — line 60 (`Bad request`), line 68 (`Missing or invalid videoId`), line 78 (`Gemini API not configured`); update `__tests__/api/learn-analyse.test.ts` to also assert `body.error` is truthy for the 400 and 503 test cases (currently only checks `res.status`) [quality] ✅ 2026-06-12
+

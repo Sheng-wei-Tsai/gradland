@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
 
   let body: { videoId?: string; videoTitle?: string; channelTitle?: string; durationSeconds?: number };
   try { body = await req.json(); }
-  catch { return new Response('Bad request', { status: 400 }); }
+  catch { return NextResponse.json({ error: 'Bad request' }, { status: 400 }); }
 
   const { durationSeconds } = body;
   const videoId = typeof body.videoId === 'string' ? body.videoId : '';
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
   const channelTitle = typeof body.channelTitle === 'string' ? body.channelTitle.slice(0, 200) : '';
 
   if (!videoId || !/^[A-Za-z0-9_-]{11}$/.test(videoId)) {
-    return new Response('Missing or invalid videoId', { status: 400 });
+    return NextResponse.json({ error: 'Missing or invalid videoId' }, { status: 400 });
   }
 
   if (typeof durationSeconds === 'number' && durationSeconds > 7200) {
@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  if (!process.env.GEMINI_API_KEY) return new Response('Gemini API not configured', { status: 503 });
+  if (!process.env.GEMINI_API_KEY) return NextResponse.json({ error: 'Gemini API not configured' }, { status: 503 });
 
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
   const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
