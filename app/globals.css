@@ -1625,7 +1625,6 @@ h3, h4 {
 .bottom-sheet-item:hover,
 .bottom-sheet-item:focus-visible {
   background: var(--parchment) !important;
-  outline: none;
 }
 
 /* ── Social Proof section ─────────────────────────────────────────────── */

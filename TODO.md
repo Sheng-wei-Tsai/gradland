@@ -2173,6 +2173,13 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 ### Accessibility (WCAG 2.1 AA — §12.4 focus indicator)
 - [x] Remove `outline: 'none'` from code-challenge textarea at `app/interview-prep/[role]/InterviewSession.tsx:810` and blog search input at `components/BlogList.tsx:227` — same drop-in removal as supplement 2; restores terracotta focus ring on keyboard tab; no test changes needed [a11y] ✅ 2026-06-11
 
+## 🛡 Daily Analyst Findings — 2026-06-11 (supplement 5)
+
+> Supplement scan — CSS cascade bug in `app/globals.css`: `.bottom-sheet-item:focus-visible { outline: none }` at line 1628 overrides `.nav-focus:focus-visible { outline: 2px solid var(--vermilion) }` at line 1618 because both selectors have specificity 0-2-0 and the later rule wins. Mobile nav Links in `components/Header.tsx:419,509` carry both `bottom-sheet-item` and `nav-focus` classes, so keyboard focus on mobile nav elements produces no visible ring — a WCAG 2.4.7 violation. Fix: remove `outline: none` from `.bottom-sheet-item:focus-visible` so the `.nav-focus` rule applies unobstructed.
+
+### Accessibility (WCAG 2.4.7 — focus visible)
+- [x] Remove `outline: none` from `.bottom-sheet-item:focus-visible` in `app/globals.css:1628` — CSS cascade order caused it to override `.nav-focus:focus-visible { outline: 2px solid var(--vermilion) }` (line 1618, same 0-2-0 specificity); mobile nav Links in `components/Header.tsx:419,509` had both classes but no visible keyboard focus ring [a11y] ✅ 2026-06-11
+
 ## 🛡 Daily Analyst Findings — 2026-06-11 (supplement 4)
 
 > Supplement scan — four `outline: none` instances missed by the 2026-06-11 supplements 1–3 sweeps: (1) `app/dashboard/visa-tracker/page.tsx:210` — the `<style>` JSX block sets `outline: none` on all `input[type=text]`, `input[type=date]`, and `textarea` elements with specificity 0-1-1, which overrides the global `*:focus-visible { outline: 2px solid var(--terracotta) }` rule (specificity 0-1-0) in `globals.css:434`; the `:focus` rule only changes `border-color`, which is insufficient as a sole focus indicator (WCAG 2.4.7); fix: add a `:focus-visible` selector rule with `outline: 2px solid var(--terracotta)` at higher specificity (0-2-1); (2) `components/tama/TamaDevice.tsx:269` — terminal prompt `<input>` has `outline:'none'` inline style; (3) `components/tama/TamaHatch.tsx:122` — pet-name `<input>` has `outline: 'none'` inline style; (4) `components/petcho/PetCreator.tsx:133` — colour-swatch buttons use `outline: color === i ? '2px solid var(--vermilion)' : 'none'` — non-selected swatches have `'none'` which blocks the global focus ring; fix by changing `'none'` to `undefined` (React omits the property entirely, allowing global `:focus-visible` to apply when the swatch receives keyboard focus).
