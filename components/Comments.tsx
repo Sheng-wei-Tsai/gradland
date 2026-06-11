@@ -102,7 +102,7 @@ function CommentCard({
                 value={editText}
                 onChange={e => setEditText(e.target.value)}
                 rows={3}
-                style={{ width: '100%', boxSizing: 'border-box', padding: '0.6rem 0.8rem', borderRadius: 8, border: '1.5px solid var(--parchment)', fontSize: '0.88rem', lineHeight: 1.6, resize: 'vertical', fontFamily: 'inherit', outline: 'none' }}
+                style={{ width: '100%', boxSizing: 'border-box', padding: '0.6rem 0.8rem', borderRadius: 8, border: '1.5px solid var(--parchment)', fontSize: '0.88rem', lineHeight: 1.6, resize: 'vertical', fontFamily: 'inherit' }}
               />
               <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.4rem' }}>
                 <button onClick={handleSaveEdit} disabled={editLoading || !editText.trim()}
@@ -278,7 +278,7 @@ export default function Comments({ slug }: { slug: string }) {
             onChange={e => setText(e.target.value)}
             placeholder="Share your thoughts…"
             rows={3}
-            style={{ width: '100%', boxSizing: 'border-box', padding: '0.75rem 1rem', borderRadius: 10, border: '1.5px solid var(--parchment)', fontSize: '0.92rem', lineHeight: 1.7, resize: 'vertical', fontFamily: 'inherit', outline: 'none', background: 'var(--warm-white)', color: 'var(--brown-dark)' }}
+            style={{ width: '100%', boxSizing: 'border-box', padding: '0.75rem 1rem', borderRadius: 10, border: '1.5px solid var(--parchment)', fontSize: '0.92rem', lineHeight: 1.7, resize: 'vertical', fontFamily: 'inherit', background: 'var(--warm-white)', color: 'var(--brown-dark)' }}
           />
           {postErr && <p style={{ color: 'var(--vermilion)', fontSize: '0.82rem', marginTop: '0.3rem' }}>{postErr}</p>}
           <button type="submit" disabled={posting || !text.trim()}
@@ -329,7 +329,7 @@ export default function Comments({ slug }: { slug: string }) {
                 onChange={e => setReplyText(e.target.value)}
                 placeholder={`Replying to ${comment.profiles?.full_name ?? 'comment'}…`}
                 rows={2}
-                style={{ width: '100%', boxSizing: 'border-box', padding: '0.6rem 0.8rem', borderRadius: 8, border: '1.5px solid var(--parchment)', fontSize: '0.88rem', lineHeight: 1.6, resize: 'vertical', fontFamily: 'inherit', outline: 'none', background: 'var(--warm-white)', color: 'var(--brown-dark)' }}
+                style={{ width: '100%', boxSizing: 'border-box', padding: '0.6rem 0.8rem', borderRadius: 8, border: '1.5px solid var(--parchment)', fontSize: '0.88rem', lineHeight: 1.6, resize: 'vertical', fontFamily: 'inherit', background: 'var(--warm-white)', color: 'var(--brown-dark)' }}
               />
               <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.4rem' }}>
                 <button type="submit" disabled={replyPosting || !replyText.trim()}

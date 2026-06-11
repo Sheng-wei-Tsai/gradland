@@ -835,7 +835,7 @@ export default function InterviewSession({ role }: { role: InterviewRole }) {
                   placeholder="Type your answer here… (Cmd+Enter to submit)"
                   aria-label="Your answer"
                   rows={6}
-                  style={{ width: '100%', boxSizing: 'border-box', padding: '0.9rem 1rem', borderRadius: '10px', border: '1.5px solid var(--parchment)', background: 'var(--cream)', color: 'var(--brown-dark)', fontSize: '0.9rem', lineHeight: 1.7, resize: 'vertical', fontFamily: 'inherit', outline: 'none' }}
+                  style={{ width: '100%', boxSizing: 'border-box', padding: '0.9rem 1rem', borderRadius: '10px', border: '1.5px solid var(--parchment)', background: 'var(--cream)', color: 'var(--brown-dark)', fontSize: '0.9rem', lineHeight: 1.7, resize: 'vertical', fontFamily: 'inherit' }}
                 />
                 {evalError && (
                   <p style={{ color: 'var(--terracotta)', fontSize: '0.85rem', marginTop: '0.5rem' }}>{evalError}</p>
@@ -1032,7 +1032,7 @@ export default function InterviewSession({ role }: { role: InterviewRole }) {
               onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(); } }}
               placeholder="Ask Alex…"
               aria-label="Ask Alex (AI interview coach)"
-              style={{ flex: 1, padding: '0.5rem 0.75rem', borderRadius: '99px', border: '1.5px solid var(--parchment)', background: 'var(--cream)', color: 'var(--brown-dark)', fontSize: '0.83rem', outline: 'none', fontFamily: 'inherit' }}
+              style={{ flex: 1, padding: '0.5rem 0.75rem', borderRadius: '99px', border: '1.5px solid var(--parchment)', background: 'var(--cream)', color: 'var(--brown-dark)', fontSize: '0.83rem', fontFamily: 'inherit' }}
             />
             <button type="button" onClick={sendChatMessage} disabled={!chatInput.trim() || chatLoading}
               aria-label="Send message"
