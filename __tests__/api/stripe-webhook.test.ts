@@ -193,4 +193,23 @@ describe('POST /api/stripe/webhook', () => {
     const body = await res.json();
     expect(body.received).toBe(true);
   });
+
+  it('logs console.error when payment_failed expiry update fails', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    mockProfilesUpdate.mockReturnValueOnce({
+      eq: vi.fn().mockResolvedValue({ error: { message: 'DB write error' } }),
+    });
+
+    const event = makeEvent('invoice.payment_failed', { subscription: 'sub_fail_001' }, 'evt_fail_001');
+    mockConstructEvent.mockReturnValueOnce(event);
+
+    const res = await POST(makeRequest(JSON.stringify(event)));
+    expect(res.status).toBe(200);
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('[stripe/webhook] payment_failed expiry update failed event=evt_fail_001 user=user-123'),
+      'DB write error',
+    );
+
+    consoleSpy.mockRestore();
+  });
 });

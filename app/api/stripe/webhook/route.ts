@@ -144,9 +144,10 @@ export async function POST(req: NextRequest) {
       const userId = sub.metadata?.supabase_user_id;
       if (!userId) break;
 
-      await sb.from('profiles')
+      const { error } = await sb.from('profiles')
         .update({ subscription_expires_at: periodEndToISO(sub) })
         .eq('id', userId);
+      if (error) console.error('[stripe/webhook] payment_failed expiry update failed event=' + event.id + ' user=' + userId + ':', error.message);
       break;
     }
 
