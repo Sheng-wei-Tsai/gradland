@@ -358,6 +358,12 @@
 
 ## 🟢 Priority 5 — Polish
 
+### AI Engineer Lab — interactive course at `/learn/ai-engineer`
+- **What:** Terminal-based interactive course teaching the AI engineering workflow methodology (Plan/Execute/Clear loop, PRD writing, decomposition, tracer bullets, steering files, Ralph loops, HITL/AFK agents). Original content inspired by the publicly described "Engineer's Path" methodology (Matt Pocock, aihero.dev — credited + linked, no course content copied). 15 missions across 3 tracks: ① Fundamentals & Steering ② Plan & Decompose ③ Feedback Loops & AFK Agents. XP + badges + localStorage progress, free access (SEO moat).
+- **Why:** Career-tools audience needs AI-era engineering skills; complements Claude Lab; free content drives organic acquisition.
+- **Files:** `components/terminal/aiEngineerParser.ts` (new state machine + mission catalogue), `components/terminal/AIEngineerTerminal.tsx` (xterm wrapper, own save key), `app/learn/ai-engineer/page.tsx` + `AIEngineerShell.tsx` (route, mirrors claude-lab), `app/learn/LearnPageClient.tsx` (card link), `app/sitemap.ts` (SEO entry).
+- **Effort:** M — ✅ Done 2026-06-11 (smoke-tested: all 15 missions completable, 510 XP, 8 badges, negative input rejected)
+
 ### Mobile job-search consistency pass — `app/globals.css` + `app/jobs/page.tsx`
 - **What:** The mobile `/jobs` search panel accumulated TWO conflicting CSS systems in the same `@media (max-width:640px)` blocks — an early "soft search field" (1px border, no shadow, soft focus ring) and the final comic-ink panel (2px ink border, 3px offset shadow, press-in). Both `!important`, so they fight; `.search-panel` was redefined 3×, `.city-trigger__value`/`__caption` 2× each. Result: inconsistent, hard-to-maintain mobile search.
 - **Why:** AGENTS.md §1 — career tools are the core product; the job search is the flagship tool and must read as one coherent comic-ink system on mobile.

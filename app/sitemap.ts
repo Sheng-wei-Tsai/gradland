@@ -27,6 +27,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/posts/career-edge`, lastModified: now, priority: 0.8 },
     { url: `${BASE_URL}/posts/claude-code`, lastModified: now, priority: 0.8 },
     { url: `${BASE_URL}/learn/claude-skills`, lastModified: now, priority: 0.9 },
+    { url: `${BASE_URL}/learn/ai-engineer`, lastModified: now, priority: 0.9 },
     { url: `${BASE_URL}/jobs`,            lastModified: now, priority: 0.8 },
     { url: `${BASE_URL}/interview-prep`,  lastModified: now, priority: 0.8 },
     { url: `${BASE_URL}/cover-letter`,    lastModified: now, priority: 0.7 },
