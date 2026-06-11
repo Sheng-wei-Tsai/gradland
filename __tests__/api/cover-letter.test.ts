@@ -122,12 +122,16 @@ describe('POST /api/cover-letter', () => {
       delete process.env.OPENAI_API_KEY;
       const res = await POST(makePost(validBody));
       expect(res.status).toBe(503);
+      const body = await res.json();
+      expect(body.error).toBeTruthy();
       process.env.OPENAI_API_KEY = savedKey;
     });
 
     it('returns 400 when required fields are missing', async () => {
       const res = await POST(makePost({ jobTitle: 'Engineer' }));
       expect(res.status).toBe(400);
+      const body = await res.json();
+      expect(body.error).toBeTruthy();
     });
 
     it('returns 400 for an unparseable request body', async () => {
@@ -138,6 +142,8 @@ describe('POST /api/cover-letter', () => {
       });
       const res = await POST(req);
       expect(res.status).toBe(400);
+      const body = await res.json();
+      expect(body.error).toBeTruthy();
     });
 
     it('returns cached text from KV without calling OpenAI', async () => {

@@ -92,11 +92,15 @@ describe('POST /api/interview/chat', () => {
   it('returns 400 when messages is missing', async () => {
     const res = await chatPOST(makePost(url, {}));
     expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBeTruthy();
   });
 
   it('returns 400 when messages is empty array', async () => {
     const res = await chatPOST(makePost(url, { messages: [] }));
     expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBeTruthy();
   });
 
   it('returns 400 for unparseable request body', async () => {
@@ -107,6 +111,8 @@ describe('POST /api/interview/chat', () => {
     });
     const res = await chatPOST(req);
     expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBeTruthy();
   });
 
   it('streams plain-text on valid input', async () => {
@@ -137,6 +143,8 @@ describe('POST /api/interview/chat', () => {
     delete process.env.OPENAI_API_KEY;
     const res = await chatPOST(makePost(url, { messages: msgs }));
     expect(res.status).toBe(503);
+    const body = await res.json();
+    expect(body.error).toBeTruthy();
     process.env.OPENAI_API_KEY = savedKey;
   });
 });
@@ -165,16 +173,22 @@ describe('POST /api/interview/evaluate', () => {
   it('returns 400 when question is missing', async () => {
     const res = await evaluatePOST(makePost(url, { answer: 'A', roleTitle: 'Dev' }));
     expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBeTruthy();
   });
 
   it('returns 400 when answer is missing', async () => {
     const res = await evaluatePOST(makePost(url, { question: 'Q?', roleTitle: 'Dev' }));
     expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBeTruthy();
   });
 
   it('returns 400 when roleTitle is missing', async () => {
     const res = await evaluatePOST(makePost(url, { question: 'Q?', answer: 'A' }));
     expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBeTruthy();
   });
 
   it('returns 400 for unparseable request body', async () => {
@@ -185,6 +199,8 @@ describe('POST /api/interview/evaluate', () => {
     });
     const res = await evaluatePOST(req);
     expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBeTruthy();
   });
 
   it('streams plain-text feedback on valid input', async () => {
@@ -230,6 +246,8 @@ describe('POST /api/interview/evaluate', () => {
     delete process.env.OPENAI_API_KEY;
     const res = await evaluatePOST(makePost(url, validBody));
     expect(res.status).toBe(503);
+    const body = await res.json();
+    expect(body.error).toBeTruthy();
     process.env.OPENAI_API_KEY = savedKey;
   });
 });
@@ -258,16 +276,22 @@ describe('POST /api/interview/mentor', () => {
   it('returns 400 when stage is missing', async () => {
     const res = await mentorPOST(makePost(url, { question: 'Q?', roleTitle: 'Dev' }));
     expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBeTruthy();
   });
 
   it('returns 400 when question is missing', async () => {
     const res = await mentorPOST(makePost(url, { stage: 'scene', roleTitle: 'Dev' }));
     expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBeTruthy();
   });
 
   it('returns 400 when roleTitle is missing', async () => {
     const res = await mentorPOST(makePost(url, { stage: 'scene', question: 'Q?' }));
     expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBeTruthy();
   });
 
   it('returns 400 for an invalid stage value', async () => {
@@ -285,6 +309,8 @@ describe('POST /api/interview/mentor', () => {
     });
     const res = await mentorPOST(req);
     expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBeTruthy();
   });
 
   it('streams plain-text narration on valid input', async () => {
@@ -327,6 +353,8 @@ describe('POST /api/interview/mentor', () => {
     delete process.env.OPENAI_API_KEY;
     const res = await mentorPOST(makePost(url, validBody));
     expect(res.status).toBe(503);
+    const body = await res.json();
+    expect(body.error).toBeTruthy();
     process.env.OPENAI_API_KEY = savedKey;
   });
 

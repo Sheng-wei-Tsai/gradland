@@ -24,25 +24,23 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
-    return new Response(JSON.stringify({ error: 'Invalid request body' }), { status: 400 });
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
 
   const { roleId } = body;
   if (!roleId) {
-    return new Response(JSON.stringify({ error: 'Missing roleId' }), { status: 400 });
+    return NextResponse.json({ error: 'Missing roleId' }, { status: 400 });
   }
 
   const role = getRoleById(roleId);
   if (!role) {
-    return new Response(JSON.stringify({ error: 'Unknown role' }), { status: 400 });
+    return NextResponse.json({ error: 'Unknown role' }, { status: 400 });
   }
 
   // Universal questions are hardcoded — no AI call, no cache needed
   if (roleId === 'universal') {
     void recordUsage(auth.user.id, 'interview/questions');
-    return new Response(JSON.stringify({ questions: UNIVERSAL_QUESTIONS }), {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return NextResponse.json({ questions: UNIVERSAL_QUESTIONS });
   }
 
   const cacheKey = `interview-questions:${roleId}`;
@@ -78,7 +76,7 @@ export async function POST(req: NextRequest) {
 
   // ── 3. Generate fresh questions ─────────────────────────────────────
   if (!process.env.OPENAI_API_KEY) {
-    return new Response(JSON.stringify({ error: 'OpenAI API not configured' }), { status: 503 });
+    return NextResponse.json({ error: 'OpenAI API not configured' }, { status: 503 });
   }
 
   const prompt = `Generate the 10 most commonly asked interview questions for a ${role.title} role in Australia at companies like ${role.companies.slice(0, 3).join(', ')}.

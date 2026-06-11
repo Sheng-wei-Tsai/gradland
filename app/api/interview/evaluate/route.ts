@@ -43,11 +43,11 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
-    return new Response(JSON.stringify({ error: 'Invalid request body' }), { status: 400 });
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
 
   if (!body.question || !body.answer || !body.roleTitle) {
-    return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 });
+    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
 
   const { clean: roleTitle }    = sanitizeUserText(body.roleTitle,    { maxLength: 100,  allowNewlines: false });
@@ -72,7 +72,7 @@ ${wrapUserContent('answer', answer)}
 Evaluate now using the required format.`;
 
   if (!process.env.OPENAI_API_KEY) {
-    return new Response(JSON.stringify({ error: 'OpenAI API not configured' }), { status: 503 });
+    return NextResponse.json({ error: 'OpenAI API not configured' }, { status: 503 });
   }
 
   try {
@@ -103,6 +103,6 @@ Evaluate now using the required format.`;
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
     });
   } catch {
-    return new Response(JSON.stringify({ error: 'Evaluation failed' }), { status: 502 });
+    return NextResponse.json({ error: 'Evaluation failed' }, { status: 502 });
   }
 }

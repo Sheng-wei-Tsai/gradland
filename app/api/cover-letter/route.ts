@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
-    return new Response(JSON.stringify({ error: 'Invalid request body' }), { status: 400 });
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
 
   const sanitized = sanitizeFields<{
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
     background:     { maxLength: 1500, required: true },
   });
   if (!sanitized.ok) {
-    return new Response(JSON.stringify({ error: sanitized.error ?? 'Missing required fields' }), { status: 400 });
+    return NextResponse.json({ error: sanitized.error ?? 'Missing required fields' }, { status: 400 });
   }
   const { jobTitle, company, jobDescription, background } = sanitized.values;
 
@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
 
   // ── 3. Generate fresh ──────────────────────────────────────────────────────
   if (!process.env.OPENAI_API_KEY) {
-    return new Response(JSON.stringify({ error: 'OpenAI API not configured' }), { status: 503 });
+    return NextResponse.json({ error: 'OpenAI API not configured' }, { status: 503 });
   }
 
   const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -129,7 +129,7 @@ Write the cover letter now. 3-4 paragraphs, plain text only, no headers or bulle
       stream: true,
     }, { signal: AbortSignal.timeout(45000) });
   } catch {
-    return new Response(JSON.stringify({ error: 'Failed to generate cover letter' }), { status: 502 });
+    return NextResponse.json({ error: 'Failed to generate cover letter' }, { status: 502 });
   }
 
   const encoder = new TextEncoder();

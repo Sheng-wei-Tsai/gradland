@@ -106,9 +106,7 @@ export async function POST(req: NextRequest) {
   if (cached?.study_guide && (cached.study_guide.essay || cached.study_guide.summary)) {
     // Warm KV so next request is served from the fast path
     void kvSet(cacheKey, JSON.stringify(cached.study_guide));
-    return new Response(JSON.stringify(cached.study_guide), {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return NextResponse.json(cached.study_guide);
   }
 
   const prompt = `You are an expert technical educator helping an Australian developer learn from YouTube videos.

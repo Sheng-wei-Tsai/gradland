@@ -191,6 +191,8 @@ describe('POST /api/interview/questions', () => {
     delete process.env.OPENAI_API_KEY;
     const res = await POST(makePost({ roleId: 'junior-frontend' }));
     expect(res.status).toBe(503);
+    const body = await res.json();
+    expect(body.error).toBeTruthy();
     process.env.OPENAI_API_KEY = savedKey;
   });
 

@@ -86,16 +86,16 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
-    return new Response(JSON.stringify({ error: 'Invalid request body' }), { status: 400 });
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
 
   const { stage, question, roleTitle } = body;
   if (!stage || !question || !roleTitle) {
-    return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 });
+    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
 
   if (!['scene', 'why', 'guide', 'reality', 'followup'].includes(stage)) {
-    return new Response(JSON.stringify({ error: 'Invalid stage' }), { status: 400 });
+    return NextResponse.json({ error: 'Invalid stage' }, { status: 400 });
   }
 
   const knownCompanies = new Set(Object.keys(COMPANY_INTEL));
@@ -127,7 +127,7 @@ export async function POST(req: NextRequest) {
   const userPrompt = buildPrompt(safeBody);
 
   if (!process.env.OPENAI_API_KEY) {
-    return new Response(JSON.stringify({ error: 'OpenAI API not configured' }), { status: 503 });
+    return NextResponse.json({ error: 'OpenAI API not configured' }, { status: 503 });
   }
 
   try {
@@ -158,6 +158,6 @@ export async function POST(req: NextRequest) {
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
     });
   } catch {
-    return new Response(JSON.stringify({ error: 'Failed to generate narration' }), { status: 502 });
+    return NextResponse.json({ error: 'Failed to generate narration' }, { status: 502 });
   }
 }
