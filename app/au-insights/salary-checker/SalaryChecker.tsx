@@ -175,7 +175,7 @@ export default function SalaryChecker() {
     width: '100%', padding: '0.6rem 0.8rem', borderRadius: '8px',
     border: '1px solid var(--parchment)', background: 'var(--warm-white)',
     fontSize: '0.88rem', color: 'var(--brown-dark)', fontFamily: 'inherit',
-    outline: 'none', boxSizing: 'border-box',
+    boxSizing: 'border-box',
   };
 
   return (

@@ -143,7 +143,7 @@ function CoverLetterContent() {
   const inputStyle = {
     width: '100%', padding: '0.7rem 1rem', borderRadius: '10px',
     border: '1px solid var(--parchment)', fontSize: '0.95rem',
-    background: 'white', color: 'var(--brown-dark)', outline: 'none',
+    background: 'white', color: 'var(--brown-dark)',
     fontFamily: 'inherit', boxSizing: 'border-box' as const,
   };
   const labelStyle = {
@@ -350,7 +350,7 @@ function CoverLetterContent() {
                 value={generating && !output ? 'Writing...' : output}
                 onChange={e => setOutput(e.target.value)}
                 style={{
-                  flex: 1, border: 'none', outline: 'none', resize: 'none',
+                  flex: 1, border: 'none', resize: 'none',
                   background: 'transparent', fontSize: '0.92rem',
                   lineHeight: 1.8, color: 'var(--brown-dark)',
                   fontFamily: 'Georgia, serif', minHeight: '420px',

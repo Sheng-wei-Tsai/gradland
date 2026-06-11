@@ -194,7 +194,6 @@ export default function ResumeChecker() {
           background: 'var(--warm-white)',
           resize: 'vertical',
           boxSizing: 'border-box',
-          outline: 'none',
         }}
       />
 

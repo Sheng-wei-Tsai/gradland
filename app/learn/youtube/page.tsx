@@ -169,7 +169,7 @@ export default function LearnYoutubePage() {
                 border: `1px solid ${urlError ? 'var(--vermilion)' : 'var(--parchment)'}`,
                 borderRadius: '10px', background: 'var(--warm-white)',
                 color: 'var(--brown-dark)', fontSize: '0.92rem',
-                fontFamily: 'inherit', outline: 'none',
+                fontFamily: 'inherit',
               }}
             />
             <button type="submit" style={{

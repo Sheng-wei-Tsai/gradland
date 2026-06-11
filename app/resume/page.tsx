@@ -81,7 +81,7 @@ function JobMatchWidget() {
           width: '100%', minHeight: '120px', padding: '0.8rem',
           borderRadius: '10px', border: '1px solid var(--parchment)',
           fontSize: '0.88rem', resize: 'vertical', fontFamily: 'inherit',
-          background: 'var(--warm-white)', color: 'var(--brown-dark)', outline: 'none',
+          background: 'var(--warm-white)', color: 'var(--brown-dark)',
           boxSizing: 'border-box',
         }}
       />

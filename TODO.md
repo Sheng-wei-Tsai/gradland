@@ -174,6 +174,9 @@
 
 ## 🔴 Priority 1 — Retention Engine
 
+### [a11y] Remove remaining `outline: 'none'` from form inputs
+- [x] Remove `outline: 'none'` from inline styles in `app/cover-letter/page.tsx` (inputStyle:146, compose textarea:353), `app/learn/youtube/page.tsx:172`, `app/resume/page.tsx:84`, `app/visa-pathway/PathwayPlanner.tsx:425`, `app/au-insights/salary-checker/SalaryChecker.tsx:178`, `app/au-insights/ResumeChecker.tsx:197`, `components/petcho/PetCreator.tsx:100` — same pattern as 2026-06-11 fix in login/comments/interview-session; inline property overrides global `*:focus-visible { outline: 2px solid var(--terracotta) }` rule at `globals.css:434` (specificity 1-0-0-0 beats any class/type selector); removing the property restores keyboard focus ring for screen reader and keyboard-only users; no other changes needed [a11y] ✅ 2026-06-11
+
 ### Readiness Score on Profile Page
 - [x] 2026-04-29 Show the 0–100 score ring + breakdown on `/dashboard/profile`
 - Small effort (S) — widget already exists as `ReadinessScore` component

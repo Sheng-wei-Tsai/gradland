@@ -97,7 +97,6 @@ export default function PetCreator({ onDone }: Props) {
               fontFamily: "'Lora', serif",
               background: 'var(--cream)',
               color: 'var(--brown-dark)',
-              outline: 'none',
               boxShadow: '2px 2px 0 var(--ink)',
             }}
           />

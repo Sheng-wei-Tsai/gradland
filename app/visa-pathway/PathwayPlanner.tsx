@@ -422,7 +422,7 @@ const inputStyle: React.CSSProperties = {
   width: '100%', padding: '0.55rem 0.75rem', borderRadius: '8px',
   border: '1px solid var(--parchment)', background: 'var(--warm-white)',
   fontSize: '0.9rem', color: 'var(--brown-dark)', fontFamily: 'inherit',
-  outline: 'none', boxSizing: 'border-box',
+  boxSizing: 'border-box',
 };
 
 const primaryBtnStyle: React.CSSProperties = {
