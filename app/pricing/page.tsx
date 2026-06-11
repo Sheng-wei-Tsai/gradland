@@ -110,8 +110,8 @@ export default function PricingPage() {
             Pro
           </p>
           <div style={{ marginBottom: '0.25rem' }}>
-            <span style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--brown-dark)' }}>$9.99</span>
-            <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginLeft: '0.25rem' }}>USD / month</span>
+            <span style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--brown-dark)' }}>$14.99</span>
+            <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginLeft: '0.25rem' }}>AUD / month</span>
           </div>
           <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
             Billed monthly. Cancel anytime.
@@ -130,7 +130,7 @@ export default function PricingPage() {
             color: 'white', fontSize: '0.95rem', fontWeight: 700,
             cursor: loading ? 'default' : 'pointer', fontFamily: 'inherit',
           }}>
-            {loading ? 'Redirecting…' : 'Subscribe — $9.99 / mo'}
+            {loading ? 'Redirecting…' : 'Subscribe — A$14.99 / mo'}
           </button>
         </div>
       </div>

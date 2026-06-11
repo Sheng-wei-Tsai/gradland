@@ -29,7 +29,7 @@ export default function UpgradeCTA({
   body,
   variant = 'block',
   href    = '/pricing',
-  cta     = 'See Pro plans → A$9.99/mo',
+  cta     = 'See Pro plans → A$14.99/mo',
 }: Props) {
   const resolvedHeadline = headline ?? (
     feature ? `${capitalise(feature)} is a Pro feature` : 'Upgrade to Pro'
