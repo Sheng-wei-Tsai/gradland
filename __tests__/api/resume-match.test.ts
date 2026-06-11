@@ -89,18 +89,20 @@ describe('POST /api/resume-match', () => {
       expect(res.status).toBe(429);
     });
 
-    it('returns 503 when OPENAI_API_KEY is missing', async () => {
+    it('returns 503 JSON when OPENAI_API_KEY is missing', async () => {
       const saved = process.env.OPENAI_API_KEY;
       delete process.env.OPENAI_API_KEY;
       try {
         const res = await POST(makePost(validBody));
         expect(res.status).toBe(503);
+        const body = await res.json();
+        expect(body.error).toBeTruthy();
       } finally {
         if (saved !== undefined) process.env.OPENAI_API_KEY = saved;
       }
     });
 
-    it('returns 400 for an unparseable request body', async () => {
+    it('returns 400 JSON for an unparseable request body', async () => {
       process.env.OPENAI_API_KEY = 'sk-test';
       const req = new NextRequest('http://localhost/api/resume-match', {
         method:  'POST',
@@ -109,18 +111,24 @@ describe('POST /api/resume-match', () => {
       });
       const res = await POST(req);
       expect(res.status).toBe(400);
+      const body = await res.json();
+      expect(body.error).toBeTruthy();
     });
 
-    it('returns 400 when jobDescription is missing', async () => {
+    it('returns 400 JSON when jobDescription is missing', async () => {
       process.env.OPENAI_API_KEY = 'sk-test';
       const res = await POST(makePost({}));
       expect(res.status).toBe(400);
+      const body = await res.json();
+      expect(body.error).toBeTruthy();
     });
 
-    it('returns 400 when jobDescription is a non-string truthy value', async () => {
+    it('returns 400 JSON when jobDescription is a non-string truthy value', async () => {
       process.env.OPENAI_API_KEY = 'sk-test';
       const res = await POST(makePost({ jobDescription: { malicious: true } }));
       expect(res.status).toBe(400);
+      const body = await res.json();
+      expect(body.error).toBeTruthy();
     });
 
     it('returns 200 with JSON result for a valid request', async () => {
@@ -135,11 +143,13 @@ describe('POST /api/resume-match', () => {
       expect(body).toHaveProperty('missing');
     });
 
-    it('returns 502 when OpenAI API throws', async () => {
+    it('returns 502 JSON when OpenAI API throws', async () => {
       process.env.OPENAI_API_KEY = 'sk-test';
       mockCreate.mockRejectedValueOnce(new Error('Service unavailable'));
       const res = await POST(makePost(validBody));
       expect(res.status).toBe(502);
+      const body = await res.json();
+      expect(body.error).toBeTruthy();
       expect(mockRecordUsage).not.toHaveBeenCalled();
     });
 

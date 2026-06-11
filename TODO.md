@@ -2196,3 +2196,10 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 ### Code Quality (inconsistent error response format — plain text vs JSON)
 - [x] Replace three `new Response('text', { status: N })` with `NextResponse.json({ error: 'text' }, { status: N })` in `app/api/learn/analyse/route.ts` — line 60 (`Bad request`), line 68 (`Missing or invalid videoId`), line 78 (`Gemini API not configured`); update `__tests__/api/learn-analyse.test.ts` to also assert `body.error` is truthy for the 400 and 503 test cases (currently only checks `res.status`) [quality] ✅ 2026-06-12
 
+## 🛡 Daily Analyst Findings — 2026-06-12 (supplement 1)
+
+> Supplement scan — `app/api/resume-match/route.ts` uses `new Response(JSON.stringify({ error: '...' }), { status: N })` for four early-exit error paths (lines 28, 36, 41, 85) while the project standard is `NextResponse.json({ error: '...' }, { status: N })`. The missing `Content-Type: application/json` header means any future client checking the content-type (or a middleware expecting JSON responses) would not correctly interpret the error body. The same pattern was identified and fixed in `learn/analyse/route.ts` in the 2026-06-12 scan. The tests only checked `res.status` for error cases — they did not verify `body.error` is populated (unlike the updated `learn-analyse.test.ts`).
+
+### Code Quality (inconsistent error response format — missing Content-Type on error responses)
+- [x] Replace four `new Response(JSON.stringify({ error: '...' }), { status: N })` with `NextResponse.json({ error: '...' }, { status: N })` in `app/api/resume-match/route.ts` — line 28 (503 OPENAI_API_KEY missing), line 36 (400 unparseable body), line 41 (400 missing jobDescription), line 85 (502 OpenAI throws); update `__tests__/api/resume-match.test.ts` to assert `body.error` is truthy for all four error cases — matches the fix pattern from `learn/analyse/route.ts` (2026-06-12) [quality] ✅ 2026-06-12
+

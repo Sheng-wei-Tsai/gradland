@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
   if (!(await checkEndpointRateLimit(auth.user.id, 'resume-match'))) return rateLimitResponse();
 
   if (!process.env.OPENAI_API_KEY) {
-    return new Response(JSON.stringify({ error: 'OpenAI API not configured' }), { status: 503 });
+    return NextResponse.json({ error: 'OpenAI API not configured' }, { status: 503 });
   }
   const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -33,12 +33,12 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
-    return new Response(JSON.stringify({ error: 'Invalid request body' }), { status: 400 });
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
 
   const { jobDescription } = body;
   if (typeof jobDescription !== 'string' || !jobDescription) {
-    return new Response(JSON.stringify({ error: 'Missing job description' }), { status: 400 });
+    return NextResponse.json({ error: 'Missing job description' }, { status: 400 });
   }
 
   const prompt = `You are an ATS expert and Australian IT recruitment specialist with 15+ years placing engineers at Atlassian, CBA, Accenture, and AWS.
@@ -82,7 +82,7 @@ Rules:
       max_tokens: 1000,
     });
   } catch {
-    return new Response(JSON.stringify({ error: 'AI service temporarily unavailable' }), { status: 502 });
+    return NextResponse.json({ error: 'AI service temporarily unavailable' }, { status: 502 });
   }
 
   void recordUsage(auth.user.id, 'resume-match');
