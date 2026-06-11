@@ -2166,3 +2166,10 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 ### Accessibility (WCAG 2.1 AA — §12.4 focus indicator)
 - [x] Remove `outline: 'none'` from three textarea inline styles in `components/Comments.tsx` — edit textarea at line 105, new-comment textarea at line 281, reply textarea at line 332; removing the property lets the global `*:focus-visible { outline: 2px solid var(--terracotta) }` rule apply; also remove `outline: 'none'` from answer textarea at `app/interview-prep/[role]/InterviewSession.tsx:838` and chat input at line 1035; no test changes needed (focus styles are visual) [a11y] ✅ 2026-06-11
 
+## 🛡 Daily Analyst Findings — 2026-06-11 (supplement 3)
+
+> Supplement scan — two more `outline: 'none'` inline styles missed by the 2026-06-11 supplement 2 sweep: (1) `app/interview-prep/[role]/InterviewSession.tsx:810` — the code-challenge textarea (rendered when `stage === 'practice' && qType === 'code'`) uses `outline: 'none'` on the dark `#0d1117` code editor; supplement 2 fixed the behavioural-answer textarea at line 838 and the chat input at line 1035, but missed the coding textarea one step earlier; (2) `components/BlogList.tsx:227` — the blog search `<input>` sets `outline: 'none'` inline; no CSS class or `:focus-visible` override provides an alternative indicator, so keyboard users tabbing to the search box see no visible focus ring; both fixes are drop-in removals — the global `*:focus-visible { outline: 2px solid var(--terracotta) }` rule in `globals.css:434` applies once the inline property is removed; no test changes needed.
+
+### Accessibility (WCAG 2.1 AA — §12.4 focus indicator)
+- [x] Remove `outline: 'none'` from code-challenge textarea at `app/interview-prep/[role]/InterviewSession.tsx:810` and blog search input at `components/BlogList.tsx:227` — same drop-in removal as supplement 2; restores terracotta focus ring on keyboard tab; no test changes needed [a11y] ✅ 2026-06-11
+

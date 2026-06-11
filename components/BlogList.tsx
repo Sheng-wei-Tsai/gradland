@@ -224,7 +224,7 @@ export default function BlogList({ posts, tags }: { posts: Post[]; tags: string[
               background: 'var(--warm-white)', border: 'var(--panel-border)',
               borderRadius: '8px', boxShadow: '3px 3px 0 var(--ink)',
               fontSize: '0.92rem', color: 'var(--text-primary)',
-              outline: 'none', fontFamily: 'inherit', transition: 'box-shadow 0.15s ease',
+              fontFamily: 'inherit', transition: 'box-shadow 0.15s ease',
             }}
           />
           {/* Kbd hint — disappears when typing, just like macOS Spotlight. */}

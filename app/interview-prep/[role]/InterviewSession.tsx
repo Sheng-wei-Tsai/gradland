@@ -807,7 +807,7 @@ export default function InterviewSession({ role }: { role: InterviewRole }) {
                       background: '#0d1117', color: '#e6edf3',
                       fontSize: '0.875rem', lineHeight: 1.7, resize: 'vertical',
                       fontFamily: "'Fira Code', 'Cascadia Code', 'JetBrains Mono', 'Courier New', monospace",
-                      outline: 'none', display: 'block',
+                      display: 'block',
                       tabSize: 2,
                     }}
                   />
