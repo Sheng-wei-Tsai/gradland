@@ -22,7 +22,8 @@ export async function POST(req: NextRequest) {
   Sentry.captureMessage(message, { level: 'error', extra: { digest, url } });
 
   const sb = createSupabaseService();
-  await sb.from('error_logs').insert({ message, digest, url, created_at: new Date().toISOString() });
+  const { error } = await sb.from('error_logs').insert({ message, digest, url, created_at: new Date().toISOString() });
+  if (error) console.error('[log-error] error_logs insert failed:', error.message);
 
   return NextResponse.json({ ok: true });
 }

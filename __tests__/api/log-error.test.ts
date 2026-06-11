@@ -68,4 +68,13 @@ describe('POST /api/log-error', () => {
     expect(inserted.digest).toBe('');
     expect(inserted.url).toBe('');
   });
+
+  it('logs console.error when error_logs insert fails', async () => {
+    mockInsert.mockResolvedValueOnce({ error: { message: 'Schema mismatch' } });
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const res = await POST(makePost({ message: 'test error', url: '/page' }, '6.6.6.1'));
+    expect(res.status).toBe(200);
+    expect(spy).toHaveBeenCalledWith('[log-error] error_logs insert failed:', 'Schema mismatch');
+    spy.mockRestore();
+  });
 });
