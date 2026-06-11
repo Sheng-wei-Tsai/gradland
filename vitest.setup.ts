@@ -6,6 +6,9 @@ process.env.NEXT_PUBLIC_SUPABASE_URL    = 'https://test.supabase.co';
 process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-anon-key';
 process.env.SUPABASE_SERVICE_ROLE_KEY   = 'test-service-key';
 process.env.NEXT_PUBLIC_APP_URL         = 'https://gradland.au';
+// Routes guard on OPENAI_API_KEY before the (mocked) OpenAI client is reached;
+// without a value here every OpenAI route test gets 503 in CI.
+process.env.OPENAI_API_KEY              = 'test-openai-key';
 
 // ── next/headers mock ─────────────────────────────────────────────────────────
 // cookies() requires a Next.js request scope that doesn't exist in Vitest/jsdom.
