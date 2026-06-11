@@ -2211,3 +2211,12 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 - [x] Replace all `new Response(JSON.stringify({ error: '...' }), { status: N })` with `NextResponse.json({ error: '...' }, { status: N })` in `app/api/cover-letter/route.ts` (lines 50, 62, 93, 132), `app/api/interview/chat/route.ts` (lines 30, 35, 55, 90), `app/api/interview/evaluate/route.ts` (lines 46, 50, 75, 106), `app/api/interview/mentor/route.ts` (lines 89, 94, 98, 130, 161), `app/api/interview/questions/route.ts` (lines 27, 32, 37, 43, 81), and `app/api/learn/analyse/route.ts:109` (success cache-hit path); update `__tests__/api/interview-ai-routes.test.ts` and `__tests__/api/interview-questions.test.ts` and `__tests__/api/cover-letter.test.ts` to assert `body.error` is truthy for the 400 and 503 test cases — matches the fix pattern from `learn/analyse/route.ts` and `resume-match/route.ts` (2026-06-12) [quality] ✅ 2026-06-11
 - [x] Fix missed `new Response(JSON.stringify(...))` in `app/api/interview/questions/route.ts:146` (502 catch block) — was not listed in the sweep above; `NextResponse.json` ensures `Content-Type: application/json` on the 502 path matching all other routes [quality] ✅ 2026-06-12
 
+---
+
+## 🛡 Daily Analyst Findings — 2026-06-12 (supplement 3)
+
+> Follow-up scan — the 2026-06-12 supplement 2 commit fixed five error paths in `app/api/interview/questions/route.ts` (lines 27, 32, 37, 43, 81) but missed the 502 catch path at line 146: `return new Response(JSON.stringify({ error: 'Failed to generate questions' }), { status: 502 })`. The test at `__tests__/api/interview-questions.test.ts:183` already asserts `body.error === 'Failed to generate questions'` so the response body is valid JSON, but the `Content-Type: application/json` header is absent — same gap fixed across every other error path in the supplement 2 sweep.
+
+### Code Quality (one remaining non-standard 502 error response)
+- [x] Replace `new Response(JSON.stringify({ error: 'Failed to generate questions' }), { status: 502 })` with `NextResponse.json({ error: 'Failed to generate questions' }, { status: 502 })` at `app/api/interview/questions/route.ts:146` — the only remaining `new Response(JSON.stringify(...))` error pattern in the codebase after the 2026-06-12 supplement 2 sweep; no test changes needed (test at line 183 already asserts `body.error` equals the string) [quality] ✅ 2026-06-12
+
