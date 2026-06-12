@@ -1881,8 +1881,8 @@ h3, h4 {
   display: block;
   text-decoration: none;
   border-radius: 14px;
-  border: 3px solid #140a05;
-  box-shadow: 7px 7px 0 #140a05;
+  border: 3px solid var(--ink);
+  box-shadow: 7px 7px 0 var(--ink);
   overflow: hidden;
   cursor: pointer;
   transition:
@@ -1893,12 +1893,12 @@ h3, h4 {
 
 .comic-tool-card:hover {
   transform: translateY(-9px) rotate(-1.5deg);
-  box-shadow: 11px 11px 0 2px #c0281c;
+  box-shadow: 11px 11px 0 2px var(--vermilion);
 }
 
 .comic-tool-card:focus-visible {
   transform: translateY(-6px) rotate(-1deg);
-  box-shadow: 9px 9px 0 1px #c0281c;
+  box-shadow: 9px 9px 0 1px var(--vermilion);
   outline: none;
 }
 
@@ -1909,14 +1909,6 @@ h3, h4 {
 [data-theme="dark"] .comic-tool-card {
   border-color: rgba(240,230,208,0.6);
   box-shadow: 7px 7px 0 rgba(240,230,208,0.35);
-}
-
-[data-theme="dark"] .comic-tool-card:hover {
-  box-shadow: 11px 11px 0 2px #e84040;
-}
-
-[data-theme="dark"] .comic-tool-card:focus-visible {
-  box-shadow: 9px 9px 0 1px #e84040;
 }
 
 /* Dot halftone overlay — decorative right panel */
