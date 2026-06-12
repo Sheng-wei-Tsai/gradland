@@ -30,16 +30,20 @@ const ENDPOINT = 'https://models.github.ai/inference/chat/completions';
  * models work with the default token + `permissions: models: read`, which
  * is what every workflow already passes.
  *
- *   - claude-haiku-*   → mistral-ai/Ministral-3B           (cheap, fast)
- *   - claude-sonnet-*  → mistral-ai/Mistral-large-2411     (balanced)
- *   - claude-opus-*    → meta/Llama-3.3-70B-Instruct       (best free-tier)
+ * Model ids are case-sensitive and lowercase in the catalog — the API
+ * returns 403 no_access for any casing mismatch (e.g. "Ministral-3B").
+ * Verify against GET https://models.github.ai/catalog/models.
+ *
+ *   - claude-haiku-*   → mistral-ai/ministral-3b           (cheap, fast)
+ *   - claude-sonnet-*  → mistral-ai/mistral-medium-2505    (balanced)
+ *   - claude-opus-*    → meta/llama-3.3-70b-instruct       (best free-tier)
  */
 function mapToGithubModel(claudeModel?: ClaudeModel): string {
-  if (!claudeModel) return 'mistral-ai/Ministral-3B';
-  if (claudeModel.includes('haiku')) return 'mistral-ai/Ministral-3B';
-  if (claudeModel.includes('sonnet')) return 'mistral-ai/Mistral-large-2411';
-  if (claudeModel.includes('opus')) return 'meta/Llama-3.3-70B-Instruct';
-  return 'mistral-ai/Ministral-3B';
+  if (!claudeModel) return 'mistral-ai/ministral-3b';
+  if (claudeModel.includes('haiku')) return 'mistral-ai/ministral-3b';
+  if (claudeModel.includes('sonnet')) return 'mistral-ai/mistral-medium-2505';
+  if (claudeModel.includes('opus')) return 'meta/llama-3.3-70b-instruct';
+  return 'mistral-ai/ministral-3b';
 }
 
 export class GithubModelsQuotaError extends Error {
