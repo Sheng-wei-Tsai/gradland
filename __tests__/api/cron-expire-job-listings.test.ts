@@ -213,6 +213,81 @@ describe('GET /api/cron/expire-job-listings', () => {
     expect(body.reminded).toBe(0);
   });
 
+  it('continues loop and returns 200 when one expiry email throws', async () => {
+    const expiredListings = [
+      { id: 'id-a', company: 'Atlassian', title: 'Engineer', contact_email: 'a@a.com' },
+      { id: 'id-b', company: 'Canva',     title: 'Designer', contact_email: 'b@b.com' },
+    ];
+    mockSendExpired
+      .mockRejectedValueOnce(new Error('Resend 429'))
+      .mockResolvedValue(undefined);
+
+    mockFrom
+      .mockReturnValueOnce({
+        update: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            lt: vi.fn().mockReturnValue({
+              select: vi.fn().mockResolvedValue({ data: expiredListings, error: null }),
+            }),
+          }),
+        }),
+      })
+      .mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            gt: vi.fn().mockReturnValue({
+              lt: vi.fn().mockReturnValue({
+                limit: vi.fn().mockResolvedValue({ data: [], error: null }),
+              }),
+            }),
+          }),
+        }),
+      });
+
+    const res  = await GET(makeReq(`Bearer ${CRON_SECRET}`));
+    const body = await res.json();
+    expect(res.status).toBe(200);
+    expect(mockSendExpired).toHaveBeenCalledTimes(2);
+  });
+
+  it('continues loop and returns 200 when one reminder email throws', async () => {
+    const expiresAt = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString();
+    const expiringSoon = [
+      { id: 'id-c', company: 'Seek', title: 'PM',  contact_email: 'c@c.com', expires_at: expiresAt },
+      { id: 'id-d', company: 'Xero', title: 'Dev', contact_email: 'd@d.com', expires_at: expiresAt },
+    ];
+    mockSendReminder
+      .mockRejectedValueOnce(new Error('Resend 429'))
+      .mockResolvedValue(undefined);
+
+    mockFrom
+      .mockReturnValueOnce({
+        update: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            lt: vi.fn().mockReturnValue({
+              select: vi.fn().mockResolvedValue({ data: [], error: null }),
+            }),
+          }),
+        }),
+      })
+      .mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            gt: vi.fn().mockReturnValue({
+              lt: vi.fn().mockReturnValue({
+                limit: vi.fn().mockResolvedValue({ data: expiringSoon, error: null }),
+              }),
+            }),
+          }),
+        }),
+      });
+
+    const res  = await GET(makeReq(`Bearer ${CRON_SECRET}`));
+    const body = await res.json();
+    expect(res.status).toBe(200);
+    expect(mockSendReminder).toHaveBeenCalledTimes(2);
+  });
+
   it('returns 500 when the expire update query itself fails', async () => {
     mockFrom.mockReturnValueOnce({
       update: vi.fn().mockReturnValue({

@@ -39,11 +39,15 @@ export async function GET(req: NextRequest) {
 
   // Send expiry emails
   for (const listing of justExpired ?? []) {
-    await sendJobListingExpired({
-      to:      listing.contact_email,
-      company: listing.company,
-      title:   listing.title,
-    });
+    try {
+      await sendJobListingExpired({
+        to:      listing.contact_email,
+        company: listing.company,
+        title:   listing.title,
+      });
+    } catch (err) {
+      console.error('[cron/expire-job-listings] send failed for', listing.id, err);
+    }
   }
 
   // ── 2. Send renewal reminder for listings expiring in 4–6 days ─────────────
@@ -65,12 +69,16 @@ export async function GET(req: NextRequest) {
   }
 
   for (const listing of expiringSoon ?? []) {
-    await sendJobListingRenewalReminder({
-      to:        listing.contact_email,
-      company:   listing.company,
-      title:     listing.title,
-      expiresAt: listing.expires_at,
-    });
+    try {
+      await sendJobListingRenewalReminder({
+        to:        listing.contact_email,
+        company:   listing.company,
+        title:     listing.title,
+        expiresAt: listing.expires_at,
+      });
+    } catch (err) {
+      console.error('[cron/expire-job-listings] send failed for', listing.id, err);
+    }
   }
 
   return NextResponse.json({
