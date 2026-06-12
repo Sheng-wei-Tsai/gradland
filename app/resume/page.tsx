@@ -76,6 +76,7 @@ function JobMatchWidget() {
       </p>
       <textarea
         value={jd} onChange={e => setJd(e.target.value)}
+        aria-label="Job description"
         placeholder="Paste the full job description here..."
         style={{
           width: '100%', minHeight: '120px', padding: '0.8rem',

@@ -181,6 +181,7 @@ export default function ResumeChecker() {
         value={text}
         onChange={e => setText(e.target.value)}
         rows={8}
+        aria-label="Resume text"
         placeholder="Paste your resume text here..."
         style={{
           width: '100%',
