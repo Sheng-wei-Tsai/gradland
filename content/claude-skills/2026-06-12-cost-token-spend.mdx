@@ -1,0 +1,57 @@
+---
+title: "/cost — Live token spend"
+date: "2026-06-12"
+excerpt: "You'll learn to monitor your token consumption in real time as Claude Code executes your requests, seeing exactly how many tokens each agent or workflow consumes. This visibility helps you stay within budget, optimize expensive operations, and avoid surprise costs when managing large multi-agent projects or long-running workflows."
+tags: ["Claude Code", "AI Workflow", "slash-commands"]
+topics: ["/cost", "slash-commands"]
+coverEmoji: "🌳"
+category: "slash-commands"
+short_label: "/cost"
+tier: 1
+position:
+  x: 920
+  y: 80
+prerequisites:
+  - help-command
+docs_url: "https://code.claude.com/docs/en/slash-commands"
+xp_reward: 20
+video_ids:
+  - ntDIxaeo3Wg
+  - qYqIhX9hTQk
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: /cost — Live token spend'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: '/cost'
+  successOutput: '✓ Recognised: /cost
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"When you run `/cost` and see 'Input: 5000, Output: 1200', what do these numbers represent?","options":["Tokens sent to Claude vs tokens generated in the response","Tokens cached vs tokens read fresh from your memory files","Cost in USD for input vs output separately","Cache reads this session vs cache reads total lifetime"],"answer":0,"explanation":"Input tokens are what you send to Claude; output tokens are what Claude generates in its response. The cost is calculated separately for each but shown in token counts here, not dollars."},{"q":"You have a 50k-token prompt context that gets reused daily. If the same context is read from Claude's cache on day 2, what's the cost difference?","options":["Cache reads cost nothing — completely free after the first read","Cache reads cost 10% of the input token price compared to fresh reads","Cache reads cost 50% of the input token price compared to fresh reads","Cache reads cost the same as fresh reads but appear separately in `/cost`"],"answer":1,"explanation":"Cached prompt reads cost only 10% of the standard input token price (90% discount). This is shown in the `/cost` breakdown under 'Cache reads'. It's not free but significantly cheaper than re-sending the same context fresh."},{"q":"You want to reduce token costs in a multi-agent research task. Which approach will have the biggest impact?","options":["Use smaller Claude models (Haiku) for parallel finders and keep Sonnet for final synthesis","Ask agents to never use cache so they always start fresh and save cost","Disable all workflows and run single serial agents to reduce parallelism overhead","Stop using interactive features and only use automation to avoid manual review costs"],"answer":0,"explanation":"Haiku costs ~3x less than Sonnet per token, so routing cheap operations (searching, data gathering) to Haiku and expensive reasoning (synthesis, review) to Sonnet is the highest-leverage optimization. Disabling cache or workflows would actually increase costs or slow you down."}]
+---
+## What it does
+
+`/cost` displays your live token spend across the current Claude Code session, broken down by model, input vs output tokens, and cache metrics. It shows both the raw token count and USD cost for the current window, plus cumulative totals if you've been running for a while. The breakdown includes cache read tokens (charged at 10% of input token rate) and cache creation tokens (charged at full input rate), so you can see exactly where your bill is going.
+
+Run it anytime to check spend before it accumulates, or watch it grow as you run agents and workflows in the background.
+
+## When to use it
+
+- **Before spinning up expensive work** — multi-agent workflows, web searches, or orchestrated tasks can consume hundreds of thousands of tokens. A quick `/cost` check beforehand tells you what the session has already burned and gives you a baseline.
+- **Troubleshooting runaway costs** — if a loop or workflow is consuming more than expected, `/cost` shows the token profile (is it input-heavy? output-heavy? lots of cache creation?) so you can adjust your prompt or agent count.
+- **Understanding cache behaviour** — when you resume a workflow or repeat a command with the same context, you should see cache read tokens instead of fresh input tokens. If the numbers look wrong, `/cost` confirms whether caching is working.
+- **Tuning model choice** — comparing a Haiku task vs a Sonnet task? Run each, check `/cost`, and decide if the quality uplift is worth the 4–5x cost difference.
+
+## Try it yourself
+
+Open a session and run an agent or workflow — maybe `/code-review --high` on a pending PR, or a quick `Agent` call with a complex prompt. While it's running or after it completes, type `/cost` to see the breakdown. The output shows input tokens, output tokens, cache reads (if any), and the total USD spent — easy to spot if a single command went unexpectedly high.
+
+## Gotchas
+
+**Cache reads are real but small.** You only see significant cache read tokens if you're resuming a workflow with the `resumeFromRunId` flag or repeating identical prompts with a large prior context. A fresh `/code-review` call won't show cache reads because the codebase context is new each time.
+
+**Output tokens are pricier than input.** Most Claude models charge 3–5x more per output token than input token. A 10k-token response costs more than a 50k-token input prompt. If your bill is high, look at output volume first — long-form agent responses, verbose logs, or streaming many tokens fast will drive costs up faster than large inputs.
+
+**Cache creation is not free.** When you first upload a large context (like a full codebase in Explore mode or a multi-file workflow), the cache creation tokens are charged at full input rate, not discounted. You only recover that cost if you re-use that context multiple times in a 5-minute window.
+
+**The cost display is USD but your billing may differ.** `/cost` always shows USD based on the official Claude API pricing. If you're on a different billing region, subscription tier, or volume contract, your actual cost may vary — check your billing dashboard for your specific rate.
