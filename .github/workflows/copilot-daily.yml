@@ -24,6 +24,10 @@ permissions:
   issues: write
   contents: write   # agent-lock/* branch push/delete
 
+concurrency:
+  group: copilot-daily
+  cancel-in-progress: false
+
 jobs:
   assign:
     name: Assign tasks to Copilot

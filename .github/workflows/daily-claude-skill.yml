@@ -18,6 +18,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: daily-claude-skill
+  cancel-in-progress: false
+
 jobs:
   claude-skill:
     name: Generate Daily Claude Code Tip

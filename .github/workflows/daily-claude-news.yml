@@ -15,6 +15,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: daily-claude-news
+  cancel-in-progress: false
+
 jobs:
   claude-news:
     name: Fetch Claude / Anthropic news

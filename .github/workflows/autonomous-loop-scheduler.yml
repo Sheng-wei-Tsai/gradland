@@ -32,10 +32,15 @@ on:
 permissions:
   actions: write
 
+concurrency:
+  group: autonomous-loop-scheduler
+  cancel-in-progress: false
+
 jobs:
   launch:
     name: Launch Autonomous Loop
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Check quota windows (allow up to 4/day, spaced 4.5h apart)

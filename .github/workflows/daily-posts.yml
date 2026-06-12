@@ -26,6 +26,10 @@ permissions:
   contents: write
   models: read
 
+concurrency:
+  group: daily-posts
+  cancel-in-progress: false
+
 jobs:
   ai-news:
     if: github.event_name == 'workflow_dispatch' || github.event.schedule == '30 18 * * *'

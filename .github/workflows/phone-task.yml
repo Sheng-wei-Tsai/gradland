@@ -37,6 +37,10 @@ permissions:
   pull-requests: write
   issues: write
 
+concurrency:
+  group: phone-task
+  cancel-in-progress: false
+
 jobs:
   phone-task:
     name: "Phone Task"

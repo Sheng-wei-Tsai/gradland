@@ -17,9 +17,14 @@ permissions:
   pull-requests: write
   issues:        write
 
+concurrency:
+  group: cleanup-stale
+  cancel-in-progress: false
+
 jobs:
   cleanup:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
         with:

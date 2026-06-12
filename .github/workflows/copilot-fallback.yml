@@ -15,10 +15,15 @@ permissions:
   issues: write
   contents: write
 
+concurrency:
+  group: copilot-fallback
+  cancel-in-progress: false
+
 jobs:
   check-and-fallback:
     name: Copilot Fallback Check
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v5

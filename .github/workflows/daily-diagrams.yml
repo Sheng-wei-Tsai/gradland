@@ -17,6 +17,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: daily-diagrams
+  cancel-in-progress: false
+
 jobs:
   diagrams:
     name: Generate Daily Diagrams

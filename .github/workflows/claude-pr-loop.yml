@@ -49,6 +49,10 @@ permissions:
   issues: write
   actions: write
 
+concurrency:
+  group: claude-pr-loop
+  cancel-in-progress: false
+
 jobs:
   pr_loop:
     name: Plan, Implement, Verify, PR

@@ -5,6 +5,13 @@ on:
     - cron: '0 20 * * *'  # 6am AEST (UTC+10) daily
   workflow_dispatch: {}    # manual trigger from GitHub UI
 
+permissions:
+  contents: read
+
+concurrency:
+  group: scrape-jobs
+  cancel-in-progress: false
+
 jobs:
   scrape:
     runs-on: ubuntu-latest

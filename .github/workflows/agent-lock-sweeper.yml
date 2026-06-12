@@ -12,6 +12,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: agent-lock-sweeper
+  cancel-in-progress: false
+
 jobs:
   sweep:
     name: Delete stale agent locks

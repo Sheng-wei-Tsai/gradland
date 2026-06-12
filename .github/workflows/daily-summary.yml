@@ -17,6 +17,10 @@ permissions:
   contents: read
   issues: write
 
+concurrency:
+  group: daily-summary
+  cancel-in-progress: false
+
 jobs:
   summarise:
     name: Build & send daily summary
