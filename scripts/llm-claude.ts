@@ -1,9 +1,10 @@
 /**
- * Claude Code CLI shim for content automation scripts.
+ * LLM shim for content automation scripts.
  *
- * Bills against the Claude Code Pro subscription via CLAUDE_CODE_OAUTH_TOKEN
- * instead of the pay-as-you-go ANTHROPIC_API_KEY. This is the migration target
- * for scripts that previously used `@anthropic-ai/sdk` directly.
+ * Provider order (2026-06-12): GitHub Models (Copilot Pro+) is PRIMARY when
+ * GH_MODELS_TOKEN is set — it preserves the Claude Pro quota for interactive
+ * sessions. The Claude Code CLI (CLAUDE_CODE_OAUTH_TOKEN) is the fallback.
+ * Set LLM_PREFER=claude to restore Claude-first for quality-critical calls.
  *
  * Requires the `claude` CLI on PATH (`npm i -g @anthropic-ai/claude-code` in CI).
  *
@@ -113,6 +114,14 @@ function runOnce(opts: ClaudeMessageOpts): Promise<string> {
 }
 
 export async function claudeMessage(opts: ClaudeMessageOpts): Promise<string> {
+  // GitHub Models (Copilot Pro+) is the PRIMARY provider so the Claude Pro
+  // quota stays free for the owner's interactive sessions. Claude CLI is the
+  // fallback. Set LLM_PREFER=claude to restore Claude-first per call site.
+  if (process.env.LLM_PREFER !== 'claude') {
+    const primary = await tryGithubModelsPrimary(opts);
+    if (primary !== null) return primary;
+  }
+
   const retries = opts.retries ?? 2;
   let lastErr: unknown;
   for (let attempt = 0; attempt <= retries; attempt++) {
@@ -134,6 +143,22 @@ export async function claudeMessage(opts: ClaudeMessageOpts): Promise<string> {
     }
   }
   throw lastErr;
+}
+
+async function tryGithubModelsPrimary(opts: ClaudeMessageOpts): Promise<string | null> {
+  // Lazy-import so callers without GH_MODELS_TOKEN never load the module.
+  const { hasGithubModelsToken, githubModelsMessage } = await import('./llm-github');
+
+  if (!hasGithubModelsToken()) return null;
+
+  try {
+    return await githubModelsMessage(opts);
+  } catch (err) {
+    console.warn(
+      `  WARNING: GitHub Models (primary) failed — falling back to Claude CLI. ${(err as Error).message?.slice(0, 200)}`,
+    );
+    return null;
+  }
 }
 
 async function tryGithubModelsFallback(
