@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase';
 import type { AdzunaJob } from '../api/jobs/route';
 import type { FeaturedListing } from '../api/jobs/listings/route';
 import GapAnalysisPanel from '@/components/GapAnalysisPanel';
+import { jobSourceGroup, SOURCE_GROUP_LABELS, SOURCE_GROUP_ORDER, type SourceGroup } from '@/lib/jobs-sources';
 import EIcon from '@/components/icons/EIcon';
 import CitySelector from '@/components/CitySelector';
 import SponsorBadge from '@/components/SponsorBadge';
@@ -866,7 +867,8 @@ export default function JobsPage() {
   const sectionScraped = showSections ? jobs.slice(0, scrapedCount) : [];
   const sectionGoogle  = showSections ? jobs.slice(scrapedCount, scrapedCount + googleCount) : [];
   const sectionAdzuna  = showSections ? jobs.slice(scrapedCount + googleCount) : [];
-  const visibleJobs    = filterSource === 'all' ? filteredAll : filteredAll.filter(j => j.source === filterSource);
+  const groupOf        = (j: AdzunaJob): SourceGroup => jobSourceGroup(j.source, j.publisher, j.url);
+  const visibleJobs    = filterSource === 'all' ? filteredAll : filteredAll.filter(j => groupOf(j) === filterSource);
   const jobCardProps   = { savedIds, onSaveToggle: handleSaveToggle, onApply: handleApply, isLoggedIn: !!user, onOpenDetail: setSelectedJob };
 
   return (
@@ -1152,27 +1154,27 @@ export default function JobsPage() {
             </div>
           </div>
 
-          {/* Source filter chips — hidden on AU tab (sections replace them) */}
-          {count > 0 && !showSections && (() => {
-            const presentSources = Array.from(new Set(jobs.map(j => j.source)));
-            if (presentSources.length <= 1) return null;
-            const LABELS: Record<string, string> = {
-              adzuna: 'Adzuna', jsearch: 'Google Jobs', google_jobs: 'Google Jobs',
-              jora: 'Jora', indeed: 'Indeed', acs: 'ACS', seek: 'Seek',
-              linkedin: 'LinkedIn', remotive: 'Remotive', jobicy: 'Jobicy',
-            };
+          {/* Platform filter chips — Seek / Indeed / official career sites / Adzuna / … */}
+          {count > 0 && (() => {
+            const groupCounts = new Map<SourceGroup, number>();
+            for (const j of filteredAll) {
+              const g = groupOf(j);
+              groupCounts.set(g, (groupCounts.get(g) ?? 0) + 1);
+            }
+            const presentGroups = SOURCE_GROUP_ORDER.filter(g => (groupCounts.get(g) ?? 0) > 0);
+            if (presentGroups.length <= 1) return null;
             return (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Source:</span>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Platform:</span>
                 <button onClick={() => setFilterSource('all')}
                   className={filterSource === 'all' ? 'source-chip source-chip-active' : 'source-chip'}>
-                  All ({count})
+                  All ({filteredAll.length})
                 </button>
-                {presentSources.map(src => (
-                  <button key={src}
-                    onClick={() => setFilterSource(filterSource === src ? 'all' : src)}
-                    className={filterSource === src ? 'source-chip source-chip-active' : 'source-chip'}>
-                    {LABELS[src] ?? src} ({jobs.filter(j => j.source === src).length})
+                {presentGroups.map(g => (
+                  <button key={g}
+                    onClick={() => setFilterSource(filterSource === g ? 'all' : g)}
+                    className={filterSource === g ? 'source-chip source-chip-active' : 'source-chip'}>
+                    {SOURCE_GROUP_LABELS[g]} ({groupCounts.get(g)})
                   </button>
                 ))}
               </div>

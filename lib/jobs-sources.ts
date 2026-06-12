@@ -72,3 +72,43 @@ export function pickPrimarySource(sources: SourceRef[]): string {
 export function makeSingleSource(name: string, url: string): SourceRef[] {
   return [{ name, label: sourceLabel(name), apply_url: url }];
 }
+
+// ── Source groups — platform-level buckets for the /jobs filter chips ─────────
+
+export type SourceGroup = 'seek' | 'indeed' | 'linkedin' | 'adzuna' | 'official' | 'gov' | 'boards';
+
+export const SOURCE_GROUP_LABELS: Record<SourceGroup, string> = {
+  seek:     'Seek',
+  indeed:   'Indeed',
+  linkedin: 'LinkedIn',
+  adzuna:   'Adzuna',
+  official: 'Official career sites',
+  gov:      'Government',
+  boards:   'Other boards',
+};
+
+// Display order for chips
+export const SOURCE_GROUP_ORDER: SourceGroup[] = ['official', 'seek', 'indeed', 'linkedin', 'adzuna', 'gov', 'boards'];
+
+const OFFICIAL_SOURCES = new Set([
+  'greenhouse', 'lever', 'workday', 'ashby', 'workable', 'recruitee',
+  'breezy', 'comeet', 'icims', 'successfactors', 'taleo', 'smartrec', 'hatch', 'apify',
+]);
+
+const GOV_SOURCES = new Set(['apsjobs', 'nsw-iworkfor', 'vic-careers', 'qld-smartjobs', 'wa-jobs']);
+
+/**
+ * Bucket a job into a platform group. Seek/Indeed/LinkedIn arrive indirectly
+ * via JSearch / Google Jobs — detect them from the publisher name or apply URL.
+ */
+export function jobSourceGroup(source: string, publisher?: string, url?: string): SourceGroup {
+  const pub  = (publisher ?? '').toLowerCase();
+  const link = (url ?? '').toLowerCase();
+  if (pub.includes('seek')     || link.includes('seek.com.au'))  return 'seek';
+  if (pub.includes('indeed')   || link.includes('indeed.com'))   return 'indeed';
+  if (pub.includes('linkedin') || link.includes('linkedin.com')) return 'linkedin';
+  if (source === 'adzuna')          return 'adzuna';
+  if (OFFICIAL_SOURCES.has(source)) return 'official';
+  if (GOV_SOURCES.has(source))      return 'gov';
+  return 'boards';
+}

@@ -182,6 +182,13 @@
 
 ## 🔴 Priority 1 — Retention Engine
 
+### Job Source Categories + Application Kit — multi-platform job discovery
+**Why:** Users want to see where each job lives (Seek / Indeed / official career sites / Adzuna) and filter by platform, then jump out to apply. Paid users get an AI "Application Kit" customised per job + company. Literal auto-apply was considered and dropped (ToS violations on every platform, account-ban risk for users).
+- [x] 2026-06-12 Source-group filter chips on `/jobs` with live counts — groups: Seek, Indeed, LinkedIn (via JSearch/Google Jobs `publisher`), Adzuna, Official career sites (Greenhouse/Lever/Workday/Ashby/Workable/etc.), Government (APS + state boards), Other boards (Jora/ACS/80kh/Remotive/Jobicy). Files: `lib/jobs-sources.ts` (`jobSourceGroup` + group labels/order), `app/jobs/page.tsx` (platform chip row, now visible on AU tab; selecting a group switches sections view to flat filtered list)
+- [ ] Note: Greenhouse/Lever/Workday/Ashby/state-gov scrapers ALREADY EXIST in `scripts/scrape-au-jobs.ts` (AGENTS.md §"Job Scraper" description is stale — it covers far more than Jora)
+- [ ] Application Kit (paid, later phase): per-job Claude Sonnet endpoint — tailored resume bullets, custom cover letter, screening-question answers, salary context — then deep-link to source apply page. `requireSubscription()` + `ENDPOINT_LIMITS` pattern
+- **Effort:** S for chips, M for Application Kit
+
 ### [a11y] Remove remaining `outline: 'none'` from form inputs
 - [x] Remove `outline: 'none'` from inline styles in `app/cover-letter/page.tsx` (inputStyle:146, compose textarea:353), `app/learn/youtube/page.tsx:172`, `app/resume/page.tsx:84`, `app/visa-pathway/PathwayPlanner.tsx:425`, `app/au-insights/salary-checker/SalaryChecker.tsx:178`, `app/au-insights/ResumeChecker.tsx:197`, `components/petcho/PetCreator.tsx:100` — same pattern as 2026-06-11 fix in login/comments/interview-session; inline property overrides global `*:focus-visible { outline: 2px solid var(--terracotta) }` rule at `globals.css:434` (specificity 1-0-0-0 beats any class/type selector); removing the property restores keyboard focus ring for screen reader and keyboard-only users; no other changes needed [a11y] ✅ 2026-06-11
 
