@@ -168,7 +168,7 @@ jobs:
           for line in lines:
               if any(s in line for s in skip_sections):
                   in_skip = True
-              if in_skip and re.match(r'^## ', line) and not any(s in line for s in skip_sections):
+              if in_skip and re.match(r'^#{2,3} ', line) and not any(s in line for s in skip_sections):
                   in_skip = False
               if in_skip:
                   continue
@@ -377,7 +377,7 @@ jobs:
           for line in lines:
               if any(s in line for s in skip_sections):
                   in_skip = True
-              if in_skip and re.match(r'^## ', line) and not any(s in line for s in skip_sections):
+              if in_skip and re.match(r'^#{2,3} ', line) and not any(s in line for s in skip_sections):
                   in_skip = False
               if in_skip:
                   continue
@@ -615,7 +615,7 @@ jobs:
           for line in lines:
               for s in skip_sections:
                   if s in line: in_skip = True
-              if in_skip and re.match(r'^## ', line) and not any(s in line for s in skip_sections):
+              if in_skip and re.match(r'^#{2,3} ', line) and not any(s in line for s in skip_sections):
                   in_skip = False
               if in_skip: continue
               if re.match(r'^- \[ \] .+', line):
