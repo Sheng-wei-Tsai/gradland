@@ -59,9 +59,12 @@ jobs:
           set +e
           npx tsx scripts/fetch-ai-news.ts 2>&1 | tee ai-news.log
           EXIT=${PIPESTATUS[0]}
-          if grep -qiE "hit your (Sonnet |Opus |Haiku |Pro )?limit|quota.*exceeded|5-hour limit|usage limit" ai-news.log; then
+          if grep -qiE "hit your ([a-z]+ )?limit|resets.*utc|credit balance is too low|insufficient credits?|quota.*exceeded|billing.*hard limit|usage limit|rate limit|5-hour limit|claude ai usage limit|try again.{0,30}(hour|later)" ai-news.log; then
             echo "::warning::Claude quota hit — ai-news will retry in next window"
             exit 0
+          elif grep -qi "organization has disabled claude subscription" ai-news.log; then
+            echo "::error::CLAUDE_CODE_OAUTH_TOKEN rejected by Anthropic — re-run 'claude setup-token' locally and update the repo secret."
+            exit 1
           fi
           exit $EXIT
 
@@ -97,9 +100,12 @@ jobs:
           set +e
           npx tsx scripts/fetch-visa-news.ts 2>&1 | tee visa-news.log
           EXIT=${PIPESTATUS[0]}
-          if grep -qiE "hit your (Sonnet |Opus |Haiku |Pro )?limit|quota.*exceeded|5-hour limit|usage limit" visa-news.log; then
+          if grep -qiE "hit your ([a-z]+ )?limit|resets.*utc|credit balance is too low|insufficient credits?|quota.*exceeded|billing.*hard limit|usage limit|rate limit|5-hour limit|claude ai usage limit|try again.{0,30}(hour|later)" visa-news.log; then
             echo "::warning::Claude quota hit — visa-news will retry in next window"
             exit 0
+          elif grep -qi "organization has disabled claude subscription" visa-news.log; then
+            echo "::error::CLAUDE_CODE_OAUTH_TOKEN rejected by Anthropic — re-run 'claude setup-token' locally and update the repo secret."
+            exit 1
           fi
           exit $EXIT
 
@@ -136,9 +142,12 @@ jobs:
           set +e
           npx tsx scripts/run-githot.ts 2>&1 | tee githot.log
           EXIT=${PIPESTATUS[0]}
-          if grep -qiE "hit your (Sonnet |Opus |Haiku |Pro )?limit|quota.*exceeded|5-hour limit|usage limit" githot.log; then
+          if grep -qiE "hit your ([a-z]+ )?limit|resets.*utc|credit balance is too low|insufficient credits?|quota.*exceeded|billing.*hard limit|usage limit|rate limit|5-hour limit|claude ai usage limit|try again.{0,30}(hour|later)" githot.log; then
             echo "::warning::Claude quota hit — githot will retry in next window"
             exit 0
+          elif grep -qi "organization has disabled claude subscription" githot.log; then
+            echo "::error::CLAUDE_CODE_OAUTH_TOKEN rejected by Anthropic — re-run 'claude setup-token' locally and update the repo secret."
+            exit 1
           fi
           exit $EXIT
 
@@ -174,8 +183,11 @@ jobs:
           set +e
           npx tsx scripts/run-digest.ts 2>&1 | tee digest.log
           EXIT=${PIPESTATUS[0]}
-          if grep -qiE "hit your (Sonnet |Opus |Haiku |Pro )?limit|quota.*exceeded|5-hour limit|usage limit" digest.log; then
+          if grep -qiE "hit your ([a-z]+ )?limit|resets.*utc|credit balance is too low|insufficient credits?|quota.*exceeded|billing.*hard limit|usage limit|rate limit|5-hour limit|claude ai usage limit|try again.{0,30}(hour|later)" digest.log; then
             echo "::warning::Claude quota hit — digest will retry in next window"
             exit 0
+          elif grep -qi "organization has disabled claude subscription" digest.log; then
+            echo "::error::CLAUDE_CODE_OAUTH_TOKEN rejected by Anthropic — re-run 'claude setup-token' locally and update the repo secret."
+            exit 1
           fi
           exit $EXIT

@@ -184,9 +184,12 @@ jobs:
             --allowedTools "Bash,Read,Write,Edit,Glob,Grep" \
             -p "$(cat .github/prompts/analyst.md)" 2>&1 | tee opus.log
           sed -i 's/\x1b\[[0-9;]*[mGKHFJSTsu]//g' opus.log
-          if grep -qiE "hit your (Sonnet |Opus |Haiku |Pro )?limit|resets.*utc|credit balance is too low|insufficient credits?|quota.*exceeded|billing.*hard limit|usage limit reached|rate limit(ed)?|5-hour limit|claude ai usage limit|try again.{0,30}(hour|later)" opus.log; then
+          if grep -qiE "hit your ([a-z]+ )?limit|resets.*utc|credit balance is too low|insufficient credits?|quota.*exceeded|billing.*hard limit|usage limit|rate limit|5-hour limit|claude ai usage limit|try again.{0,30}(hour|later)" opus.log; then
             echo "quota_exhausted=true" >> "$GITHUB_OUTPUT"
             echo "::warning::Opus quota exhausted during analysis."
+          elif grep -qi "organization has disabled claude subscription" opus.log; then
+            echo "quota_exhausted=false" >> "$GITHUB_OUTPUT"
+            echo "::error::CLAUDE_CODE_OAUTH_TOKEN rejected by Anthropic — re-run 'claude setup-token' locally and update the repo secret."
           else
             echo "quota_exhausted=false" >> "$GITHUB_OUTPUT"
           fi
@@ -331,10 +334,14 @@ jobs:
           echo "exit_code=${SONNET_EXIT}" >> "$GITHUB_OUTPUT"
 
           sed -i 's/\x1b\[[0-9;]*[mGKHFJSTsu]//g' sonnet.log
-          if grep -qiE "hit your (Sonnet |Opus |Haiku |Pro )?limit|resets.*utc|credit balance is too low|insufficient credits?|quota.*exceeded|billing.*hard limit|usage limit reached|rate limit(ed)?|5-hour limit|claude ai usage limit|try again.{0,30}(hour|later)" sonnet.log; then
+          if grep -qiE "hit your ([a-z]+ )?limit|resets.*utc|credit balance is too low|insufficient credits?|quota.*exceeded|billing.*hard limit|usage limit|rate limit|5-hour limit|claude ai usage limit|try again.{0,30}(hour|later)" sonnet.log; then
             echo "quota_exhausted=true"  >> "$GITHUB_OUTPUT"
             echo "succeeded=false"       >> "$GITHUB_OUTPUT"
             echo "::warning::Sonnet quota exhausted."
+          elif grep -qi "organization has disabled claude subscription" sonnet.log; then
+            echo "quota_exhausted=false" >> "$GITHUB_OUTPUT"
+            echo "succeeded=false"       >> "$GITHUB_OUTPUT"
+            echo "::error::CLAUDE_CODE_OAUTH_TOKEN rejected by Anthropic — re-run 'claude setup-token' locally and update the repo secret."
           elif [ "$SONNET_EXIT" -eq 0 ]; then
             echo "quota_exhausted=false" >> "$GITHUB_OUTPUT"
             echo "succeeded=true"        >> "$GITHUB_OUTPUT"
@@ -427,13 +434,17 @@ jobs:
             sleep "$SLEEP_TIME"
             # Delete sentinel — quota now fresh
             git push origin --delete "$SENTINEL" 2>/dev/null || true
-            gh workflow run autonomous-loop.yml \
-              --repo "$GITHUB_REPOSITORY" --ref main \
-              --field iteration="1" \
-              --field session_id="${SESSION_ID}-resume" \
-              --field max_iterations="${MAX_ITER}" \
-              --field max_open_prs="${MAX_PRS}" \
-              --field window="${WINDOW}"
+            for attempt in 1 2 3; do
+              gh workflow run autonomous-loop.yml \
+                --repo "$GITHUB_REPOSITORY" --ref main \
+                --field iteration="1" \
+                --field session_id="${SESSION_ID}-resume" \
+                --field max_iterations="${MAX_ITER}" \
+                --field max_open_prs="${MAX_PRS}" \
+                --field window="${WINDOW}" && break
+              echo "Dispatch attempt ${attempt} failed — retrying in 20s..."
+              sleep 20
+            done
             echo "Loop restarted after quota reset!"
           fi
 
@@ -568,13 +579,24 @@ jobs:
         run: |
           NEXT=$(( ${{ inputs.iteration }} + 1 ))
           echo "Iteration ${{ inputs.iteration }} complete. Queuing iteration ${NEXT}..."
-          gh workflow run autonomous-loop.yml \
-            --repo "$GITHUB_REPOSITORY" \
-            --ref main \
-            --field iteration="${NEXT}" \
-            --field session_id="${SESSION_ID}" \
-            --field max_iterations="${MAX_ITER}" \
-            --field max_open_prs="${MAX_PRS}"
+          # GitHub's dispatch API occasionally 500s — retry before failing the run
+          for attempt in 1 2 3; do
+            if gh workflow run autonomous-loop.yml \
+              --repo "$GITHUB_REPOSITORY" \
+              --ref main \
+              --field iteration="${NEXT}" \
+              --field session_id="${SESSION_ID}" \
+              --field max_iterations="${MAX_ITER}" \
+              --field max_open_prs="${MAX_PRS}"; then
+              break
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "::error::Failed to queue iteration ${NEXT} after 3 attempts"
+              exit 1
+            fi
+            echo "Dispatch attempt ${attempt} failed — retrying in 20s..."
+            sleep 20
+          done
 
       # ── Propagate real failures ───────────────────────────────────────────
       - name: Propagate non-quota Sonnet failure

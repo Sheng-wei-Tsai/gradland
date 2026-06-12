@@ -73,8 +73,11 @@ jobs:
             --allowedTools "Bash,Read,Write,Edit,Glob,Grep,WebFetch" \
             -p "$(cat .github/prompts/career-edge.md)" 2>&1 | tee career-edge.log
           EXIT=${PIPESTATUS[0]}
-          if grep -qiE "hit your (Sonnet |Opus |Haiku |Pro )?limit|quota.*exceeded|5-hour limit|usage limit" career-edge.log; then
+          if grep -qiE "hit your ([a-z]+ )?limit|resets.*utc|credit balance is too low|insufficient credits?|quota.*exceeded|billing.*hard limit|usage limit|rate limit|5-hour limit|claude ai usage limit|try again.{0,30}(hour|later)" career-edge.log; then
             echo "::warning::Claude quota hit, career-edge will retry in next window"
             exit 0
+          elif grep -qi "organization has disabled claude subscription" career-edge.log; then
+            echo "::error::CLAUDE_CODE_OAUTH_TOKEN rejected by Anthropic — re-run 'claude setup-token' locally and update the repo secret."
+            exit 1
           fi
           exit $EXIT

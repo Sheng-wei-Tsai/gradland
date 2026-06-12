@@ -58,8 +58,11 @@ jobs:
           npx tsx scripts/fetch-claude-skill.ts 2>&1 | tee claude-skill.log
           EXIT=${PIPESTATUS[0]}
           sed -i 's/\x1b\[[0-9;]*[mGKHFJSTsu]//g' claude-skill.log
-          if grep -qiE "hit your limit|quota.*exceeded|rate limit|5-hour limit|usage limit" claude-skill.log; then
+          if grep -qiE "hit your ([a-z]+ )?limit|resets.*utc|credit balance is too low|insufficient credits?|quota.*exceeded|billing.*hard limit|usage limit|rate limit|5-hour limit|claude ai usage limit|try again.{0,30}(hour|later)" claude-skill.log; then
             echo "::warning::Claude quota hit — daily tip will retry in next window"
             exit 0
+          elif grep -qi "organization has disabled claude subscription" claude-skill.log; then
+            echo "::error::CLAUDE_CODE_OAUTH_TOKEN rejected by Anthropic — re-run 'claude setup-token' locally and update the repo secret."
+            exit 1
           fi
           exit $EXIT
