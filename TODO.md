@@ -77,6 +77,14 @@
 
 ## 🔴 Priority 0 — Blocking Launch
 
+### CI/Automation Reliability Sprint — 2026-06-12
+**Why:** 200+ red Actions runs in 2 weeks traced to 5 root causes (quota wording drift, OAuth rejection, dead GitHub Models fallback, dispatch 500s, unpushed test fix). Deploy was blocked 2026-06-05→06-12. Goal: zero false-red runs, preserve Claude Pro quota for manual sessions.
+
+- [x] R1 — GitHub Models becomes PRIMARY for content scripts, Claude CLI fallback (`scripts/llm-claude.ts`; opt-out via `LLM_PREFER=claude`) ✅ *2026-06-12*
+- [x] R2 — Autonomous Loop `engine` input, default `copilot`: dispatches TODO tasks as issues to GitHub Copilot coding agent; Claude Opus/Sonnet path only when `engine=claude` ✅ *2026-06-12*
+- [x] R3 — Workflow hardening: `concurrency` groups on all workflows, `timeout-minutes` on the 3 missing jobs, `permissions` block for scrape-jobs (deploy.yml untouched — §17 human review) ✅ *2026-06-12*
+- [x] R4 — Integrate mattpocock/skills (grill-with-docs, tdd, diagnose, triage, to-issues, to-prd, zoom-out, handoff, write-a-skill) user-level for all projects ✅ *2026-06-12*
+
 ### Production-Hardening Sprint — Phase B (Compliance + observability)
 **Why:** AU Privacy Act compliance, outage visibility, account-deletion right (APP 13).
 
