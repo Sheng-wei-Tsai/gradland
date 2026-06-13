@@ -182,6 +182,16 @@
 
 ## 🔴 Priority 1 — Retention Engine
 
+### [security] Deploy gate hardening — make the quality/security gate actually block production
+**Why:** Root-cause audit found the gate was decorative: `main` had no branch protection / no required checks, everything direct-pushed to main, and Vercel native auto-deploys main on every push regardless of the Actions `check` job. So vulnerable deps (e.g. the esbuild RCE), broken builds, or unreviewed AI-agent code shipped to gradland.au ungated. Deeper root cause: bots use `GITHUB_TOKEN`, which GitHub blocks from triggering checks — so branch protection alone would stall the pipeline; the fix needs a GitHub App.
+- [x] 2026-06-13 Shared `commitAndPublish` helper (`scripts/lib/git-publish.ts`) — `PUBLISH_MODE=direct` (default, unchanged) vs `pr` (branch + squash auto-merge). Refactored 7 content scripts (fetch-ai-news, run-digest, run-post, run-githot, fetch-visa-news, fetch-claude-news, fetch-claude-skill) onto it — behaviour-identical until activated
+- [x] 2026-06-13 CodeQL SAST workflow (`.github/workflows/codeql.yml`) — the security-review gate
+- [x] 2026-06-13 `scripts/setup-branch-protection.sh` — requires `Security & Build Check` + `CodeQL`, forces PRs (0 required reviews), no force-push
+- [x] 2026-06-13 `deploy.yml` cleanup — removed redundant `vercel --prod` deploy job + `workflow_run` trigger (Vercel native deploys; cleared perpetual "waiting" runs)
+- [x] 2026-06-13 `docs/DEPLOY_HARDENING.md` runbook — GitHub App creation, workflow wiring template, rollout order, rollback
+- [ ] **ACTIVATION (owner):** create the `gradland-ci-bot` GitHub App + secrets `BOT_APP_ID`/`BOT_APP_PRIVATE_KEY`; wire content + code-bot workflows per runbook; `gh variable set PUBLISH_MODE pr`; run `setup-branch-protection.sh`. See `docs/DEPLOY_HARDENING.md`
+- **Effort:** M (done: helper + refactor + CI + runbook). Activation is owner-side (App creation can't be automated)
+
 ### Job Source Categories + Application Kit — multi-platform job discovery
 **Why:** Users want to see where each job lives (Seek / Indeed / official career sites / Adzuna) and filter by platform, then jump out to apply. Paid users get an AI "Application Kit" customised per job + company. Literal auto-apply was considered and dropped (ToS violations on every platform, account-ban risk for users).
 - [x] 2026-06-12 Source-group filter chips on `/jobs` with live counts — groups: Seek, Indeed, LinkedIn (via JSearch/Google Jobs `publisher`), Adzuna, Official career sites (Greenhouse/Lever/Workday/Ashby/Workable/etc.), Government (APS + state boards), Other boards (Jora/ACS/80kh/Remotive/Jobicy). Files: `lib/jobs-sources.ts` (`jobSourceGroup` + group labels/order), `app/jobs/page.tsx` (platform chip row, now visible on AU tab; selecting a group switches sections view to flat filtered list)
