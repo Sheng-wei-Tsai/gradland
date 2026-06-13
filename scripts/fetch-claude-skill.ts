@@ -19,6 +19,7 @@ else dotenv.config();
 
 import path from 'path';
 import { execFileSync } from 'child_process';
+import { commitAndPublish } from './lib/git-publish';
 import { claudeJSON, claudeMessage, ClaudeQuotaError } from './llm-claude';
 
 const OUT_DIR    = path.join(process.cwd(), 'content', 'claude-skills');
@@ -253,10 +254,10 @@ async function run() {
     return;
   }
 
-  execFileSync('git', ['add', 'content/claude-skills/'], { stdio: 'inherit' });
-  execFileSync('git', ['commit', '-m', `claude-skills: daily lesson ${today} — ${topic.title}`], { stdio: 'inherit' });
-  execFileSync('git', ['push', 'origin', 'main'], { stdio: 'inherit' });
-  console.log('Pushed.');
+  await commitAndPublish({
+    add: ['content/claude-skills/'],
+    message: `claude-skills: daily lesson ${today} — ${topic.title}`,
+  });
 }
 
 run().catch(err => {

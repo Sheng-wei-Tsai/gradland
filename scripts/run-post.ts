@@ -4,6 +4,7 @@ import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
+import { commitAndPublish } from './lib/git-publish';
 
 
 
@@ -239,31 +240,9 @@ ${post.body}
   fs.writeFileSync(filePath, content, 'utf8');
   console.log(`📝 Post written → content/posts/${filename}`);
 
-  // 5. Commit + push → Vercel auto-deploys
-  console.log('\n📤 Pushing to GitHub...');
-  try {
-    execSync(`git add "${filePath}"`, { stdio: 'inherit' });
-    execSync(`git commit -m "post: ${post.title}"`, { stdio: 'inherit' });
-    // Retry push with rebase to handle parallel job conflicts
-    const gitEnv = { ...process.env, GIT_TERMINAL_PROMPT: '0' };
-    let pushed = false;
-    for (let attempt = 1; attempt <= 3 && !pushed; attempt++) {
-      try {
-        if (attempt > 1) {
-          await new Promise(r => setTimeout(r, 10000 * attempt));
-          execSync('git pull --rebase origin main', { stdio: 'inherit', env: gitEnv, timeout: 60000 });
-        }
-        execSync('git push origin main', { stdio: 'inherit', env: gitEnv, timeout: 60000 });
-        pushed = true;
-      } catch (pushErr) {
-        if (attempt === 3) throw pushErr;
-        console.warn(`Push attempt ${attempt} failed, retrying...`);
-      }
-    }
-    console.log('Deployed — Vercel is building now');
-  } catch (err) {
-    console.warn('Git push failed:', (err as Error).message);
-  }
+  // 5. Commit + publish (direct to main, or via auto-merge PR under branch protection)
+  console.log('\n📤 Publishing to GitHub...');
+  await commitAndPublish({ add: [filePath], message: `post: ${post.title}` });
 
   console.log('\n✅ Daily Post pipeline complete!');
 }
