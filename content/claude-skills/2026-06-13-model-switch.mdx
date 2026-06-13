@@ -1,0 +1,66 @@
+---
+title: "/model — Switch Opus / Sonnet / Haiku"
+date: "2026-06-13"
+excerpt: "You'll learn how to switch between Opus, Sonnet, and Haiku models to match task complexity and cost. Choosing the right model tier lets you solve complex problems efficiently without overspending on simple tasks."
+tags: ["Claude Code", "AI Workflow", "slash-commands"]
+topics: ["/model", "slash-commands"]
+coverEmoji: "🌳"
+category: "slash-commands"
+short_label: "/model"
+tier: 2
+position:
+  x: 120
+  y: 320
+prerequisites:
+  - cost-token-spend
+docs_url: "https://code.claude.com/docs/en/slash-commands"
+xp_reward: 30
+video_ids:
+  - ujHXnlSVheI
+  - ntDIxaeo3Wg
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: /model — Switch Opus / Sonnet / Haiku'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: '/model'
+  successOutput: '✓ Recognised: /model
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"What does the `/model` command do in Claude Code?","options":["Switches which Claude model processes your subsequent requests in this session","Resets the prompt cache and clears all prior context from the conversation","Changes the system prompt and performance optimization settings","Only works at the start of a new conversation; cannot switch mid-session"],"answer":0,"explanation":"/model switches the active model for the current session without clearing context or invalidating the cache. You can switch between Haiku, Sonnet, and Opus at any point during your work."},{"q":"According to the project AGENTS.md, which model should you use for a paid interactive user-facing API endpoint that requires high-quality responses?","options":["claude-haiku-4-5-20251001 — it is the cheapest and fastest","claude-sonnet-4-6 — it balances quality and cost for interactive features","claude-opus-4-8 — it is always the best choice regardless of use case","Any model; the choice does not affect response quality"],"answer":1,"explanation":"AGENTS.md §9.4 specifies Sonnet for interactive user-facing features because it delivers high quality while remaining cost-efficient. Haiku is for automated pipelines; Opus is reserved for complex multi-step reasoning where quality is critical."},{"q":"You switch from Sonnet to Haiku mid-session using `/model haiku`. What happens to your prompt cache?","options":["The cache is cleared because the model changed","The cache is reused by Haiku; switching models does not invalidate it","The cache only works if you restart the session with the new model","The cache is converted to Haiku-specific format automatically"],"answer":1,"explanation":"Model switching is independent of caching. The prompt cache is tied to the conversation context, not the model. Switching models mid-session preserves the cache, allowing Haiku (or any new model) to benefit from prior context without re-processing."}]
+---
+## What it does
+
+`/model` switches the active Claude model for your session. Claude Code ships with three models: **Opus 4.8** (most capable, slowest), **Sonnet 4.6** (balanced speed/quality), and **Haiku 4.5** (fast, cost-efficient). When you call `/model`, you pick which one handles your next query and all subsequent messages until you switch again.
+
+```bash
+/model opus    # Switch to Opus 4.8
+/model sonnet  # Switch to Sonnet 4.6 (default)
+/model haiku   # Switch to Haiku 4.5
+```
+
+The active model is shown in your status line. Each model has different latency, reasoning depth, and token cost — so switching mid-session is how you tune the tool to the task at hand.
+
+## When to use it
+
+**Haiku** is your default for most coding work. It's 2–3× faster than Sonnet, handles straightforward tasks (grep searches, small edits, code review at low effort), and costs a fraction as much. Use it for quick lookups, simple refactors, and exploratory queries.
+
+**Sonnet** is the baseline for anything complex: multi-file changes, architecture decisions, security review, or when Haiku's response feels shallow. It's fast enough for interactive use and has the reasoning depth to catch subtle bugs.
+
+**Opus** is for the hard problems — intricate refactors, novel designs, adversarial code review, or when you're stuck and need a fresh angle. It's 5–10× slower than Haiku, so don't reach for it reflexively; use it when you've hit a wall or the cost of a wrong answer is high.
+
+**Caching interaction:** Switching models *within the same conversation* does NOT reset your token cache. Your prior messages stay in the prompt — the new model just reads them again with its own parameters. This means you can scaffold a conversation with Haiku, spot a gap, jump to Sonnet or Opus for that one hard query, and drop back to Haiku. Your context is preserved, and the cache amortizes the cost of the heavier model over the full session. (If you start a *new* conversation with a different model, the cache is empty for that conversation.)
+
+## Try it yourself
+
+Start a conversation with Haiku and ask it to plan a complex refactor. If the plan feels oversimplified, call `/model sonnet` and ask it to critique or deepen the plan. Notice how Sonnet's response references the prior context without you repeating anything. When you're done, drop back to Haiku for the mechanical edits. This is the efficiency pattern: let Haiku run the session, call in Sonnet for the high-variance moments.
+
+## Gotchas
+
+**Model switching persists for the session.** If you call `/model opus`, every following query uses Opus until you switch again. It's easy to forget you're on Opus and burn through your quota. Make it a habit to drop back to Haiku or Sonnet when the hard work is done.
+
+**Token cache doesn't clear on model switch, but does on new conversation.** Starting a fresh conversation with Opus means a cold cache and slower first response. Reuse sessions when possible.
+
+**Sonnet is the real workhorse.** The temptation is to flip between Opus and Haiku, but Sonnet is usually the right call — it's 80% of Opus's reasoning at 40% of the latency. Save Opus for genuinely stuck moments.
+
+**Fast mode doesn't change the model.** `/fast` makes Opus output (not thinking) stream faster. It doesn't downgrade to Haiku; if you want speed, call `/model haiku` explicitly.
