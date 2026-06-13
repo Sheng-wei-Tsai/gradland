@@ -22,7 +22,7 @@ ENFORCE_ADMINS="${ENFORCE_ADMINS:-false}"   # true = even repo admins must use P
 # If a name is wrong the API silently waits forever; verify with:
 #   gh api "repos/$REPO/commits/$BRANCH/check-runs" --jq '.check_runs[].name'
 CONTEXT_BUILD="Security & Build Check"
-CONTEXT_CODEQL="CodeQL"
+CONTEXT_CODEQL="Analyze (javascript-typescript)"   # CodeQL job's check-run name
 
 echo "Enabling branch protection on $REPO@$BRANCH (enforce_admins=$ENFORCE_ADMINS)…"
 
