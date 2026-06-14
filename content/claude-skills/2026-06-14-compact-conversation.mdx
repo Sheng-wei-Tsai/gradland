@@ -1,0 +1,64 @@
+---
+title: "/compact — Squeeze the context window"
+date: "2026-06-14"
+excerpt: "You'll learn how /compact automatically summarizes conversation history to preserve essential context while freeing tokens for continued work. This matters because longer sessions stay within bounds, letting you handle ambitious multi-phase projects in one sitting without context limits blocking progress."
+tags: ["Claude Code", "AI Workflow", "slash-commands"]
+topics: ["/compact", "slash-commands"]
+coverEmoji: "🌳"
+category: "slash-commands"
+short_label: "/compact"
+tier: 2
+position:
+  x: 320
+  y: 320
+prerequisites:
+  - clear-fresh-context
+docs_url: "https://code.claude.com/docs/en/slash-commands"
+xp_reward: 30
+video_ids:
+  - ntDIxaeo3Wg
+  - eMZmDH3T2bY
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: /compact — Squeeze the context window'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: '/compact'
+  successOutput: '✓ Recognised: /compact
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"What does /compact do to the conversation history?","options":["Summarizes earlier messages into a compressed context block while keeping the current turn intact","Deletes old messages permanently from the database","Converts all markdown formatting to plain text to reduce tokens","Splits the conversation across multiple separate chat threads"],"answer":0,"explanation":"The /compact skill summarizes prior conversation context to free up tokens, allowing you to stay in the same conversation thread without losing important details. The compressed summary is injected into the context window so the model can still reference earlier work."},{"q":"When should you manually invoke /compact instead of waiting for auto-compact?","options":["After every response to keep tokens constantly optimized","Before starting a new major phase of work to reset context and prevent drift on old decisions","When the browser feels slow (it speeds up rendering)","Never — auto-compact is always superior and manual invoke has no benefit"],"answer":1,"explanation":"Manual /compact is useful at natural breakpoints in your work—after completing a feature, before pivoting to a new task, or when you notice the model referencing stale context. This resets the conversation scope and prevents old decisions from cluttering current reasoning."},{"q":"What is the relationship between auto-compact trigger and the context window limit?","options":["Auto-compact never runs; it is only triggered by explicit user /compact command","Auto-compact fires automatically as the context window approaches its capacity, compressing earlier messages to make room for new work","Auto-compact compresses only the current message, not prior history","Auto-compact only works if you have upgraded to Claude Code Pro"],"answer":1,"explanation":"The Claude Code harness automatically invokes context summarization when approaching the context limit, condensing earlier messages into a summary that preserves task state. You don't need to do anything—it happens behind the scenes to keep conversations running smoothly."}]
+---
+## What it does
+
+`/compact` summarizes your conversation history and compresses it into a smaller context footprint. When you invoke it, Claude Code reads your full transcript, synthesizes the key facts and decisions into a concise summary, and loads that summary into your next turn instead of the full conversation thread. This frees up tokens for new work without losing the important context—previous findings, design decisions, debugging steps, and memory snapshots all roll up into the summary.
+
+The tool auto-triggers when you approach the context window ceiling, but you can also invoke it manually. The compressed summary is persistent; future turns in the same session load the summary first, then any fresh conversation context on top of it.
+
+## When to use it
+
+**Manual `/compact` is useful when:**
+
+- You've just completed a big task (multi-file refactor, feature implementation, bug hunt) and now want to start a fresh phase of work without dragging the full history along
+- Your conversation has accumulated lots of back-and-forth on a problem that's now solved, and you want to reclaim space for new investigation
+- You're switching focus—moved from frontend to backend, or from a specific bug to a new feature—and want the summary to reflect the shift so future context doesn't bloat
+
+**Auto-trigger happens when:**
+
+- The conversation approaches ~80% of the context limit. Claude Code detects this and proactively summarizes to give you runway for continued work without hitting the hard ceiling.
+
+The key insight: you're not losing information, you're trading tokens for continuity. The summary captures decisions, key findings, and prior state; details about specific file edits or output logs get distilled away.
+
+## Try it yourself
+
+Type `/compact` in the terminal when you have a long conversation running and want to see the summary, or just keep working and let it trigger automatically as the context grows. The summary appears as a system message, and you can verify it captured the important decisions by skimming the output.
+
+## Gotchas
+
+- **Summaries are lossy.** Details about exact line numbers or specific error messages may not survive compression. If you need that precision later, the full transcript is still in your session history—you can scroll back or reference it explicitly.
+- **Auto-trigger is transparent.** You won't be asked when it happens; it just silently summarizes and keeps going. Check `/status` or the system message if you want to see when compaction occurred.
+- **One-shot info doesn't survive well.** If you fetched a URL or ran a one-time diagnostic command early in the session, the output may be summarized away. If you need it again, run it again or ask the summary to recall it.
+- **Compaction resets line numbers.** After compaction, references to "line 42 in the earlier transcript" become meaningless. Always use file paths and grep patterns instead.
+- **Can't undo.** Once compacted, the full history of that span is gone from the session (though Anthropic's servers keep audit logs). Don't compact mid-task if you think you'll need to rewind.
+
+Use `/compact` strategically at phase boundaries, not randomly mid-investigation.
