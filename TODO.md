@@ -178,6 +178,10 @@
 - [x] 2026-05-19 Add `htmlFor`/`id` to form labels in `app/login/page.tsx` (sign-in + register forms) and `app/au-insights/salary-checker/SalaryChecker.tsx` (role/salary/company/visa fields) [a11y]
 - [x] 2026-05-20 Add `aria-label` to unlabeled `<select>` filter controls in `app/au-insights/grad-programs/page.tsx` — city and role selects at lines 228, 232 (`GradProgramsContent`) and 373, 377 (`GradProgramsPage`) have no label; screen readers can't identify the control's purpose when it has a non-default value; fix: add `aria-label="Filter by city"` and `aria-label="Filter by role"` [a11y] ✅ 2026-05-20
 
+### A11y — Data visualisation SVG roles (daily analyst 2026-06-15)
+- [ ] Add `role="img"` + `aria-label="Writing activity heatmap — {totalYear} posts in {year}, {streak} day streak"` to the SVG at `components/PostHeatmap.tsx:234` — the visible h2 "Writing activity" above the SVG provides context for sighted users, but the SVG itself is announced as an empty `<graphics-document>` by screen readers; adding role + label gives a single coherent announcement. Cells have `onMouseEnter` tooltips but no keyboard equivalent — at minimum the chart as a whole should announce its summary. [a11y]
+- [ ] Add `role="img"` + descriptive `aria-label` to the three d3 chart SVGs in `app/au-insights/JobMarketCharts.tsx:134, 214, 277` — these are public-facing charts (IVI quarterly, salaries by role, grad employment) populated via d3 into empty `<svg width={w} height={H} />` elements; screen reader users get nothing. Each chart already has a sibling heading + caption (look 30–60 lines above each svg for the source `<h3>`); use the heading text in the aria-label, e.g. `aria-label="Internet Vacancy Index — quarterly job vacancies by industry"`. [a11y]
+
 ---
 
 ## 🔴 Priority 1 — Retention Engine
