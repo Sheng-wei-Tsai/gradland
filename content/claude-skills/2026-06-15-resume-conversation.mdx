@@ -1,0 +1,56 @@
+---
+title: "/resume — Pick up a past session"
+date: "2026-06-15"
+excerpt: "You'll learn how to resume a previous Claude Code session, picking up right where you left off without losing context or progress. This is essential for long-running workflows and complex tasks that span multiple conversations."
+tags: ["Claude Code", "AI Workflow", "slash-commands"]
+topics: ["/resume", "slash-commands"]
+coverEmoji: "🌳"
+category: "slash-commands"
+short_label: "/resume"
+tier: 2
+position:
+  x: 520
+  y: 320
+prerequisites:
+  - clear-fresh-context
+docs_url: "https://code.claude.com/docs/en/slash-commands"
+xp_reward: 20
+video_ids:
+  - z9rdrNrkvDY
+  - ntDIxaeo3Wg
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: /resume — Pick up a past session'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: '/resume'
+  successOutput: '✓ Recognised: /resume
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"When you invoke /resume in Claude Code, what does it let you do?","options":["Pick a past conversation session from a list and restore its full context","Automatically retry the last command that failed with improved parameters","Restart the current session with the initial system prompt","Resume a paused background agent that was running in the previous session"],"answer":0,"explanation":"/resume displays a list of past session IDs and allows you to select one to restore its full conversation context. It's not about retrying failed commands, restarting from scratch, or resuming background agents—it's about picking up an earlier conversation thread entirely."},{"q":"Which scenario makes /resume more effective than re-priming a new session with the same context?","options":["You need to fix a typo in the initial system prompt","You have 50+ messages of prior conversation and want to avoid re-explaining the codebase and goals from scratch","You want to upgrade to a faster model for the next turn","You need to clear sensitive information from the conversation history"],"answer":1,"explanation":"Resume shines when you have deep prior context (messages, decisions, file reads, failed attempts) that would be tedious to re-explain. Re-priming a fresh session forces you to re-establish that context through dialogue, burning tokens and time. Fixing typos, changing models, or clearing secrets are not what resume is designed for."},{"q":"If you resume a past session with /resume and the codebase has changed significantly since that session ended, what is the risk?","options":["The resumed session will automatically fetch and apply all new changes in the background","Your context window inherits stale file content and git state from the old session, potentially causing you to give advice based on outdated code","Resume will refuse to load sessions older than 24 hours to prevent stale context","The resumed session will be read-only until you manually refresh the file index"],"answer":1,"explanation":"Resuming a session restores the conversation history and prior context, but it doesn't auto-refresh the underlying codebase state. If files were deleted, rewritten, or git history changed, the resumed context may be stale. You should verify current state with fresh reads before acting on old context."}]
+---
+## What it does
+
+`/resume` picks up a previous Claude Code session without losing context or history. Every session you run—whether you explicitly close it or it times out—is stored locally with its full conversation thread. `/resume` shows you a list of available sessions, lets you choose one, and restores the full context so you and Claude continue exactly where you left off, including all prior messages, file edits, and decisions made together.
+
+## When to use it
+
+Resume shines when you're working on something that takes multiple sittings. Start a feature on Monday, close the terminal, come back Thursday—instead of repeating "I'm working on X, here's the context," run `/resume`, pick your Monday session, and the model already knows the full history of what you built and why.
+
+It's also cheaper and faster than re-priming. If you spent 30 minutes in a session exploring code, writing a plan, and getting halfway through a feature, closing and starting fresh means the model loses all that context. The next session burns tokens re-reading files and re-explaining the problem. `/resume` avoids that: the model has the conversation history, sees what was tried, remembers decisions, and jumps straight to the next step.
+
+Resume is particularly useful when your work spans different files or involves architectural decisions. A refactor across five components, a database schema change with multiple migrations, or a complex debugging session—all of these are easier to continue when the full context is loaded.
+
+## Try it yourself
+
+Open your terminal and run `/resume` to see a list of your past sessions with timestamps and brief context. Pick one that looks relevant—it'll show the working directory and a snippet of what you were doing. Once you select it, the full conversation restores and you're back in context. Try interrupting a multi-file change now (commit it if you like), close Claude Code, and `/resume` it later to confirm the history is there.
+
+## Gotchas
+
+Sessions are stored locally on your machine—they don't sync across devices or accounts. If you switch to a different computer, that session list won't be there.
+
+Old sessions stick around forever unless you explicitly clean them up. After months of work, your session list grows long. You can safely delete old sessions if you no longer need them, but once deleted, the history is gone—there's no archive.
+
+The model's context window is still finite. If you're resuming a session that was already long, or you resume multiple times and keep adding to the same thread, you'll eventually hit the context limit. When that happens, the system compresses older messages to keep you in the conversation. The compression is transparent, but very old decisions might get less weight in the model's reasoning.
+
+Sessions timeout if idle for a while (typically 24+ hours), but the conversation history is saved. Resuming after a timeout picks up the history but starts a fresh request to the model, which is fine for most work.
