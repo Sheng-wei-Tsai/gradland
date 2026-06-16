@@ -1,0 +1,58 @@
+---
+title: "/config — Tune Claude Code"
+date: "2026-06-16"
+excerpt: "You'll learn how to customize Claude Code's behavior through the /config command, adjusting model choice, permissions, environment variables, and automated behaviors. This keeps your coding workflow efficient and aligned with your project's security requirements and personal preferences."
+tags: ["Claude Code", "AI Workflow", "settings"]
+topics: ["/config", "settings"]
+coverEmoji: "🌳"
+category: "settings"
+short_label: "/config"
+tier: 2
+position:
+  x: 720
+  y: 320
+prerequisites:
+  - model-switch
+docs_url: "https://code.claude.com/docs/en/settings"
+xp_reward: 30
+video_ids:
+  - ujHXnlSVheI
+  - ntDIxaeo3Wg
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: /config — Tune Claude Code'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: '/config'
+  successOutput: '✓ Recognised: /config
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"What command in Claude Code allows you to permanently change your default AI model, theme, and context compression behavior?","options":["/config — unified command for core settings like theme, model, autoCompactThreshold","/settings — similar name, controls the same preferences","/preferences — legacy command for older settings that still works","You must edit settings.json manually; no CLI command exists for these"],"answer":0,"explanation":"/config is the CLI command for adjusting theme, model, autoCompactThreshold, statusLine, and other core settings. Changes persist across sessions without needing to edit files directly."},{"q":"You're working with a large codebase and your context window fills up quickly. Which /config setting should you lower to trigger automatic compression sooner?","options":["model — switch to a smaller model with lower token limits","autoCompactThreshold — tells Claude Code to compress older messages sooner to free context","statusLine — removing status info to save display space","theme — dark mode is more token-efficient than light mode"],"answer":1,"explanation":"autoCompactThreshold is a token-budget setting. Lowering it makes Claude Code compress conversation context more aggressively when approaching your token limit, preserving space for new messages in long sessions."},{"q":"What does the statusLine setting in /config control?","options":["Error messages and debugging output shown to the user","What metadata appears in Claude Code's status line—like branch, model, and token usage","The keyboard shortcuts available in the editor","Connection status and API rate-limit warnings"],"answer":1,"explanation":"statusLine configures what useful context metadata displays in your status bar—commonly current branch, selected model, context window usage, and session state—letting you customize what you see at a glance."}]
+---
+## What it does
+
+`/config` opens an interactive settings panel where you can adjust Claude Code's core behavior: visual theme, default Claude model, when the conversation auto-compacts, and whether to show the status line. Changes take effect immediately or on the next conversation turn, and your selections are saved to `.claude/settings.json` in your project.
+
+## When to use it
+
+Use `/config` when you want to tune Claude Code without editing JSON by hand. This includes:
+- Switching between **light** and **dark** theme (persists across sessions)
+- Changing your **default model** — swap from Haiku to Sonnet if you need more reasoning depth on this project
+- Adjusting **autoCompactThreshold** — if context is compressing too aggressively (default 25,000 tokens), raise it; if memory is tight, lower it
+- Toggling the **statusLine** — the line at the bottom showing your current context position. Useful to disable on small screens
+
+These are *project-local* settings, so your theme preference can differ between repos. Global preferences (like your default model across all projects) live in `~/.claude/config.json` and can be tweaked the same way.
+
+## Try it yourself
+
+Type `/config` in your current session and browse the available toggles. Change one — say, switch to dark mode or bump the model up to Sonnet — and notice the change applies right away. Your project's `.claude/settings.json` file will reflect it, so teammates on the same repo see the same base config if they check it in.
+
+## Gotchas
+
+**Settings hierarchy:** Project settings (`.claude/settings.json`) override global settings (`~/.claude/config.json`). If you set a model in `/config` while in a project, it only affects that project. To change your global default, use `/config` outside any repo.
+
+**JSON editing fallback:** If you prefer hand-editing or need to set something `/config` doesn't expose, you can edit `.claude/settings.json` directly with your editor. The format is straightforward, but be careful with commas and brackets — invalid JSON will be ignored on next load, reverting to defaults.
+
+**Model + effort:** Changing the model via `/config` is quick, but if you need to also adjust reasoning effort (`low`, `high`, `max`), that's a separate `/config` toggle on newer versions. Check what your version offers.
+
+**Cache effect:** Some settings (like `autoCompactThreshold`) affect how your context is compressed on the *next* turn, not retroactively on the current one. If you're mid-conversation and feel the context is behaving oddly, changing the threshold won't fix the current window — it'll apply once you send another message.
