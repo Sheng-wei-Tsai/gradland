@@ -1,0 +1,54 @@
+---
+title: "Output styles — Tune verbosity"
+date: "2026-06-17"
+excerpt: "You'll learn how to adjust Claude's response length and detail level through model parameters, system prompts, and explicit instructions. Controlling verbosity lets you trade off between comprehensive answers and faster, more focused results that match your workflow's needs."
+tags: ["Claude Code", "AI Workflow", "settings"]
+topics: ["outputStyle", "settings"]
+coverEmoji: "🌳"
+category: "settings"
+short_label: "Styles"
+tier: 2
+position:
+  x: 920
+  y: 320
+prerequisites:
+  - config-tune-claude-code
+docs_url: "https://code.claude.com/docs/en/settings"
+xp_reward: 30
+video_ids:
+  - ntDIxaeo3Wg
+  - uogzSxOw4LU
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: Output styles — Tune verbosity'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: 'outputStyle'
+  successOutput: '✓ Recognised: outputStyle
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"In Claude Code, what does an output style control?","options":["The verbosity and formatting of the AI's explanations and summaries","The programming language used in generated code","Which code files are eligible for editing","The model selection (Haiku vs Sonnet vs Opus)"],"answer":0,"explanation":"Output styles are presets that govern how verbose the AI's responses are—whether it includes trailing summaries, reasoning steps, or keeps responses terse. They don't affect code generation or model choice."},{"q":"When is it most useful to switch to a verbose output style mid-session?","options":["When you're in a hurry and need speed","When debugging a complex issue and need detailed reasoning about each step","Only at the start of a session, never mid-task","When writing documentation or comments"],"answer":1,"explanation":"Verbose styles are most helpful during troubleshooting because they expose the AI's reasoning, making it easier to spot where logic diverges from your intent. Switching mid-task lets you match style to the current problem."},{"q":"What's a common mistake when using output styles in Claude Code?","options":["Applying the same style to all work, even when different tasks benefit from different verbosity","Switching styles more than once per session","Using a custom style instead of a preset","Saving output style preferences to version control"],"answer":0,"explanation":"Different tasks have different needs—quick config checks benefit from terse output, while architectural discussions need detailed reasoning. Rigidly sticking to one style wastes either time (terse for complex work) or context (verbose for routine checks)."}]
+---
+## What it does
+
+Output styles let you control how verbose Claude's responses are—from terse one-liners to detailed explanations. Claude Code ships with three built-in styles: **Terse** (minimal, code-focused), **Balanced** (default, task-oriented), and **Detailed** (explanations, context, reasoning). Each style tunes not just word count but also what Claude prioritizes: Terse skips pleasantries and summaries, Detailed adds background and thought process. You can also define custom styles in settings to match your exact preference—e.g., a "Research" style that always includes source citations, or a "Mentor" style that teaches more than it codes.
+
+## When to use it
+
+Use **Terse** when you're in the flow: iterating fast, following up on work mid-session, or running commands you just reviewed. It cuts context weight and gets straight to changes. Use **Balanced** for most feature work—it's the sweet spot between speed and clarity. Use **Detailed** when learning unfamiliar code, debugging a tricky bug, or you need Claude to show its reasoning (especially useful before running risky commands). **Custom styles** shine when your team has conventions—e.g., a "PR review" style that always formats findings as inline comments, or a "compliance" style that never skips security rationale.
+
+Switching mid-session is free: if you start with Terse but realize you're lost in a refactor, flip to Detailed for that context, then switch back once you're oriented.
+
+## Try it yourself
+
+Open Claude Code settings and look for the "Output style" option. Cycle through the presets on a real task—run a small fix or ask a question in Terse mode, then re-run the same request in Detailed mode and compare the output shape. Once you feel the difference, try editing your personal settings to create a custom style that matches how you like to work. You can toggle between styles mid-conversation without losing context.
+
+## Gotchas
+
+**Terse doesn't mean faster.** It reduces Claude's output length, but token usage is often higher because terse responses skip structure and examples, forcing you to ask follow-ups. Balanced often costs fewer tokens overall by getting context right the first time.
+
+**Custom styles can drift.** If you define a "mentor" style with "always explain why," you'll get explanations even when you don't want them (e.g., during a sprint push). Periodically audit your custom styles against your actual workflow—delete styles you stopped using.
+
+**Output style is not the same as reasoning effort.** A Terse response doesn't reduce thinking time; it just truncates the output. If you're debugging a complex bug, Detailed output helps *because* Claude can show more work, not because it thinks differently. Pair output styles with effort settings when you need both brevity and rigor.
+
+**Switching can break continuity.** If you flip from Detailed to Terse mid-implementation, Claude loses context about why decisions were made. Switch at natural boundaries (after a feature is merged, before starting new work).
