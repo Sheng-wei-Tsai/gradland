@@ -1,0 +1,69 @@
+---
+title: "Custom status line"
+date: "2026-06-18"
+excerpt: "You'll learn how to customize Claude Code's status line to display task progress, model info, or workflow state. Keeping these details always visible ensures you never lose track of your AI agent's current context or task boundaries during complex multi-step workflows."
+tags: ["Claude Code", "AI Workflow", "settings"]
+topics: ["statusLine", "settings"]
+coverEmoji: "🌳"
+category: "settings"
+short_label: "Status"
+tier: 2
+position:
+  x: 1120
+  y: 320
+prerequisites:
+  - config-tune-claude-code
+docs_url: "https://code.claude.com/docs/en/settings"
+xp_reward: 40
+video_ids:
+  - O_z9vDLgvoY
+  - eMZmDH3T2bY
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: Custom status line'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: 'statusLine'
+  successOutput: '✓ Recognised: statusLine
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"How does Claude Code execute a custom statusLine command from settings.json?","options":["Runs the shell command on every keystroke and displays stdout in the status bar","Executes the command at Claude Code startup once and caches the result for the session","Spawns the command in a background thread and updates the display whenever output changes","Polls the command every 5 seconds, printing only the first 80 characters of output"],"answer":0,"explanation":"statusLine commands are re-executed frequently (typically on keystroke or interval) to provide live status feedback. The entire stdout becomes the status bar content, so commands should be fast and produce concise output."},{"q":"Which of these is the best use case for a custom statusLine?","options":["Fetch the latest stock price from an API to display net worth updates","Display git branch name, uncommitted file count, and whether npm audit passed","Run a 2-minute machine learning model to predict the user's next command","Stream real-time logs from a remote server for continuous monitoring"],"answer":1,"explanation":"statusLine works best for fast local queries (git status, file counts, test pass/fail) that run in milliseconds. Slow network calls, long computations, or streaming output will freeze the UI and degrade the development experience."},{"q":"What happens if a statusLine command outputs 500 characters?","options":["Claude Code displays all 500 characters; the status bar scrolls horizontally on focus","Only the first ~80 characters display; excess is truncated silently","The command is killed and an error message replaces the output","Claude Code prompts you to simplify the command before continuing"],"answer":1,"explanation":"Status bars have limited visual real estate. Output beyond the terminal width is truncated—design statusLine commands to emit concise summaries (branch + file count, build status, etc.) rather than detailed reports."}]
+---
+## What it does
+
+The `statusLine` setting in your `settings.json` runs a shell command every few seconds and displays its output in Claude Code's status bar—that persistent line at the top of the terminal. You control what appears: current branch, test status, pending changes, time, environment variables, anything your shell can print.
+
+```json
+{
+  "statusLine": "git branch --show-current | tr -d '\\n'; echo ' | ' ; npm run status:check 2>/dev/null || echo 'no tests'"
+}
+```
+
+The command's stdout is captured and shown live. Each time Claude Code runs a tool that might change state (git operations, npm install, file edits), the statusLine re-executes, keeping your context fresh without manual checking.
+
+## When to use it
+
+Use it when you want critical project state always visible without context-switching to a separate terminal tab:
+
+- **Branch tracking** during multi-branch work — see which branch you're on at a glance
+- **Test health** — pipe test output or a custom health check that shows pass/fail counts
+- **Pending changes** — `git status --porcelain | wc -l` displays unstaged file count
+- **Deployment readiness** — check if current branch is deployable (e.g., `npm run check` status)
+- **Time tracking** — `date "+%H:%M"` for session time awareness
+- **Environment flags** — show `$NODE_ENV` or feature flags active in this session
+
+The status bar is always visible, so mission-critical checks belong here. Fluff (uptime, weather) should not—reserve the space for decisions that affect your work right now.
+
+## Try it yourself
+
+Run `/statusline-setup` to configure your status line interactively, or manually edit your `settings.json` file and write a simple shell command that outputs useful info. Keep it under 60 characters so it fits the terminal width. Test it locally first by running the command directly in your shell, then copy the working command into the `statusLine` field. Restart Claude Code to see it in action.
+
+## Gotchas
+
+**Output format:** The shell command's output is taken literally—no newlines, just trimmed whitespace. Multi-line output collapses to a single line, so pipe `tr -d '\n'` to strip line breaks if needed.
+
+**Performance:** If your command is slow (e.g., a git operation on a large repo), the entire status bar blocks until it completes. Keep commands under 500ms. Avoid `git fetch` or expensive network calls—use local-only checks like `git rev-parse --abbrev-ref HEAD`.
+
+**Error handling:** Stderr is discarded; only stdout is shown. If your command fails (non-zero exit), nothing appears in the status bar. Chain fallbacks with `||` so the bar always has content: `command-that-might-fail || echo 'fallback'`.
+
+**Escaping:** Inside the JSON string, backslashes must be escaped (`\\n` not `\n`). Single quotes work fine; double-quote them if using `echo`.
