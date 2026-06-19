@@ -1,0 +1,54 @@
+---
+title: "Shift+Tab — Plan mode"
+date: "2026-06-19"
+excerpt: "You'll learn how to use Plan mode to map out your implementation strategy before writing code, visualizing the steps and trade-offs involved. This matters because AI agents perform better with explicit architectural guidance, and a written plan keeps both you and Claude aligned on scope and approach."
+tags: ["Claude Code", "AI Workflow", "shortcuts"]
+topics: ["Shift+Tab", "shortcuts"]
+coverEmoji: "🌳"
+category: "shortcuts"
+short_label: "Plan"
+tier: 2
+position:
+  x: 1320
+  y: 320
+prerequisites:
+  - help-command
+docs_url: "https://code.claude.com/docs/en/overview"
+xp_reward: 30
+video_ids:
+  - FoRIj5qcslg
+  - ntDIxaeo3Wg
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: Shift+Tab — Plan mode'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: 'Shift+Tab'
+  successOutput: '✓ Recognised: Shift+Tab
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"When you invoke EnterPlanMode, what capabilities are blocked?","options":["File editing and code generation are paused; you focus on designing approach only","Only Bash commands are blocked; you can still edit files and write code","Database queries are blocked, but you can still read files and plan locally","Workflow execution is blocked, but individual agent calls still run"],"answer":0,"explanation":"Plan mode suspends implementation (Edit, Write, Agent calls) to focus on architecture and design discussion. You can still read files and design the approach before ExitPlanMode."},{"q":"Which situation best justifies entering plan mode?","options":["Fixing a typo in a single file that takes one line to correct","A complex multi-file feature where alignment on approach is needed before you write code","Reviewing a finished PR to check for bugs or style issues","Running the build script to verify that your changes compile"],"answer":1,"explanation":"Plan mode is for non-trivial tasks where you need to discuss architecture, file layout, and tradeoffs with the user before implementation begins. Quick fixes and reviews don't need it."},{"q":"After you call ExitPlanMode to present a plan, what must happen next?","options":["Wait for the user to review and approve the plan before beginning implementation","Immediately start editing files according to the plan without further confirmation","Run npm run check to validate that the plan syntax is correct","Invoke a workflow to automatically execute all steps in the plan"],"answer":0,"explanation":"ExitPlanMode returns control to the user to review your proposed plan. You must wait for explicit approval or direction before you resume implementation with file edits or code generation."}]
+---
+## What it does
+
+Plan mode (`Shift+Tab` or `/enter-plan`) puts you in a structured planning phase where you sketch out an implementation strategy *before* writing code. While in plan mode, you can't edit files or run destructive Git commands — the tool harness blocks them. Plan mode forces explicit decision-making: you design the approach, get user sign-off, and only then exit into implementation. It's a circuit breaker that prevents you from building the wrong thing.
+
+## When to use it
+
+Enter plan mode for any task that requires more than two files to change, or whenever the right approach isn't obvious. Examples: "add a new payment flow", "refactor authentication", "merge three semi-related bugs into one solution", "build a feature with architectural tradeoffs". Use it when the user asks a design question ("how should we approach X?", "what's the right pattern here?"). Also use it preemptively when you notice yourself starting to code without a mental model — pause, enter plan mode, think aloud, and propose a concrete strategy before touching files.
+
+For small, routine tasks (fixing a typo, adjusting a colour token, a one-liner bug fix), plan mode is overkill — just implement and ask to commit.
+
+## Try it yourself
+
+Press `Shift+Tab` in the terminal or type `/enter-plan` to see what a structured planning phase looks like. You'll be in a mode where you can ask the user clarifying questions, propose multiple approaches, and get feedback before committing to an implementation. Once the plan is solid, exit plan mode with `ExitPlanMode` and implement it.
+
+## Gotchas
+
+**Plan mode is not a promise.** Proposing a 10-step plan doesn't mean you must follow all 10 steps — plans change as you discover edge cases. If you're mid-implementation and realize the approach won't work, exit plan mode, explain the blocker to the user, and ask whether to revise. The discipline is *thinking first*, not rigid adherence.
+
+**Don't ask permission to plan.** If a task is genuinely complex and you haven't drafted an approach yet, enter plan mode without asking. The user can always say "skip the plan, just build it" — but at least you'll have thought through the problem.
+
+**Exit promptly.** Once the user approves a plan, call `ExitPlanMode` immediately and implement. Don't use plan mode as a procrastination shelter. The longer you stay in, the more likely the plan becomes stale or the user gets impatient.
+
+**Use it for user-facing decisions, not code cleanup.** Plan mode is for "which architecture?", "what files should exist?", "should we refactor this?". It's not for deciding between variable names — that's in-band implementation detail and slows you down if you're already confident about the approach.
