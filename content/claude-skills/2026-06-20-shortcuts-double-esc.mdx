@@ -1,0 +1,58 @@
+---
+title: "Double-Esc — Safe interrupt"
+date: "2026-06-20"
+excerpt: "You'll learn how to use Double-Esc to safely halt a running agent or workflow mid-task without losing uncommitted changes or forcing cleanup. This matters because AI tasks can hang, run too long, or go sideways—having a graceful stop button keeps you in control."
+tags: ["Claude Code", "AI Workflow", "shortcuts"]
+topics: ["Esc Esc", "shortcuts"]
+coverEmoji: "🌳"
+category: "shortcuts"
+short_label: "Esc Esc"
+tier: 2
+position:
+  x: 1520
+  y: 320
+prerequisites:
+  - help-command
+docs_url: "https://code.claude.com/docs/en/overview"
+xp_reward: 20
+video_ids:
+  - 3nnw06bY4mM
+  - ntDIxaeo3Wg
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: Double-Esc — Safe interrupt'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: 'Esc Esc'
+  successOutput: '✓ Recognised: Esc Esc
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"What does pressing Esc once do in Claude Code?","options":["Cancels the current task gracefully, allowing cleanup and partial results","Immediately force-kills the running process without saving any work","Pauses the task temporarily; press Esc again to resume it","Opens an interrupt menu where you choose between cancel or force-exit"],"answer":0,"explanation":"Single Esc requests a graceful cancellation that allows the current operation to clean up and return any partial results. Double Esc is the force-kill that skips cleanup."},{"q":"When should you use double Esc instead of single Esc?","options":["When single Esc doesn't respond quickly and you need an immediate hard exit","When you want to cancel one subtask within a larger workflow","When you need to pause execution temporarily and resume later","When the task appears stuck and you want to force-kill the process"],"answer":0,"explanation":"Double Esc is the nuclear option—use it only when single Esc fails to respond. It skips cleanup, so prefer single Esc unless the task is truly unresponsive."},{"q":"How does Ctrl+C differ from Esc in Claude Code?","options":["Ctrl+C interrupts the terminal process itself; Esc is a soft signal through Claude Code's API","They are equivalent—both trigger a graceful cancel","Ctrl+C only works in CLI mode; Esc only works in the web UI","Esc is faster than Ctrl+C because it bypasses the OS kernel"],"answer":0,"explanation":"Ctrl+C is an OS-level signal that may not be caught cleanly by Claude Code, whereas Esc is a first-class interrupt within Claude Code's protocol that ensures proper cleanup."}]
+---
+## What it does
+
+Claude Code runs long-lived tasks—code generation, testing, workflows, agent orchestration. Sometimes you need to stop one mid-flight without nuking your whole session or losing uncommitted work. That's where **Double-Esc** comes in.
+
+Press Escape once, and Claude Code sends a graceful cancellation signal to the running task. The model stops generating, any in-flight tool calls abort cleanly, and you return to the prompt. Press Escape a second time within ~1 second, and the interrupt becomes *forceful*—it kills the task immediately without waiting for cleanup.
+
+This is distinct from **Ctrl+C** in the terminal, which kills the entire Claude Code process (losing session state), and from a single **Esc** in some UIs (which just closes a modal). Double-Esc is the "stop this one task" lever.
+
+## When to use it
+
+- A code generation is spinning through 50 files when you only needed 5—stop it, refine your prompt, try again.
+- An agent is running in circles or hallucinating—interrupt before it wastes tokens, then redirect.
+- A workflow spawned too many parallel jobs and you want to bail out—Double-Esc stops the entire fan-out.
+- A `npm run` or `git push` is hanging—instead of Ctrl+C (which kills Claude Code), press Esc once to cancel the subprocess gracefully, then decide your next move.
+
+The key insight: **Single Esc stops *this task*; Ctrl+C stops *Claude Code itself*.** Double-Esc is the middle ground—it lets you interrupt without losing your work or session.
+
+## Try it yourself
+
+Start any long-running task: a `npm run build`, an agent research prompt, or a workflow. Halfway through, press Escape once and watch the task wind down gracefully—you'll see "Interrupted by user" or similar. If that's too slow, press Escape again within a second to force-kill it.
+
+## Gotchas
+
+- **Timing matters.** The second Esc must land within ~1 second of the first, or it registers as a new input. If you wait 5 seconds between presses, the second Esc won't trigger force-kill—it'll just be a stray keystroke.
+- **Background tasks still run.** If you interrupt a workflow with background agents (spawned with `run_in_background: true`), those agents keep running in the cloud. Double-Esc stops the orchestrator *locally*, not the remote work. Check `/workflows` to see and kill background tasks explicitly.
+- **Dirty state on force-kill.** A graceful Esc allows the model to finish streaming partial output and any cleanup work. A second Esc cuts it off—you may lose the tail of a response. Use single Esc first; only go double if the first isn't working.
+- **Not Escape on macOS.** On some terminals, the Escape key is remapped. Check your keybindings config (`~/.claude/keybindings.json`) if Double-Esc isn't responding—you may need to rebind it to a different key combo.
