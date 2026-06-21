@@ -11,7 +11,7 @@ Format: `- [ ] [pillar] Title — pathway:485|482|186|190 — cross_link:/path`
 - [x] 2026-05-25 [ai-screening] AI Screening Defence — what HireVue + Sapia actually score for non-native English speakers — pathway:485 — cross_link:/interview-prep
 - [x] 2026-05-29 [fluency-without-debt] AI Fluency Without Tech Debt — week-by-week plan to pass the new junior bar — pathway:485 — cross_link:/learn
 - [x] 2026-05-30 [eval-driven-projects] Eval-Driven Side Projects — LangSmith / Braintrust / Phoenix in a weekend — pathway:485 — cross_link:/learn
-- [ ] [pr-pathway] AI Engineering on the 2026 Core Skills Occupation List — verify the 485→186 path — pathway:485 — cross_link:/au-insights
+- [x] 2026-06-21 [pr-pathway] AI Engineering on the 2026 Core Skills Occupation List — verify the 485→186 path — pathway:485 — cross_link:/au-insights
 - [ ] [interview-defence] What an AU technical interview actually tests in 2026 — pathway:485 — cross_link:/interview-prep
 - [ ] [tools-deep-dive] Cursor vs Claude Code vs Windsurf — pick one for your portfolio — pathway:485 — cross_link:/learn
 - [ ] [ai-screening] Sapia chat-based screening: how the 8-question interview is scored — pathway:485 — cross_link:/interview-prep
