@@ -1,0 +1,71 @@
+---
+title: "/loop — Recurring prompts on interval"
+date: "2026-06-21"
+excerpt: "You'll learn how to use /loop to run prompts and commands repeatedly on intervals, freeing you from manual re-execution. This matters for AI workflows that need continuous monitoring, periodic status checks, or background tasks running autonomously without constant oversight."
+tags: ["Claude Code", "AI Workflow", "slash-commands"]
+topics: ["/loop 5m /check-deploy", "slash-commands"]
+coverEmoji: "🌳"
+category: "slash-commands"
+short_label: "/loop"
+tier: 3
+position:
+  x: 320
+  y: 600
+prerequisites:
+  - resume-conversation
+docs_url: "https://code.claude.com/docs/en/slash-commands"
+xp_reward: 50
+video_ids:
+  - pWZh37iRnDA
+  - 7JKTLLW856I
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: /loop — Recurring prompts on interval'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: '/loop 5m /check-deploy'
+  successOutput: '✓ Recognised: /loop 5m /check-deploy
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"What happens when you invoke /loop without specifying an interval (e.g., `/loop 'check the deploy'` instead of `/loop 5m 'check the deploy'`)?","options":["Claude enters dynamic mode and self-paces iterations based on task progress","The loop defaults to a 60-second polling interval automatically","An error is raised and you must provide a fixed interval","The loop runs once synchronously and never repeats"],"answer":0,"explanation":"Dynamic mode lets Claude decide the delay between iterations based on what work remains—ideal when task duration is unpredictable. Fixed mode (with an interval) is better when you know the polling frequency needed."},{"q":"You need to watch a CI run until it completes, polling for status updates during this session. Should you use /loop or /schedule?","options":["/schedule (cron agent) — it's designed for recurring cloud jobs","/loop — it polls live state within the current session and halts when work finishes","Either one works equally well for this use case","/loop if you want to create a GitHub Actions workflow, /schedule for local polling"],"answer":1,"explanation":"/loop is for in-session polling of external state (watches until done, then exits); /schedule creates autonomous cloud agents for recurring cron tasks on a fixed schedule."},{"q":"In dynamic mode, you're polling a deploy status and set a sleep of 420 seconds (7 minutes). What's the performance cost?","options":["The loop will pause indefinitely until you manually resume it","You exceed the prompt cache TTL (5 minutes), so the next wake-up reloads full context and costs more tokens","The external API will rate-limit subsequent requests due to the long sleep","No cost—longer sleeps are always more efficient than frequent wakes"],"answer":1,"explanation":"The Anthropic prompt cache expires after 5 minutes; sleeping past 300s means the next iteration reloads your full conversation context uncached, paying the cost without amortizing it over multiple wakes."}]
+---
+## What it does
+
+`/loop` runs a prompt or slash command on a fixed or dynamic interval. You provide a prompt, an interval (default 10 minutes), and Claude Code repeats that work — waking up on schedule, caching context between runs, and notifying you when it completes.
+
+Two modes:
+
+- **Fixed interval:** `/loop 5m /verify` runs every 5 minutes indefinitely until you stop it
+- **Dynamic interval:** `/loop /verify` (no interval) lets you reschedule the next run after each completion based on what you learn
+
+Dynamic mode is useful when the work takes variable time or the next check depends on the result — e.g., "poll until the deploy finishes, then switch to checking for regressions every 10 minutes."
+
+## When to use it
+
+Polling and status-watching tasks where you'd otherwise manually re-run a command:
+
+- **CI/deploy monitoring:** Poll a GitHub Actions run or Vercel deployment status every 30 seconds until it lands
+- **Background process tracking:** Watch a long-running build, database migration, or async job
+- **Recurring maintenance:** Run a cron-like check every hour (e.g., fetch logs, validate config drift, scrape a feed)
+- **Development loops:** Run tests or type-check every time you save, without blocking your terminal
+
+Don't use `/loop` for:
+- One-off tasks (just run the command once)
+- Workflows that should be deterministic CI jobs (GitHub Actions, scheduled cloud agents)
+- Expensive operations that don't need polling (use `schedule` or `cron` instead)
+
+## Try it yourself
+
+Pick a task you'd normally re-run manually every few minutes — maybe checking your app's health endpoint, polling a CI job, or verifying a config file. Use `/loop` with a short interval (30 seconds to 2 minutes) and watch how it batches your work instead of breaking your focus.
+
+Let it run for 3–4 cycles to see how the cache behaves and when you'd adjust the interval or add filtering logic to the prompt.
+
+## Gotchas
+
+**Cache TTL is 5 minutes.** If your interval exceeds 300 seconds, the prompt context is reloaded from scratch for the next run — slower and more expensive. For intervals over 5 minutes, prefer a scheduled cloud agent (`schedule`) instead.
+
+**"Keep going" doesn't renew the loop.** If you say "keep going" during an active loop run, it doesn't extend the loop — it just continues that single invocation. The next scheduled run still fires at the interval you set.
+
+**Polling loops need exit logic.** A loop that checks "is the job done yet?" should include a condition to stop — e.g., "if status is 'complete', send stop signal." Otherwise, it runs forever.
+
+**Fixed vs dynamic:** Use fixed intervals for regular tasks (health checks, log rotation). Use dynamic for tasks where the next action depends on the result — the loop reschedules itself based on what you learn, avoiding unnecessary checks.
