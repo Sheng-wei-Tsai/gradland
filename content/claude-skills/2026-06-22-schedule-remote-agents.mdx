@@ -1,0 +1,68 @@
+---
+title: "/schedule — Cron remote agents"
+date: "2026-06-22"
+excerpt: "You'll learn to schedule automated cloud agents that run on cron schedules, enabling daily checks, reports, and workflows without manual intervention. This unlocks hands-off automation, turning repetitive tasks into background processes that keep your systems monitored and fresh."
+tags: ["Claude Code", "AI Workflow", "slash-commands"]
+topics: ["/schedule", "slash-commands"]
+coverEmoji: "🌳"
+category: "slash-commands"
+short_label: "/schedule"
+tier: 3
+position:
+  x: 520
+  y: 600
+prerequisites:
+  - loop-recurring-prompts
+docs_url: "https://code.claude.com/docs/en/slash-commands"
+xp_reward: 50
+video_ids:
+  - qYqIhX9hTQk
+  - eMZmDH3T2bY
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: /schedule — Cron remote agents'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: '/schedule'
+  successOutput: '✓ Recognised: /schedule
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"You want to run a GitHub PR review every night at 2 AM and report findings to Slack, without being at your keyboard. Which Claude Code feature should you use?","options":["/loop with a 24-hour interval","/schedule with a cron expression like '0 2 * * *'","A local Agent that runs in an infinite loop","GitHub Actions (outside Claude Code)"],"answer":1,"explanation":"/schedule creates cloud routines that run unattended on a fixed cron schedule, perfect for overnight jobs. /loop is for interactive sessions you actively monitor with self-pacing or explicit intervals."},{"q":"What's the key difference between '/loop 5m /check-build' run in your terminal versus '/schedule'?","options":["/loop runs on remote servers; /schedule runs locally on your machine","/loop is interactive and stoppable anytime; /schedule runs unattended on a fixed cron schedule in the cloud","/loop supports cron syntax; /schedule doesn't","/loop is for development; /schedule is for production only"],"answer":1,"explanation":"/loop repeats a command at intervals you control in an interactive session. /schedule is a background cloud routine that runs automatically on a fixed cron schedule without your involvement."},{"q":"What cron expression schedules a routine to run every Monday at 9 AM UTC?","options":["'9 0 * * 1'","'0 9 1 * *'","'0 9 * * 1'","'0 9 * 1 *'"],"answer":2,"explanation":"Cron format is minute hour day-of-month month day-of-week; '0 9 * * 1' = 09:00 on Mondays. Other options swap fields (A), restrict to the 1st day (B), or set January only (D)."}]
+---
+## What it does
+
+`/schedule` creates recurring cloud agents that run unattended on a cron schedule. Unlike `/loop`, which runs locally and requires your terminal to stay active, scheduled agents execute in Anthropic's cloud — they don't need you online, they survive restarts, and they report results back to you via notification or issue creation.
+
+You define a cron expression (e.g., `0 2 * * *` for 2 AM daily) and pass a prompt. The agent wakes up at that time, runs your task, and returns the output. It's your standing instruction to Claude in the background.
+
+Common examples: nightly PR triage, daily codebase audits, weekly dependency checks, hourly status monitors. Any task you'd otherwise set a phone reminder for belongs on `/schedule`.
+
+## When to use it
+
+Use `/schedule` when:
+- The task runs **unattended** — nobody's watching, you just want the result later
+- The schedule is **predictable** — "every night at 2 AM" or "Mondays at 9 AM", not "when this file changes"
+- You want **history** — past runs and their outputs are logged and queryable
+- The task is **long-running** — doesn't fit in an interactive `/loop` session where you're waiting
+
+Compare to `/loop`:
+- `/loop 10m /check-tests` runs locally every 10 minutes *while your terminal is open* — good for development
+- `/schedule '0 */4 * * *' /check-tests` runs in the cloud every 4 hours, always, whether you're online — good for production monitoring
+
+Real example: nightly PR triage. You schedule `claude` to run every night at 2 AM with a prompt like "find PRs in the backlog that are blocked or stale, assign labels, comment on them". The agent wakes up, runs the task, posts results as a GitHub issue assigned to you. You wake up to a summary instead of doing triage manually.
+
+## Try it yourself
+
+Navigate to a project with active development. Write a prompt for a task that'd be useful to run unattended — maybe a nightly lint report, a daily dependency freshness check, or weekly documentation review. Run the `/schedule` skill to set it up, specifying a cron expression (use standard cron syntax: minute, hour, day of month, month, day of week). Check the scheduled agent list to confirm it was created.
+
+## Gotchas
+
+**Cron syntax is UTC**, not your local timezone. `0 2 * * *` is 2 AM UTC, not 2 AM your time. Adjust accordingly or hardcode UTC explicitly in your prompt.
+
+**Past runs are queryable but not re-runnable**. If an agent fails, you can't replay it from the UI — you'd re-schedule or trigger it manually. Check the run history to see error messages.
+
+**Agents cannot interact with local files** — they run in the cloud with no access to your working directory. If the prompt needs code context, pass file paths or snippets inline, or let the agent fetch from a public repo via git clone.
+
+**Notification defaults are quiet**. Check your settings — by default you get a notification only on failure or if you explicitly asked the agent to flag something. Successful silent runs still log their output (you can query it), but you won't get paged.
+
+**Quota is shared**. Scheduled agents use your Claude Code subscription quota. A nightly 10-minute task burns quota every night — budget for that. Monitor your usage if you schedule many agents.
