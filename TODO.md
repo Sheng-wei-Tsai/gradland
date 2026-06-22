@@ -2403,3 +2403,20 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 - 2026-06-13 email try/catch items at lines 2294/2297 — STILL unfixed (`admin/job-listings:84`, `stripe/webhook:89`).
 - 2026-06-15 SVG aria-label items at lines 182/183 — STILL unfixed (`PostHeatmap.tsx:234`, `JobMarketCharts.tsx:134,214,277`).
 
+---
+
+## 🛡 Daily Analyst Findings — 2026-06-22
+
+> Fresh scan — `tsc --noEmit` clean. **Deploy CI is now RED for the 8th consecutive day — 11 consecutive `Deploy to Vercel` failures** (`27916168523` 2026-06-21 20:13 UTC, `27903555166` 2026-06-21 11:57 UTC, plus the 9 from 2026-06-17→20 listed in yesterday's entry), all stopping at the same `npm audit --audit-level=moderate` step with the same 9 advisories. **Today's sweep surfaces zero new code-quality issues.** Verifications run: (1) `package.json` `overrides` block still contains only `yaml`/`uuid`/`postcss` — the prescribed `form-data`/`undici`/`@opentelemetry/*`/`dompurify`/`vite`/`launch-editor`/`gray-matter@2.0.1` bundle from line 2332 + 2379 has NOT been applied; (2) `git diff 60c1245..HEAD` since yesterday's analysis commit shows ZERO source-code changes — only daily content commits (career-edge, claude-skills, githot, diagrams, digests, posts); (3) every Claude-calling route still has `requireSubscription` + `checkEndpointRateLimit`; only `app/api/stripe/webhook/route.ts` lacks `assertSameOrigin` (correct — called by Stripe, not browser); (4) DRAFT PR `#280` (security/deploy-gate-hardening) last touched 2026-06-13 (now **9 days stale**); (5) dependabot PR `#289` (vite bump only) last touched 2026-06-17 (5 days stale, still unmerged, would only address 1 of 9 advisories). **The autonomous chain has now demonstrated 8 days of inability to self-resolve the deploy-CI gate — every other workflow that depends on `npm ci` will continue to red-flag until the override bundle ships.** No net-new actionable findings; the 12 prior unfixed items at the line numbers below remain the entire actionable backlog.
+
+### Tasks added to TODO.md
+- None today — every actionable finding is already tracked at a prior daily-analyst section.
+
+### Reminders (still-open backlog items confirmed today — 12 unfixed, no change since 2026-06-21)
+- 2026-06-17 deploy-CI item at line 2332 + 2026-06-20 undici supplement at line 2379 — **SINGLE HIGHEST PRIORITY** (**8 consecutive days unaddressed, 11 consecutive deploy failures**); bundle both into one `package.json` + `package-lock.json` PR via `npm install` after editing the `overrides` block; do NOT split — every other workflow remains blocked until the audit gate exits 0.
+- 2026-06-19 contact-route Sentry-capture + channel-videos pageToken-validator items at lines 2359/2360 — STILL unfixed; 2-line + 2-line fixes plus the Vitest companion at line 2363.
+- 2026-06-18 terminal-lab contrast items at lines 2341-2344 — STILL unfixed (issues `#300`-`#302`, `#293`-`#295` open against `@copilot` but no PR landed in 2 days).
+- 2026-06-16 streaming try/catch items at lines 2318/2319 — STILL unfixed (`interview/mentor:146-153`, `interview/evaluate:91-99`).
+- 2026-06-13 email try/catch items at lines 2294/2297 — STILL unfixed (`admin/job-listings:84`, `stripe/webhook:89`).
+- 2026-06-15 SVG aria-label items at lines 182/183 — STILL unfixed (`PostHeatmap.tsx:234`, `JobMarketCharts.tsx:134,214,277`).
+
