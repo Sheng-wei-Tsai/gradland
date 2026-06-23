@@ -1,0 +1,63 @@
+---
+title: "/agent — Spawn subagents"
+date: "2026-06-23"
+excerpt: "You'll discover how to delegate work to specialized subagents, letting you parallelize independent tasks like searching code, reviewing changes, or researching problems. This matters because smart delegation keeps your main conversation focused while solving complex problems faster than a single agent could handle alone."
+tags: ["Claude Code", "AI Workflow", "slash-commands"]
+topics: ["/agent", "slash-commands"]
+coverEmoji: "🌳"
+category: "slash-commands"
+short_label: "/agent"
+tier: 3
+position:
+  x: 720
+  y: 600
+prerequisites:
+  - compact-conversation
+docs_url: "https://code.claude.com/docs/en/subagents"
+xp_reward: 50
+video_ids:
+  - gHB4JFG9i3k
+  - XTWb5oEfqdY
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: /agent — Spawn subagents'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: '/agent'
+  successOutput: '✓ Recognised: /agent
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"When should you spawn a subagent instead of doing work inline in the main conversation?","options":["Always use subagents to protect the main context window from bloat","For parallel independent work, or when the task matches a specialized agent's description like Explore or Plan","Only when the main loop runs out of memory or hits token limits","Never — subagents add latency and should be avoided unless absolutely necessary"],"answer":1,"explanation":"Subagents protect context, but the primary reason to fan out is parallel execution of independent work or leveraging a specialized agent's strengths. Explore is fast for code location; Plan designs architecture; general-purpose handles arbitrary tasks. Use them when the benefit (parallelism or specialization) outweighs the overhead."},{"q":"You need to find which files reference a symbol, then read their full content for analysis. Which agent should you use?","options":["Explore agent with 'very thorough' breadth — it's designed to search across the codebase","Plan agent — it can design a search strategy and then execute it","General-purpose agent — Explore reads only excerpts, not whole files, so it won't give you full content","Workflow tool — parallel tasks at scale always need orchestration"],"answer":2,"explanation":"Explore is a read-only search agent that returns excerpts from files past a read window; it's not designed for full-file analysis. General-purpose agents can grep, find files, and read them completely. Use Explore for quick targeted lookups; use general-purpose when you need complete context."},{"q":"You call `parallel(Array.from({length: 5}, () => () => agent(...)))` with 5 independent tasks. What is the wall-clock time behavior?","options":["All 5 run immediately in parallel; wall-clock = slowest single agent","They always queue because parallel() is a synchronization barrier, adding serialization overhead","They queue up to ~min(16, cpu-cores-2) concurrent; wall-clock = slowest single agent (no barrier within the queue)","They run sequentially despite parallel() syntax — the harness doesn't support true concurrent agents"],"answer":2,"explanation":"Concurrent agent calls cap at min(16, cpu-cores-2). Within that cap, all tasks run in parallel with wall-clock = slowest single task. parallel() is a *barrier* only between stages (awaits all before returning), not within a stage — excess calls queue and run as slots free, but once queued they're independent."}]
+---
+## What it does
+
+The Agent tool spawns independent subagents to handle tasks in parallel. Each subagent is a fresh Claude instance with full tool access—it can read files, grep the codebase, explore architecture, design implementations, or run any other task you'd normally do yourself. Subagents run concurrently, so you can fan out ten independent searches or designs without waiting for them to finish sequentially.
+
+## When to use it
+
+Use subagents for **parallel work on independent problems**. Common patterns:
+
+- **Exploration**: "Find where auth is handled" + "Find where payments are handled" → run both at once instead of serial searches
+- **Code review dimensions**: Split review across bug-hunt, performance, and security agents—each works independently and reports findings
+- **Multi-angle research**: Different agents search by filename, by keyword, by entity type—blind to what others find, so you get broader coverage
+- **Architecture planning**: Hand an Explore agent a quick "find all API routes" while a Plan agent designs the implementation
+
+**Explore agent** is fastest for locating code—it's read-only and specialized for grep + file scans. **Plan agent** is for design decisions. **General-purpose agent** handles anything else.
+
+Don't use subagents for sequential work where B depends on A's output—that's waterfall, not parallelism. Use them when you have N independent tasks and want them all done at once.
+
+## Try it yourself
+
+Open the terminal and spawn two parallel subagents: one to explore your project structure, another to list recent commits. Use the Agent tool twice in a single tool-call block—they'll run concurrently. See how long it takes versus running them back-to-back yourself.
+
+## Gotchas
+
+**Context isolation cuts both ways.** Each subagent starts fresh—no memory of prior conversation context or findings from other agents. If agent A finds something critical, you must summarize it in the prompt to agent B, not assume they'll know. This is a feature for independence but requires you to weave context together.
+
+**Parallel calls have overhead.** Spawning ten agents takes ~200–500ms per agent just to initialize. For quick one-shot tasks (grep a filename), serial is faster. Parallelism wins when each agent's work takes 10+ seconds—the overhead is amortized.
+
+**Worktree isolation is expensive.** If you pass `isolation: 'worktree'`, each agent gets its own git checkout to avoid file conflicts. This buys safety but adds disk overhead and setup time. Only use it when agents are mutating files in parallel and would step on each other.
+
+**Subagents don't inherit your session model override.** If you're in `/fast` mode and spawn a subagent without specifying `model`, it uses the default (Haiku), not Opus. Explicitly set `model: 'opus'` if you need it.
+
+**Result filtering is your job.** Parallel agents might error or return null. Check for `.filter(Boolean)` before using results—don't assume all calls succeeded.
