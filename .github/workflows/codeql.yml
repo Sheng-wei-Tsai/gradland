@@ -1,0 +1,47 @@
+name: CodeQL
+
+# Static application security testing (SAST) — the "security-review" gate.
+# Runs on PRs to main and a weekly schedule. Once it has a baseline run on main,
+# make the "CodeQL" check Required in branch protection (see
+# scripts/setup-branch-protection.sh) so no code merges with a new alert.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '27 3 * * 1'   # Mondays 03:27 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write   # upload alerts to the Security tab
+
+jobs:
+  analyze:
+    name: Analyze (javascript-typescript)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          # 'security-extended' adds more rules than the default; drop to
+          # 'security-and-quality' if it gets too noisy.
+          queries: security-extended
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:javascript-typescript

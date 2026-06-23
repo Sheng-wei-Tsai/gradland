@@ -19,6 +19,7 @@ else dotenv.config();
 import fs from 'fs';
 import path from 'path';
 import { execFileSync } from 'child_process';
+import { commitAndPublish } from './lib/git-publish';
 import Parser from 'rss-parser';
 import { claudeJSON, ClaudeQuotaError } from './llm-claude';
 
@@ -339,9 +340,10 @@ async function main() {
   console.log(`\nWrote ${written} new item(s).`);
 
   if (DRY_RUN) { console.log('Dry run — skipping git commit.'); return; }
-  execFileSync('git', ['add', 'content/claude-code/', 'data/claude-docs-seen.json'], { stdio: 'inherit' });
-  execFileSync('git', ['commit', '-m', `claude-code: ${written} news item${written === 1 ? '' : 's'} ${formatDate(new Date())}`], { stdio: 'inherit' });
-  execFileSync('git', ['push', 'origin', 'main'], { stdio: 'inherit' });
+  await commitAndPublish({
+    add: ['content/claude-code/', 'data/claude-docs-seen.json'],
+    message: `claude-code: ${written} news item${written === 1 ? '' : 's'} ${formatDate(new Date())}`,
+  });
 }
 
 main().catch(err => {

@@ -7,6 +7,7 @@ import { claudeMessage, ClaudeQuotaError } from './llm-claude';
 import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
+import { commitAndPublish } from './lib/git-publish';
 
 
 const parser  = new Parser({ timeout: 20000 });
@@ -319,34 +320,13 @@ async function main() {
 
   console.log(`\nWrote ${written.length} file${written.length !== 1 ? 's' : ''} to content/visa-news/`);
 
-  // 4. Commit and push
-  console.log('\nPushing to GitHub...');
-  try {
-    for (const fp of written) {
-      execSync('git add ' + fp, { stdio: 'inherit' });
-    }
-    const dateStr = formatDate(new Date());
-    execSync(`git commit -m "visa-news: ${written.length} new article${written.length !== 1 ? 's' : ''} ${dateStr}"`, { stdio: 'inherit' });
-
-    const gitEnv = { ...process.env, GIT_TERMINAL_PROMPT: '0' };
-    let pushed = false;
-    for (let attempt = 1; attempt <= 3 && !pushed; attempt++) {
-      try {
-        if (attempt > 1) {
-          await sleep(10000 * attempt);
-          execSync('git pull --rebase origin main', { stdio: 'inherit', env: gitEnv, timeout: 60000 });
-        }
-        execSync('git push origin main', { stdio: 'inherit', env: gitEnv, timeout: 60000 });
-        pushed = true;
-      } catch {
-        if (attempt === 3) throw new Error('push failed after 3 attempts');
-        console.warn(`Push attempt ${attempt} failed, retrying...`);
-      }
-    }
-    console.log('Deployed — Vercel is building now');
-  } catch (err) {
-    console.warn('Git push failed:', (err as Error).message);
-  }
+  // 4. Commit and publish (direct to main, or via auto-merge PR under branch protection)
+  console.log('\nPublishing to GitHub...');
+  const dateStr = formatDate(new Date());
+  await commitAndPublish({
+    add: written,
+    message: `visa-news: ${written.length} new article${written.length !== 1 ? 's' : ''} ${dateStr}`,
+  });
 }
 
 main().catch(err => {

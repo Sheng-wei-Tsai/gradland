@@ -4,6 +4,7 @@ import { claudeMessage, ClaudeQuotaError } from './llm-claude';
 import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
+import { commitAndPublish } from './lib/git-publish';
 
 
 
@@ -262,30 +263,9 @@ async function main() {
   fs.writeFileSync(filePath, writePost(analyses), 'utf8');
   console.log(`\n📝 Post written → content/githot/${dateStr}.md`);
 
-  console.log('\n📤 Pushing to GitHub...');
-  try {
-    execSync(`git add "${filePath}"`, { stdio: 'inherit' });
-    execSync(`git commit -m "githot: GitHub Hot ${dateStr}"`, { stdio: 'inherit' });
-    // Retry push with rebase to handle parallel job conflicts
-    const gitEnv = { ...process.env, GIT_TERMINAL_PROMPT: '0' };
-    let pushed = false;
-    for (let attempt = 1; attempt <= 3 && !pushed; attempt++) {
-      try {
-        if (attempt > 1) {
-          await sleep(10000 * attempt);
-          execSync('git pull --rebase origin main', { stdio: 'inherit', env: gitEnv, timeout: 60000 });
-        }
-        execSync('git push origin main', { stdio: 'inherit', env: gitEnv, timeout: 60000 });
-        pushed = true;
-      } catch (pushErr) {
-        if (attempt === 3) throw pushErr;
-        console.warn(`⚠️  Push attempt ${attempt} failed, retrying...`);
-      }
-    }
-    console.log('✅ Deployed — Vercel is building now');
-  } catch (err) {
-    console.warn('⚠️  Git push failed:', (err as Error).message);
-  }
+  // Commit + publish (direct to main, or via auto-merge PR under branch protection)
+  console.log('\n📤 Publishing to GitHub...');
+  await commitAndPublish({ add: [filePath], message: `githot: GitHub Hot ${dateStr}` });
 }
 
 main().catch(err => {
