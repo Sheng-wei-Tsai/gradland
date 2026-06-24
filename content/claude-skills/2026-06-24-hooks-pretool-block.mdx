@@ -1,0 +1,76 @@
+---
+title: "Hooks — PreToolUse"
+date: "2026-06-24"
+excerpt: "You'll learn how to intercept tool calls before they execute, enabling you to validate inputs, transform parameters, or conditionally block operations based on custom rules. This matters because it lets you enforce safety checks, implement cost controls, and tailor Claude Code's behavior to your specific workflow without modifying core tools."
+tags: ["Claude Code", "AI Workflow", "hooks"]
+topics: ["PreToolUse", "hooks"]
+coverEmoji: "🌳"
+category: "hooks"
+short_label: "PreHook"
+tier: 3
+position:
+  x: 920
+  y: 600
+prerequisites:
+  - config-tune-claude-code
+docs_url: "https://code.claude.com/docs/en/hooks"
+xp_reward: 60
+video_ids:
+  - -CHa30dlGvI
+  - wADob457JXk
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: Hooks — PreToolUse'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: 'PreToolUse'
+  successOutput: '✓ Recognised: PreToolUse
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"What is the correct JSON structure for a PreToolUse hook response that blocks a tool with a user-facing message?","options":["{\"type\": \"block\", \"message\": \"This operation is not allowed\"}","{\"blocked\": true, \"error\": \"This operation is not allowed\"}","{\"status\": \"denied\", \"reason\": \"This operation is not allowed\"}","[\"block\", \"This operation is not allowed\"]"],"answer":0,"explanation":"PreToolUse hooks return a JSON object with type (either block or allow) and an optional message field. The message is displayed to the user when a tool is blocked."},{"q":"You need to inject a temporary API key into a Bash command without storing it in your shell profile. Which PreToolUse hook property enables this?","options":["secretKey property to inject credentials securely","env property to add environment variables before tool execution","vars property for temporary shell variables","inject property for dynamic secret loading"],"answer":1,"explanation":"The env property in a PreToolUse hook response sets environment variables available during tool execution. This lets you temporarily inject credentials or config without persisting them to your shell profile."},{"q":"Which pattern represents a common misuse of PreToolUse hooks?","options":["Using hooks to conditionally block git push based on uncommitted changes, when that logic should be in a pre-commit hook instead","Using hooks to block all destructive Bash commands like rm -rf and git reset --hard","Using hooks to inject build-time environment variables","Using hooks to allow dangerous commands only in specific directories"],"answer":0,"explanation":"PreToolUse hooks work best for blocking command categories and injecting config, not for fine-grained conditional logic like checking repo state. Such logic belongs in Git hooks or validation code to keep security rules in one place."}]
+---
+## What it does
+
+`PreToolUse` hooks intercept every tool call before Claude Code executes it. They run in the Claude Code harness, not in Claude itself, so they can block, transform, or augment the call with fresh state (environment variables, secrets, validation errors) that the model cannot directly modify.
+
+A PreToolUse hook receives the tool name, parameters, and execution context, then returns one of three verdicts: approve the call as-is, reject it with a reason, or approve it with modified parameters.
+
+## When to use it
+
+**Blocking destructive operations.** You can refuse `git reset --hard`, `rm -rf`, or `npm audit fix` unless the user explicitly types a confirmation phrase. This prevents Claude from accidentally trashing your work.
+
+```bash
+# Example rule: block force-push unless user types "I understand"
+if (tool === 'Bash' && params.command.includes('git push --force')) {
+  if (!context.userInput.includes('I understand')) {
+    return { approved: false, reason: 'Force push blocked; type "I understand" to override' };
+  }
+}
+```
+
+**Injecting secrets and environment variables.** You can intercept API tool calls and inject `ANTHROPIC_API_KEY`, database credentials, or OAuth tokens into the parameters without storing them in `.env.local`. The hook runs server-side, so secrets never touch the user's disk.
+
+```bash
+if (tool === 'Bash' && params.command.includes('curl')) {
+  params.env = { ...params.env, API_TOKEN: process.env.SECRET_API_TOKEN };
+  return { approved: true, params };
+}
+```
+
+**Enforcing input contracts.** Before Claude calls a sensitive endpoint (e.g., a delete API), you can validate that the payload matches your schema — e.g., the record ID is a UUID, the count is within bounds, or a required field is present. If validation fails, reject and tell Claude why.
+
+**Rate limiting or quota tracking.** Count how many times Claude has called expensive operations (Claude API calls, database writes, file uploads) in this session and block if a threshold is exceeded.
+
+## Try it yourself
+
+Open `~/.claude/settings.json` and add a `hooks` section with a `preToolUse` handler. Write a rule that blocks `rm -rf` commands unless the user's message contains the phrase "delete everything." Then try triggering a destructive Bash command in Claude Code and watch it refuse — you'll see the rejection reason inline. Next, re-submit the same command with your confirmation phrase and watch it approve.
+
+## Gotchas
+
+**Hooks are JSON contracts.** Your `preToolUse` function receives tool metadata as a JSON object and must return a JSON-serializable verdict. You cannot inspect the Claude model's reasoning or state — only the tool call itself. If you need to block based on *intent*, you'll have to infer it from the command (e.g., checking if a Bash command contains `git push`).
+
+**Approval is per-call, not per-tool.** Returning `{ approved: true }` only approves *this* call. If Claude makes the same call again two seconds later, your hook runs again and must approve again. Use this to implement stateful rate limits — store counters server-side, not in the hook code.
+
+**Modified parameters must be valid.** If you transform `params` and return them, Claude Code will pass the modified parameters to the tool. If they're invalid (e.g., a malformed JSON for an API call), the tool fails. Test your transformations before deploying.
+
+**Hooks block on tool execution, not submission.** The model can see the tool in its tool list and call it — your hook decides whether it runs. This means Claude might waste tokens designing a call that your hook will reject. For truly off-limits tools, use Claude Code's permission system instead.
