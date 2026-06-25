@@ -1,0 +1,74 @@
+---
+title: "Hooks — PostToolUse"
+date: "2026-06-25"
+excerpt: "You'll learn how to automate tasks that run after Claude uses a tool, from validating results to triggering downstream workflows. Post-tool-use hooks let you build responsive AI workflows that adapt based on what tools return, reducing manual orchestration work."
+tags: ["Claude Code", "AI Workflow", "hooks"]
+topics: ["PostToolUse", "hooks"]
+coverEmoji: "🌳"
+category: "hooks"
+short_label: "PostHook"
+tier: 3
+position:
+  x: 1120
+  y: 600
+prerequisites:
+  - hooks-pretool-block
+docs_url: "https://code.claude.com/docs/en/hooks"
+xp_reward: 60
+video_ids:
+  - ntDIxaeo3Wg
+  - qYqIhX9hTQk
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: Hooks — PostToolUse'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: 'PostToolUse'
+  successOutput: '✓ Recognised: PostToolUse
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"What is a PostToolUse hook in Claude Code?","options":["A shell command that executes after a tool call (Edit, Write, Read, etc.) and can react to or inspect the tool's result","A pre-commit Git hook that validates files before staging changes","A configuration setting that whitelist which tools Claude Code is allowed to use","A middleware layer that intercepts and logs all network requests"],"answer":0,"explanation":"PostToolUse hooks are custom shell commands configured in settings.json that run after tool execution, allowing you to validate output, auto-format code, or feed warnings back to Claude. They are distinct from Git hooks and are not configuration allowlists."},{"q":"When should you configure a PostToolUse hook to auto-format code files?","options":["After Edit and Write calls, so code is formatted immediately and style issues are caught before you review the changes","Before running npm run check, so the formatter output is included in the build validation","On every Read call, to ensure all files in the project maintain consistent style","After Git push, to standardize formatting for the entire repository on each commit"],"answer":0,"explanation":"A format-on-save hook should run after Edit/Write to catch style issues early. Running it on Read would be wasteful; running it on push is too late to affect the local diff Claude is reviewing."},{"q":"What is the main risk when a PostToolUse hook outputs feedback back into the conversation?","options":["It can create a feedback loop where Claude reacts to the hook's own output, causing confusion, repeated corrections, or retries","It violates AGENTS.md security rules and will be blocked by pre-push hooks","It forces all hooks to run on Linux only, making them incompatible with macOS","It automatically triggers npm audit to fail with a moderate-severity warning"],"answer":0,"explanation":"If a PostToolUse hook sends feedback to Claude's conversation, Claude may interpret it as new information and react to it again, creating a loop. The solution is to log hook warnings to stderr or a file, not back to the conversation."}]
+---
+## What it does
+
+PostToolUse hooks run immediately after Claude Code executes any tool — Read, Edit, Write, Bash, or any MCP tool. They're shell scripts you define in `settings.json` that receive the tool result and can inspect, transform, or act on it. Common uses: auto-format files after edits, lint code and feed warnings back into the conversation, sync external systems, or trigger dependent tasks.
+
+The hook receives:
+- `TOOL_NAME` (the tool that just ran)
+- `TOOL_RESULT` (stdout/stderr from the tool, or the tool's return value if structured)
+- `TOOL_STATUS` (success/failure)
+- `TOOL_ARGS` (what was passed to the tool, as JSON)
+
+Your script can write to stdout, which gets piped back to Claude as a hook result. If you echo warnings or errors, they appear inline in the conversation so Claude can see them immediately.
+
+## When to use it
+
+**Format-on-save:** After every `Edit` or `Write` call to a `.ts` or `.tsx` file, auto-run Prettier, then echo the diff so Claude sees what was reformatted.
+
+**Lint feedback loop:** After `Edit`, run `eslint` on the changed file and echo violations back. Claude can read them and fix in the next iteration.
+
+**Build check:** After pushing code, trigger a build or test suite and fail the hook if tests break, blocking the push.
+
+**Sync workflows:** After writing a config file, trigger a GitHub Actions workflow or sync a database schema.
+
+**Warnings as context:** After `Read`, if the file contains TODO comments or security notes, echo them so Claude is aware before writing.
+
+PostToolUse is the closest thing Claude Code has to pre-commit hooks — it closes the feedback loop so Claude sees the consequences of its edits without you having to tell it.
+
+## Try it yourself
+
+Set up a hook in `.claude/settings.json` that lints TypeScript files after Edit, then echo any errors back. Look for the `hooks` object under `PostToolUse` and add an Edit handler that runs your linter of choice (eslint, biome, or a custom check). Run `npm run check` or your build, watch what gets echoed back, and see how Claude adapts on the next edit.
+
+## Gotchas
+
+**Hook output is public:** Everything you echo in a PostToolUse hook shows up in the conversation. Don't echo secrets, large raw outputs, or binary data — keep it concise and human-readable.
+
+**Long hooks block the UI:** If your script runs a full test suite, Claude's next response is delayed until the hook completes. Use fast checks (format, lint) for Edit hooks; save slow checks (tests, builds) for manual Bash calls.
+
+**Hooks don't auto-retry:** If your hook fails, the tool result is still treated as success unless you explicitly set `TOOL_STATUS` to failure. A failed hook doesn't revert the edit — it just reports the failure.
+
+**No stdin for hooks:** PostToolUse scripts can't read from stdin. Pass all state via environment variables or config files.
+
+**Not all tools support hooks:** Hooks fire on standard tools (Read, Edit, Write, Bash, Agent) but custom tools or MCP calls may not trigger them. Check your `settings.json` `hooks` config to see what's wired.
+
+**Set `ignoreErrors: true` for non-blocking hooks:** If you want a hook to warn but not halt Claude's flow, set `ignoreErrors` in the hook config. Otherwise, a failed hook blocks the response.
