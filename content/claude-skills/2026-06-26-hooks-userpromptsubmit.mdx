@@ -1,0 +1,59 @@
+---
+title: "Hooks — UserPromptSubmit"
+date: "2026-06-26"
+excerpt: "You'll learn how to automatically validate inputs, run pre-flight checks, or modify prompts whenever a user submits a request to Claude Code. This matters because it creates self-enforcing workflows that catch errors early and ensure consistency without manual intervention."
+tags: ["Claude Code", "AI Workflow", "hooks"]
+topics: ["UserPromptSubmit", "hooks"]
+coverEmoji: "🌳"
+category: "hooks"
+short_label: "UPHook"
+tier: 3
+position:
+  x: 1320
+  y: 600
+prerequisites:
+  - hooks-pretool-block
+docs_url: "https://code.claude.com/docs/en/hooks"
+xp_reward: 60
+video_ids:
+  - ujHXnlSVheI
+  - ntDIxaeo3Wg
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: Hooks — UserPromptSubmit'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: 'UserPromptSubmit'
+  successOutput: '✓ Recognised: UserPromptSubmit
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"When does the UserPromptSubmit hook fire?","options":["When the user types in the input box on every keystroke","After the user submits a message via button click or Enter key","While Claude is actively generating a response","When the user navigates to a different page or tab"],"answer":1,"explanation":"UserPromptSubmit fires after the user sends a message, before Claude begins processing. It's the right hook to inspect, log, or modify what the user just typed."},{"q":"How should you attach context to a UserPromptSubmit hook without bloating the prompt?","options":["Append all context directly to the end of the user's message text","Use structured hook fields like metadata or contextData to attach data separately from the message body","Create a series of follow-up messages, each carrying one piece of context","Embed context in HTML comments and assume Claude will parse them"],"answer":1,"explanation":"Structured metadata fields let you attach contextual data without inflating the actual message text. This keeps the prompt lean and readable while still making information available to the system."},{"q":"Which is a legitimate use case for UserPromptSubmit?","options":["Automatically logging or recording user submissions for auditing and analytics","Silently rewriting user messages to change their original intent","Blocking messages containing certain keywords without notifying the user","Forcing users to use specific formatting they did not request"],"answer":0,"explanation":"Logging and auditing are legitimate use cases that improve observability without deceiving the user. Silent rewrites and hidden blocks violate user trust and transparency."}]
+---
+## What it does
+
+`UserPromptSubmit` is a hook that fires *after* the user types a message and hits submit, but *before* Claude sees it. It runs in your local settings, giving you a chance to inspect the raw prompt text, inject context, transform it, or even block it entirely. Common use cases: auto-attaching the current branch name to every command, prepending a project's CLAUDE.md as context before analysis, or appending a checklist reminder to code changes.
+
+## When to use it
+
+Use `UserPromptSubmit` when you want to **silently inject repetitive context** without the user typing it every time. Examples:
+
+- Prepend the current git branch, so every claude command knows which feature you're working on
+- Auto-attach a project's conventions file (CLAUDE.md, architecture docs) to the prompt
+- Append a checklist (e.g., "Always run tests before pushing") as a standing reminder
+- Log every prompt to an audit file for your team's knowledge base
+
+The hook runs *locally* in your settings.json or settings.local.json, so the transformation is invisible — Claude sees an enriched prompt, the user sees their original message in the UI.
+
+## Try it yourself
+
+Look at `.claude/settings.json` or create a `.claude/settings.local.json` file in your project root. Add a `hooks` section with a `UserPromptSubmit` entry that runs a shell command. For instance, you could write a script that prepends the current git branch or checks for uncommitted changes, then appends that result to the prompt. The hook receives the raw prompt text as stdin and should output the modified prompt to stdout.
+
+## Gotchas
+
+**Don't bloat every prompt.** A hook that appends 5KB of context to "what files changed?" creates noise and wastes tokens. Attach only information that's *relevant to most prompts*. Context that's specific to one task (like a detailed error trace) is better pasted manually or kept in memory.
+
+**Hooks run synchronously.** If your hook calls a slow external API or runs `git log -100`, Claude will appear frozen until it completes. Keep hook scripts fast (< 500ms). Shell scripts, file reads, and local git commands are safe. Slow API calls are not.
+
+**Hook output is appended to the prompt exactly as-is.** If your script outputs ANSI color codes or trailing whitespace, that ends up in the prompt. Use plain text. Test your hook once locally (`cat ~/.claude/settings.json | jq .hooks.UserPromptSubmit`) to verify the output format.
+
+**The hook sees what the user typed, not what Claude remembers.** If you use memory or context compression, `UserPromptSubmit` runs before that — it only has access to the raw text the user submitted. This is fine for injecting external context (git state, file contents), but not for replaying prior conversation state.
