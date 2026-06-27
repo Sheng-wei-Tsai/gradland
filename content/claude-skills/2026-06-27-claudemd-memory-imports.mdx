@@ -1,0 +1,62 @@
+---
+title: "CLAUDE.md — Memory imports"
+date: "2026-06-27"
+excerpt: "You'll learn how CLAUDE.md files can import and reference project memories using lightweight pointers, building a coherent knowledge base that persists across conversations without duplicating content. This approach keeps your project instructions DRY while ensuring every agent has access to the full context it needs."
+tags: ["Claude Code", "AI Workflow", "memory"]
+topics: ["@AGENTS.md", "memory"]
+coverEmoji: "🌳"
+category: "memory"
+short_label: "@imports"
+tier: 3
+position:
+  x: 1520
+  y: 600
+prerequisites:
+  - init-claudemd
+docs_url: "https://code.claude.com/docs/en/memory"
+xp_reward: 40
+video_ids:
+  - ntDIxaeo3Wg
+  - qYqIhX9hTQk
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: CLAUDE.md — Memory imports'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: '@AGENTS.md'
+  successOutput: '✓ Recognised: @AGENTS.md
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"What happens when you use `@AGENTS.md` syntax in a CLAUDE.md file?","options":["The contents of AGENTS.md are resolved and included inline as if written directly in CLAUDE.md","A hyperlink is created that users can click to read AGENTS.md separately","AGENTS.md is prevented from loading unless the user explicitly opts in","The file is split into multiple parts for better organization without merging content"],"answer":0,"explanation":"@imports are resolved at load time and the referenced file's contents replace the @import directive, making the instructions part of the effective CLAUDE.md context."},{"q":"You have a coding rule that should apply to ALL your projects, not just one. Where should you define it?","options":["In each project's CLAUDE.md file to ensure consistency everywhere","In your user-level CLAUDE.md file or ~/.claude/instructions.md","In memory so it persists across all conversations","In the parent directory's CLAUDE.md if one exists"],"answer":1,"explanation":"User-level CLAUDE.md applies globally to all projects you work on, avoiding duplication. Project-level CLAUDE.md is for repo-specific rules only."},{"q":"When should you add a rule to CLAUDE.md instead of saving it to memory?","options":["When it's a personal preference that only applies to you","When it's a durable rule that should apply to everyone working on this codebase","When it's a temporary workaround for a bug that was just fixed","When the rule changes based on the current state of the project"],"answer":1,"explanation":"CLAUDE.md is for shared, stable project rules and anti-patterns; memory is for personal preferences and ephemeral project state that decays over time."}]
+---
+## What it does
+
+CLAUDE.md files can import instructions from other CLAUDE.md files using `@filename` syntax. This lets you compose project rules from multiple scopes: parent-level instructions (team conventions), user-level guidance (your personal workflow), and project-specific rules (this repo's tech stack). Instead of copying the same rules into every project, you write them once and reference them with `@` imports.
+
+## When to use it
+
+Three-tier CLAUDE.md hierarchy:
+
+**Parent CLAUDE.md** (`~/.claude/CLAUDE.md`) — Team-wide rules that apply to every project: commit message format, code-review standards, linting rules, security baseline.
+
+**User CLAUDE.md** (`~/.claude/projects/CLAUDE.md`) — Your personal workflow preferences: model choice, response style, when to ask before pushing, which tools you trust. Persists across all projects you work on.
+
+**Project CLAUDE.md** (`repo/CLAUDE.md`) — This specific codebase: tech stack (Next.js 16, Supabase, Stripe), security rules (rate limiting on Claude routes), styling system (CSS tokens, no Tailwind), feature workflow (write TODO.md first). Checked into git so the team sees it.
+
+When a conflict arises (parent says "always ask before push", project says "commit autonomously on content changes"), **project wins**. Specificity matters — the closer the rule to the code, the higher its priority.
+
+**Keep memory tight.** Don't import rules you can derive by reading the code. Don't import things that change weekly (sprint goals, deployment state, person assignments). Import only *lasting* conventions that *surprise* a reader — the hidden constraints and tradeoffs unique to this codebase.
+
+## Try it yourself
+
+Create a parent CLAUDE.md in `~/.claude/CLAUDE.md` with your team's standard commit format or code-review rubric. Then in a project CLAUDE.md, add `@CLAUDE.md` at the top to inherit those rules, and layer project-specific overrides below. Check that Claude Code picks up both sets of rules by asking it a question about the code and watching it cite both tiers.
+
+## Gotchas
+
+**Import cycles break silently** — if parent imports user and user imports parent, the second read is skipped. Resist the urge to share everything; keep the hierarchy one-way: parent → user → project.
+
+**Memory bloat** — every import adds to context size. If you import a 2KB team CLAUDE.md into 50 projects, that's 100KB of redundant context per session. Instead, import only the *essential* rules; leave stylistic preferences and explanations in the source file, not imported copies.
+
+**@filename with no directory assumes the same folder.** To import from parent, use the full path: `@/home/user/.claude/CLAUDE.md`. Relative imports (`@../CLAUDE.md`) don't work across the filesystem.
+
+**Precedence is literal-read order, then scope.** If you import `@CLAUDE.md` and then write a conflicting rule in the same file, the local rule wins because it's read last. But if project CLAUDE.md conflicts with user CLAUDE.md (via import), project wins by scope.
