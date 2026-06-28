@@ -1,0 +1,58 @@
+---
+title: "settings.json — Permissions allowlist"
+date: "2026-06-28"
+excerpt: "You'll learn how to configure a permissions allowlist in settings.json to pre-approve safe, repeatable operations like reading specific files or running common CLI tools. This eliminates repetitive permission prompts during multi-step workflows, letting your AI automation run more smoothly without constant interruptions."
+tags: ["Claude Code", "AI Workflow", "settings"]
+topics: ["settings.json", "settings"]
+coverEmoji: "🌳"
+category: "settings"
+short_label: "Perms"
+tier: 3
+position:
+  x: 1720
+  y: 600
+prerequisites:
+  - config-tune-claude-code
+docs_url: "https://code.claude.com/docs/en/settings"
+xp_reward: 50
+video_ids:
+  - ntDIxaeo3Wg
+  - bqJzIWAEn40
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: settings.json — Permissions allowlist'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: 'settings.json'
+  successOutput: '✓ Recognised: settings.json
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"You want to allow npm install across your entire project in Claude Code. Where should you add the permission rule so it applies to all conversations in that project directory?","options":["Only in ~/.claude/settings.json (global user settings)","In the project's .claude/settings.json file","In both global and project settings.json files","In .github/workflows/deploy.yml instead"],"answer":1,"explanation":"Project-scoped settings in .claude/settings.json override global user settings for that directory. Adding the allowlist there keeps permissions tied to the project without affecting other projects you work on."},{"q":"You notice Claude Code prompts you for permissions on the same Bash commands repeatedly. What's the fastest way to reduce these prompts automatically?","options":["Manually edit settings.json to add all tools you want to use","Run /fewer-permission-prompts to scan your transcript and populate an allowlist","Disable all permission prompts by setting 'permissionsMode' to 'allow-all'","Ask Claude Code to remember which tools you trust"],"answer":1,"explanation":"The /fewer-permission-prompts skill scans your conversation history for common read-only tool calls (like ls, grep, cat) and auto-populates a prioritized allowlist in .claude/settings.json, eliminating repetitive prompts."},{"q":"When building a permissions allowlist (whitelist), what is the key tradeoff you make?","options":["You block everything by default, so you must explicitly allow each tool—more upfront work, but fewer surprise permissions later","You allow everything by default and only block exceptions—faster initial setup, but you might accidentally allow unsafe operations","Allowlists are strictly better and have no tradeoffs","Allowlists and denylists are functionally identical"],"answer":0,"explanation":"An allowlist (whitelist) defaults to blocking and requires you to explicitly permit tools, which is more restrictive but safer. A denylist (blacklist) defaults to allowing and requires you to block exceptions, which is more permissive but riskier."}]
+---
+## What it does
+
+Every Claude Code tool call prompts for permission by default. The `settings.json` permissions allowlist preapproves specific commands so you skip the permission dialog for safe, repetitive operations. Instead of approving "run npm ci" ten times a day, you approve it once in settings and the prompt vanishes — but you retain full control by scoping approval to specific commands, file paths, or permission modes.
+
+Permissions have three layers: **global** (affects all projects), **project** (in `.claude/settings.json`, checked into your repo), and **local** (in `.claude/settings.local.json`, gitignored). Scopes nest, so a project allowlist overrides global. Denials always win — if global allows `npm install` but project denies it, the command is blocked.
+
+## When to use it
+
+Use allowlists to suppress permission prompts for commands you audit once and trust repeatedly: `npm ci`, `git status`, `git log`, `find . -name "*.ts"`, or MCP tool calls like `read` and `grep`. The `/fewer-permission-prompts` skill scans your recent transcript and auto-generates an allowlist of the most common safe calls.
+
+Project-level allowlists (`.claude/settings.json`) are most useful because they encode what *this codebase* needs — every developer on the team benefits, and the rules are version-controlled. Global allowlists are right for your personal CLI defaults that apply everywhere (e.g., always allow git status).
+
+Scoping is critical: an allowlist that says "allow all bash commands" defeats the purpose. Always be specific: allow `npm ci` (reproducible install), not `npm` (could run anything).
+
+## Try it yourself
+
+Check your recent transcript for the permission prompts you've approved most. The `/fewer-permission-prompts` skill will scan those and draft an allowlist tailored to your workflow — save it to `.claude/settings.json` in the project so your teammates benefit too. You can also hand-edit settings.json with specific tools like `read`, `bash:git`, or MCP endpoints you use constantly.
+
+## Gotchas
+
+**Allowlist syntax is strict.** A misspelled command name or tool path won't block — it just fails silently, and the prompt reappears. Use `grep` on your settings file after editing to verify the command names match what Claude Code expects.
+
+**Denials are irrevocable within that scope.** If you deny a command in project settings, global settings can't override it. Only remove the deny entry or escalate to a less-specific scope.
+
+**NEXT_PUBLIC env vars aren't secrets.** Allowing `bash` doesn't let you read `.env` files — the harness sandboxes filesystem access separately. But be cautious approving commands that write or delete files; read-only operations like `git log` or `find` are safer to auto-approve.
+
+**Permissions don't stack across tool types.** Approving `bash:npm` doesn't auto-approve `read` on `package.json`. Each tool category has its own permission scope, so an allowlist is granular by design — you're trading friction for safety, not just speed.
