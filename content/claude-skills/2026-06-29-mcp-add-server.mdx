@@ -1,0 +1,56 @@
+---
+title: "MCP — Add a server"
+date: "2026-06-29"
+excerpt: "You'll learn to create and integrate custom MCP servers that extend Claude's access to your tools and data. This unlocks automation workflows where Claude can interact with any external system you define."
+tags: ["Claude Code", "AI Workflow", "mcp"]
+topics: ["claude mcp add", "mcp"]
+coverEmoji: "🌳"
+category: "mcp"
+short_label: "MCP"
+tier: 4
+position:
+  x: 120
+  y: 880
+prerequisites:
+  - settings-permissions-allowlist
+docs_url: "https://code.claude.com/docs/en/mcp"
+xp_reward: 70
+video_ids:
+  - X7lgIa6guKg
+  - uogzSxOw4LU
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: MCP — Add a server'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: 'claude mcp add'
+  successOutput: '✓ Recognised: claude mcp add
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"What is the primary purpose of an MCP (Model Context Protocol) server in Claude Code?","options":["To replace the Claude API entirely and handle all inference locally","To extend Claude's capabilities by exposing tools, data sources, and custom logic that Claude can interact with during conversations","To cache API responses and reduce billing costs by avoiding duplicate requests","To serve exclusively as a local database for storing conversation history"],"answer":1,"explanation":"MCP servers extend Claude's context by exposing tools and resources—databases, file systems, APIs, custom logic—that Claude can call during a conversation. They're not a replacement for the Claude API; they're an integration layer."},{"q":"When you run `claude mcp add`, what happens?","options":["It immediately starts an MCP server process in the background and makes it available to Claude","It prompts you for server configuration details, writes an entry to .mcp.json, and installs any required dependencies—but does not start the server yet","It creates a boilerplate server implementation file (e.g., server.ts) that you must code yourself before it works","It connects to a remote MCP registry, downloads a pre-built server binary, and auto-configures it without user input"],"answer":1,"explanation":"The `claude mcp add` command is a setup wizard that saves server config to .mcp.json and manages dependencies. The actual server process starts when Claude Code needs it (lazy start) or via a manual command, not immediately."},{"q":"In a working MCP setup, how does Claude actually use a tool provided by an MCP server?","options":["Claude sends a request to the MCP server, which processes it and sends the result directly to the user's terminal","Claude formulates a tool call, Claude Code routes it to the appropriate server via its transport (stdio/HTTP/SSE), the server executes it, and the result flows back into Claude's conversation context","The MCP server automatically intercepts and modifies all of Claude's responses before displaying them to the user","Claude must rewrite the tool call in a special MCP-specific syntax that only the server can parse"],"answer":1,"explanation":"Claude decides to call a tool based on its reasoning, Claude Code's MCP client sends the request to the server using the configured transport, the server processes it, and the result is fed back into Claude's context for continued reasoning—seamlessly transparent to the user."}]
+---
+## What it does
+
+MCP (Model Context Protocol) servers are external tools and data sources that Claude can access during conversations. When you add an MCP server to Claude Code, you're registering a provider that exposes capabilities—like file systems, APIs, databases, or specialized tools—so Claude can call them as part of solving your problems. The `claude mcp add` command registers that server in your `.mcp.json` configuration file, and Claude Code automatically loads it on startup.
+
+Think of an MCP server as a bridge: Claude runs inside Claude Code, but the server lets Claude reach out to resources outside its direct environment. The most common example is the local filesystem server, which gives Claude the ability to read and modify files on your machine safely, with your permission.
+
+## When to use it
+
+Add an MCP server when you want Claude to access something specific to your workflow that isn't built into Claude Code by default. Common cases: connecting to a local database, reading from an API that requires custom auth, exposing a private knowledge base, or integrating with an internal tool your team uses. If you find yourself copying-pasting context or manually fetching data to hand to Claude, an MCP server is the right move—it automates that handoff.
+
+You might also add a server if you're building a custom integration for your team. For example, an internal company service that needs Claude to fetch employee data or project context could expose an MCP server instead of requiring Claude Code users to authenticate separately.
+
+## Try it yourself
+
+Pick a data source or tool you interact with regularly—a local folder structure, a private API, a database, or even a CLI tool you often need to query. Write a small MCP server that exposes it (or find an existing one in the community). Use `claude mcp add` to register it, then try asking Claude to access that resource in a conversation. You'll see the server appear in Claude Code's MCP panel, and Claude will route calls through it automatically.
+
+## Gotchas
+
+**Configuration matters.** The `.mcp.json` file must be valid JSON and live in your `.claude` directory. A typo or misconfigured server path breaks silently—Claude Code logs errors to the dev console, so if a server isn't loading, check there first.
+
+**Permissions are strict by default.** Unlike built-in Claude Code tools, custom MCP servers don't auto-approve. You'll see permission prompts for every call until you add the server to your allowlist. This is intentional—you control what resources Claude can touch.
+
+**Servers can be slow.** If your MCP server is chatty or makes blocking I/O calls, Claude will wait. Test locally before adding to production workflows. Also, very large responses (megabytes of data) can exhaust context—MCP servers are best for targeted lookups, not bulk data dumps.
+
+**Start simple.** A working MCP server is easier to build than you think. The simplest example exposes a few read-only tools (fetch from an API, list files, run a script). Authentication, write operations, and complex logic come later. Focus on one use case per server.
