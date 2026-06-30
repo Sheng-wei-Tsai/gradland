@@ -1,0 +1,70 @@
+---
+title: "Subagents — Fan out research"
+date: "2026-06-30"
+excerpt: "You'll learn how to spawn multiple independent subagents to search different sources in parallel, gathering comprehensive research faster than sequential queries. This pattern is essential when one agent can't hold all needed context—fanning out lets you cover more ground while keeping each agent focused."
+tags: ["Claude Code", "AI Workflow", "subagents"]
+topics: ["Agent", "subagents"]
+coverEmoji: "🌳"
+category: "subagents"
+short_label: "Agents"
+tier: 4
+position:
+  x: 320
+  y: 880
+prerequisites:
+  - agent-subagent-dispatch
+docs_url: "https://code.claude.com/docs/en/subagents"
+xp_reward: 60
+video_ids:
+  - DNGxMX7ym44
+  - uogzSxOw4LU
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: Subagents — Fan out research'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: 'Agent'
+  successOutput: '✓ Recognised: Agent
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"When is it most appropriate to spawn an Explore agent for codebase research?","options":["Only when you have exactly 3 or fewer files to search","For targeted single lookups when you know the file path","When broad research will require multiple queries to answer comprehensively","For every read-only codebase task to ensure consistent handling"],"answer":2,"explanation":"Explore agents are optimized for multi-query research tasks that would otherwise require many separate bash/Read calls. Single lookups should use grep or Read directly."},{"q":"How should you send multiple independent Agent calls for parallel research?","options":["Use TaskCreate to queue them and set them to run in the background","Make each Agent call in a separate response to avoid tool conflicts","Send all independent Agent calls in a single message for concurrent execution","Chain them with run_in_background: true, one per response"],"answer":2,"explanation":"Sending multiple tool calls in one message triggers concurrent execution, maximizing throughput. Sequential responses would run agents serially and waste time."},{"q":"What is NOT an appropriate use case for the Explore agent?","options":["Searching for files by pattern across the codebase","Grepping for a symbol or API endpoint name across files","Auditing cross-file consistency of a refactored variable name","Locating which files import a specific function"],"answer":2,"explanation":"Explore reads file excerpts, not complete files, and cannot reliably verify cross-file consistency or refactoring completeness. Use full-file reads or manual inspection for those tasks."}]
+---
+## What it does
+
+Subagents let you fan out research across multiple parallel tasks, each with its own context and tools. Instead of asking one agent to search five different dimensions (code patterns, test files, deployment scripts, config changes, dependencies), you spawn five agents simultaneously — one focused on each. They run concurrently, return independent results, and the main loop synthesizes. This keeps each agent's context window focused and speeds up discovery when you need breadth.
+
+## When to use it
+
+Spawn subagents when:
+- **Exploring unfamiliar codebases** — search for X by name, usage, test suite, and docs simultaneously
+- **Multi-dimensional research** — "find this feature" + "find references" + "find related PRs" as separate agents
+- **Divide-and-conquer bug hunts** — one agent searches logs, another tests edge cases, a third audits permissions
+- **Content discovery** — parallel web searches on different angles (academic papers, Reddit, GitHub issues, HN)
+
+Do NOT spawn subagents for sequential dependent work — if agent B needs agent A's output, call A first, then B inline. Subagents shine on independent parallel tasks.
+
+## Try it yourself
+
+Write a script that fans out three `Explore` agents in parallel: one searching for API endpoints in `src/`, one searching for test files, one searching for Stripe integration points. Each explores a different slice without stepping on the others. Run it with `Agent` and the `subagent_type: 'Explore'` parameter to see how fast parallel search is compared to asking one agent to cover all three angles.
+
+## Gotchas
+
+**Agent frontmatter matters.** Every agent type is defined with a description and available tools. When you set `subagent_type: 'Explore'`, you get a specialized read-only agent tuned for fast file/symbol lookups — it's not a general-purpose model. If you ask an `Explore` agent to write code or do code review, it'll refuse because those aren't in its toolkit. Match the agent type to the task: `Explore` for finding code, `code-reviewer` for design review, the default `claude` for synthesis.
+
+**Context isolation is a feature, not a bug.** Each subagent sees only what you pass in — it doesn't inherit the main conversation. This means:
+- Subagents cannot refer back to findings from prior turns
+- You must pass in any context they need (file paths, search patterns, error traces)
+- This isolation prevents agents from getting confused by side conversations or noise
+
+**Parallel spawn needs careful aggregation.** When results come back, some may error and return `null`. Always filter and validate before synthesis:
+
+```ts
+const results = await parallel([
+  () => agent('Search pattern A', {subagent_type: 'Explore'}),
+  () => agent('Search pattern B', {subagent_type: 'Explore'}),
+  () => agent('Search pattern C', {subagent_type: 'Explore'}),
+]);
+const valid = results.filter(Boolean); // drops nulls
+```
+
+**Don't assume determinism across runs.** Web searches, code grep, and file enumeration can vary slightly between runs. If you're doing reproducible research (audit, compliance sweep), call agents once, save the results, then iterate on the fixed data rather than re-spawning finders each loop. The agent sees _what you ask_, not _when you ask_ — different timing = different web state = different results.
