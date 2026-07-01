@@ -1,0 +1,61 @@
+---
+title: "Skills — Author SKILL.md"
+date: "2026-07-01"
+excerpt: "You'll learn how to write and configure SKILL.md files that extend Claude Code with custom capabilities tailored to your project's needs. Skills automate complex workflows and let AI agents leverage domain-specific tools instead of reinventing them each conversation."
+tags: ["Claude Code", "AI Workflow", "skills"]
+topics: ["Skill", "skills"]
+coverEmoji: "🌳"
+category: "skills"
+short_label: "Skills"
+tier: 4
+position:
+  x: 520
+  y: 880
+prerequisites:
+  - claudemd-memory-imports
+docs_url: "https://code.claude.com/docs/en/skills"
+xp_reward: 60
+video_ids:
+  - O_z9vDLgvoY
+  - thxXGxYIwUI
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: Skills — Author SKILL.md'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: 'Skill'
+  successOutput: '✓ Recognised: Skill
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"What is the primary purpose of a SKILL.md file in Claude Code projects?","options":["To define environment-specific build configurations for different deployment targets","To document specialized workflows and tools that the AI can invoke to assist with project-specific tasks","To replace CLAUDE.md and provide all project guidelines and conventions","To configure GitHub Actions workflows and CI/CD pipeline settings"],"answer":1,"explanation":"SKILL.md files document specialized workflows that Claude Code agents can invoke using existing tools. They are separate from CLAUDE.md, which covers architecture rules, style guides, and development conventions that apply to human developers and the AI alike."},{"q":"You're adding deployment automation to a Next.js project. When should you create a SKILL.md file versus updating CLAUDE.md?","options":["Always use SKILL.md; it's the newer standard for all project documentation","Use CLAUDE.md for architecture/style rules and conventions; use SKILL.md for automated workflows that invoke specialized tools","Skills are only for external SaaS integrations; use CLAUDE.md for deployment rules","Either one works—they are interchangeable for documentation purposes"],"answer":1,"explanation":"CLAUDE.md documents rules and conventions that guide all development work. SKILL.md is for automatable workflows—like a /deploy skill that triggers Vercel or /verify that runs end-to-end tests. Separate by intent: guidelines versus tool-based automation."},{"q":"A developer creates a SKILL.md file that declares a custom tool called 'lint-config'. Why won't the AI be able to invoke this new tool?","options":["Skills can only reference tools that already exist in Claude Code's built-in registry; they cannot define new tools","The SKILL.md frontmatter syntax is incorrect for declaring custom tools","Custom tools must be defined in CLAUDE.md, not in skill files","Skills cannot declare tools—only tool parameters can be configured in skill files"],"answer":0,"explanation":"Skills document how to use existing Claude Code tools in project-specific workflows. They do not create new tools. New tools must be added to Claude Code's core registry. A skill describes when and how to invoke tools the AI already has access to."}]
+---
+## What it does
+
+A `SKILL.md` file defines a custom slash command (skill) that Claude Code runs. It's a structured document that bundles a description, optional configuration, and a list of allowed tools into a reusable automation. When you author a skill, it becomes available as `/skill-name` in your project — a faster, more reliable way to orchestrate multi-step tasks than ad-hoc instructions each time.
+
+Skills live in `.claude/skills/` — one file per skill. The frontmatter declares the skill's metadata (name, description, target directory scope), and the body is plain Markdown that becomes the skill's instructions. When invoked, Claude Code reads the SKILL.md, respects the `allowed-tools` constraint, and routes the work to a specialized subagent.
+
+## When to use it
+
+Author a skill when you have a repeatable, multi-step workflow that your team runs regularly:
+
+- A pre-push validation check that runs `npm run check`, `npm audit`, and a build — faster than repeating the steps each time
+- A code review harness that sweeps multiple files for a specific kind of bug
+- A daily content pipeline (fetch posts, validate, publish) that runs on schedule
+- A deployment or release checklist that combines checks, rollback safety, and notifications
+
+Skills are *not* for one-off tasks or one-liner commands. CLAUDE.md notes are better for ephemeral guidance ("when you see X, do Y"); skills are better for named, repeatable workflows your team invokes by name.
+
+## Try it yourself
+
+Create a new `.claude/skills/` directory if it doesn't exist, then write a SKILL.md with frontmatter declaring `name`, `description`, and `allowed-tools`. Frontmatter is YAML between triple-dashes — declare tools your skill needs (e.g., `["Read", "Bash", "Edit"]`). The body is your skill's instructions; it will be shown to the user before execution, so write it clearly. Save it, then invoke it as `/your-skill-name` in the terminal to see your skill in the available list.
+
+## Gotchas
+
+**Frontmatter is strict.** Missing or malformed YAML (unclosed quotes, misaligned indent) will silently fail to load the skill. Validate with `cat .claude/skills/your-skill.md | head -20` and check that `name:`, `description:`, and `allowed-tools:` are present and spelled exactly.
+
+**`allowed-tools` is a hard constraint.** If your skill logic needs `Bash`, but you only declared `["Read", "Edit"]`, the subagent cannot call Bash — it will refuse and the skill fails. List every tool the skill's instructions might invoke. This is *not* a documentation step; it's a security sandbox.
+
+**Skills and CLAUDE.md are different scopes.** CLAUDE.md is codebase-wide guidance that every agent respects (auth patterns, commit rules, anti-patterns). Skills are named workflows. If your instruction is a one-time guard rule ("never do X in this repo"), put it in CLAUDE.md. If it's a repeatable procedure ("run this multi-step check"), author a skill.
+
+**Scoped skills.** A skill can target a subdirectory via the `scope:` frontmatter field (e.g., `scope: apps/web`). Scoped skills show up only when you're working in that directory. Omit `scope:` for project-wide skills.
