@@ -1,0 +1,56 @@
+---
+title: "Plugins — Marketplace install"
+date: "2026-07-02"
+excerpt: "You'll learn how to browse and install plugins from the Claude Code marketplace to extend your agent's capabilities. This matters because plugins unlock new tools and integrations that transform your AI workflow from generic to specialized."
+tags: ["Claude Code", "AI Workflow", "plugins"]
+topics: ["/plugin", "plugins"]
+coverEmoji: "🌳"
+category: "plugins"
+short_label: "Plugins"
+tier: 4
+position:
+  x: 720
+  y: 880
+prerequisites:
+  - mcp-add-server
+docs_url: "https://code.claude.com/docs/en/plugins"
+xp_reward: 50
+video_ids:
+  - sBF3UumkL4Y
+  - _lBG5h3AY50
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: Plugins — Marketplace install'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: '/plugin'
+  successOutput: '✓ Recognised: /plugin
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"When you run `/plugin marketplace add myPlugin`, what exactly gets installed to your Claude Code system?","options":["Only a manifest file that points to a cloud-hosted plugin","A directory containing the plugin's MCP server definition, tool schemas, and metadata that Claude Code loads locally","Source code that gets compiled into your Claude Code installation","A compiled executable that runs in the Vercel edge network"],"answer":1,"explanation":"Plugin installation downloads the MCP bundle (server definition and schemas) to your system so Claude Code can invoke its tools locally. It's not cloud-hosted or compiled — it's a set of configuration and server files that define what the plugin can do."},{"q":"If a plugin declares `scopes: ['read-filesystem', 'execute-bash']`, what does that guarantee?","options":["The plugin has unrestricted access to your filesystem and can run any bash command without prompts","The plugin CAN request these capabilities, but Claude Code will prompt you to approve or deny each use, depending on your permission settings","These scopes are optional declarations — the plugin can request additional permissions at runtime without warning","Only read-filesystem is allowed; bash execution is automatically blocked by the sandbox"],"answer":1,"explanation":"Scopes declare what a plugin *requests*, not what it automatically gets. Claude Code enforces these scopes and will either prompt you for permission or check your allow/deny list before the plugin can use those capabilities. Scopes are the security boundary between user and plugin."},{"q":"Before installing a new plugin from the marketplace, what is the highest-priority security check?","options":["Verify the plugin has been downloaded more than 1,000 times","Check that the marketplace has automatically sandboxed the plugin (all plugins are sandboxed by default)","Review the publisher's identity and verify the declared scopes actually match what the plugin claims to do","Confirm the plugin binary is digitally signed by Anthropic"],"answer":2,"explanation":"You are responsible for trusting the plugin source. Verify the creator is reputable and that the scopes it requests align with its stated purpose — a file-editing plugin shouldn't request network access, for example. Marketplaces don't guarantee sandbox isolation, so human review is your primary defense."}]
+---
+## What it does
+
+Claude Code plugins extend the editor with new capabilities—everything from Git integrations to Docker management, database clients, and AI tools. The plugin marketplace is where you discover and install them. When you run `/plugin marketplace add`, you're browsing the built-in plugin registry, filtering by category (version control, containerization, language tools), searching by name, and installing with a single command. Installation downloads the plugin bundle, registers it in your local configuration, and makes it immediately available in the terminal via `/plugin <name>` commands or through the UI.
+
+Each plugin is a self-contained package with a manifest (metadata, required environment), bundled tools (MCP servers or Claude Code integrations), and optional hooks that run on events like "when a file saves" or "before you run tests." Scopes define what the plugin can access—filesystem read/write, network, environment variables—so you understand the security model before installing.
+
+## When to use it
+
+Start with `/plugin marketplace add` when you notice yourself manually running the same CLI commands over and over. For example, if you're constantly checking Docker container status, building images, or managing networks, a Docker plugin saves you typing and gives you structured output. If your workflow involves Postgres, a database plugin lets you query tables, inspect schema, and run migrations from within Claude Code instead of switching to psql.
+
+Plugins shine in three scenarios: *language-specific tooling* (Node.js, Python, Rust tools that aren't worth building yourself), *infrastructure as code* (Terraform, Kubernetes, CloudFormation helpers), and *workflow glue* (Slack notifications, GitHub checks, linear ticket creation). Use them to automate the boring parts of your development loop.
+
+## Try it yourself
+
+Open the terminal and explore the marketplace without committing to anything—search for a tool relevant to your current project (Docker, database, Git workflow), read the manifest, and scan the scopes it requests. Once you find one that matches your needs, install it and try the first command. The plugin's help output (`/plugin <name> help`) will show you what commands are available.
+
+## Gotchas
+
+**Scope creep:** A plugin requesting read/write access to your entire home directory is a red flag. Trust the scopes—they're enforced at the OS level. Review them before installation, especially for third-party plugins.
+
+**Version lock-in:** Some plugins depend on specific tool versions (Docker 20.10+, Node.js 18+). If the plugin fails with a cryptic error, check the manifest's `requires` field and verify your environment matches.
+
+**Inactive plugins:** A plugin listed in the marketplace doesn't mean it's maintained. Check the bundle's changelog and install date—if it hasn't been updated in six months and you're on a newer OS, it might break. Uninstall it with `/plugin remove <name>` if it stops working.
+
+**Conflicting CLI names:** If a plugin exports a command that shadows your shell's built-in (e.g., a custom `test` command when you have Jest tests), the plugin takes precedence in Claude Code. Rename or disable the plugin binding if it interferes.
