@@ -1,0 +1,89 @@
+---
+title: "Claude Code SDK — Embed in your app"
+date: "2026-07-03"
+excerpt: "You'll learn how to embed Claude Code's capabilities directly into your application, giving users access to Claude's reasoning and code generation without leaving your product. This matters because it transforms your app into an AI-powered workflow engine, enabling real-time code analysis, generation, and problem-solving as core features."
+tags: ["Claude Code", "AI Workflow", "sdk"]
+topics: ["ClaudeCode", "sdk"]
+coverEmoji: "🌳"
+category: "sdk"
+short_label: "SDK"
+tier: 4
+position:
+  x: 920
+  y: 880
+prerequisites:
+  - agent-subagent-dispatch
+docs_url: "https://code.claude.com/docs/en/sdk"
+xp_reward: 50
+video_ids:
+  - ChaQ_tZDBFg
+  - TqC1qOfiVcQ
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: Claude Code SDK — Embed in your app'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: 'ClaudeCode'
+  successOutput: '✓ Recognised: ClaudeCode
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"In the Claude Agent SDK, when should you use pipeline() instead of parallel()?","options":["A) When you need all results together before proceeding to the next stage","B) When items flow through multiple stages independently, with no dependency on other items' prior stages","C) When you want synchronous, blocking execution of all agents at once","D) When handling sensitive data that requires sequential processing for security"],"answer":1,"explanation":"pipeline() is the DEFAULT for multi-stage work — items flow independently through stages with no barrier. Use parallel() only when stage N genuinely needs ALL prior-stage results for cross-item context (deduplication, counting, comparison)."},{"q":"When should you use the Anthropic SDK directly instead of the Claude Agent SDK?","options":["A) The Agent SDK is always the right choice for any AI feature","B) When building a simple single-turn conversation without multi-agent orchestration","C) The Anthropic SDK doesn't support streaming or tool use","D) You can never use the Anthropic SDK; the Agent SDK replaces it entirely"],"answer":1,"explanation":"The Agent SDK excels at orchestrating complex, multi-step tasks with subagents. For simple conversational features, the Anthropic SDK is lighter — don't over-engineer with the Agent SDK when a direct API call suffices."},{"q":"What happens when an agent in a workflow fails or throws an error?","options":["A) The entire workflow aborts with no error handling","B) The failed agent is caught and resolved to null; you must filter with .filter(Boolean) before using results","C) All subsequent agents automatically skip execution and return empty results","D) Failed agents retry indefinitely until they succeed or hit a max-retry limit"],"answer":1,"explanation":"Agents that throw or error resolve to null in the result array — the call itself never rejects, so you must explicitly filter nulls with .filter(Boolean) before assuming all results are valid data."}]
+---
+## What it does
+
+The Claude Code SDK lets you run Claude models in your application via the Anthropic API, with streaming, structured outputs, and vision support built in. It's a JavaScript/TypeScript wrapper around the Anthropic API that handles authentication, request formatting, message streaming, and response parsing. You can call Claude models directly from Node.js servers, edge functions, or browser environments—perfect for building AI features like code analysis, chat, content generation, or agent loops into your product.
+
+## When to use it
+
+Use the Claude Code SDK when you're building a Node.js or browser-based app and want to query Claude models programmatically. It's a lightweight alternative to calling the REST API directly—the SDK handles marshalling requests, streaming responses, and error handling so you don't have to. Compare this to the Anthropic SDK (the official, bare-metal Python/Node client): the Claude Code SDK is purpose-built for frontend and edge deployments, with better defaults for streaming and type safety in TypeScript. If you're shipping a web app, bot, or edge function that calls Claude, reach for the Claude Code SDK. If you're building backend infrastructure in Python or need maximum control over every API parameter, the Anthropic SDK is the right choice.
+
+## Try it yourself
+
+Install from npm and set your API key as an environment variable. Then create a simple client instance, pass a message, and log the response—you can try streaming mode by iterating over the stream chunks instead of waiting for the full response. The SDK's TypeScript types will guide you toward valid model IDs and message formats.
+
+```ts
+import Anthropic from "@anthropic-ai/sdk";
+
+const client = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+});
+
+const message = await client.messages.create({
+  model: "claude-opus-4-8",
+  max_tokens: 1024,
+  messages: [
+    { role: "user", content: "Explain quantum entanglement in one sentence." },
+  ],
+});
+
+console.log(message.content[0].type === "text" && message.content[0].text);
+```
+
+For streaming, use `client.messages.stream()` instead and iterate over events:
+
+```ts
+const stream = await client.messages.stream({
+  model: "claude-haiku-4-5-20251001",
+  max_tokens: 256,
+  messages: [{ role: "user", content: "Count to 10." }],
+});
+
+for await (const chunk of stream) {
+  if (
+    chunk.type === "content_block_delta" &&
+    chunk.delta.type === "text_delta"
+  ) {
+    process.stdout.write(chunk.delta.text);
+  }
+}
+```
+
+## Gotchas
+
+**API key exposure:** the SDK needs your `ANTHROPIC_API_KEY` to authenticate. Never hardcode it or commit it to git—always load it from environment variables or a secrets manager. In browser code, you *cannot* use the API key directly (it would be visible to users); instead, proxy Claude calls through your backend via a route handler that holds the key server-side.
+
+**Streaming doesn't return a full message object:** when you use `.stream()`, you get an event stream, not the final `message` object with token counts and stop reason. If you need those metadata fields, either use the non-streaming `create()` call, or listen for the `message_stop` event in the stream and extract the stop reason from there.
+
+**Model names change:** this guide was written with current models like `claude-opus-4-8` and `claude-haiku-4-5-20251001`. Always check the docs for the latest available models—copy the exact model ID from the reference to avoid "not found" errors.
+
+**Costs add up fast:** each API call costs money based on input and output tokens. Streaming doesn't reduce cost (you pay for tokens either way), but it *does* reduce latency and lets you start showing results to users while Claude is still thinking. For high-volume apps, always rate-limit and validate user input before sending to Claude.
