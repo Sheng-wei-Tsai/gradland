@@ -1,0 +1,83 @@
+---
+title: "Headless mode — claude -p"
+date: "2026-07-04"
+excerpt: "You'll learn to run Claude Code in headless mode with the -p flag, automating code analysis without the interactive UI. This enables AI workflows in CI/CD pipelines, scheduled tasks, and remote systems where a visual interface isn't practical."
+tags: ["Claude Code", "AI Workflow", "cli"]
+topics: ["claude -p", "cli"]
+coverEmoji: "🌳"
+category: "cli"
+short_label: "-p"
+tier: 4
+position:
+  x: 1120
+  y: 880
+prerequisites:
+  - sdk-basics
+docs_url: "https://code.claude.com/docs/en/headless"
+xp_reward: 50
+video_ids:
+  - ujHXnlSVheI
+  - 3HVH2Iuplqo
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: Headless mode — claude -p'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: 'claude -p'
+  successOutput: '✓ Recognised: claude -p
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"What does the `-p` flag enable in Claude Code?","options":["Profile selection for choosing different Claude models","Plugin architecture for extending Claude Code functionality","Headless mode for running Claude in scripts without the UI","Performance profiling and execution time measurement"],"answer":2,"explanation":"The -p flag activates headless mode, allowing Claude to run in automation contexts like CI/CD pipelines or scripts without launching the desktop or web UI. The response can be captured and piped to other tools."},{"q":"When should you use `--output-format json` with headless mode?","options":["When you need to reduce the output file size through compression","When running in a CI/CD pipeline that needs to parse and process Claude's response programmatically","When the terminal supports colored syntax highlighting","When storing credentials or sensitive data from the response"],"answer":1,"explanation":"JSON output format is essential for scripts and automation. It produces valid JSON that your tooling can parse reliably, extract structured data from, and feed into other pipeline stages."},{"q":"What is the key difference when using `--append-system-prompt`?","options":["Your custom prompt replaces Claude Code's default system context entirely","Your custom prompt is added to Claude Code's existing system instructions instead of replacing them","The append operation requires explicit user confirmation for security","Appended prompts are automatically saved to disk for reuse in future calls"],"answer":1,"explanation":"Without --append-system-prompt, a custom system prompt replaces defaults. With it, your prompt extends Claude Code's built-in context (like Gradland-specific knowledge), preserving both product-specific and custom instructions."}]
+---
+## What it does
+
+Headless mode (`claude -p`) runs Claude Code without opening the web interface or desktop app. Instead of displaying results in a browser, the CLI returns output directly to your terminal or pipes it into shell scripts. You can parse results as JSON, append custom system prompts, and chain Claude into existing automation workflows.
+
+`-p` is short for `--no-pretty-print`; it's the inverse of the interactive UI. Useful for CI pipelines, shell scripts, cron jobs, and data processing where you need machine-readable output instead of a rendered interface.
+
+## When to use it
+
+**Headless mode is your tool when:**
+
+- You're scripting Claude into a bash pipeline or Node.js task
+- You need JSON output to feed into downstream tools (database writes, file generation, report aggregation)
+- You're running Claude on a server without a display (CI agents, Lambda functions, cron jobs)
+- You want to append a custom system prompt—e.g., "always respond in CSV format" or "answer as a senior software architect"
+- You're building a bot or automation that calls Claude repeatedly as one step in a larger workflow
+
+It's *not* for interactive, exploratory work—if you're prototyping or need to see rich formatting and code diffs, use the desktop or web app.
+
+## Try it yourself
+
+Try piping a simple prompt through headless mode and parsing the JSON result. Then experiment with `--append-system-prompt` to customize Claude's persona—e.g., asking it to respond as a specific role or in a specific format. Finally, chain a few prompts together in a bash script to see how naturally Claude integrates into shell automation.
+
+## Gotchas
+
+**1. Output format defaults to text, not JSON**  
+By default, `claude -p` returns plain text. Add `--output-format json` if you need structured output that won't break when piped. Without it, multi-line responses will split your parsing.
+
+```bash
+# ❌ Text output — may be hard to parse in scripts
+claude -p "What is 2+2?"
+
+# ✅ Structured JSON for automation
+claude -p "What is 2+2?" --output-format json
+```
+
+**2. System prompts don't persist across runs**  
+`--append-system-prompt` only applies to that single invocation. If you're calling Claude repeatedly, append the prompt to *every* call or wrap it in a shell function to avoid forgetting.
+
+```bash
+# Each call needs its own system prompt
+claude -p "Summarize this" --append-system-prompt "Be concise"
+claude -p "Format as CSV" --append-system-prompt "Output as CSV only"
+```
+
+**3. Context window resets per invocation**  
+Unlike the interactive app, headless mode doesn't maintain conversation history between separate CLI calls. If you need multi-turn context, pipe the output back as input or use a file to accumulate history.
+
+**4. Very long input/output may timeout**  
+Headless mode is optimized for focused, bounded tasks. Don't pipe a 10MB log file and expect instant results—test with realistic data sizes first, and consider breaking large tasks into smaller batches.
+
+**5. Authentication still required**  
+`-p` requires the same auth setup as the interactive CLI. You must have `~/.claude/config.json` or env vars set. Headless mode is not a way to bypass authentication.
