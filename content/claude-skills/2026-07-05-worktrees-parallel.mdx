@@ -1,0 +1,68 @@
+---
+title: "Git worktrees — Parallel sessions"
+date: "2026-07-05"
+excerpt: "You'll learn how to create isolated git worktrees so multiple branches can be worked on simultaneously without switching back and forth. This lets AI agents run in parallel on different features while your main context stays clean."
+tags: ["Claude Code", "AI Workflow", "workflow"]
+topics: ["git worktree add", "workflow"]
+coverEmoji: "🌳"
+category: "workflow"
+short_label: "Worktree"
+tier: 4
+position:
+  x: 1320
+  y: 880
+prerequisites:
+  - resume-conversation
+docs_url: "https://code.claude.com/docs/en/overview"
+xp_reward: 50
+video_ids:
+  - _bTawUNpWcI
+  - yv8VZpov8bk
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: Git worktrees — Parallel sessions'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: 'git worktree add'
+  successOutput: '✓ Recognised: git worktree add
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"What does `git worktree add <path> <branch>` create compared to just checking out a branch?","options":["A new working directory with independent HEAD, staging area, and working files linked to the same repository","A shallow copy of the repository that saves disk space but shares the .git directory","A new branch stored in a temporary location that exists only until the CLI session ends","A backup snapshot of the current branch state that can be reverted with git worktree restore"],"answer":0,"explanation":"Git worktrees create an isolated working directory for each branch you add, with their own HEAD and staging area, while sharing the underlying repository object database. This lets you work on multiple branches simultaneously without the checkout overhead."},{"q":"Claude Code's Agent tool supports `isolation: \"worktree\"` for parallel agent spawns. Why is this critical when agents mutate files in parallel?","options":["Worktrees prevent git state conflicts by giving each agent its own working directory—otherwise simultaneous file edits would step on each other","Worktrees accelerate agent execution by distributing I/O across multiple CPU cores","Worktrees allow agents to run on different branches of the repository independently from the user's current branch","Worktrees enable agents to bypass permission checks by creating isolated security contexts"],"answer":0,"explanation":"Without worktree isolation, parallel agents writing to the same repo's working directory would corrupt git state and overwrite each other's changes. Worktrees isolate this—each agent gets its own working directory so conflicts are impossible."},{"q":"In Claude Code workflows, what happens to a worktree after an agent completes if it made no file changes?","options":["It is automatically cleaned up by the harness to avoid disk clutter","It persists as a named branch so the user can inspect the unchanged state later","It gets compressed into a .tar.gz archive under .git/worktrees-archive/ for audit","It remains locked until the user manually runs `git worktree remove` or the session expires"],"answer":0,"explanation":"The harness auto-cleans unchanged worktrees to keep the filesystem tidy. If the agent modified files, the worktree path is returned for inspection; otherwise it's removed. This avoids accumulating temporary directories from no-op agent runs."}]
+---
+## What it does
+
+A git worktree is a separate working directory attached to the same repository. Instead of `git checkout branch-b` (which rewrites your current directory), you create a new directory that checks out `branch-b` independently. Both directories coexist — you can compile, test, or run Claude Code sessions in each without affecting the other. Internally, git still tracks them as one repo; changes to one don't show up in another until you push and pull explicitly.
+
+```bash
+git worktree add ../branch-b-work branch-b
+```
+
+This creates a sibling directory with `branch-b` checked out. Your original directory stays on its current branch untouched.
+
+## When to use it
+
+**In Claude Code:** Worktrees shine when you want to run **parallel, isolated sessions** without constant branch switching overhead or context contamination.
+
+Real scenarios:
+- **Code review + implementation in parallel:** Review a PR in one worktree (`/repo-review`) while writing a feature in another (`/repo-feature`). Each has its own running dev server, test suite, and Claude Code session. No stepping on each other.
+- **Testing multiple branches:** Checkout `main` in one worktree, `experimental-refactor` in another, and run tests in both to compare performance or behaviour without context switches.
+- **Avoiding interruption overhead:** When Claude Code is mid-build or running tests, spawn a new worktree for a quick bug fix on a different branch instead of canceling the in-progress work.
+- **Snapshot verification:** Keep a worktree pinned to a known-good commit for regression testing while your main worktree drifts forward.
+
+The workflow feels like having multiple copies of the repo without the disk duplication. Git handles the bookkeeping; you just navigate to the directory you want.
+
+## Try it yourself
+
+Create a worktree for a feature branch and verify that changes in one don't appear in another — check `git status` in both directories to confirm they're independent. Then delete the worktree cleanly with `git worktree remove` and watch it disappear from the list.
+
+## Gotchas
+
+**Disk bloat quickly.** Each worktree duplicates the working directory but shares the `.git` folder. On a large monorepo with node_modules, you'll burn disk fast. Use `.gitignore`d directories sparingly or prune aggressively.
+
+**Never delete the main worktree by hand.** If you manually `rm -rf` your original directory instead of using `git worktree remove`, the repo gets confused. Always use the tool to clean up.
+
+**Branch deletion trips you up.** If you delete a branch on GitHub and forget you have a worktree checked out to it locally, the worktree still exists but is orphaned. Use `git worktree prune` periodically to clean these up.
+
+**Stale refs after rebases.** If someone force-pushes a branch, worktrees checked out to it won't auto-update. You'll need to manually fetch and rebase.
+
+**Performance overhead.** Each worktree rebuilds node_modules, compiled assets, etc. on first use. If you spawn many worktrees, first builds are slow. Consider sharing build outputs via symlinks or environment variables for large projects.
