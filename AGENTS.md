@@ -60,6 +60,7 @@ npm run check
 # = sh scripts/check-lockfile-sync.sh
 #   && npm audit --audit-level=moderate
 #   && npx tsx scripts/validate-content.ts
+#   && vitest run
 #   && next build
 ```
 

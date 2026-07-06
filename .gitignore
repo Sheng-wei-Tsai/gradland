@@ -17,5 +17,11 @@ context/.DS_Store
 *.pyc
 *.pyo
 .claude/settings.local.json
+.claude/scheduled_tasks.lock
 tsconfig.tsbuildinfo
-.vercel
+
+# Supabase CLI local state
+supabase/.temp/
+
+# designlang extraction output (regenerated via npm run design:extract)
+design-system/live-extract/
