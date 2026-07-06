@@ -2683,3 +2683,20 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 - 2026-06-16 streaming try/catch items at lines 2318/2319 — STILL unfixed (`interview/mentor:147-153`, `interview/evaluate:92-98`); `interview/chat:72-82` is the in-codebase correct-pattern reference.
 - 2026-06-13 email try/catch items at lines 2294/2297 — STILL unfixed (`admin/job-listings:84`, `stripe/webhook:89`).
 - 2026-06-15 SVG aria-label items at lines 182/183 — STILL unfixed (`PostHeatmap.tsx:234`, `JobMarketCharts.tsx:134,214,277`).
+
+---
+
+## Daily Analysis — 2026-07-06
+
+Findings from the Opus daily audit (see corresponding GitHub Issue for the full report).
+
+### Security
+
+- [ ] Add `.limit(50)` to the `job_alerts` select in `app/api/alerts/route.ts:15` (unbounded per-user query — violates AGENTS.md §10.3) [security]
+- [ ] Truncate `body.query` and `body.location` to `.slice(0, 200)` before insert in `app/api/alerts/route.ts:24-25` (per AGENTS.md §5.4 — no bound on user input) [security]
+- [ ] Add `.limit(200)` to the `comments` select in `app/api/comments/route.ts:14` (unbounded per-post query) [security]
+
+### Code Quality
+
+- [ ] Replace `.select('*')` with explicit column list in `app/api/alerts/route.ts:12` (AGENTS.md §10.3 — never `select('*')` in production) [quality]
+- [ ] Replace `.select('*, users:user_id (email)')` with explicit columns in `app/api/comments/route.ts:12` (AGENTS.md §10.3) [quality]
