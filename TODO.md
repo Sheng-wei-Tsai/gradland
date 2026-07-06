@@ -2686,17 +2686,30 @@ S = 1–2 days · M = 3–5 days · L = 1–2 weeks · XL = 2–4 weeks
 
 ---
 
-## Daily Analysis — 2026-07-06
+## 🛡 Daily Analyst Findings — 2026-07-06
 
-Findings from the Opus daily audit (see corresponding GitHub Issue for the full report).
+> Fresh scan — `tsc --noEmit` clean. Deploy CI still RED (8 vulns, 5 moderate / 3 high) — the 22nd consecutive day. Every 2026-07-05 finding re-verified unfixed against current source. **Today's sweep surfaces zero new actionable code-quality items.**
 
-### Security
+Verifications done today:
+- `app/api/alerts/route.ts` verified clean: `.limit(100)` present at line 15, explicit column list at line 12, `body.keywords`/`body.location` truncated to 200/100 chars at lines 32-33, POST insert already returns explicit columns via `.maybeSingle()` at line 42.
+- `app/api/comments/route.ts` verified clean: `.limit(500)` present at line 23, explicit column list with join at lines 17-20, `body.content` capped at 2000 chars at line 48, `parent_id` UUID-validated at line 43.
+- Every Claude-calling AI route (16/16) still has `requireSubscription()` + `checkEndpointRateLimit()`.
+- Every mutating handler still asserts `assertSameOrigin()` (with `account/delete` still the CSRF-ordering outlier tracked at line 2450).
+- No new `console.log` leaks in production code (`app/api/jobs/route.ts:662,701,751` remain correctly gated behind `NODE_ENV !== 'production'`).
+- No new raw `<img>` tags; no new `force-dynamic` regressions on static pages.
+- Hardcoded hex in `app/opengraph-image.tsx`, `app/api/interview/share-card/route.tsx`, `app/layout.tsx:48-49` (theme-color meta) are intentional (OG-image renderers use fixed light-mode palette + theme meta tag).
 
-- [ ] Add `.limit(50)` to the `job_alerts` select in `app/api/alerts/route.ts:15` (unbounded per-user query — violates AGENTS.md §10.3) [security]
-- [ ] Truncate `body.query` and `body.location` to `.slice(0, 200)` before insert in `app/api/alerts/route.ts:24-25` (per AGENTS.md §5.4 — no bound on user input) [security]
-- [ ] Add `.limit(200)` to the `comments` select in `app/api/comments/route.ts:14` (unbounded per-post query) [security]
+### Tasks added to TODO.md
+- None today — every finding I first drafted collapsed on verification against current source; all previously-tracked reminders below remain the actionable backlog.
 
-### Code Quality
-
-- [ ] Replace `.select('*')` with explicit column list in `app/api/alerts/route.ts:12` (AGENTS.md §10.3 — never `select('*')` in production) [quality]
-- [ ] Replace `.select('*, users:user_id (email)')` with explicit columns in `app/api/comments/route.ts:12` (AGENTS.md §10.3) [quality]
+### Reminders (still-open backlog items confirmed today — 18 unfixed, no change since 2026-07-04)
+- 2026-06-17 deploy-CI item at line 2332 + 2026-06-20 undici supplement at line 2379 — **SINGLE HIGHEST PRIORITY** (**22 consecutive days unaddressed**).
+- 2026-07-04 `/api/jobs` external-fetch timeout items at lines 2648-2652.
+- 2026-07-03 external-fetch timeout + dead-import items at lines 2623-2626.
+- 2026-06-24 `rateLimitResponse` canonical-import item at line 2447.
+- 2026-06-24 `account/delete` CSRF-ordering item at line 2450.
+- 2026-06-19 contact-route Sentry-capture + channel-videos pageToken-validator items at lines 2359/2360.
+- 2026-06-18 terminal-lab contrast items at lines 2341-2344.
+- 2026-06-16 streaming try/catch items at lines 2318/2319.
+- 2026-06-13 email try/catch items at lines 2294/2297.
+- 2026-06-15 SVG aria-label items at lines 182/183.
