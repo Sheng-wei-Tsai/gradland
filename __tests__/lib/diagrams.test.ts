@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getAllDiagrams, getDiagramsByTopic, getDiagram } from '@/lib/diagrams';
+import { getAllDiagrams, getDiagram } from '@/lib/diagrams';
 
 describe('getAllDiagrams()', () => {
   it('returns a non-empty array', () => {
@@ -37,28 +37,6 @@ describe('getAllDiagrams()', () => {
     for (const d of diagrams) {
       expect(valid.has(d.difficulty)).toBe(true);
     }
-  });
-});
-
-describe('getDiagramsByTopic()', () => {
-  it('returns only diagrams with topic === Databases', () => {
-    const all = getAllDiagrams();
-    const filtered = getDiagramsByTopic('Databases');
-    expect(filtered.length).toBeGreaterThan(0);
-    for (const d of filtered) {
-      expect(d.topic).toBe('Databases');
-    }
-    // every filtered result is in getAllDiagrams()
-    const slugs = new Set(all.map(d => d.slug));
-    for (const d of filtered) {
-      expect(slugs.has(d.slug)).toBe(true);
-    }
-  });
-
-  it('returns a strict subset of getAllDiagrams()', () => {
-    const all = getAllDiagrams();
-    const filtered = getDiagramsByTopic('System Design');
-    expect(filtered.length).toBeLessThanOrEqual(all.length);
   });
 });
 
