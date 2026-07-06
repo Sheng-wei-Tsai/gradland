@@ -76,7 +76,7 @@ export async function getSubscriptionStatus(userId: string): Promise<SubStatus> 
 }
 
 // ── Rate limit check (pro users only) ────────────────────────────────
-export async function checkRateLimit(userId: string): Promise<boolean> {
+export async function checkGlobalDailyLimit(userId: string): Promise<boolean> {
   const sb = createSupabaseService();
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
   const { count } = await sb
@@ -134,7 +134,7 @@ export async function requireSubscription(): Promise<{ user: User } | NextRespon
   if (!sub.active) return subscriptionRequiredResponse();
 
   // ── 4. Rate limit for pro users ──────────────────────────────────
-  const withinLimit = await checkRateLimit(user.id);
+  const withinLimit = await checkGlobalDailyLimit(user.id);
   if (!withinLimit) return rateLimitResponse();
 
   return { user };
