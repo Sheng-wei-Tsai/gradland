@@ -12,6 +12,7 @@
 ## ✅ Done — Full Feature Inventory
 
 ### Infrastructure & CI/CD
+- **AI workflow layer (PIV)** — `.agents/ai-workflow/` (7 command prompts + 3 reference docs from workspace standard), `PRD.md` product anchor, AGENTS.md §19 — Plan → Implement → Validate loop now project-local ✅ *2026-07-06*
 - **Weekly npm audit auto-fix** — `.github/workflows/audit-fix.yml` — weekly `npm audit fix` (npm 10 via Node 22 runner), verifies lockfile sync + audit + tests, opens PR; stops new advisories from turning the required deploy check red twice daily ✅ *2026-07-06*
 - **Auth** — GitHub OAuth + Supabase SSR, RLS everywhere
 - **Stripe** — checkout, portal, webhook, subscription gate

@@ -627,3 +627,18 @@ git log --oneline -20
 # Full log with body — for understanding decisions
 git log --format="%h %s%n%b" -10
 ```
+
+---
+
+## 19. AI Workflow Layer (PIV)
+
+This project follows the workspace AI workflow standard (`/Users/tsaishengwei/workspace/AGENTS.md`). Project-local copies of the reusable prompts live in `.agents/ai-workflow/`:
+
+- `commands/prime.md` — session priming
+- `commands/piv-plan.md` / `commands/piv-validate.md` — Plan → Implement → Validate loop
+- `commands/create-prd.md` / `commands/create-rules.md` — PRD and rules authoring
+- `commands/ai-dispatch.md` / `commands/ai-handoff.md` — multi-agent dispatch and handoff
+- `reference/karpathy-guidelines.md` — coding principles (think first, simplicity, surgical changes, goal-driven)
+- `reference/multi-ai-operating-model.md` — one owner per task, one branch per owner
+
+Every feature moves through PIV: plan it (TODO.md entry per §16), implement it (§5–§13 rules), validate it (`npm run check` per §4), then commit per §18. `PRD.md` holds product scope; `TODO.md` remains the single source of truth for feature status.
