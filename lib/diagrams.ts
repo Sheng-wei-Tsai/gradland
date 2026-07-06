@@ -50,10 +50,6 @@ export function getAllDiagrams(): Diagram[] {
     .sort((a, b) => b.date.localeCompare(a.date));
 }
 
-export function getDiagramsByTopic(topic: DiagramTopic): Diagram[] {
-  return getAllDiagrams().filter(d => d.topic === topic);
-}
-
 export function getDiagram(slug: string): Diagram | undefined {
   return getAllDiagrams().find(d => d.slug === slug);
 }
