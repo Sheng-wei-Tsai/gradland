@@ -1,0 +1,69 @@
+---
+title: "Image input — Paste a screenshot"
+date: "2026-07-06"
+excerpt: "You can paste screenshots directly into Claude Code to give the AI visual context of your app, error messages, or design layouts. This lets the AI understand what you're seeing and help you debug, build, or refine features without needing to describe everything in words."
+tags: ["Claude Code", "AI Workflow", "workflow"]
+topics: ["Cmd+V", "workflow"]
+coverEmoji: "🌳"
+category: "workflow"
+short_label: "Image"
+tier: 4
+position:
+  x: 1520
+  y: 880
+prerequisites:
+  - help-command
+docs_url: "https://code.claude.com/docs/en/overview"
+xp_reward: 30
+video_ids:
+  - M4cmrdoUKxI
+  - 3HVH2Iuplqo
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: Image input — Paste a screenshot'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: 'Cmd+V'
+  successOutput: '✓ Recognised: Cmd+V
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"How do you provide an image for Claude Code to analyze?","options":["Paste the image URL and Claude fetches it automatically","Paste the image directly into the chat using Ctrl+V (Cmd+V on Mac)","Upload via the Files button in the file explorer","Email the screenshot to your Anthropic account"],"answer":1,"explanation":"Use Ctrl+V (Cmd+V on Mac) to paste images directly into the chat. Claude Code's vision can then analyze the screenshot or image file."},{"q":"Which scenario best demonstrates when vision analysis provides the most value in Claude Code?","options":["Debugging a cryptic error message by pasting the terminal screenshot","Reviewing a UI screenshot to catch accessibility issues like low contrast or missing focus rings","Analyzing a system architecture diagram to understand component relationships","All of the above — vision excels at reading text, evaluating design, and interpreting diagrams"],"answer":3,"explanation":"Vision shines across multiple tasks: reading text and errors from screenshots, evaluating UI/UX and accessibility issues, and parsing complex visual information. Paste when text descriptions alone won't convey the problem."},{"q":"What is a key limitation of image input in Claude Code?","options":["Image tokens count against your conversation's token budget, reducing space for code responses","Claude can only analyze images smaller than 500KB in file size","Pasted screenshots are automatically converted to grayscale","You cannot paste more than one image per message"],"answer":0,"explanation":"Images consume tokens like text does—high-resolution images add significant token cost to your context. Crop to the relevant area and paste only when text descriptions won't suffice to keep token usage efficient."}]
+---
+## What it does
+
+Claude Code reads images you paste or attach—screenshots, error dialogs, UI layouts, diagrams, charts, code on a whiteboard. After you paste, Claude processes it with vision to understand what's shown: the text, structure, visual state, and context. This means you can show instead of describing when explaining a bug, asking for UI feedback, or referencing a design.
+
+Paste an image by:
+- **Inline:** Ctrl+V or Cmd+V in the message box
+- **Attachment:** Click the attachment icon or drag-drop into chat
+- **Copy-paste from anywhere:** Screenshot tool, browser, Figma, Slack, file explorer
+
+Claude sees the full image and can answer questions about it, extract text, debug visual issues, or suggest changes.
+
+## When to use it
+
+**Screenshots of bugs beat text descriptions.** Show the exact error message, stack trace rendering, or broken UI layout instead of typing it out. Claude sees colors, alignment, fonts, shadows—context that text misses.
+
+**UI review:** "Does this button look clickable?" Paste a screenshot of your component in the browser. Claude critiques alignment, contrast, hover states, and spacing against the design system.
+
+**Diagram or chart feedback:** Paste a Figma design, wireframe, or data viz. Claude can describe what's there, spot inconsistencies, or suggest improvements.
+
+**Code on paper or whiteboard:** Photograph your sketch or handwritten algorithm. Claude can read it and help translate to code.
+
+**Clarify ambiguous requirements:** A screenshot of a Figma spec, Linear ticket, or Slack thread with a design mockup is clearer than a paraphrase.
+
+## Try it yourself
+
+Take a screenshot of your app or an open pull request showing a UI change you're working on. Paste it into a new Claude Code message and ask Claude to review the layout, spot accessibility issues, or suggest a style improvement. Claude will describe what it sees and give concrete feedback based on the visual state.
+
+## Gotchas
+
+**Text extraction isn't OCR.** Claude reads printed text in screenshots well, but handwriting, low-res photos of screens, or blurry images fail. Use screenshots from your editor or browser, not phone photos of monitors.
+
+**File size and format matter.** Paste PNG, JPG, GIF, or WebP. Very large files (>5MB) may be resized. Very small text in images (< 8pt) often doesn't render readably in Claude's view.
+
+**Vision doesn't replace code review.** Claude sees *what* the UI shows, not *why* the code does it. If a bug requires reading the full component tree or understanding state flow, you still need to share the code.
+
+**No live interaction.** Claude sees a static snapshot. If you need to know "does this work when I hover?" or "what happens after I click?", you're describing a behavior—paste a screenshot of the broken state and describe the user action that led to it.
+
+**Dark mode screenshots matter.** If your app has light/dark theme toggle, the screenshot shows only one. Test both manually or paste both states if the bug is theme-specific.
