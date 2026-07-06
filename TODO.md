@@ -12,6 +12,7 @@
 ## ✅ Done — Full Feature Inventory
 
 ### Infrastructure & CI/CD
+- **Weekly npm audit auto-fix** — `.github/workflows/audit-fix.yml` — weekly `npm audit fix` (npm 10 via Node 22 runner), verifies lockfile sync + audit + tests, opens PR; stops new advisories from turning the required deploy check red twice daily ✅ *2026-07-06*
 - **Auth** — GitHub OAuth + Supabase SSR, RLS everywhere
 - **Stripe** — checkout, portal, webhook, subscription gate
 - **Pre-push quality gate** — `npm run check` (audit + build), GitHub Actions CI
