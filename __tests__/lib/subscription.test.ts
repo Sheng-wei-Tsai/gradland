@@ -44,7 +44,7 @@ vi.mock('@/lib/auth-server', () => ({
 
 const {
   getSubscriptionStatus,
-  checkRateLimit,
+  checkGlobalDailyLimit,
   checkEndpointRateLimit,
   recordUsage,
   requireSubscription,
@@ -97,18 +97,18 @@ describe('getSubscriptionStatus', () => {
   });
 });
 
-// ── checkRateLimit (global 100/day limit) ─────────────────────────────────────
-describe('checkRateLimit (global 100/day)', () => {
+// ── checkGlobalDailyLimit (global 100/day limit) ─────────────────────────────────────
+describe('checkGlobalDailyLimit (global 100/day)', () => {
   beforeEach(() => mockGte.mockReset());
 
   it('returns true (within limit) when usage is below 100 calls', async () => {
     mockGte.mockResolvedValueOnce({ count: 99, error: null });
-    expect(await checkRateLimit('u1')).toBe(true);
+    expect(await checkGlobalDailyLimit('u1')).toBe(true);
   });
 
   it('returns false (over limit) when usage meets or exceeds 100 calls', async () => {
     mockGte.mockResolvedValueOnce({ count: 100, error: null });
-    expect(await checkRateLimit('u1')).toBe(false);
+    expect(await checkGlobalDailyLimit('u1')).toBe(false);
   });
 });
 
