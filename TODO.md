@@ -2716,3 +2716,38 @@ Verifications done today:
 - 2026-06-16 streaming try/catch items at lines 2318/2319.
 - 2026-06-13 email try/catch items at lines 2294/2297.
 - 2026-06-15 SVG aria-label items at lines 182/183.
+
+---
+
+## 🛡 Daily Analyst Findings — 2026-07-07
+
+> Fresh scan — `tsc --noEmit` clean. **Deploy CI has FINALLY GONE GREEN** — commit `4a336f5` on 2026-07-06 (`fix(deps): npm audit fix — clear 8 advisories blocking deploy gate`) ended the 22-day audit blocker; today's `npm audit --audit-level=moderate` exits `0 vulnerabilities` and the 2026-07-06 14:04 UTC / 11:41 UTC / 11:05 UTC deploy workflow runs completed with `conclusion: success` (breaking the 22-consecutive-failure streak — see `.github/workflows/deploy.yml` history). The single highest-priority reminder tracked since 2026-06-17 at line 2332 is **resolved**. Also shipped 2026-07-06: `7f74c6a refactor(api): rename subscription checkRateLimit → checkGlobalDailyLimit` (semantic split from `rate-limit-db.checkRateLimit`, matches 2026-07-06 architecture-audit note), `3f46fb4 chore(ci): weekly npm audit auto-fix workflow` (preventative — weekly `npm audit fix` opens a PR, prevents the 22-day-blocker pattern from recurring), `7037da6 chore(cleanup): remove dead code and stale roadmaps found by architecture audit` (deleted `jsa-skills-auto.json`, `DiagramPageClient.tsx`, `jobs-dedup.ts`, `PLAN.md`, `SCHEDULE.md`, `getDiagramsByTopic`, `watch.sh`, `parse-diagrams.mjs`), `0f3f7ea chore(ci): run test suite in npm run check + close .gitignore gaps` (Vitest now part of the local gate, not just CI).
+
+Verifications done today:
+- `npm audit --audit-level=moderate` exits 0 — `found 0 vulnerabilities` in clean checkout; the `overrides` block edits + npm's own advisory-resolution finally closed all 9 tracked advisories (`form-data`, `undici`, `vite`, `@opentelemetry/*` ×3, `dompurify`, `js-yaml`, plus the `axios`/`cheerio`/`jsdom`/`gray-matter` transitive chains).
+- `app/api/comments/route.ts` verified clean: `.limit(500)` at line 23, `content` capped at 2000 chars at line 48, `parent_id` UUID-validated at line 43.
+- `app/api/alerts/route.ts` verified clean: `.limit(100)` at line 15, `keywords`/`location` truncated to 200/100 chars at lines 32-33, DELETE UUID-validated at line 58.
+- Every Claude-calling AI route (16/16) still has `requireSubscription()` + `checkEndpointRateLimit()`.
+- Every mutating handler still asserts `assertSameOrigin()` (with `account/delete` still the CSRF-ordering outlier tracked at line 2450 — bumped in priority now that the deploy gate no longer overshadows every other backlog item).
+- Env-var inventory matches `.env.example` (26 documented / 24 used in `app`+`lib` plus `NODE_ENV`/`PORT` runtime; `NEXT_PUBLIC_LOGO_DEV_TOKEN` is used in `components/CompanyLogo.tsx:11`; `SENTRY_DSN`/`NEXT_PUBLIC_SENTRY_DSN`/`SENTRY_RELEASE` live in `sentry.*.config.ts` — all accounted for).
+- No new `console.log` leaks in production code (`app/api/jobs/route.ts:662,701,751` remain correctly gated behind `NODE_ENV !== 'production'`).
+- No new raw `<img>` tags; no new `force-dynamic` regressions on static pages.
+- Hardcoded hex in `app/opengraph-image.tsx`, `app/api/interview/share-card/route.tsx`, `app/layout.tsx:48-49` (theme-color meta) are intentional (Satori/next-og cannot resolve CSS vars; the theme-color meta tag needs literal hex).
+- `app/api/cover-letter/route.ts:139-149` DOES wrap `for await (const chunk of stream)` in `try { ... } catch (err) { controller.error(err); }` — this is the exemplar pattern the still-open 2026-06-16 items at lines 2318/2319 should adopt for `interview/mentor:146-153` and `interview/evaluate:91-99`.
+
+### Tasks added to TODO.md
+- One new small consistency finding today (see below) — 3 of the 18 previously-tracked reminders now blocked-on-owner-only lines are lifted (the deploy-CI trio at lines 2332, 2379, and 2381 — audit gate is green), leaving 15 reminders below.
+
+### Code Quality (contact-email inconsistency in post-a-role flow)
+- [ ] Replace `hello@gradland.au` with `admin@gradland.au` at `app/post-a-role/success/page.tsx:62,65` and `app/post-a-role/page.tsx:38` — every other user-facing contact reference in the codebase (9 occurrences across `app/api/contact/route.ts:6,27,84`, `app/cookies/page.tsx:11`, `app/privacy/page.tsx:11`, `app/pricing/page.tsx:184-185`) uses `admin@gradland.au`; `hello@gradland.au` is the only outlier and only appears in the post-a-role flow; if `hello@` isn't aliased to `admin@` in the Resend/GSuite setup, employer questions after paying for a job listing will bounce — a quiet revenue-adjacent failure mode. Three-line change, no behaviour change beyond making bounced emails start landing. [quality]
+
+### Reminders (still-open backlog items confirmed today — 15 unfixed, -3 since 2026-07-06 as the deploy-CI trio at lines 2332/2379/2381 is now RESOLVED)
+- 2026-07-04 `/api/jobs` external-fetch timeout items at lines 2648-2652 — **NOW SINGLE HIGHEST PRIORITY** with the deploy gate resolved; the 5 external upstream fetches in `app/api/jobs/route.ts` still lack `AbortSignal.timeout()` guards; a slow Remotive/Jobicy response can wedge the whole `/api/jobs` handler and cascade to timeouts across `/jobs` page rendering.
+- 2026-07-03 external-fetch timeout + dead-import items at lines 2623-2626.
+- 2026-06-24 `rateLimitResponse` canonical-import item at line 2447 — STILL unfixed (`resume-match/route.ts:5`, `learn/analyse/route.ts:4`, `visa/pathway/route.ts:3` still import from `'@/lib/auth-server'`); 3-line fix.
+- 2026-06-24 `account/delete` CSRF-ordering item at line 2450 — STILL unfixed (`assertSameOrigin` still appears at line 11 AFTER `sb.auth.getUser()` at line 8); 1-line move.
+- 2026-06-19 contact-route Sentry-capture + channel-videos pageToken-validator items at lines 2359/2360 — STILL unfixed; `contact/route.ts:51-52` still silently returns `ok: true, transport: 'none'` when `RESEND_API_KEY` is unset (misconfiguration outage looks like success); `learn/channel-videos/route.ts:31` still passes `pageToken` to the YouTube API URL with zero validation while `channelId` at line 37 is regex-hardened.
+- 2026-06-18 terminal-lab contrast items at lines 2341-2344 — STILL unfixed (six text spans; issues open against `@copilot` since 2026-06-18 but no PR landed in 20 days).
+- 2026-06-16 streaming try/catch items at lines 2318/2319 — STILL unfixed (`interview/mentor:146-153`, `interview/evaluate:91-99`); adopt the `cover-letter/route.ts:139-149` `try { for await } catch (err) { controller.error(err) }` pattern verbatim.
+- 2026-06-13 email try/catch items at lines 2294/2297 — STILL unfixed (`admin/job-listings:84`, `stripe/webhook:89`).
+- 2026-06-15 SVG aria-label items at lines 182/183 — STILL unfixed (`PostHeatmap.tsx:234`, `JobMarketCharts.tsx:134,214,277`).
