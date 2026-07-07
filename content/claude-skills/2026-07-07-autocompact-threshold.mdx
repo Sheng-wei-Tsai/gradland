@@ -1,0 +1,56 @@
+---
+title: "autoCompactThreshold"
+date: "2026-07-07"
+excerpt: "You'll learn how autoCompactThreshold determines when your conversation history automatically compacts to stay within Claude's context window. This matters because setting the right threshold keeps your AI workflow running smoothly without dropping important context prematurely."
+tags: ["Claude Code", "AI Workflow", "settings"]
+topics: ["autoCompactThreshold", "settings"]
+coverEmoji: "🌳"
+category: "settings"
+short_label: "AutoCompact"
+tier: 4
+position:
+  x: 1720
+  y: 880
+prerequisites:
+  - compact-conversation
+docs_url: "https://code.claude.com/docs/en/settings"
+xp_reward: 40
+video_ids:
+  - QzEck41pueY
+  - I1EGbrH5Xdk
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: autoCompactThreshold'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: 'autoCompactThreshold'
+  successOutput: '✓ Recognised: autoCompactThreshold
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"What does autoCompactThreshold control in Claude Code?","options":["The token count at which conversation context is automatically summarized to preserve context window space","The maximum number of files that can be opened in a session before automatic closure","A hard limit on total tokens that cannot be exceeded, regardless of model capability","The delay in seconds before previous responses are cached to the browser"],"answer":0,"explanation":"autoCompactThreshold is a token-based trigger for automatic context compaction. When the conversation reaches this threshold, the system summarizes prior context to manage token usage efficiently."},{"q":"When should you lower autoCompactThreshold from its default?","options":["When using a larger, more capable model that can handle bigger contexts without hitting limits","When you have a smaller project codebase and want to reduce file indexing overhead","When working with limited token budgets or expecting longer conversations that need more frequent compaction","When you want to completely disable automatic compaction and rely only on manual triggers"],"answer":2,"explanation":"Lowering the threshold causes context to compact sooner, which is useful when token budget is tight or conversations grow long. This prevents hitting hard context limits mid-session."},{"q":"How does the /compact command interact with autoCompactThreshold?","options":["/compact respects autoCompactThreshold and only works if the threshold has been reached","/compact manually triggers context summarization immediately, independent of the autoCompactThreshold setting","/compact automatically adjusts autoCompactThreshold upward to delay future automatic compactions","/compact and autoCompactThreshold control different systems and never interact with each other"],"answer":1,"explanation":"The /compact command is a manual override that compacts context on demand, regardless of the current threshold. This lets you proactively manage context when needed."}]
+---
+## What it does
+
+`autoCompactThreshold` is a setting that automatically summarizes and compresses your conversation history when the session reaches a certain percentage of the context window. When this threshold is crossed, Claude Code silently runs a compaction pass: recent context remains available, older exchanges get summarized into a compact recap, and unused information gets pruned. This keeps your conversation running smoothly without you having to manually invoke `/compact`.
+
+The default is typically 85%, meaning compaction kicks in when you've used 85% of the available context. At that point, the harness automatically summarizes what's happened so far, preserving critical facts while discarding verbose explanations, backtracking, and clarifications that are no longer load-bearing.
+
+## When to use it
+
+Lowering `autoCompactThreshold` (to 75%, for example) makes sense if you're working on a long, exploratory task where context churn is constant—say, deep code investigation across a large codebase, or a multi-file refactor with many back-and-forth decisions. Compacting earlier leaves more headroom and prevents you from unexpectedly hitting the wall mid-conversation.
+
+Raising it (to 90%+) works if you're doing short, focused tasks that rarely approach the context limit. You keep more raw history visible for longer, which can be helpful if you need to reference exact phrasing from an earlier exchange.
+
+The trade-off: lower threshold = more compact summaries, less raw history visible when reviewing; higher threshold = more verbosity preserved, but you risk running out of room mid-thought. Neither is a perfect answer—tune it to match how you work.
+
+## Try it yourself
+
+Check your `~/.claude/settings.json` file and look for `autoCompactThreshold`. If it's not there, the default (85%) is in effect. Open a long, multi-topic conversation with Claude Code—something with at least 10–15 exchanges—and watch the context window indicator in the UI. When you cross the threshold, a compaction happens automatically. Now try lowering the threshold to 70% and repeat a similar conversation; you'll see compaction kick in earlier and more aggressively.
+
+## Gotchas
+
+Setting `autoCompactThreshold` too low (say, 60%) will cause frequent, aggressive compactions that lose nuance fast. You might ask about a decision made 20 messages ago and get a vague summary instead of the specifics that led to it.
+
+Conversely, setting it too high (95%+) defeats the purpose—you're basically relying on manual `/compact` to save you, and you might run out of context before the automatic trigger fires.
+
+Remember: `autoCompactThreshold` is **automatic and silent**. The manual `/compact` command is **explicit and immediate**—useful when you know you're about to start a completely new topic and want to start fresh right now without waiting for the threshold. They're not competing; `autoCompactThreshold` is a safety net; `/compact` is a deliberate floor sweep when you sense context bloat.
