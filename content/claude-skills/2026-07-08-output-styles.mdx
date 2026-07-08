@@ -1,0 +1,48 @@
+---
+title: "Output styles — Tune verbosity"
+date: "2026-07-08"
+excerpt: "You'll learn how to dial Claude's output verbosity up or down—from terse single-line answers to comprehensive multi-paragraph breakdowns. In AI workflows, calibrating verbosity cuts wasted tokens, keeps context focused, and ensures you get exactly the level of detail each task needs."
+tags: ["Claude Code", "AI Workflow", "settings"]
+topics: ["outputStyle", "settings"]
+coverEmoji: "🌳"
+category: "settings"
+short_label: "Styles"
+tier: 2
+position:
+  x: 920
+  y: 320
+prerequisites:
+  - config-tune-claude-code
+docs_url: "https://code.claude.com/docs/en/settings"
+xp_reward: 30
+video_ids:
+  - ntDIxaeo3Wg
+  - uogzSxOw4LU
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: Output styles — Tune verbosity'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: 'outputStyle'
+  successOutput: '✓ Recognised: outputStyle
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"How do you change your output style mid-session in Claude Code?","options":["Use the /style command to instantly switch between presets or custom styles","Edit settings.json and restart Claude Code to apply a new style","Output styles can only be configured at session start, not mid-conversation","Right-click on a response and select 'Change Output Style' from the context menu"],"answer":0,"explanation":"The /style command enables real-time switching between output style presets without losing context or restarting. This is the primary way to tune verbosity on-the-fly during active work."},{"q":"You're doing a code review and need comprehensive explanations of issues. Which output style best fits?","options":["Concise or Terse—to get straight to the point with minimal text","Debug—designed specifically for code review workflows","Detailed or Technical—to receive fuller reasoning and context about issues","Minimal—the most filtered style for distraction-free reviews"],"answer":2,"explanation":"Detailed and technical styles provide the in-depth reasoning and context that code review benefits from. Concise/terse styles are better for quick fixes or debugging where brevity is preferred."},{"q":"What's a common mistake developers make with output styles?","options":["They set a style once and rarely switch, missing the benefit of tuning for different tasks","They create so many custom styles that context and coherence become confusing","They switch styles too frequently within a single task, fragmenting responses","They assume switching styles will retroactively reformat their entire conversation history"],"answer":0,"explanation":"Output styles are designed to be switched mid-session for different contexts. Many developers configure a style once and forget the feature exists, missing opportunities to optimize verbosity for their current work."}]
+---
+## What it does
+
+Output styles control how verbose Claude's responses are. Claude Code ships with three presets — **terse** (one-line answers to direct questions), **balanced** (default: explanations when needed, brief when not), and **verbose** (full reasoning and walkthrough). You can also create custom styles that dial in exactly how much detail you want, and switch between them mid-session without restarting — one message terse, the next verbose, whatever fits the task.
+
+## When to use it
+
+Use **terse** when you want quick answers: a one-liner explaining what a file does, or "yes, that's the right approach." Use **balanced** (the default) for most work — it adapts: short replies for straightforward questions, longer ones when the task is complex or you're learning something new. Use **verbose** when you're debugging a tricky issue and want to see the agent's full reasoning, or when you're being taught and want comprehensive explanations with examples.
+
+Mid-session switching is powerful. You might start a feature build in balanced mode (efficient), hit a confusing bug, switch to verbose to see the diagnostic reasoning, then flip back to terse once you understand the problem and just want quick answers while fixing it.
+
+## Try it yourself
+
+Open `/config` in Claude Code and navigate to the output style setting — you'll see the presets and an option to create a custom style by picking a base tone (minimal, concise, conversational, detailed) and optional tweaks for verbosity, examples, and reasoning transparency. Try switching between terse and verbose on the same type of question (e.g., "is this code correct?") in two separate messages to feel the difference. Once you find a preference, set it as your default; if you need something different for a specific task, type `/config` again mid-session to change it.
+
+## Gotchas
+
+Output styles apply only to new responses — they don't retroactively reformat messages already sent, so don't expect to switch styles and see earlier answers condense. Styles also don't affect tool output (file contents, `git diff`, test results) — only Claude's prose around those outputs. If you create a custom style and save it, it's remembered across sessions, but if you flip between presets rapidly ("terse for this one, verbose for that one"), the last one you pick sticks until you change it again — easy to forget you're in terse mode and wonder why Claude isn't giving you explanations. Finally, verbose mode can feel slow if you're used to terse; it's not actually slower (same model, same latency), just longer to read, so don't mistake verbosity for lag.
