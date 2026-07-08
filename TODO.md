@@ -2751,3 +2751,34 @@ Verifications done today:
 - 2026-06-16 streaming try/catch items at lines 2318/2319 — STILL unfixed (`interview/mentor:146-153`, `interview/evaluate:91-99`); adopt the `cover-letter/route.ts:139-149` `try { for await } catch (err) { controller.error(err) }` pattern verbatim.
 - 2026-06-13 email try/catch items at lines 2294/2297 — STILL unfixed (`admin/job-listings:84`, `stripe/webhook:89`).
 - 2026-06-15 SVG aria-label items at lines 182/183 — STILL unfixed (`PostHeatmap.tsx:234`, `JobMarketCharts.tsx:134,214,277`).
+
+---
+
+## 🛡 Daily Analyst Findings — 2026-07-08
+
+> Fresh scan — `tsc --noEmit` clean, `npm audit --audit-level=moderate` clean (`0 vulnerabilities`, second consecutive day green since 2026-07-06's `4a336f5` audit-fix commit). Deploy gate holding stable. Every 2026-07-07 reminder re-verified unfixed against current source (10 open reminders including yesterday's fresh `hello@gradland.au` inconsistency at line 2742). Today's sweep surfaces one genuinely new admin-UI correctness bug.
+>
+> Verifications done today:
+> - `app/api/comments/route.ts` verified clean: `.limit(500)` at line 23, `content` capped at 2000 chars at line 48, `parent_id` UUID-validated at line 43.
+> - `app/api/alerts/route.ts` verified clean: `.limit(100)` at line 15, `keywords`/`location` truncated to 200/100 chars at lines 32-33, DELETE UUID-validated at line 58.
+> - Every Claude-calling AI route (16/16) still has `requireSubscription()` + `checkEndpointRateLimit()`.
+> - Every mutating handler still asserts `assertSameOrigin()` (with `account/delete` still the CSRF-ordering outlier tracked at line 2450).
+> - No new `console.log` leaks in production code (`app/api/jobs/route.ts:662,701,751` remain correctly gated behind `NODE_ENV !== 'production'`).
+> - Env-var inventory matches `.env.example` — 24 used in `app`+`lib` (all documented; `NEXT_PUBLIC_LOGO_DEV_TOKEN`, `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_RELEASE` live outside the `app`/`lib` grep window but present in `.env.example`).
+> - `find` scan of Supabase `.from()` sites without `.limit()`: 17 files, but each verified as single-row lookup (`.maybeSingle()`/`.eq(user_id)`) or `upsert()`/`insert()`/`delete()` — none are unbounded list reads. No new missing-limit findings.
+> - Yesterday's finding (`hello@gradland.au` in 3 sites: `post-a-role/success/page.tsx:62,65` + `post-a-role/page.tsx:38`) re-verified STILL OPEN.
+
+### Code Quality (admin correctness — banUser ignores response status)
+- [ ] Guard the state update in `banUser` at `app/admin/users/page.tsx:52-53` with `if (res.ok)` before setting `role: 'banned'` — the DELETE call currently updates the UI unconditionally, so a 400 (self-ban attempt via `DELETE /api/admin/users/[id]` returning `"Cannot ban yourself"` at `route.ts:46`), 403 (session expired), or 500 (`post_comments.delete` failure at `route.ts:50-51`) all leave the row rendering the banned pill even though the server rejected the operation; then any subsequent action button reads a stale role. Contrast the correct pattern one file over at `app/admin/comments/page.tsx:39-41` (`if (res.ok) setComments(...)`) — same 3-line fix, plus a `setError('Failed to ban user')` fallback in the else branch so the admin isn't left guessing why the pill "flickered back". [quality]
+
+### Reminders (still-open backlog items confirmed today — 10 unfixed, +1 since 2026-07-07 for yesterday's new `hello@gradland.au` outlier at line 2742)
+- 2026-07-07 `hello@gradland.au` → `admin@gradland.au` consistency item at line 2742 — STILL unfixed; 3-line change with quiet revenue-adjacent bounce risk on the paid post-a-role success page.
+- 2026-07-04 `/api/jobs` external-fetch timeout items at lines 2648-2652 — **HIGHEST PRIORITY** — `AbortSignal.timeout()` still absent at the 5 upstream `fetch()` call-sites (`app/api/jobs/route.ts:228,315,354,498,537` verified today via `grep -c 'AbortSignal.timeout' app/api/jobs/route.ts` = 0).
+- 2026-07-03 external-fetch timeout + dead-import items at lines 2623-2626.
+- 2026-06-24 `rateLimitResponse` canonical-import item at line 2447 — STILL unfixed (`resume-match/route.ts:5`, `learn/analyse/route.ts:4`, `visa/pathway/route.ts:3` still import from `'@/lib/auth-server'`); 3-line fix.
+- 2026-06-24 `account/delete` CSRF-ordering item at line 2450 — STILL unfixed (`assertSameOrigin` still appears at line 11 AFTER `sb.auth.getUser()` at line 8); 1-line move.
+- 2026-06-19 contact-route Sentry-capture + channel-videos pageToken-validator items at lines 2359/2360 — STILL unfixed.
+- 2026-06-18 terminal-lab contrast items at lines 2341-2344 — STILL unfixed (21 days, six text spans).
+- 2026-06-16 streaming try/catch items at lines 2318/2319 — STILL unfixed (adopt the `cover-letter/route.ts:139-149` pattern verbatim).
+- 2026-06-13 email try/catch items at lines 2294/2297 — STILL unfixed (`admin/job-listings:84`, `stripe/webhook:89`).
+- 2026-06-15 SVG aria-label items at lines 182/183 — STILL unfixed (`PostHeatmap.tsx:234`, `JobMarketCharts.tsx:134,214,277`).
