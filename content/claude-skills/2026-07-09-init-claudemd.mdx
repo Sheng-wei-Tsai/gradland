@@ -1,0 +1,77 @@
+---
+title: "/init — Generate CLAUDE.md in one command"
+date: "2026-07-09"
+excerpt: "The /init command generates a complete CLAUDE.md file documenting your stack, conventions, security rules, and anti-patterns in one command. This ensures every AI agent and developer shares the same project playbook—no divergent implementations, no tribal knowledge getting lost."
+tags: ["Claude Code", "AI Workflow", "memory"]
+topics: ["/init", "memory"]
+coverEmoji: "🌳"
+category: "memory"
+short_label: "/init"
+tier: 1
+position:
+  x: 320
+  y: 80
+prerequisites:
+  - help-command
+docs_url: "https://code.claude.com/docs/en/memory"
+xp_reward: 30
+video_ids:
+  - i_OHQH4-M2Y
+  - ntDIxaeo3Wg
+auto_generated: true
+ai_enriched: true
+terminal_scenario:
+  prompt: 'Try the command for: /init — Generate CLAUDE.md in one command'
+  hint: 'Need a nudge? The command starts with the symbol shown in the title.'
+  match: 'exact'
+  expectedInput: '/init'
+  successOutput: '✓ Recognised: /init
+Good. Review the gotchas above before you use this in a real session.'
+quiz: [{"q":"What is the primary purpose of the /init skill in Claude Code?","options":["Initialize a new Git repository and configure remote origin","Auto-generate a CLAUDE.md codebase documentation file by scanning project structure","Create a package.json with recommended dependencies for the project","Set up GitHub Actions workflows for continuous deployment"],"answer":1,"explanation":"/init scans your codebase structure, config files, and code patterns to generate an initial CLAUDE.md file that documents conventions and project rules. It jumpstarts documentation for new projects without manual authoring."},{"q":"After running /init and generating CLAUDE.md, what files should you typically review or refine?","options":["Only the generated CLAUDE.md; it is final and requires no changes","The generated CLAUDE.md to customize it with your team's workflow rules, stack details, and project-specific conventions","Git history and package-lock.json to ensure they match the generated content","All source files to rename them to match CLAUDE.md conventions"],"answer":1,"explanation":"/init generates a starting point, but CLAUDE.md is meant to be a living document. You should review and refine it to reflect your actual stack, team practices, security rules, and project-specific workflows—making it the authoritative guide for contributors."},{"q":"What common mistake should you avoid when using /init?","options":["Running /init more than once on the same project (it will duplicate content)","Treating the generated CLAUDE.md as a final, read-only artifact instead of a starting point for refinement","Using /init before creating a README.md in your project","Running /init on a project without a .git directory"],"answer":1,"explanation":"/init creates an initial draft based on detected patterns, but it is not comprehensive or perfectly tuned to your team. Mistakes arise from accepting it as-is without customizing sections on auth, styling rules, commit conventions, or security policies specific to your workflow."}]
+---
+## What it does
+
+`/init` scans your entire codebase and generates a baseline `CLAUDE.md` — the instruction file that tells Claude Code (and any AI working on your repo) your project's rules, stack, conventions, and structure. It reads:
+
+- `package.json` and lock files (extracts dependencies, build scripts, Node version)
+- `tsconfig.json` / `eslint.config.js` / linting setup (strictness rules, language targets)
+- Directory structure and README (if one exists)
+- A sample of your source files (to infer patterns: naming, folder conventions, styling approach)
+- CI config (`.github/workflows/`, build pipeline)
+- Dockerfile, docker-compose, environment file templates
+
+From this, it synthesizes:
+- Tech stack and version baselines
+- Language and style rules (TypeScript strictness, naming conventions, import patterns)
+- Key architectural patterns (where data flows, how auth works, API conventions)
+- Pre-commit / deployment workflows
+- Security guardrails already in place
+- Accessibility and performance standards
+
+The output is a readable, structured CLAUDE.md with sections on stack, rules, anti-patterns, and commit protocol. It's a starting point — not gospel.
+
+## When to use it
+
+**New project:** Onboard a fresh codebase to Claude Code in under a minute. Beats writing CLAUDE.md from scratch.
+
+**Existing project without CLAUDE.md:** Retrofit one. The scan finds patterns already baked into your code (even if undocumented) and writes them down so they stay consistent.
+
+**Periodic refresh:** Run it quarterly. If your stack evolved but CLAUDE.md didn't, `/init` re-scans and surfaces gaps.
+
+Do NOT use it on a tiny hobby project where you're comfortable keeping rules in your head — the overhead isn't worth it. Do use it on anything with multiple files, a team, or rules you want enforced.
+
+## Try it yourself
+
+Open your project in Claude Code, run `/init` from the terminal, and watch it scan the codebase. The agent will print a summary of what it found (dependencies, structure, inferred rules) and ask whether to write the generated CLAUDE.md. Read the output and edit it before committing — the generated version is smart but incomplete; add your product requirements, non-obvious conventions, and security rules that the code alone doesn't reveal.
+
+## Gotchas
+
+**The scan can miss context.** If your build system is baroque (custom tsc wrapper, polyrepo with shared config), the agent might misread it. Always review the generated CLAUDE.md against your actual practices.
+
+**It reads a sample, not all code.** If your project has 500 components but only 20 get scanned, style rules inferred from that sample might not apply everywhere. Spot-check and add clarifications.
+
+**No project history.** The scan doesn't know why you chose Go over Rust, or why you don't use Tailwind — it only sees the end state. Add a "Why this stack" section if decisions matter.
+
+**Generated rules are generic.** Rules about rate limits, RLS patterns, or deployment gates live in your business logic, not the file structure. You'll always hand-write those parts.
+
+Start with `/init`, then invest 10 minutes refining: add a product statement, your team's coding philosophy, any security non-negotiables, and the commit protocol you actually enforce. That's a CLAUDE.md that sticks.
