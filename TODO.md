@@ -2782,3 +2782,43 @@ Verifications done today:
 - 2026-06-16 streaming try/catch items at lines 2318/2319 — STILL unfixed (adopt the `cover-letter/route.ts:139-149` pattern verbatim).
 - 2026-06-13 email try/catch items at lines 2294/2297 — STILL unfixed (`admin/job-listings:84`, `stripe/webhook:89`).
 - 2026-06-15 SVG aria-label items at lines 182/183 — STILL unfixed (`PostHeatmap.tsx:234`, `JobMarketCharts.tsx:134,214,277`).
+
+## 🛡 Daily Analyst Findings — 2026-07-09
+
+> Fresh scan — `tsc --noEmit` clean, `npm audit --audit-level=moderate` clean (`0 vulnerabilities`, 3rd consecutive day green). Deploy gate holding. Yesterday's `banUser` correctness item at line 2772 re-verified STILL OPEN (grep for `if (res.ok)` in `app/admin/users/page.tsx:52-53` still finds no guard).
+>
+> Verifications today:
+> - Every Claude/OpenAI-calling AI route (16/16) still has `requireSubscription()` + `checkEndpointRateLimit()`.
+> - All routes with `.from()` sans `.limit()` re-verified as single-row (`maybeSingle()`) or `insert`/`upsert`/`delete` — none unbounded.
+> - `.env.example` matches `process.env.*` usage across `app`/`lib`/`sentry.*.config.ts` — no drift.
+> - Existing `TODO.md` items at lines 2321-2322 (stream loop try/catch on `interview/mentor:146-153` + `interview/evaluate:91-99`) re-verified STILL OPEN.
+> - `hello@gradland.au` outlier at 2742 re-verified STILL OPEN.
+> - Terminal-lab contrast items 2344-2347 re-verified STILL OPEN.
+>
+> Today's sweep surfaces a genuinely new pattern gap: **OpenAI SDK `chat.completions.create()` calls have no per-request timeout** at 7 sites across paid AI routes. Contrast the correct pattern at `cover-letter/route.ts:130` (`{ signal: AbortSignal.timeout(45000) }`) and `interview/chat/route.ts:68` (30s). Same failure mode as the tracked `fetch()` sweep on `app/api/jobs/route.ts` (items 2648-2655): a hung upstream (OpenAI edge stall, network drop between Vercel and OpenAI) blocks the serverless invocation until Vercel's 60s function limit fires, wasting invocation quota and leaving the client staring at a spinner. Explicit per-request `AbortSignal.timeout()` makes the failure fast and observable via Sentry.
+
+### Performance — OpenAI SDK call timeouts (whole-file sweep, matches cover-letter:130 + interview/chat:68 pattern)
+- [ ] Add `{ signal: AbortSignal.timeout(45000) }` as second arg to `client.chat.completions.create({...})` at `app/api/interview/questions/route.ts:122-127` — non-streaming call generating 10 questions with `max_tokens: 2000`, longest expected latency in this sweep (45s matches `cover-letter/route.ts:130`); highest-value path (every "Start interview prep" click hits this before the fresh-generate branch), so a hung upstream burns a Vercel invocation until the 60s serverless timeout fires and returns a generic 502; explicit timeout also lets the outer `catch { return 502 }` at line 145 fire in <45s so Sentry captures a distinct AbortError signature instead of the platform's opaque function-timeout event [perf]
+- [ ] Add `{ signal: AbortSignal.timeout(30000) }` as second arg to `client.chat.completions.create({...})` at `app/api/interview/mentor/route.ts:135-142` — streaming call with `max_tokens: 200`; 30s matches sibling `interview/chat/route.ts:68`; pairs with the existing stream-loop try/catch item at TODO line 2321 (they're different fixes — this one bounds the initial connect + first-token time before the readable stream is even constructed) [perf]
+- [ ] Add `{ signal: AbortSignal.timeout(30000) }` as second arg to `client.chat.completions.create({...})` at `app/api/interview/evaluate/route.ts:80-87` — streaming call with `max_tokens: 350`; identical fix shape to the mentor route; pairs with existing item TODO line 2322 [perf]
+- [ ] Add `{ signal: AbortSignal.timeout(30000) }` as second arg to `client.chat.completions.create({...})` at `app/api/gap-analysis/route.ts:157-162` — non-streaming call with `max_tokens: 400`; user-facing job-to-gap flow, hit from `/jobs` deep-links; existing 5/day rate limit already caps blast radius but per-request cap protects the invocation quota [perf]
+- [ ] Add `{ signal: AbortSignal.timeout(30000) }` as second arg to `client.chat.completions.create({...})` at `app/api/diagrams/generate/route.ts:80-88` — non-streaming call with `max_tokens: 600`; 10/day limit but per-request cap still worth it [perf]
+- [ ] Add `{ signal: AbortSignal.timeout(30000) }` as second arg to `client.chat.completions.create({...})` at `app/api/learn/roadmap-image/route.ts:67-75` — non-streaming call with `max_tokens: 700`; 2/day limit but same rationale [perf]
+- [ ] Add `{ signal: AbortSignal.timeout(30000) }` as second arg to `openai.chat.completions.create({...})` at `app/api/learn/quiz/route.ts:93-97` — non-streaming call with `max_completion_tokens: 1024` (note: this file uses the newer `max_completion_tokens` param — leave that alone, only add the signal); hit from every "Take quiz" click on a video page [perf]
+- [ ] Add `{ signal: AbortSignal.timeout(30000) }` as second arg to `openai.chat.completions.create({...})` at `app/api/analytics/ai-insights/route.ts:83-88` — non-streaming GPT-4o (not mini) call with `max_tokens: 1200`; admin-only, lowest urgency in this sweep but completes the file-wide convention so `app/api/*` becomes a consistent internal reference for "OpenAI SDK calls always have a signal" (mirrors how the `fetch()` sweep at TODO 2648-2655 was scoped to be file-complete for future citation) [perf]
+
+### Documentation (minor — AGENTS.md §5.6 lists an env var that is never actually referenced)
+- [ ] Remove the `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` bullet from `AGENTS.md` §5.6 "Currently exposed (intentionally)" list — grep across `app/`, `lib/`, `components/`, `scripts/` finds zero references (the app uses Stripe Checkout redirect flow, not Elements, so the publishable key is never needed client-side); listing an unused env var as "currently exposed" is misleading and could push a future contributor to add it to `.env.example` (where it also does not appear) or wire it into a component that doesn't need it; one-line delete [docs]
+
+### Reminders (still-open backlog items confirmed today — 11 unfixed, +1 since 2026-07-08 for yesterday's new `banUser` correctness bug at line 2772)
+- 2026-07-08 `banUser` unconditional state update at line 2772 — STILL unfixed; 3-line change plus error toast.
+- 2026-07-07 `hello@gradland.au` → `admin@gradland.au` consistency item at line 2742 — STILL unfixed.
+- 2026-07-04 `/api/jobs` external-fetch timeout items at lines 2648-2652 — **HIGHEST PRIORITY** — still 0 `AbortSignal.timeout` occurrences in `app/api/jobs/route.ts`.
+- 2026-07-03 external-fetch timeout + dead-import items at lines 2623-2626.
+- 2026-06-24 `rateLimitResponse` canonical-import item at line 2447 — STILL unfixed.
+- 2026-06-24 `account/delete` CSRF-ordering item at line 2450 — STILL unfixed.
+- 2026-06-19 contact-route Sentry-capture + channel-videos pageToken-validator items at lines 2359/2360.
+- 2026-06-18 terminal-lab contrast items at lines 2341-2344.
+- 2026-06-16 streaming try/catch items at lines 2318/2319.
+- 2026-06-13 email try/catch items at lines 2294/2297.
+- 2026-06-15 SVG aria-label items at lines 182/183.
