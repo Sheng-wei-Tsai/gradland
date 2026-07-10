@@ -1,17 +1,18 @@
 name: Deploy to Vercel
 
+# Quality + security gate. Vercel's native Git integration deploys main on its
+# own; this workflow is the gate that branch protection makes REQUIRED, so no
+# code merges to main (and therefore deploys) without passing it. The old
+# `deploy` job that ran `vercel --prod` was redundant with Vercel's native
+# deploy and has been removed (see docs/DEPLOY_HARDENING.md).
+
 on:
-  # Triggered by a real user push to main
+  # Real user push to main (GITHUB_TOKEN bot pushes don't fire this — by design;
+  # bot changes go through PRs once branch protection is on).
   push:
     branches: [main]
-  # PRs to main — bot post branches need the check to pass before auto-merge
+  # PRs to main — the required check that auto-merge waits on.
   pull_request:
-    branches: [main]
-  # Triggered after the daily-posts bot pushes (GITHUB_TOKEN pushes don't
-  # fire the `push` event above, so we listen for the workflow completing)
-  workflow_run:
-    workflows: ["Daily Posts"]
-    types: [completed]
     branches: [main]
   workflow_dispatch:
 
@@ -20,15 +21,10 @@ permissions:
   pull-requests: read
 
 jobs:
-  # ── Quality gate — must pass before Vercel deploys ──────────────────────────
+  # ── Quality gate — required by branch protection before merge ───────────────
   check:
     name: Security & Build Check
     runs-on: ubuntu-latest
-    if: >
-      github.event_name == 'push' ||
-      github.event_name == 'pull_request' ||
-      github.event_name == 'workflow_dispatch' ||
-      github.event.workflow_run.conclusion == 'success'
     steps:
       - uses: actions/checkout@v5
 
@@ -65,29 +61,3 @@ jobs:
           NEXT_PUBLIC_APP_URL: https://gradland.au
           NEXT_PUBLIC_LOGO_DEV_TOKEN: ${{ secrets.NEXT_PUBLIC_LOGO_DEV_TOKEN }}
         run: npm run build
-
-  # ── Deploy — check passes + owner approves in GitHub UI ─────────────────────
-  deploy:
-    name: Deploy to Vercel
-    runs-on: ubuntu-latest
-    needs: check          # hard dependency — deploy never runs if check fails
-    if: github.event_name != 'pull_request'   # never deploy from a PR — only from main
-    environment: Production  # pauses here — Sheng-wei-Tsai must click Approve in GitHub
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          ref: main
-
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 22
-          cache: npm
-
-      - run: npm ci
-
-      - name: Deploy to Vercel
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: npx vercel --prod --token "$VERCEL_TOKEN" --yes
