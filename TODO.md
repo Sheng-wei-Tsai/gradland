@@ -2822,3 +2822,39 @@ Verifications done today:
 - 2026-06-16 streaming try/catch items at lines 2318/2319.
 - 2026-06-13 email try/catch items at lines 2294/2297.
 - 2026-06-15 SVG aria-label items at lines 182/183.
+
+---
+
+## 🛡 Daily Analyst Findings — 2026-07-10
+
+> Fresh scan — `tsc --noEmit` clean, `npm audit --audit-level=moderate` clean (`0 vulnerabilities`, 4th consecutive day green). Deploy gate holding.
+>
+> Verifications today:
+> - Yesterday's OpenAI SDK timeout sweep at TODO 2801-2807 (8 sites, `interview/{questions,mentor,evaluate}`, `gap-analysis`, `diagrams/generate`, `learn/{roadmap-image,quiz,diagram}`, `analytics/ai-insights`) re-verified STILL OPEN — `grep AbortSignal.timeout` in each still returns nothing.
+> - `/api/jobs` external-fetch timeout items at TODO 2648-2652 re-verified STILL OPEN (0 `AbortSignal.timeout` in `app/api/jobs/route.ts`, 5 unguarded `fetch(...)` calls).
+> - `banUser` correctness at TODO line 2772, `hello@gradland.au` outlier at 2742, terminal-lab contrast 2344-2347, `rateLimitResponse` canonical-import 2450, `account/delete` CSRF-ordering 2453 — all re-verified STILL OPEN.
+> - Every Claude/OpenAI-calling AI route (16/16) still has `requireSubscription()` + `checkEndpointRateLimit()`.
+> - `.env.example` matches `process.env.*` usage across `app`/`lib`/`sentry.*.config.ts` — no drift.
+> - No new `force-dynamic` regressions on static pages; no new raw `<img>` tags; no new leaked `console.log` in production code (the three at `app/api/jobs/route.ts:662,701,751` are guarded by `process.env.NODE_ENV !== 'production'`).
+>
+> Today's sweep surfaces **four new sites** that extend yesterday's SDK-timeout convention to complete file coverage: yesterday's item at TODO 2801-2807 was labeled "whole-file sweep" but scoped only OpenAI SDK calls in the 8 files it named — it missed two additional OpenAI SDK sites (`resume-match:78`, `learn/diagram:57`) AND both Anthropic SDK `messages.create()` sites (`companies/research:125`, `resume-analyse:110`). All four are paid AI routes behind `requireSubscription()`; same failure mode (a hung upstream stalls the serverless invocation until Vercel's 60s function limit fires); same fix shape (append a second `RequestOptions` argument with `signal: AbortSignal.timeout(N)`). `@anthropic-ai/sdk` accepts `RequestOptions` as the second positional argument to `messages.create()` (see the SDK's `Anthropic.RequestOptions` type export), mirroring OpenAI's SDK contract, so the fix pattern is byte-for-byte identical to yesterday's — this is what makes the file-wide convention worth completing today rather than leaving as ad-hoc drift.
+
+### Performance — AI SDK call timeouts (finish yesterday's convention — 4 sites missed by 2026-07-09 sweep)
+- [ ] Add `{ signal: AbortSignal.timeout(30000) }` as second arg to `client.chat.completions.create({...})` at `app/api/resume-match/route.ts:78-83` — non-streaming call with `max_tokens: 1000`, `response_format: { type: 'json_object' }`; this is a paid `requireSubscription()` + `checkEndpointRateLimit('resume-match')` route missed by yesterday's TODO 2801-2807 whole-file sweep (the sweep enumerated 8 files by name but didn't include this one); hit from the resume-match tool where a user pastes a JD and gets ATS keyword match; same failure mode as sibling routes — a hung OpenAI upstream stalls the invocation until the 60s serverless timeout fires and the outer `catch { return 502 }` at line 84 never runs; 30s matches the convention set by `interview/chat:68` and `interview/evaluate` (per yesterday's fix) [perf]
+- [ ] Add `{ signal: AbortSignal.timeout(30000) }` as second arg to `client.chat.completions.create({...})` at `app/api/learn/diagram/route.ts:57-65` — non-streaming call with `max_tokens: 500`, `temperature: 0.3`, `model: 'gpt-4o-mini'`; second OpenAI SDK site missed by yesterday's whole-file sweep (yesterday's TODO 2805 covered `diagrams/generate/route.ts:80-88` but not `learn/diagram/route.ts:57` — these are TWO different Mermaid-generation routes: `learn/diagram` powers the per-skill flowchart in `PathTracker`, while `diagrams/generate` powers the standalone "Generate a diagram" tool); same fix shape [perf]
+- [ ] Add `{ signal: AbortSignal.timeout(45000) }` as second arg to `anthropic.messages.create({...})` at `app/api/companies/research/route.ts:125-130` — non-streaming Claude Sonnet call with `max_tokens: 1800` (longest allowed of the two Anthropic sites), 45s matches `cover-letter/route.ts:130` for high-token non-streaming; `@anthropic-ai/sdk` accepts `RequestOptions` (which includes `signal`) as its second positional argument — the SDK exports `Anthropic.RequestOptions` for this exact purpose so no cast needed; hit from every `/companies/[slug]/research` deep-link, a paid interactive feature with 10/day per-user cap that still needs the per-request timeout to prevent invocation-quota burn on a stalled upstream [perf]
+- [ ] Add `{ signal: AbortSignal.timeout(45000) }` as second arg to `client.messages.create({...})` at `app/api/resume-analyse/route.ts:110-129` — non-streaming Claude Sonnet PDF-document call with `max_tokens: 2048`; the message body already includes a `type: 'document'` PDF up to 5 MB (validated at line 101), so Claude's edge processing time can approach the 45s ceiling under load — matches `cover-letter/route.ts:130`'s 45s exactly; identical `Anthropic.RequestOptions` positional-arg fix as the `companies/research` item above; completes the "every AI SDK call in `app/api/*` has an explicit per-request signal" convention so the codebase becomes a consistent internal reference for future contributors [perf]
+
+### Reminders (still-open backlog items confirmed today — 15 unfixed, +4 since 2026-07-09 from today's own resume-match/learn-diagram/companies-research/resume-analyse findings, all rolled forward)
+- 2026-07-09 OpenAI SDK timeout sweep at lines 2801-2807 (8 sites) — STILL unfixed, 1 day old.
+- 2026-07-08 `banUser` unconditional state update at line 2772 — STILL unfixed; 3-line change plus error toast.
+- 2026-07-07 `hello@gradland.au` → `admin@gradland.au` consistency item at line 2742 — STILL unfixed.
+- 2026-07-04 `/api/jobs` external-fetch timeout items at lines 2648-2652 — **HIGHEST PRIORITY** — still 0 `AbortSignal.timeout` occurrences in `app/api/jobs/route.ts`.
+- 2026-07-03 external-fetch timeout + dead-import items at lines 2623-2626.
+- 2026-06-24 `rateLimitResponse` canonical-import item at line 2447 — STILL unfixed.
+- 2026-06-24 `account/delete` CSRF-ordering item at line 2450 — STILL unfixed.
+- 2026-06-19 contact-route Sentry-capture + channel-videos pageToken-validator items at lines 2359/2360.
+- 2026-06-18 terminal-lab contrast items at lines 2341-2344.
+- 2026-06-16 streaming try/catch items at lines 2318/2319.
+- 2026-06-13 email try/catch items at lines 2294/2297.
+- 2026-06-15 SVG aria-label items at lines 182/183.
