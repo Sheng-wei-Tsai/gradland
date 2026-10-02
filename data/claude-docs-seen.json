@@ -143,6 +143,7 @@
     "https://code.claude.com/docs/en/plugins/mods/api",
     "https://code.claude.com/docs/en/plugins/mods/create",
     "https://code.claude.com/docs/en/plugins/mods/events",
+    "https://code.claude.com/docs/en/plugins/mods/gallery",
     "https://code.claude.com/docs/en/plugins/mods/interface",
     "https://code.claude.com/docs/en/plugins/mods/overview",
     "https://code.claude.com/docs/en/plugins/mods/reference",
@@ -219,5 +220,5 @@
     "https://code.claude.com/docs/en/worktrees",
     "https://code.claude.com/docs/en/zero-data-retention"
   ],
-  "lastChecked": "2026-10-01T22:00:48.867Z"
+  "lastChecked": "2026-10-02T22:01:10.902Z"
 }
