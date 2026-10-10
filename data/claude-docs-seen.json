@@ -42,6 +42,7 @@
     "https://code.claude.com/docs/en/analytics",
     "https://code.claude.com/docs/en/artifacts",
     "https://code.claude.com/docs/en/authentication",
+    "https://code.claude.com/docs/en/auto-mode-classifier-billing",
     "https://code.claude.com/docs/en/auto-mode-config",
     "https://code.claude.com/docs/en/best-practices",
     "https://code.claude.com/docs/en/champion-kit",
@@ -221,5 +222,5 @@
     "https://code.claude.com/docs/en/worktrees",
     "https://code.claude.com/docs/en/zero-data-retention"
   ],
-  "lastChecked": "2026-10-08T22:00:52.940Z"
+  "lastChecked": "2026-10-10T22:00:53.112Z"
 }
