@@ -65,6 +65,12 @@
     "https://code.claude.com/docs/en/cli-reference",
     "https://code.claude.com/docs/en/cloud-environments",
     "https://code.claude.com/docs/en/code-review",
+    "https://code.claude.com/docs/en/code-review-costs",
+    "https://code.claude.com/docs/en/code-review-customize",
+    "https://code.claude.com/docs/en/code-review-local",
+    "https://code.claude.com/docs/en/code-review-pull-requests",
+    "https://code.claude.com/docs/en/code-review-setup",
+    "https://code.claude.com/docs/en/code-review-troubleshooting",
     "https://code.claude.com/docs/en/commands",
     "https://code.claude.com/docs/en/common-workflows",
     "https://code.claude.com/docs/en/communications-kit",
@@ -222,5 +228,5 @@
     "https://code.claude.com/docs/en/worktrees",
     "https://code.claude.com/docs/en/zero-data-retention"
   ],
-  "lastChecked": "2026-10-14T22:01:20.677Z"
+  "lastChecked": "2026-10-15T22:01:12.164Z"
 }
